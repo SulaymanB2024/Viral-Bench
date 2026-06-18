@@ -1,0 +1,15 @@
+{
+  "name": "lightreel-marketing-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-contained agent that researches fitness short-form, generates imagery, and builds a Doublespeed slideshow draft.",
+  "scripts": {
+    "auth": "tsx marketing-agent.ts auth",
+    "start": "tsx marketing-agent.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

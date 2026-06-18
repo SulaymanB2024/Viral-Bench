@@ -1,0 +1,4 @@
+node_modules/
+.doublespeed-tokens.json
+.marketing-agent-runs.json
+.env
