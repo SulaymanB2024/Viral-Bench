@@ -39,7 +39,7 @@ const LIGHTREEL_API_KEY = process.env.LIGHTREEL_API_KEY || '';
 const LIGHTREEL_API_URL = process.env.LIGHTREEL_API_URL || 'https://api.lightreel.ai/v1/chat';
 const SCRAPE_CREATORS_API_KEY = process.env.SCRAPE_CREATORS_API_KEY || '';
 
-// Token + notes files live next to THIS script, so it's portable — drop the file anywhere.
+// Token + local run/notes files live next to THIS script, so it's portable — drop the file anywhere.
 const TOKEN_FILE = path.join(__dirname, '.doublespeed-tokens.json');
 const SNAPSHOT_FILE = path.join(__dirname, '.marketing-agent-runs.json');
 
@@ -65,7 +65,7 @@ const DS_ACCOUNT_ID = 'f122eef9-a016-4440-a25a-9389771d22ae';
 const AUTO_QUEUE = false;
 
 const POSTS_PER_ACCOUNT = 1;
-const ACCOUNTS = [{ username: DS_ACCOUNT_USERNAME }];
+const ACCOUNTS = [{ id: DS_ACCOUNT_ID, username: DS_ACCOUNT_USERNAME }];
 
 const GOAL =
   `These TikTok accounts are already WARMED UP and established broadly in the FITNESS space. ` +
@@ -115,13 +115,12 @@ PROMPTING FOR IMAGES — it's a skill you build over time
 - The most reliable way to hit a specific look is ITERATIVE image-to-image off a REAL reference (a real photo from view_media, or a prior good generation) — nudge it toward the target across attempts instead of one-shotting from text.
 - Over time you'll learn which subjects, styles, and prompt patterns render realistically vs. read as AI. Track what works in your notes and lean into it — your prompting should get better day over day.
 
-YOU HAVE SIX TOOLS.
+YOUR CURRENT ACCOUNT STATS ARE ALREADY GIVEN TO YOU below (in the opening message): your recent posts and their real view / like / comment / share / save counts. Study them FIRST — see what landed and what flopped — and let them steer your strategy. (Early on they may be empty — nothing posted yet.)
+- The stats are just numbers; each past post also carries its real URL. You can call view_media on your own old posts to pull their exact slide-by-slide structure back into context.
 
-1) get_account_stats — how your OWN accounts are performing.
-Returns your recent posts and their real view / like / comment counts (from the platform). CALL THIS FIRST each day to see what landed and what flopped, then let it steer your strategy. (Early on it may be empty — nothing posted yet.)
-  - Shape: {"get_account_stats":{}}
+YOU HAVE FIVE TOOLS.
 
-2) call_lightreel_api — your research brain.
+1) call_lightreel_api — your research brain.
 An EXTREMELY INTELLIGENT research agent over a massive, continuously-scraped database of TikTok & Instagram UGC (videos, creators, hooks, captions, view/engagement data). It does real semantic search + live lookups and answers grounded in actual videos. Ask rich, specific, layered questions.
   - HARD LIMITS: at most ONE call_lightreel_api PER ROUND, budget of ~${MAX_LIGHTREEL_CALLS} for the whole run. This budget RESETS every run — you get a fresh ${MAX_LIGHTREEL_CALLS} each time, so don't carry a "calls left" count into your note. Each call is slow/expensive — make each count: one big high-leverage question, stack multiple response_fields.
   - By DEFAULT you get prose. For structured data, pass response_fields: a flat list of UP TO 5 fields, each { "name","type":"string"|"array","description" }. Lowercase names. You can INDEX/ALIGN parallel arrays (say so in descriptions).
@@ -131,37 +130,37 @@ An EXTREMELY INTELLIGENT research agent over a massive, continuously-scraped dat
   - USE IT AS YOUR EDITOR before publishing: send your draft hooks + slide-by-slide copy + caption back to Lightreel and ask it to rate and rewrite them to sound native (call it out as YOUR draft to fix). Do this every run, for both posts.
   - Example: {"call_lightreel_api":{"question":"What fitness/gym PHOTO CAROUSEL posts are breaking out on TikTok in the last 2-3 weeks? For each give the slide-1 hook, why it works, and the real TikTok URL.","response_fields":[{"name":"hooks","type":"array","description":"6 verbatim slide-1 hooks, strongest first"},{"name":"why_it_works","type":"array","description":"mechanism behind hooks[i], same order"},{"name":"example_urls","type":"array","description":"real carousel URL for hooks[i], same order; empty if none"}]}}
 
-3) view_media — SEE the real content behind a TikTok/Instagram URL.
+2) view_media — SEE the real content behind a TikTok/Instagram URL.
 Pass URLs the research returns here to turn them into actual images you can look at. PHOTO/CAROUSEL posts return ALL their slides (the gold — slide-1 design, text placement, flow); VIDEO posts return only a cover frame. Prioritize viewing real carousels before you design yours. Actually READ every slide — the exact on-slide wording, the order, the caption — and reuse/adapt that real copy. Don't just absorb the vibe.
   - Shape: {"view_media":{"urls":["https://www.tiktok.com/@x/photo/123"]}}
   - Images SHOWN TO YOU next round — up to ~10 slides PER post, so you see the FULL carousel (slide by slide), not just a cover. EACH slide is tagged with a label like T1, T2, T3 (shown right above its image). To base a generation on one of these real winning slides, pass that label as "reference" in generate_image — you never need the URL.
 
-4) generate_image — make an image (Doublespeed, 1080×1920). Text-to-image AND image-to-image.
+3) generate_image — make an image (Doublespeed, 1080×1920). Text-to-image AND image-to-image.
   - Shape: {"generate_image":{"prompt":"...","reference":"<optional LABEL of an image to base this on, e.g. T3 or G1>"}}
-  - LABELS: every slide you view_media is tagged T1, T2, T3…; every image you generate is tagged G1, G2…. To do image-to-image, pass that label as "reference" — you do NOT pass a URL, just the label (the system holds the real image). Labels last the WHOLE run: you can reference any label you've ever been shown, even one that has scrolled out of view.
+  - LABELS: every slide you view_media is tagged T1, T2, T3…; every image you generate is tagged G1, G2…. To do image-to-image, pass that label as "reference" — you do NOT pass a URL, just the label (the system holds the real image). Labels last the WHOLE run: you can reference any label you've ever been shown, even one that has scrolled out of view. Labels are per-run; you can't reference T#/G# from a previous run.
   - Returns a new image (with its own G# label), SHOWN TO YOU next round. Be critical: real & native, or does it scream AI (waxy skin, mangled hands/text, uncanny faces)? If AI, regenerate, or refine by referencing it again.
   - reference = IMAGE-TO-IMAGE (keeps the referenced image, applies your prompt as an edit). Use it for: (a) CROSS-SLIDE CONSISTENCY — generate slide 1, then reference its G# on the rest so the same person/scene/style holds across slides; (b) SEED OFF A REAL WINNER — reference a real slide's T# to make your image in the style/composition of an actual winning post; (c) iterate on your own image by referencing its G#.
   - PEOPLE NEED A REAL REFERENCE: any image with a visible person must be image-to-image off a real person reference — reference a real person slide's T# (from view_media), then carry that across slides via its G#. Plain text-to-image people look fake/AI. Faceless/object/food/scene images can be plain text-to-image.
   - If a T# reference has text baked on it, tell the prompt to leave the text out — your overlay adds the words.
   - Prompt for REALISM: candid iPhone/amateur photo, real gym, natural lighting, grain — not glossy render. Keep the text area calm. Don't ask it to render real text (it garbles it) — text comes from the overlay.
 
-5) preview_slideshow — compose + render the slides so YOU CAN SEE the finished post.
+4) preview_slideshow — compose + render the slides so YOU CAN SEE the finished post.
   - Shape: {"preview_slideshow":{"slides":[{"image_url":"...","text":"on-slide line","text_position":"top|middle|bottom","style_preset":"<preset name>"}, ...]}}
   - image_url MUST be an image you generated (a generate_image output URL) — never a TikTok/research page URL, which renders blank. If generate_image is failing/unavailable, do NOT publish blank slides: skip that post and explain in your note.
   - text_position (optional, default "bottom") moves the text box top/middle/bottom per slide.
   - style_preset (optional but USE IT) picks the on-slide TEXT STYLE from Doublespeed's canonical presets — font, color, background, stroke, all handled for you. Available: ${presetSummaryForPrompt()}. Pick the one that matches the native look of the real winners you studied (e.g. the white-pill "tiktok-bg" reads on any image). Default if omitted: tiktok-bg.
   - Returns rendered preview PNGs, SHOWN TO YOU. VERIFY slide 1 stops the scroll, text is readable, flow makes you swipe. Fix weak slides and re-preview. Do NOT skip this.
-  - ONE DISTINCT IMAGE PER SLIDE: never reuse the identical image_url on more than one slide (looks lazy). Cohesive set, but each image visually distinct.
+  - ONE DISTINCT IMAGE PER SLIDE: never reuse the identical image_url on more than one slide (looks lazy). Cohesive set, but each image visually distinct (UNLESS it is part of the format to have the same image in multiple slides)
 
-6) publish_slideshow — queue the final post to ONE of your accounts (+ review link).
+5) publish_slideshow — queue the final post to ONE of your accounts (+ review link).
   - Shape: {"publish_slideshow":{"account":"<one of your @handles, without the @>","slides":[{"image_url":"...","text":"...","text_position":"top|middle|bottom","style_preset":"<preset name>"}, ...],"caption":"full caption with hashtags","sound_from_post":"<optional: a TikTok POST url whose audio to use>"}}
   - sound_from_post (OPTIONAL but recommended): pass a TikTok POST url — we extract its sound and attach it, so your slideshow rides a real/trending audio (which matters a lot for slideshow reach). Use a sound from a winning post in the same lane (you already have these URLs from your research/view_media). Best-effort: if extraction fails the post still publishes, just without music.
   - Assigns + ${AUTO_QUEUE ? 'QUEUES (schedules)' : 'drafts'} the slideshow to that account. You may publish at most ${POSTS_PER_ACCOUNT} per account per run. Only publish after previewing.
 
 PROTOCOL
 - To act:   {"actions":[ {"generate_image":{...}}, {"generate_image":{...}} ]}  (one or more; run in parallel)
-- To finish:{"answer":"<2-4 sentence summary of what you posted to each account and why>","note":"<=300 words: a REFLECTION of your thinking THIS run — what you posted, your reasoning, and what you observed or learned. NOT a plan for next time: do not prescribe next steps or write conditionals ('do X next', 'if this then that'). Just capture your current thought process clearly. These notes are the ONLY thing preserved between runs.>"}
-- You have ${MAX_ROUNDS} rounds. Arc: get_account_stats → research → view_media real winners → design + generate (look critically) → preview (verify) → refine → publish to BOTH accounts → finish with answer + note. Bias toward research + iteration; don't ship mediocre work.`;
+- To finish:{"answer":"<2-4 sentence summary of what you posted to each account and why>","note":"<=300 words: a REFLECTION of your thinking THIS run — what you posted, your reasoning, and what you observed or learned. NOT a plan for next time: do not prescribe next steps or write conditionals ('do X next', 'if this then that'). Just capture your current thought process clearly. Don't reference T#/G# labels — your future self won't have them. These notes are the ONLY thing preserved between runs.>"}
+- You have ${MAX_ROUNDS} rounds. Arc: study your injected account stats → research → view_media real winners → design + generate (look critically) → preview (verify) → refine → publish to BOTH accounts → finish with answer + note. Bias toward research + iteration; don't ship mediocre work.`;
 }
 
 // ════════════════════════════════════════════════════════════════════════════════
@@ -183,6 +182,23 @@ async function openRouterChat(messages: any[], model: string, opts: { cache_cont
   const json: any = await res.json();
   if (json?.error) throw new Error(`OpenRouter error: ${json.error.message || JSON.stringify(json.error)}`);
   return json;
+}
+
+async function chatWithRetry(messages: any[], model: string, opts: { cache_control?: any; max_tokens?: number; reasoning?: any }, label: string): Promise<any> {
+  const MAX_ATTEMPTS = 3;
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      return await openRouterChat(messages, model, opts);
+    } catch (err) {
+      lastErr = err;
+      if (attempt === MAX_ATTEMPTS) break;
+      const backoffMs = 2000 * attempt;
+      console.warn(`[${label}] model call failed (attempt ${attempt}/${MAX_ATTEMPTS}): ${err instanceof Error ? err.message : err} — retrying in ${backoffMs}ms`);
+      await new Promise(r => setTimeout(r, backoffMs));
+    }
+  }
+  throw lastErr;
 }
 
 // ════════════════════════════════════════════════════════════════════════════════
@@ -421,7 +437,7 @@ async function loadStylePresets(mcp: DoublespeedMcp): Promise<void> {
   } catch { /* leave empty → FALLBACK_TEXT_STYLE */ }
 }
 function presetSummaryForPrompt(): string {
-  if (!STYLE_PRESETS.length) return '"tiktok-bg" — white pill behind the text; "tiktok-stroke" — white text with a black outline, no background';
+  if (!STYLE_PRESETS.length) return '(presets unavailable this run)';
   return STYLE_PRESETS.map(p => `"${p.name}" — ${p.description}`).join('; ');
 }
 function resolvePresetStyle(name?: string): any {
@@ -503,21 +519,146 @@ async function publishSlideshow(mcp: DoublespeedMcp, params: { slides: Slide[]; 
   }
 }
 
-// ── account stats (Doublespeed list_posts → metrics; excludes deleted + drafts) ──
-async function getAccountStats(mcp: DoublespeedMcp): Promise<any> {
+// ── account stats for the agent: compact recent posts + real metrics ──
+interface TikTokStats { views: number; likes: number; comments: number; shares: number; saves: number; reposts: number; downloads: number; }
+interface TikTokProfileVideo { awemeId: string; desc: string; createTime: number; stats: TikTokStats; }
+interface PostSnap {
+  id: string;
+  tiktokPostId: string | null;
+  account: string;
+  status: string;
+  postedAt: string | null;
+  publicUrl: string | null;
+  caption: string;
+  cover: string | null;
+  slides: string[];
+  music: string | null;
+  metrics: { views: number; likes: number; comments: number; shares: number; engagementPct: number; saves: number; reposts: number; downloads: number };
+}
+
+const SC_STATS_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
+
+async function tiktokStatsFromUrl(url: string): Promise<TikTokStats | null> {
+  if (!SCRAPE_CREATORS_API_KEY || typeof url !== 'string' || !url.includes('tiktok.com')) return null;
   try {
-    const r: any = await mcp.callTool('list_posts', { account_id: DS_ACCOUNT_ID, page_size: 20, sort_by: 'post_time', sort_dir: 'desc' });
-    const items: any[] = (r?.items || []).filter((p: any) => !(p?.delete_requested === true || p?.deleted_at || p?.status === 'draft'));
+    const s = (await scGet('/v2/tiktok/video', url, true))?.aweme_detail?.statistics;
+    if (!s) return null;
     return {
-      account: DS_ACCOUNT_USERNAME,
-      posts: items.slice(0, 10).map((p: any) => {
-        const m = p?.metrics || {};
-        return { caption: String(p?.template_data?.caption || p?.title || '').slice(0, 80), status: p?.status, posted: p?.post_time || null, url: p?.public_post_url || null, views: m.views ?? 0, likes: m.likes ?? 0, comments: m.comments ?? 0, shares: m.shares ?? 0 };
-      }),
+      views: s.play_count ?? 0,
+      likes: s.digg_count ?? 0,
+      comments: s.comment_count ?? 0,
+      shares: s.share_count ?? 0,
+      saves: s.collect_count ?? 0,
+      reposts: s.repost_count ?? 0,
+      downloads: s.download_count ?? 0,
     };
-  } catch (e: any) {
-    return { error: e?.message?.slice(0, 160) || 'stats unavailable' };
+  } catch {
+    return null;
   }
+}
+
+async function tiktokProfileVideos(handle: string): Promise<TikTokProfileVideo[]> {
+  if (!SCRAPE_CREATORS_API_KEY || typeof handle !== 'string' || !handle) return [];
+  try {
+    const u = new URL('https://api.scrapecreators.com/v3/tiktok/profile/videos');
+    u.searchParams.set('handle', handle.replace(/^@/, ''));
+    u.searchParams.set('sort_by', 'latest');
+    const res = await fetch(u, { headers: { 'x-api-key': SCRAPE_CREATORS_API_KEY } });
+    if (!res.ok) return [];
+    const list: any[] = ((await res.json()) as any)?.aweme_list || [];
+    return list.map((v: any) => {
+      const s = v.statistics || {};
+      return {
+        awemeId: String(v.aweme_id || ''),
+        desc: String(v.desc || ''),
+        createTime: Number(v.create_time || 0),
+        stats: {
+          views: s.play_count ?? 0, likes: s.digg_count ?? 0, comments: s.comment_count ?? 0,
+          shares: s.share_count ?? 0, saves: s.collect_count ?? 0, reposts: s.repost_count ?? 0, downloads: s.download_count ?? 0,
+        },
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+function mapPost(p: any, fallbackUsername: string): PostSnap {
+  const td = p?.template_data || {};
+  const slides: string[] = Array.isArray(td.slides) ? td.slides.map((s: any) => s?.url).filter(Boolean) : [];
+  const m = p?.metrics || {};
+  return {
+    id: String(p?.id ?? ''),
+    tiktokPostId: p?.tiktok_post_id ? String(p.tiktok_post_id) : null,
+    account: p?.account?.username || fallbackUsername,
+    status: p?.status || 'unknown',
+    postedAt: p?.post_time || p?.succeeded_at || null,
+    publicUrl: p?.public_post_url || null,
+    caption: String(td.caption || p?.title || '').slice(0, 400),
+    cover: slides[0] || null,
+    slides,
+    music: td.musicShareUrl || null,
+    metrics: {
+      views: m.views ?? 0, likes: m.likes ?? 0, comments: m.comments ?? 0,
+      shares: m.shares ?? 0, engagementPct: m.engagementPct ?? 0,
+      saves: 0, reposts: 0, downloads: 0,
+    },
+  };
+}
+
+async function listAccountPosts(mcp: DoublespeedMcp): Promise<PostSnap[]> {
+  const all: PostSnap[] = [];
+  for (let page = 1; page <= 20; page++) {
+    const r: any = await mcp.callTool('list_posts', { account_id: DS_ACCOUNT_ID, page, page_size: 50, sort_by: 'post_time', sort_dir: 'desc' });
+    const items: any[] = r?.items || [];
+    for (const it of items) {
+      if (it?.delete_requested === true || it?.deleted_at) continue;
+      if (it?.status === 'draft') continue;
+      all.push(mapPost(it, DS_ACCOUNT_USERNAME));
+    }
+    if (items.length === 0 || page >= (r?.totalPages || 1)) break;
+  }
+  return all;
+}
+
+function buildAccountStats(posts: PostSnap[]): any {
+  return ACCOUNTS.map(a => ({
+    account: a.username,
+    posts: posts.filter(p => p.account === a.username).slice(0, 10).map(p => ({
+      caption: p.caption.slice(0, 80), status: p.status, posted: p.postedAt, url: p.publicUrl,
+      views: p.metrics.views, likes: p.metrics.likes, comments: p.metrics.comments, shares: p.metrics.shares,
+      saves: p.metrics.saves,
+    })),
+  }));
+}
+
+async function enrichRecentWithScrapeCreators(snaps: PostSnap[], now: Date): Promise<void> {
+  const isRecent = (s: PostSnap) => { const t = s.postedAt ? Date.parse(s.postedAt) : NaN; return !!t && now.getTime() - t <= SC_STATS_WINDOW_MS; };
+  const engPct = (st: { likes: number; comments: number; shares: number; views: number }) =>
+    st.views > 0 ? Number((((st.likes + st.comments + st.shares) / st.views) * 100).toFixed(2)) : 0;
+  const applyStats = (s: PostSnap, st: TikTokStats) => {
+    s.metrics = { views: st.views, likes: st.likes, comments: st.comments, shares: st.shares, engagementPct: engPct(st), saves: st.saves, reposts: st.reposts, downloads: st.downloads };
+  };
+
+  await Promise.all(snaps.filter(s => isRecent(s) && s.publicUrl).map(async s => {
+    try { const sc = await tiktokStatsFromUrl(s.publicUrl!); if (sc) applyStats(s, sc); } catch { /* keep Doublespeed numbers */ }
+  }));
+
+  const orphans = snaps.filter(s => isRecent(s) && !s.publicUrl);
+  if (!orphans.length) return;
+  const norm = (t: string) => (t || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 24);
+  try {
+    const vids = await tiktokProfileVideos(DS_ACCOUNT_USERNAME);
+    if (!vids.length) return;
+    for (const s of orphans) {
+      const key = norm(s.caption);
+      if (!key) continue;
+      const v = vids.find(x => { const d = norm(x.desc); return d === key || d.startsWith(key) || key.startsWith(d); });
+      if (!v) continue;
+      applyStats(s, v.stats);
+      s.tiktokPostId = v.awemeId;
+    }
+  } catch { /* keep Doublespeed numbers */ }
 }
 
 // ════════════════════════════════════════════════════════════════════════════════
@@ -532,14 +673,12 @@ function parseJson(text: string): any {
 }
 
 interface VisImg { src: string; label?: string; }
-interface RunCtx { mcp: DoublespeedMcp; published: PublishedPost[]; imageRefs: Record<string, string>; labels: { t: number; g: number }; }
-interface PublishedPost { caption: string; slides: Slide[]; reviewLink: string | null; groupId: string | null; status: string; at: string; }
+interface RunCtx { mcp: DoublespeedMcp; published: PublishedPost[]; accountPostCounts: Record<string, number>; imageRefs: Record<string, string>; labels: { t: number; g: number }; }
+interface PublishedPost { account: string; caption: string; slides: Slide[]; reviewLink: string | null; groupId: string | null; status: string; at: string; }
 interface RunData { goal: string; published: PublishedPost[]; answer: string | null; note: string | null; rounds: number; }
 
 async function runAction(action: any, ctx: RunCtx): Promise<{ tool: string; result: any; images: VisImg[] }> {
-  const { mcp, published } = ctx;
-
-  if (action.get_account_stats) return { tool: 'get_account_stats', result: await getAccountStats(mcp), images: [] };
+  const { mcp, published, accountPostCounts } = ctx;
 
   if (action.call_lightreel_api) return { tool: 'call_lightreel_api', result: await callLightreelApi(action.call_lightreel_api), images: [] };
 
@@ -594,6 +733,14 @@ async function runAction(action: any, ctx: RunCtx): Promise<{ tool: string; resu
 
   if (action.publish_slideshow) {
     const p = action.publish_slideshow || {};
+    const acctName = String(p.account || '').replace(/^@/, '').trim().toLowerCase();
+    const acct = ACCOUNTS.find(a => a.username.toLowerCase() === acctName);
+    if (!acct) {
+      return { tool: 'publish_slideshow', result: { error: `publish_slideshow needs "account" set to one of YOUR handles: ${ACCOUNTS.map(a => '@' + a.username).join(', ')}` }, images: [] };
+    }
+    if ((accountPostCounts[acct.id] || 0) >= POSTS_PER_ACCOUNT) {
+      return { tool: 'publish_slideshow', result: { error: `Already queued ${POSTS_PER_ACCOUNT} post for @${acct.username} this run (the per-account limit). Finish with {"answer":"...","note":"..."}.` }, images: [] };
+    }
     const slides: Slide[] = Array.isArray(p.slides) ? p.slides : [];
     let musicLink: string | undefined;
     let musicNote: any;
@@ -602,12 +749,15 @@ async function runAction(action: any, ctx: RunCtx): Promise<{ tool: string; resu
       const ml = await musicLinkFromPost(soundFrom);
       if ('music_link' in ml) { musicLink = ml.music_link; musicNote = { sound: ml.title || 'attached' }; } else musicNote = { sound_error: ml.error };
     }
-    const r = await publishSlideshow(mcp, { slides, caption: p.caption || '', accountId: DS_ACCOUNT_ID, autoQueue: AUTO_QUEUE, musicLink });
-    if (!('error' in r)) published.push({ caption: p.caption || '', slides, reviewLink: r.review_link, groupId: r.group_id, status: r.status, at: new Date().toISOString() });
-    return { tool: 'publish_slideshow', result: { ...r, ...(musicNote ? { music: musicNote } : {}) }, images: [] };
+    const r = await publishSlideshow(mcp, { slides, caption: p.caption || '', accountId: acct.id, autoQueue: AUTO_QUEUE, musicLink });
+    if (!('error' in r)) {
+      accountPostCounts[acct.id] = (accountPostCounts[acct.id] || 0) + 1;
+      published.push({ account: acct.username, caption: p.caption || '', slides, reviewLink: r.review_link, groupId: r.group_id, status: r.status, at: new Date().toISOString() });
+    }
+    return { tool: 'publish_slideshow', result: { account: acct.username, ...r, ...(musicNote ? { music: musicNote } : {}) }, images: [] };
   }
 
-  return { tool: 'unknown', result: { error: 'unknown action — use get_account_stats | call_lightreel_api | view_media | generate_image | preview_slideshow | publish_slideshow' }, images: [] };
+  return { tool: 'unknown', result: { error: 'unknown action — use call_lightreel_api | view_media | generate_image | preview_slideshow | publish_slideshow' }, images: [] };
 }
 
 function loadPastNotes(): string[] {
@@ -619,21 +769,29 @@ function loadPastNotes(): string[] {
 
 async function runHarness(goal: string): Promise<RunData> {
   const published: PublishedPost[] = [];
+  const accountPostCounts: Record<string, number> = {};
   const mcp = await getDoublespeedClient();
   await mcp.callTool('set_product', { product_id: DS_PRODUCT_ID });
   await loadStylePresets(mcp);
-  const ctx: RunCtx = { mcp, published, imageRefs: {}, labels: { t: 0, g: 0 } };
+  const ctx: RunCtx = { mcp, published, accountPostCounts, imageRefs: {}, labels: { t: 0, g: 0 } };
+
+  const now = new Date();
+  const snaps = await listAccountPosts(mcp);
+  await enrichRecentWithScrapeCreators(snaps, now);
 
   const pastNotes = loadPastNotes();
   const notesBlock = pastNotes.length
-    ? `\n\nYOUR PAST NOTES (most recent first — notes you left yourself on prior runs):\n${pastNotes.map((n, i) => `[${i + 1}] ${n}`).join('\n\n')}`
+    ? `\n\nYOUR PAST NOTES (most recent first — notes you left yourself on prior runs, ~12h apart, twice daily):\n${pastNotes.map((n, i) => `[${i + 1}] ${n}`).join('\n\n')}`
     : `\n\n(No past notes yet — this is an early run. Establish a strategy and leave yourself a good note.)`;
+
+  const accountStats = buildAccountStats(snaps);
+  const statsBlock = `\n\nYOUR CURRENT ACCOUNT STATS (recent posts + real view/like/comment/share/save counts, newest first — freshly scraped at run start):\n${JSON.stringify(accountStats)}`;
 
   console.log(`[marketing-agent] target @${DS_ACCOUNT_USERNAME} (handle ignored) | ${pastNotes.length} past note(s) loaded`);
 
   const messages: any[] = [
     { role: 'system', content: buildSystem() },
-    { role: 'user', content: `${goal}${notesBlock}\n\nBegin.` },
+    { role: 'user', content: `${goal}${statsBlock}${notesBlock}\n\nBegin.` },
   ];
 
   let answer: string | null = null;
@@ -641,10 +799,12 @@ async function runHarness(goal: string): Promise<RunData> {
   let lightreelCalls = 0;
   let round = 0;
   for (round = 1; round <= MAX_ROUNDS + 1; round++) {
-    if (round > MAX_ROUNDS) messages.push({ role: 'user', content: 'Round budget exhausted. Publish your post now if you have not, then finish with {"answer":"...","note":"..."}.' });
+    if (round > MAX_ROUNDS) {
+      messages.push({ role: 'user', content: `Round budget exhausted. Make sure you have queued a post for EACH account (${ACCOUNTS.map(a => '@' + a.username).join(', ')}) if you haven't, then finish with {"answer":"...","note":"..."}.` });
+    }
 
     // Append-only history (no trimming) → byte-stable prefix → prompt cache hits. 1h TTL survives slow rounds.
-    const res = await openRouterChat(messages, MODEL, { cache_control: { type: 'ephemeral', ttl: '1h' }, max_tokens: 16000, reasoning: { enabled: true, effort: REASONING_EFFORT } });
+    const res = await chatWithRetry(messages, MODEL, { cache_control: { type: 'ephemeral', ttl: '1h' }, max_tokens: 16000, reasoning: { enabled: true, effort: REASONING_EFFORT } }, 'marketing-agent');
     const raw = res.choices?.[0]?.message?.content;
     const text = typeof raw === 'string' ? raw : JSON.stringify(raw);
     const parsed = parseJson(text);
@@ -662,8 +822,8 @@ async function runHarness(goal: string): Promise<RunData> {
     let usedThisRound = false;
     const ran = await Promise.all(actions.map((a) => {
       if (a.call_lightreel_api) {
-        if (lightreelCalls >= MAX_LIGHTREEL_CALLS) return Promise.resolve({ tool: 'call_lightreel_api', result: { error: `Research budget exhausted (${MAX_LIGHTREEL_CALLS} max per run). Stop researching — design, preview, and publish.` }, images: [] });
-        if (usedThisRound) return Promise.resolve({ tool: 'call_lightreel_api', result: { error: 'Only ONE call_lightreel_api per round. Issue it alone, then act on the result next round.' }, images: [] });
+        if (lightreelCalls >= MAX_LIGHTREEL_CALLS) return Promise.resolve({ tool: 'call_lightreel_api', result: { error: `Research budget exhausted (${MAX_LIGHTREEL_CALLS} max per run). Stop researching — design, preview, and queue your posts.` }, images: [] });
+        if (usedThisRound) return Promise.resolve({ tool: 'call_lightreel_api', result: { error: 'Only ONE call_lightreel_api per round. Issue this research call by itself, then act on the result next round.' }, images: [] });
         usedThisRound = true; lightreelCalls += 1;
       }
       return runAction(a, ctx);
@@ -672,7 +832,7 @@ async function runHarness(goal: string): Promise<RunData> {
     const images = ran.flatMap(r => r.images);
 
     // Feed images back, each preceded by its label (label text survives even if you scroll past the image).
-    const content: any[] = [{ type: 'text', text: JSON.stringify({ round, roundsLeft: Math.max(0, MAX_ROUNDS - round), results }) }];
+    const content: any[] = [{ type: 'text', text: JSON.stringify({ round, roundsLeft: Math.max(0, MAX_ROUNDS - round), postsQueued: published.map(p => p.account), results }) }];
     for (const im of images) { if (im.label) content.push({ type: 'text', text: `image ${im.label}:` }); content.push({ type: 'image_url', image_url: { url: im.src } }); }
     messages.push({ role: 'user', content });
   }
