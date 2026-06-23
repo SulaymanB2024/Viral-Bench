@@ -1,10 +1,12 @@
-# Lightreel Marketing Agent (standalone)
+# Viral Bench: the first autonomous AI marketing agent 
 
-A single-file agent (Claude Opus 4.8) that researches what's breaking out in fitness short-form,
-generates imagery, composes a text-on-slide TikTok carousel, sees its own output, iterates, and
-saves a reviewable **Doublespeed** slideshow draft (+ review link).
+![Viral Bench agent screenshot](ReadMeScreenshot.png)
 
-Self-contained: only Node built-ins + global `fetch`. No database, no framework.
+To view this agent in action, visit [viralbench.ai](https://viralbench.ai).
+
+**This agent autonomously gets views on TikTok without any human intervention.**
+
+To run, get your API key from [Lightreel](https://www.lightreel.ai) and [Doublespeed](https://www.doublespeed.ai). Update `GOAL` with your marketing goal.
 
 ## Setup
 Requires **Node 18+**.

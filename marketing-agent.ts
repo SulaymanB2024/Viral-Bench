@@ -1,22 +1,18 @@
 /**
  * standalone-marketing-agent.ts — SELF-CONTAINED handoff version of benchmark-marketing-agents.
  *
- * ONE file. NO project imports, NO MongoDB, NO getSecret, NO internal OpenRouter client. Node
- * built-ins (fs, path, http, crypto) + global fetch (Node 18+) + `sharp` (npm, for downscaling
+ * Node built-ins (fs, path, http, crypto) + global fetch (Node 18+) + `sharp` (npm, for downscaling
  * reference images). It makes its own OpenRouter + Lightreel + Doublespeed + ScrapeCreators calls.
  *
- * WHAT IT DOES: an agentic loop (Claude Opus 4.8) that researches what's breaking out in fitness
+ * WHAT IT DOES: an agentic loop (wiht the selected model) that researches what's breaking out in fitness
  * short-form, generates imagery (image-to-image off REAL reference slides for a native look),
  * composes a text-on-slide TikTok carousel, SEES its own output, iterates, and saves a reviewable
  * Doublespeed slideshow draft (+ review link). Mirrors the in-repo two-player benchmark, single account.
  *
- * THE ONE DIFFERENCE vs the in-repo version: call_lightreel_api here hits the PUBLIC Lightreel HTTP
- * API (api.lightreel.ai) with an API key, instead of running the research agent in-process.
- *
  * ─── SETUP ───────────────────────────────────────────────────────────────────────
  * Node 18+, tsx (`npm i -g tsx` or `npx tsx`), and `npm i sharp`.
  * Env vars (export, or `tsx --env-file=.env`):
- *   OPENROUTER_API_KEY        — main agent (Claude Opus 4.8)
+ *   OPENROUTER_API_KEY        — main agent
  *   LIGHTREEL_API_KEY         — public Lightreel API key (lr_live_...)
  *   SCRAPE_CREATORS_API_KEY   — view_media (TikTok/IG URLs → images) + sound extraction
  *   LIGHTREEL_API_URL         — optional, defaults to https://api.lightreel.ai/v1/chat
@@ -57,9 +53,9 @@ const VISION_MAX_EDGE = 1536;             // downscale fed images ≤ this (keep
 const NOTES_TO_LOAD = 10;                 // past run notes loaded back in (run-over-run memory)
 
 // Doublespeed targets (product + the single TikTok account this agent runs).
-const DS_PRODUCT_ID = '6b5ee861-2421-4e14-a6f3-96510b8997ce';
-const DS_ACCOUNT_USERNAME = 'marcus.hyrox';
-const DS_ACCOUNT_ID = 'f122eef9-a016-4440-a25a-9389771d22ae';
+const DS_PRODUCT_ID = '';
+const DS_ACCOUNT_USERNAME = '';
+const DS_ACCOUNT_ID = '';
 
 // false → publish leaves a DRAFT + review link. true → also queue_post it (status 'scheduled').
 const AUTO_QUEUE = false;

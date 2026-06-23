@@ -1,8 +1,8 @@
 {
-  "name": "lightreel-marketing-agent",
+  "name": "viral-bench",
   "version": "1.0.0",
   "private": true,
-  "description": "Self-contained agent that researches fitness short-form, generates imagery, and builds a Doublespeed slideshow draft.",
+  "description": "Self-contained agent that researches fitness short-form via Lightreel, generates imagery, and builds a Doublespeed slideshow draft.",
   "scripts": {
     "auth": "tsx marketing-agent.ts auth",
     "start": "tsx marketing-agent.ts"
