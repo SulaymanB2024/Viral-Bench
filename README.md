@@ -8,6 +8,8 @@ To view this agent in action, visit [viralbench.ai](https://viralbench.ai).
 
 To run, get your API key from [Lightreel](https://www.lightreel.ai) and [Doublespeed](https://www.doublespeed.ai). Update `GOAL` with your marketing goal.
 
+![Viral Bench performance chart](ReadMeChart.png)
+
 ## Setup
 Requires **Node 18+**.
 
