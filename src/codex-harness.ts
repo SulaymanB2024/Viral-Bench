@@ -407,6 +407,41 @@ export interface HarnessDoctorReport {
   recommended_commands: string[];
 }
 
+export interface HarnessAutonomyPlanStep {
+  id: string;
+  priority: number;
+  lane: 'reproducibility' | 'local' | 'provider' | 'browser' | 'publishing' | 'information';
+  status: 'ready' | 'blocked' | 'needs_capability' | 'human_boundary';
+  safe_to_run_now: boolean;
+  command: string | null;
+  reason: string;
+  evidence: string[];
+  required_gates: string[];
+  writes: string[];
+}
+
+export interface HarnessAutonomyPlan {
+  created_at: string;
+  goal: string;
+  root_dir: string;
+  summary_status: HarnessAutonomyAudit['summary_status'];
+  selected_next_step: HarnessAutonomyPlanStep | null;
+  steps: HarnessAutonomyPlanStep[];
+  readiness: HarnessDoctorReport['readiness'];
+  capability_profile: HarnessCapabilityProfile;
+  source_of_truth_dirty_count: number;
+  provider_live_ready_request_count: number;
+  information_surface: HarnessDoctorReport['information_surface'];
+  top_ranked_jobs: HarnessJobRanking[];
+  open_blockers: HarnessBlocker[];
+  command_policy: {
+    safe_default_commands: string[];
+    capability_gated_commands: string[];
+    human_boundary_commands: string[];
+    secret_policy: HarnessCapabilityProfile['credential_policy'];
+  };
+}
+
 export interface HarnessAutoResult {
   created_at: string;
   goal: string;
@@ -589,6 +624,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       autonomy: 'safe_default',
     },
     {
+      id: 'harness.autonomy_plan',
+      kind: 'doctor',
+      command: 'npm run harness -- autonomy-plan --goal "<goal>"',
+      purpose: 'Return an ordered Codex execution queue with safe-to-run commands, capability-gated commands, evidence, writes, and selected next step.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
       id: 'harness.inspect',
       kind: 'inspect',
       command: 'npm run harness -- inspect',
@@ -736,7 +780,7 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       id: 'harness.provider_handoff',
       kind: 'provider',
       command: 'npm run harness -- provider-handoff --request .ops/provider_requests/<request>.json',
-      purpose: 'Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, output targets, and live blockers for Codex or a future reviewed adapter.',
+      purpose: 'Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, output targets, live-call eligibility, and blockers.',
       writes: ['.ops/harness/provider_handoffs/<packet_id>/'],
       required_gates: [],
       autonomy: 'safe_default',
@@ -1573,6 +1617,7 @@ export function buildAutonomyAudit(
     'harness.capability_plan',
     'harness.reproducibility_manifest',
     'harness.autonomy_audit',
+    'harness.autonomy_plan',
     'harness.source_package',
     'harness.verify_source_package',
     'harness.information_index',
@@ -1748,6 +1793,7 @@ export function buildHarnessDoctor(
   const providerAutonomy = localAutonomy && providerPreflight.preflights.some((preflight) => preflight.ready_for_live_request);
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
+    'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
@@ -1795,6 +1841,198 @@ export function buildHarnessDoctor(
       publishing_autonomy: localAutonomy && capabilityProfile.gates.allow_social_publishing,
     },
     recommended_commands: recommendedCommands,
+  };
+}
+
+export function buildAutonomyPlan(
+  goal = 'Make WorthScan autonomous for Codex',
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessAutonomyPlan {
+  const doctor = buildHarnessDoctor(env, rootDir);
+  const rankings = rankIncomingJobs(env, rootDir).slice(0, 5);
+  const primitives = listCodexPrimitives();
+  const dirtySourceCount = doctor.reproducibility_manifest.source_of_truth.dirty_count;
+  const providerLiveReadyCount = doctor.provider_preflight.preflights.filter((preflight) => preflight.ready_for_live_request).length;
+  const auditById = new Map(doctor.autonomy_audit.criteria.map((criterion) => [criterion.id, criterion]));
+  const openBlockers = doctor.blocker_ledger.blockers.filter((blocker) => blocker.status === 'open');
+  const steps: HarnessAutonomyPlanStep[] = [];
+  const goalArg = shellQuote(goal);
+
+  const addStep = (step: HarnessAutonomyPlanStep): void => {
+    steps.push(step);
+  };
+
+  addStep({
+    id: 'reproducibility.stage_source_dry_run',
+    priority: dirtySourceCount ? 10 : 90,
+    lane: 'reproducibility',
+    status: dirtySourceCount ? 'blocked' : 'ready',
+    safe_to_run_now: true,
+    command: dirtySourceCount ? 'npm run harness -- stage-source --dry-run' : 'npm run harness -- reproducibility-manifest',
+    reason: dirtySourceCount
+      ? 'Source-of-truth changes block strong autonomy claims until Codex reviews the stage manifest.'
+      : 'Source-of-truth is clean; keep the reproducibility manifest available as proof.',
+    evidence: auditById.get('codex.reproducibility')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
+    id: 'local.auto',
+    priority: dirtySourceCount ? 80 : 20,
+    lane: 'local',
+    status: doctor.readiness.local_autonomy && !dirtySourceCount ? 'ready' : 'blocked',
+    safe_to_run_now: doctor.readiness.local_autonomy && !dirtySourceCount,
+    command: `npm run harness -- auto --goal ${goalArg}`,
+    reason: doctor.readiness.local_autonomy
+      ? 'Run the bounded local autonomous loop: select work, render artifacts, persist context, and stop at explicit gates.'
+      : 'Local autonomous execution needs a clear secret scan and at least one incoming job.',
+    evidence: auditById.get('codex.local_execution')?.evidence ?? [],
+    required_gates: [],
+    writes: ['.ops/harness/runs/<run_id>/'],
+  });
+
+  addStep({
+    id: 'information.context_pack',
+    priority: 40,
+    lane: 'information',
+    status: 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- context-pack --out .ops/harness/context_pack.json',
+    reason: 'Write a bounded, hashed source/context bundle so Codex can inspect repo facts without broad ad hoc reads.',
+    evidence: auditById.get('codex.information_surface')?.evidence ?? [],
+    required_gates: [],
+    writes: ['.ops/harness/context_pack.json'],
+  });
+
+  addStep({
+    id: 'provider.preflight_all',
+    priority: providerLiveReadyCount ? 35 : 30,
+    lane: 'provider',
+    status: providerLiveReadyCount ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: 'npm run harness -- provider-preflight',
+    reason: 'Check request prompts, local inputs, declared outputs, dry-run state, and live blockers before any provider action.',
+    evidence: auditById.get('codex.provider_autonomy')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
+  for (const preflight of doctor.provider_preflight.preflights) {
+    const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
+    if (preflight.ready_for_live_request) {
+      addStep({
+        id: `provider.live_run.${preflight.request_id}`,
+        priority: dirtySourceCount ? 85 : 15,
+        lane: 'provider',
+        status: dirtySourceCount ? 'blocked' : 'ready',
+        safe_to_run_now: !dirtySourceCount,
+        command: `npm run trend -- provider:run-live --file ${shellQuote(preflight.request_path)} --package-dir ${shellQuote(packageDir)}`,
+        reason: 'A live provider request has all local inputs, explicit external-call policy, env gate, and credential presence.',
+        evidence: [
+          `provider=${preflight.provider}`,
+          `provider_mode=${preflight.provider_mode}`,
+          `request_path=${preflight.request_path}`,
+          `ready_for_live_request=${preflight.ready_for_live_request}`,
+        ],
+        required_gates: [
+          ...requiredEnvForProvider(preflight.provider),
+          ...(preflight.provider === 'openai_image' ? ['OPENAI_API_KEY available'] : []),
+        ],
+        writes: preflight.declared_outputs.map((output) => output.path),
+      });
+      continue;
+    }
+
+    if (preflight.suggested_prepare_command) {
+      addStep({
+        id: `provider.prepare_inputs.${preflight.request_id}`,
+        priority: 25,
+        lane: 'provider',
+        status: 'ready',
+        safe_to_run_now: true,
+        command: preflight.suggested_prepare_command,
+        reason: 'Local provider input assets are missing but can be produced by the deterministic local renderer.',
+        evidence: preflight.missing_input_assets,
+        required_gates: [],
+        writes: [packageDir],
+      });
+      continue;
+    }
+
+    addStep({
+      id: `provider.handoff.${preflight.request_id}`,
+      priority: preflight.ready_for_provider_handoff ? 32 : 70,
+      lane: 'provider',
+      status: preflight.ready_for_provider_handoff ? 'ready' : 'needs_capability',
+      safe_to_run_now: preflight.ready_for_provider_handoff,
+      command: preflight.ready_for_provider_handoff
+        ? `npm run harness -- provider-handoff --request ${shellQuote(preflight.request_path)}`
+        : 'npm run harness -- provider-preflight',
+      reason: preflight.ready_for_provider_handoff
+        ? 'Write a bounded provider handoff packet before external provider execution.'
+        : preflight.next_action,
+      evidence: preflight.live_blockers.length ? preflight.live_blockers : [`ready_for_provider_handoff=${preflight.ready_for_provider_handoff}`],
+      required_gates: requiredEnvForProvider(preflight.provider),
+      writes: preflight.ready_for_provider_handoff ? ['.ops/harness/provider_handoffs/<packet_id>/'] : [],
+    });
+  }
+
+  addStep({
+    id: 'browser.capture_validation',
+    priority: doctor.readiness.browser_autonomy ? 45 : 75,
+    lane: 'browser',
+    status: doctor.readiness.browser_autonomy ? 'ready' : 'needs_capability',
+    safe_to_run_now: doctor.readiness.browser_autonomy,
+    command: 'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
+    reason: doctor.readiness.browser_autonomy
+      ? 'Browser UI is enabled; validate reviewed captures before trend ingestion.'
+      : 'Browser research remains gated; use reviewed local capture files until ALLOW_BROWSER_UI=true is explicit.',
+    evidence: auditById.get('codex.browser_autonomy')?.evidence ?? [],
+    required_gates: ['ALLOW_BROWSER_UI=true'],
+    writes: [],
+  });
+
+  addStep({
+    id: 'publishing.boundary',
+    priority: 95,
+    lane: 'publishing',
+    status: 'human_boundary',
+    safe_to_run_now: false,
+    command: null,
+    reason: 'Publishing stays outside autonomous execution until env, job policy, human approval, and account-owner confirmation are all present.',
+    evidence: auditById.get('codex.publishing_autonomy')?.evidence ?? [],
+    required_gates: ['ALLOW_SOCIAL_PUBLISHING=true', 'human-approved generated assets', 'account-owner confirmation'],
+    writes: [],
+  });
+
+  const orderedSteps = steps.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+  const selectedNextStep = orderedSteps.find((step) => step.safe_to_run_now && step.command) ?? null;
+  const commandsByAutonomy = (autonomy: CodexPrimitive['autonomy']) => primitives
+    .filter((primitive) => primitive.autonomy === autonomy)
+    .map((primitive) => primitive.command);
+
+  return {
+    created_at: new Date().toISOString(),
+    goal,
+    root_dir: rootDir,
+    summary_status: doctor.autonomy_audit.summary_status,
+    selected_next_step: selectedNextStep,
+    steps: orderedSteps,
+    readiness: doctor.readiness,
+    capability_profile: doctor.capability_profile,
+    source_of_truth_dirty_count: dirtySourceCount,
+    provider_live_ready_request_count: providerLiveReadyCount,
+    information_surface: doctor.information_surface,
+    top_ranked_jobs: rankings,
+    open_blockers: openBlockers,
+    command_policy: {
+      safe_default_commands: commandsByAutonomy('safe_default'),
+      capability_gated_commands: commandsByAutonomy('capability_gated'),
+      human_boundary_commands: commandsByAutonomy('human_boundary'),
+      secret_policy: doctor.capability_profile.credential_policy,
+    },
   };
 }
 
@@ -2912,6 +3150,9 @@ Commands:
   autonomy-audit --goal "<goal>" [--out .ops/harness/autonomy_audit.json]
     Audit the autonomy objective against current repo evidence and capability gates.
 
+  autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json]
+    Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
+
   inspect
     Print capability flags, incoming jobs, provider requests, and Codex primitives.
 
@@ -2972,6 +3213,24 @@ async function main(): Promise<void> {
     case 'capability-plan':
       console.log(JSON.stringify(buildCapabilityPlan(), null, 2));
       return;
+
+    case 'autonomy-plan': {
+      const plan = buildAutonomyPlan(requiredStringOpt(options, 'goal'));
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(plan, null, 2)}\n`);
+        console.log(JSON.stringify({
+          ok: true,
+          path: outPath,
+          selected_next_step: plan.selected_next_step?.id ?? null,
+          step_count: plan.steps.length,
+        }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(plan, null, 2));
+      return;
+    }
 
     case 'provider-preflight': {
       const requestPath = stringOpt(options, 'request');

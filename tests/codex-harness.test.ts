@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import {
   buildArtifactInventory,
   buildAutonomyAudit,
+  buildAutonomyPlan,
   buildBlockerLedger,
   buildCapabilityPlan,
   buildContextPack,
@@ -95,6 +96,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.source_package'));
   assert.ok(ids.includes('harness.verify_source_package'));
   assert.ok(ids.includes('harness.autonomy_audit'));
+  assert.ok(ids.includes('harness.autonomy_plan'));
   assert.ok(ids.includes('harness.inspect'));
   assert.ok(ids.includes('harness.run'));
   assert.ok(ids.includes('harness.rank_jobs'));
@@ -219,6 +221,25 @@ test('capability plan reflects enabled gates without leaking credential values',
 
   assert.equal(plan.capability_profile.autonomy_level, 'publishing_enabled');
   assert.equal(openAiRequest?.credential_available, true);
+  assert.doesNotMatch(serialized, /present-for-test/);
+});
+
+test('autonomy plan returns an ordered Codex execution queue without leaking credentials', () => {
+  const plan = buildAutonomyPlan('Make WorthScan autonomous for Codex', {
+    ALLOW_PAID_GENERATION: 'true',
+    OPENAI_API_KEY: 'present-for-test',
+  }, process.cwd());
+  const serialized = JSON.stringify(plan);
+
+  assert.ok(plan.steps.length >= 5);
+  assert.ok(plan.selected_next_step);
+  assert.ok(plan.selected_next_step?.safe_to_run_now);
+  assert.ok(plan.steps.some((step) => step.id === 'local.auto'));
+  assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
+  assert.ok(plan.steps.some((step) => step.id.startsWith('provider.')));
+  assert.ok(plan.command_policy.safe_default_commands.some((command) => command.includes('autonomy-plan')));
+  assert.ok(plan.command_policy.capability_gated_commands.some((command) => command.includes('provider:run-live')));
+  assert.equal(plan.command_policy.secret_policy, 'available_flags_only_no_secret_values');
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 

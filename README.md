@@ -49,6 +49,9 @@ npm run harness -- repo-status
 
 npm run harness -- capability-plan
 
+npm run harness -- autonomy-plan \
+  --goal "Make WorthScan autonomous for Codex"
+
 npm run harness -- provider-preflight
 
 npm run harness -- prepare-provider-inputs \
@@ -104,8 +107,15 @@ files as JSON so Codex does not need to parse ad hoc shell output.
 `capability-plan` turns capability gates into executable information: local,
 provider, browser, and publishing lane status; missing env gates; credential
 availability flags; provider request dry-run status; and request-level next
-actions. It never prints secret values and still reports live external calls as
-disabled unless the scaffold grows a reviewed live adapter.
+actions. It never prints secret values and reports live-call eligibility only
+when request policy, local inputs, env gates, and credential presence all line
+up.
+
+`autonomy-plan` composes the audit, capability plan, blocker ledger, provider
+preflight, and job ranking into an ordered Codex execution queue. Each step
+declares whether it is safe to run now, the command to run, evidence, required
+gates, expected writes, and the selected next step. It is the quickest
+machine-readable surface for a Codex agent deciding what to do next.
 
 `provider-preflight` checks every provider request prompt, declared input asset,
 declared output target, dry-run result, and local preparation command. It is the
