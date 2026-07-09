@@ -168,6 +168,13 @@ change, or live adapter before it can make an external call. It is the
 Codex-facing answer to "would an API key help right now?" and still reports
 credentials by presence only.
 
+`provider-activation-plan` consolidates the live-provider boundary into one
+Codex-readable report: route rank, redacted credential presence, missing env
+gates, request-policy blockers, existing handoff packets, exact dry-run/live
+commands, and the declared output writes. It is the surface to inspect before
+using an API key; it still makes zero external calls and prints no secret
+values.
+
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
 declares whether it is safe to run now, the command to run, evidence, required
@@ -539,6 +546,9 @@ npm run harness -- prepare-provider-inputs \
 
 npm run harness -- provider-handoff \
   --request .ops/provider_requests/sample_openai_image_request.json
+
+npm run harness -- provider-activation-plan \
+  --env-file .env
 
 npm run trend -- provider:validate-request \
   --file .ops/provider_requests/sample_openai_image_request.json
