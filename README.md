@@ -64,6 +64,8 @@ npm run harness -- provider-handoff \
 
 npm run harness -- reproducibility-manifest
 
+npm run harness -- verification-map
+
 npm run harness -- stage-source --dry-run
 
 npm run harness -- source-package
@@ -111,6 +113,10 @@ capability gates, and recommended next commands.
 
 `repo-status` returns branch, remote, dirty state, and untracked source-of-truth
 files as JSON so Codex does not need to parse ad hoc shell output.
+
+`verification-map` maps the current git diff to targeted validation commands,
+baseline checks, the source staging dry-run, and the reason each command matters.
+Use it after edits so Codex can validate changed surfaces without guessing.
 
 `capability-plan` turns capability gates into executable information: local,
 provider, browser, and publishing lane status; missing env gates; credential

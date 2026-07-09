@@ -425,6 +425,34 @@ export interface HarnessLaunchMap {
   next_commands: string[];
 }
 
+export interface HarnessVerificationChangedFile {
+  path: string;
+  status: 'modified_or_staged' | 'untracked';
+  source_of_truth: boolean;
+  role: string;
+  validation_target_ids: string[];
+}
+
+export interface HarnessVerificationTarget {
+  id: string;
+  reason: string;
+  commands: string[];
+  matched_paths: string[];
+}
+
+export interface HarnessVerificationMap {
+  created_at: string;
+  root_dir: string;
+  dirty: boolean;
+  changed_file_count: number;
+  changed_source_of_truth_count: number;
+  changed_files: HarnessVerificationChangedFile[];
+  validation_targets: HarnessVerificationTarget[];
+  recommended_commands: string[];
+  stage_source_command: string | null;
+  notes: string[];
+}
+
 export interface HarnessContextPackSource {
   id: string;
   kind: HarnessInformationSource['kind'];
@@ -637,7 +665,7 @@ export interface HarnessDoctorReport {
 export interface HarnessAutonomyPlanStep {
   id: string;
   priority: number;
-  lane: 'reproducibility' | 'local' | 'provider' | 'browser' | 'publishing' | 'information';
+  lane: 'reproducibility' | 'local' | 'provider' | 'browser' | 'publishing' | 'information' | 'verification';
   status: 'ready' | 'blocked' | 'needs_capability' | 'human_boundary';
   safe_to_run_now: boolean;
   command: string | null;
@@ -720,6 +748,7 @@ export interface HarnessRunRecord {
   job_rankings_path: string;
   evidence_map_path: string;
   launch_map_path: string;
+  verification_map_path: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   artifact_inventory_path: string;
@@ -869,6 +898,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'reproducibility',
       command: 'npm run harness -- reproducibility-manifest',
       purpose: 'Return the tracked/untracked source-of-truth boundary, generated artifact boundary, exact git add command, and verification commands for portable Codex work.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.verification_map',
+      kind: 'reproducibility',
+      command: 'npm run harness -- verification-map',
+      purpose: 'Map current changed files to targeted validation commands, baseline checks, reproducibility staging, and why each command is required.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -1794,6 +1832,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.job_rankings_path,
     record.evidence_map_path,
     record.launch_map_path,
+    record.verification_map_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -1819,6 +1858,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
       `npm run harness -- inventory --run ${resolvedRunDir}`,
       `npm run harness -- evidence-map`,
       `npm run harness -- launch-map`,
+      `npm run harness -- verification-map`,
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
       `npm run harness -- provider-preflight`,
@@ -1941,6 +1981,66 @@ export function buildReproducibilityManifest(rootDir = process.cwd()): HarnessRe
         'npm run harness -- doctor',
       ],
     },
+  };
+}
+
+export function buildVerificationMap(rootDir = process.cwd()): HarnessVerificationMap {
+  const repoStatus = buildRepoStatus(rootDir);
+  const reproducibility = buildReproducibilityManifest(rootDir);
+  const changedFiles = [
+    ...repoStatus.modified.map((filePath): HarnessVerificationChangedFile => {
+      const targetIds = validationTargetIdsForPath(filePath);
+      return {
+        path: filePath,
+        status: 'modified_or_staged',
+        source_of_truth: isSourceOfTruthPath(filePath),
+        role: sourceOfTruthRole(filePath),
+        validation_target_ids: targetIds,
+      };
+    }),
+    ...repoStatus.untracked.map((filePath): HarnessVerificationChangedFile => {
+      const targetIds = validationTargetIdsForPath(filePath);
+      return {
+        path: filePath,
+        status: 'untracked',
+        source_of_truth: isSourceOfTruthPath(filePath),
+        role: sourceOfTruthRole(filePath),
+        validation_target_ids: targetIds,
+      };
+    }),
+  ].sort((a, b) => a.path.localeCompare(b.path));
+  const targetIds = Array.from(new Set([
+    ...changedFiles.flatMap((file) => file.validation_target_ids),
+    ...(changedFiles.length ? ['typescript.typecheck'] : []),
+    ...(changedFiles.some((file) => file.source_of_truth) ? ['harness.stage_source_dry_run'] : []),
+    'harness.autonomy_audit',
+    'harness.doctor',
+    ...(changedFiles.length ? ['test.full_suite'] : []),
+  ]));
+  const targets = targetIds
+    .map((id) => verificationTargetForId(id, changedFiles))
+    .filter((target): target is HarnessVerificationTarget => Boolean(target));
+  const recommendedCommands = Array.from(new Set(targets.flatMap((target) => target.commands)));
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    dirty: repoStatus.dirty,
+    changed_file_count: changedFiles.length,
+    changed_source_of_truth_count: changedFiles.filter((file) => file.source_of_truth).length,
+    changed_files: changedFiles,
+    validation_targets: targets,
+    recommended_commands: recommendedCommands,
+    stage_source_command: reproducibility.commands.stage_source_of_truth,
+    notes: repoStatus.dirty
+      ? [
+        'Run targeted checks first, then the full suite before committing.',
+        'Use stage-source --dry-run before staging to keep generated artifacts out of git.',
+      ]
+      : [
+        'No changed files are currently reported by git.',
+        'Use the baseline audit and doctor commands before claiming the autonomy goal is complete.',
+      ],
   };
 }
 
@@ -2268,6 +2368,7 @@ export function buildAutonomyAudit(
     'harness.capability_plan',
     'harness.capability_env',
     'harness.reproducibility_manifest',
+    'harness.verification_map',
     'harness.autonomy_audit',
     'harness.autonomy_plan',
     'harness.source_package',
@@ -2451,6 +2552,7 @@ export function buildHarnessDoctor(
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
     'npm run harness -- reproducibility-manifest',
+    'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
     'npm run harness -- provider-preflight',
@@ -2607,6 +2709,21 @@ export function buildAutonomyPlan(
   });
 
   addStep({
+    id: 'verification.map',
+    priority: dirtySourceCount ? 12 : 92,
+    lane: 'verification',
+    status: 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- verification-map',
+    reason: dirtySourceCount
+      ? 'Map the current source changes to targeted validation commands before staging or committing.'
+      : 'No source changes are dirty; keep the validation map available for the next autonomous edit cycle.',
+    evidence: auditById.get('codex.reproducibility')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
     id: 'provider.preflight_all',
     priority: providerLiveReadyCount ? 35 : 30,
     lane: 'provider',
@@ -2750,6 +2867,7 @@ export function inspectHarness(
   job_rankings: HarnessJobRanking[];
   evidence_map: HarnessEvidenceMap;
   launch_map: HarnessLaunchMap;
+  verification_map: HarnessVerificationMap;
   blocker_ledger: HarnessBlockerLedger;
   provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
@@ -2767,6 +2885,7 @@ export function inspectHarness(
     job_rankings: rankIncomingJobs(env, rootDir),
     evidence_map: buildEvidenceMap(rootDir),
     launch_map: buildLaunchMap(env, rootDir),
+    verification_map: buildVerificationMap(rootDir),
     blocker_ledger: buildBlockerLedger(env, rootDir),
     provider_preflight: preflightProviderRequests(env, rootDir),
     latest_run: findLatestHarnessRun(rootDir),
@@ -2851,6 +2970,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const jobRankingsPath = path.join(runDir, 'job_rankings.json');
   const evidenceMapPath = path.join(runDir, 'evidence_map.json');
   const launchMapPath = path.join(runDir, 'launch_map.json');
+  const verificationMapPath = path.join(runDir, 'verification_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
@@ -2867,6 +2987,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const jobRankings = rankIncomingJobs(options.env ?? process.env, rootDir);
   const evidenceMap = buildEvidenceMap(rootDir);
   const launchMap = buildLaunchMap(options.env ?? process.env, rootDir);
+  const verificationMap = buildVerificationMap(rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -2879,6 +3000,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(jobRankingsPath, `${JSON.stringify(jobRankings, null, 2)}\n`);
   fs.writeFileSync(evidenceMapPath, `${JSON.stringify(evidenceMap, null, 2)}\n`);
   fs.writeFileSync(launchMapPath, `${JSON.stringify(launchMap, null, 2)}\n`);
+  fs.writeFileSync(verificationMapPath, `${JSON.stringify(verificationMap, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -2906,6 +3028,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     job_rankings_path: jobRankingsPath,
     evidence_map_path: evidenceMapPath,
     launch_map_path: launchMapPath,
+    verification_map_path: verificationMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     provider_preflight_path: providerPreflightPath,
@@ -3426,6 +3549,189 @@ function sourceOfTruthRole(filePath: string): string {
   if (filePath === 'package-lock.json') return 'dependency lockfile';
   if (filePath === 'tsconfig.json') return 'TypeScript project config';
   return 'repository source';
+}
+
+function validationTargetIdsForPath(filePath: string): string[] {
+  const ids = new Set<string>();
+  if (/\.(ts|tsx)$/.test(filePath) || filePath === 'tsconfig.json') ids.add('typescript.typecheck');
+  if (filePath === 'src/codex-harness.ts' || filePath === 'tests/codex-harness.test.ts' || filePath === 'README.md') {
+    ids.add('harness.focused');
+    ids.add('harness.information_maps');
+  }
+  if (
+    filePath === 'src/provider-workflow.ts'
+    || filePath === 'tests/provider-workflow.test.ts'
+    || filePath.startsWith('.ops/provider_requests/')
+    || filePath.startsWith('.ops/prompts/')
+    || filePath === 'schemas/provider-request.schema.json'
+  ) {
+    ids.add('provider.focused');
+  }
+  if (
+    filePath === 'src/browser-capture.ts'
+    || filePath === 'tests/browser-capture.test.ts'
+    || filePath === 'schemas/browser-capture.schema.json'
+    || filePath.startsWith('.ops/browser/')
+  ) {
+    ids.add('browser.focused');
+  }
+  if (
+    filePath === 'src/trend-research.ts'
+    || filePath === 'src/trend-cli.ts'
+    || filePath === 'tests/trend-research.test.ts'
+    || filePath === 'schemas/trend-example.schema.json'
+    || filePath.startsWith('.ops/trend_seeds/')
+  ) {
+    ids.add('trend.focused');
+  }
+  if (
+    filePath === 'src/post-metrics.ts'
+    || filePath === 'schemas/post-metrics.schema.json'
+  ) {
+    ids.add('metrics.focused');
+  }
+  if (
+    filePath === 'src/valuation-card.ts'
+    || filePath === 'schemas/valuation-card.schema.json'
+  ) {
+    ids.add('worthscan.focused');
+  }
+  if (
+    filePath.startsWith('packages/creative/')
+    || filePath.startsWith('.ops/creative_jobs/incoming/')
+    || filePath === 'tests/creative-job-schema.test.ts'
+  ) {
+    ids.add('creative.focused');
+    ids.add('worthscan.focused');
+  }
+  if (
+    filePath.startsWith('.ops/launch/')
+    || filePath.startsWith('.ops/accounts/')
+    || filePath === 'tests/launch-kit.test.ts'
+  ) {
+    ids.add('launch.focused');
+    ids.add('harness.information_maps');
+  }
+  if (filePath === 'package.json' || filePath === 'package-lock.json' || filePath === '.env.example') {
+    ids.add('harness.focused');
+    ids.add('test.full_suite');
+  }
+  if (!ids.size && isSourceOfTruthPath(filePath)) ids.add('test.full_suite');
+  return Array.from(ids).sort();
+}
+
+function verificationTargetForId(
+  id: string,
+  changedFiles: HarnessVerificationChangedFile[],
+): HarnessVerificationTarget | null {
+  const matchedPaths = changedFiles
+    .filter((file) => file.validation_target_ids.includes(id))
+    .map((file) => file.path);
+  const target = verificationTargetDefinition(id);
+  if (!target) return null;
+  return {
+    id,
+    reason: target.reason,
+    commands: target.commands,
+    matched_paths: matchedPaths,
+  };
+}
+
+function verificationTargetDefinition(id: string): { reason: string; commands: string[] } | null {
+  switch (id) {
+    case 'typescript.typecheck':
+      return {
+        reason: 'TypeScript or config changed; compile-time contracts must still hold.',
+        commands: ['npm run typecheck -- --pretty false'],
+      };
+    case 'harness.focused':
+      return {
+        reason: 'Codex harness, docs, package scripts, or harness tests changed.',
+        commands: [
+          'npm exec tsx -- --test tests/codex-harness.test.ts --runInBand',
+          'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex"',
+        ],
+      };
+    case 'harness.information_maps':
+      return {
+        reason: 'Information surfaces, launch docs, or harness docs changed; smoke the Codex-readable maps.',
+        commands: [
+          'npm run harness -- job-matrix',
+          'npm run harness -- evidence-map',
+          'npm run harness -- launch-map',
+          'npm run harness -- verification-map',
+        ],
+      };
+    case 'provider.focused':
+      return {
+        reason: 'Provider request, prompt, schema, or workflow changed.',
+        commands: [
+          'npm exec tsx -- --test tests/provider-workflow.test.ts --runInBand',
+          'npm run harness -- provider-preflight',
+        ],
+      };
+    case 'browser.focused':
+      return {
+        reason: 'Browser capture protocol, schema, sample, or code changed.',
+        commands: ['npm exec tsx -- --test tests/browser-capture.test.ts --runInBand'],
+      };
+    case 'trend.focused':
+      return {
+        reason: 'Trend research intake, search, brief generation, or seed data changed.',
+        commands: ['npm exec tsx -- --test tests/trend-research.test.ts --runInBand'],
+      };
+    case 'metrics.focused':
+      return {
+        reason: 'Post metrics schema or storage changed.',
+        commands: ['npm exec tsx -- --test tests/worthscan-pilot.test.ts --runInBand'],
+      };
+    case 'creative.focused':
+      return {
+        reason: 'Creative job schema, renderer, provider router, or incoming manifests changed.',
+        commands: [
+          'npm exec tsx -- --test tests/creative-job-schema.test.ts tests/worthscan-pilot.test.ts --runInBand',
+          'npm run harness -- job-matrix',
+        ],
+      };
+    case 'worthscan.focused':
+      return {
+        reason: 'WorthScan valuation, job manifests, local render package, or pilot metrics changed.',
+        commands: [
+          'npm exec tsx -- --test tests/worthscan-pilot.test.ts --runInBand',
+          'npm run harness -- evidence-map',
+        ],
+      };
+    case 'launch.focused':
+      return {
+        reason: 'Manual launch docs, account docs, queue, or launch tests changed.',
+        commands: [
+          'npm exec tsx -- --test tests/launch-kit.test.ts --runInBand',
+          'npm run harness -- launch-map',
+        ],
+      };
+    case 'harness.stage_source_dry_run':
+      return {
+        reason: 'Source-of-truth files changed; preview staging before committing to keep generated artifacts out of git.',
+        commands: ['npm run harness -- stage-source --dry-run'],
+      };
+    case 'harness.autonomy_audit':
+      return {
+        reason: 'Re-check the objective-level autonomy gates against current repo evidence.',
+        commands: ['npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex"'],
+      };
+    case 'harness.doctor':
+      return {
+        reason: 'Refresh the aggregate readiness report after targeted validation.',
+        commands: ['npm run harness -- doctor'],
+      };
+    case 'test.full_suite':
+      return {
+        reason: 'Run the full suite before committing or claiming a broad autonomy improvement.',
+        commands: ['npm test -- --runInBand'],
+      };
+    default:
+      return null;
+  }
 }
 
 function providerCredentialAvailable(
@@ -4069,6 +4375,9 @@ Commands:
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
     Print or write the source-of-truth boundary, generated artifact boundary, stage command, and verification commands.
 
+  verification-map
+    Print changed files, matched validation targets, exact commands, staging command, and verification notes.
+
   stage-source [--dry-run] [--apply]
     Preview or apply git staging for manifest-classified source-of-truth files only.
 
@@ -4235,6 +4544,10 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(manifest, null, 2));
       return;
     }
+
+    case 'verification-map':
+      console.log(JSON.stringify(buildVerificationMap(), null, 2));
+      return;
 
     case 'stage-source':
       console.log(JSON.stringify(stageSourceOfTruth({ apply: flagEnabled(options, 'apply') }), null, 2));
