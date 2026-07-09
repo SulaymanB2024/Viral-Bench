@@ -83,6 +83,9 @@ npm run harness -- autonomy-audit \
 npm run harness -- goal-completion-audit \
   --goal "Make WorthScan autonomous for Codex"
 
+npm run harness -- decision-surface \
+  --goal "Make WorthScan autonomous for Codex"
+
 npm run harness -- inspect
 
 npm run harness -- information-index
@@ -223,11 +226,17 @@ requirements, evidence, proof commands, blockers, and a
 done; today it should stay false while provider, browser, or publishing gates
 remain open.
 
+`decision-surface` is the compact control panel for Codex. It merges the
+autonomy plan, goal audit, blocker ledger, provider readiness, credential
+coverage, launch state, and run history into safe-now, capability-gated,
+human-boundary, and blocked action queues.
+
 `inspect` returns:
 
 - repo status and latest usable harness run
 - reproducibility manifest and autonomy audit
 - goal completion audit with explicit blockers and proof commands
+- decision surface with safe-now, gated, human-boundary, and blocked queues
 - capability plan
 - capability unlock map for env, credential, policy, activation, and verification gates
 - credential coverage across live, gated, unimplemented, missing, and unbound keys

@@ -823,6 +823,54 @@ export interface HarnessAutonomyPlan {
   };
 }
 
+export interface HarnessDecisionSurfaceAction {
+  id: string;
+  queue: 'safe_now' | 'capability_gated' | 'human_boundary' | 'blocked';
+  lane: HarnessAutonomyPlanStep['lane'];
+  readiness_status: HarnessAutonomyPlanStep['status'];
+  command: string | null;
+  reason: string;
+  evidence: string[];
+  required_gates: string[];
+  writes: string[];
+  source_ids: string[];
+}
+
+export interface HarnessDecisionSurface {
+  created_at: string;
+  goal: string;
+  root_dir: string;
+  summary: {
+    selected_safe_action_id: string | null;
+    safe_now_count: number;
+    capability_gated_count: number;
+    human_boundary_count: number;
+    blocked_count: number;
+    can_mark_goal_complete: boolean;
+    goal_summary_status: HarnessGoalCompletionAudit['summary_status'];
+    autonomy_summary_status: HarnessAutonomyAudit['summary_status'];
+    dirty_source_of_truth_count: number;
+  };
+  current_state: {
+    latest_run_id: string | null;
+    run_count: number;
+    provider_request_count: number;
+    provider_live_ready_request_count: number;
+    missing_required_credential_count: number;
+    manual_handoff_ready_job_count: number;
+    autonomous_publish_ready_job_count: number;
+  };
+  selected_safe_action: HarnessDecisionSurfaceAction | null;
+  queues: {
+    safe_now: HarnessDecisionSurfaceAction[];
+    capability_gated: HarnessDecisionSurfaceAction[];
+    human_boundary: HarnessDecisionSurfaceAction[];
+    blocked: HarnessDecisionSurfaceAction[];
+  };
+  active_blockers: HarnessBlocker[];
+  next_commands: string[];
+}
+
 export interface HarnessAutoResult {
   created_at: string;
   goal: string;
@@ -1153,6 +1201,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- autonomy-plan --goal "<goal>"',
       purpose: 'Return an ordered Codex execution queue with safe-to-run commands, capability-gated commands, evidence, writes, and selected next step.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.decision_surface',
+      kind: 'doctor',
+      command: 'npm run harness -- decision-surface --goal "<goal>" --env-file .env',
+      purpose: 'Merge plan, goal audit, blockers, provider readiness, credential coverage, launch state, and run history into safe-now, capability-gated, human-boundary, and blocked action queues.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2799,6 +2856,7 @@ export function buildAutonomyAudit(
     'harness.autonomy_audit',
     'harness.goal_completion_audit',
     'harness.autonomy_plan',
+    'harness.decision_surface',
     'harness.source_package',
     'harness.verify_source_package',
     'harness.information_index',
@@ -2923,6 +2981,7 @@ export function buildAutonomyAudit(
       'npm run harness -- capability-unlock-map',
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
@@ -2978,6 +3037,7 @@ export function buildGoalCompletionAudit(
     'harness.autonomy_audit',
     'harness.goal_completion_audit',
     'harness.autonomy_plan',
+    'harness.decision_surface',
     'harness.capability_plan',
     'harness.capability_unlock_map',
     'harness.credential_coverage',
@@ -3022,6 +3082,7 @@ export function buildGoalCompletionAudit(
         'npm run harness -- primitives',
         'npm run harness -- inspect',
         'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
+        'npm run harness -- decision-surface --goal "<goal>" --env-file .env',
       ],
       next_action: missingGoalPrimitives.length
         ? 'Add any missing primitive before treating the harness as complete for Codex.'
@@ -3155,6 +3216,7 @@ export function buildGoalCompletionAudit(
     requirements,
     next_commands: [
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
@@ -3199,6 +3261,7 @@ export function buildHarnessDoctor(
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
     'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
+    'npm run harness -- decision-surface --goal "<goal>" --env-file .env',
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
     'npm run harness -- capability-unlock-map',
@@ -3573,6 +3636,99 @@ export function buildAutonomyPlan(
   };
 }
 
+export function buildDecisionSurface(
+  goal = 'Make WorthScan autonomous for Codex',
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessDecisionSurface {
+  const plan = buildAutonomyPlan(goal, env, rootDir);
+  const goalAudit = buildGoalCompletionAudit(goal, env, rootDir);
+  const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
+  const launchMap = buildLaunchMap(env, rootDir);
+  const providerPreflight = preflightProviderRequests(env, rootDir);
+  const runHistory = buildHarnessRunHistory({ rootDir, limit: 5 });
+  const latestRun = findLatestHarnessRun(rootDir);
+  const actions = plan.steps.map((step) => decisionSurfaceAction(step));
+  const safeNow = actions.filter((action) => action.queue === 'safe_now');
+  const capabilityGated = actions.filter((action) => action.queue === 'capability_gated');
+  const humanBoundary = actions.filter((action) => action.queue === 'human_boundary');
+  const blocked = actions.filter((action) => action.queue === 'blocked');
+  const selectedSafeAction = safeNow.find((action) => action.command) ?? null;
+
+  return {
+    created_at: new Date().toISOString(),
+    goal,
+    root_dir: rootDir,
+    summary: {
+      selected_safe_action_id: selectedSafeAction?.id ?? null,
+      safe_now_count: safeNow.length,
+      capability_gated_count: capabilityGated.length,
+      human_boundary_count: humanBoundary.length,
+      blocked_count: blocked.length,
+      can_mark_goal_complete: goalAudit.can_mark_goal_complete,
+      goal_summary_status: goalAudit.summary_status,
+      autonomy_summary_status: plan.summary_status,
+      dirty_source_of_truth_count: plan.source_of_truth_dirty_count,
+    },
+    current_state: {
+      latest_run_id: latestRun?.run_id ?? null,
+      run_count: runHistory.run_count,
+      provider_request_count: providerPreflight.request_count,
+      provider_live_ready_request_count: plan.provider_live_ready_request_count,
+      missing_required_credential_count: credentialCoverage.summary.missing_required_count,
+      manual_handoff_ready_job_count: launchMap.manual_handoff_ready_job_count,
+      autonomous_publish_ready_job_count: launchMap.autonomous_publish_ready_job_count,
+    },
+    selected_safe_action: selectedSafeAction,
+    queues: {
+      safe_now: safeNow,
+      capability_gated: capabilityGated,
+      human_boundary: humanBoundary,
+      blocked,
+    },
+    active_blockers: plan.open_blockers,
+    next_commands: uniqueSorted([
+      ...(selectedSafeAction?.command ? [selectedSafeAction.command] : []),
+      'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      'npm run harness -- run-history',
+    ]),
+  };
+}
+
+function decisionSurfaceAction(step: HarnessAutonomyPlanStep): HarnessDecisionSurfaceAction {
+  const queue = decisionSurfaceQueue(step);
+  return {
+    id: step.id,
+    queue,
+    lane: step.lane,
+    readiness_status: step.status,
+    command: step.command,
+    reason: step.reason,
+    evidence: step.evidence,
+    required_gates: step.required_gates,
+    writes: step.writes,
+    source_ids: [`autonomy_plan.${step.id}`],
+  };
+}
+
+function decisionSurfaceQueue(step: HarnessAutonomyPlanStep): HarnessDecisionSurfaceAction['queue'] {
+  const command = step.command ?? '';
+  const externalCapabilityCommand = /provider:run-live|ALLOW_[A-Z_]+=true/.test(command);
+  if (step.status === 'human_boundary') return 'human_boundary';
+  if (externalCapabilityCommand) return step.lane === 'publishing' ? 'human_boundary' : 'capability_gated';
+  if (step.safe_to_run_now && step.command && step.required_gates.length === 0) return 'safe_now';
+  if (step.safe_to_run_now && step.command) return 'safe_now';
+  if (step.required_gates.length > 0) {
+    return step.lane === 'publishing' ? 'human_boundary' : 'capability_gated';
+  }
+  return 'blocked';
+}
+
 export function inspectHarness(
   env: Record<string, string | undefined> = process.env,
   rootDir = process.cwd(),
@@ -3581,6 +3737,7 @@ export function inspectHarness(
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
   goal_completion_audit: HarnessGoalCompletionAudit;
+  decision_surface: HarnessDecisionSurface;
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
@@ -3603,6 +3760,7 @@ export function inspectHarness(
     reproducibility_manifest: buildReproducibilityManifest(rootDir),
     autonomy_audit: buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir),
     goal_completion_audit: buildGoalCompletionAudit('Make WorthScan autonomous for Codex', env, rootDir),
+    decision_surface: buildDecisionSurface('Make WorthScan autonomous for Codex', env, rootDir),
     capability_plan: buildCapabilityPlan(env, rootDir),
     capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
     credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
@@ -3802,6 +3960,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- run-history',
     `npm run harness -- autonomy-audit --goal "${options.goal.replace(/"/g, '\\"')}"`,
     `npm run harness -- goal-completion-audit --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
+    `npm run harness -- decision-surface --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
@@ -5393,6 +5552,9 @@ Commands:
   autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json] [--env-file .env]
     Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
 
+  decision-surface --goal "<goal>" [--out .ops/harness/decision_surface.json] [--env-file .env]
+    Merge plan, goal audit, blockers, providers, credentials, launch state, and run history into action queues.
+
   inspect
     Print capability flags, incoming jobs, provider requests, and Codex primitives.
 
@@ -5606,6 +5768,26 @@ async function main(): Promise<void> {
         return;
       }
       console.log(JSON.stringify(audit, null, 2));
+      return;
+    }
+
+    case 'decision-surface': {
+      const surface = buildDecisionSurface(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex', effectiveEnv);
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(surface, null, 2)}\n`);
+        console.log(JSON.stringify({
+          ok: true,
+          path: outPath,
+          selected_safe_action_id: surface.summary.selected_safe_action_id,
+          safe_now_count: surface.summary.safe_now_count,
+          capability_gated_count: surface.summary.capability_gated_count,
+          human_boundary_count: surface.summary.human_boundary_count,
+        }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(surface, null, 2));
       return;
     }
 
