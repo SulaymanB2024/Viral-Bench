@@ -53,6 +53,8 @@ npm run harness -- capability-unlock-map
 
 npm run harness -- capability-env --env-file .env
 
+npm run harness -- credential-coverage --env-file .env
+
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
@@ -141,6 +143,12 @@ flags. It never prints secret values. Pass the same `--env-file .env` option to
 `capability-plan`, `provider-preflight`, `provider-handoff`, `autonomy-plan`,
 `run`, or `auto` when Codex should use locally stored gate/credential values.
 
+`credential-coverage` maps redacted credential presence to the current harness
+surface: which keys are usable by live provider requests now, which are missing,
+which are present but still gated or unimplemented, and which are present but
+unbound to any current request. It is the quickest way for Codex to decide
+whether an available API key can move a provider lane forward.
+
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
 declares whether it is safe to run now, the command to run, evidence, required
@@ -212,6 +220,7 @@ surface size.
 - reproducibility manifest and autonomy audit
 - capability plan
 - capability unlock map for env, credential, policy, activation, and verification gates
+- credential coverage across live, gated, unimplemented, missing, and unbound keys
 - available incoming creative jobs
 - provider request manifests
 - provider preflight with prompt/input/output readiness

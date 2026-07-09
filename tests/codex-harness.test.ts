@@ -14,6 +14,7 @@ import {
   buildCapabilityUnlockMap,
   buildCapabilityPlan,
   buildContextPack,
+  buildCredentialCoverageMap,
   buildEvidenceMap,
   buildHarnessDoctor,
   buildHarnessRunHistory,
@@ -100,6 +101,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.capability_plan'));
   assert.ok(ids.includes('harness.capability_unlock_map'));
   assert.ok(ids.includes('harness.capability_env'));
+  assert.ok(ids.includes('harness.credential_coverage'));
   assert.ok(ids.includes('harness.reproducibility_manifest'));
   assert.ok(ids.includes('harness.verification_map'));
   assert.ok(ids.includes('harness.stage_source'));
@@ -146,6 +148,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
+  assert.ok(inspected.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
   assert.ok(Array.isArray(inspected.run_history.runs));
   assert.equal(inspected.repo_status.is_git_repo, true);
   assert.equal(inspected.capability_profile.autonomy_level, 'local_only');
@@ -351,11 +354,36 @@ test('capability unlock map explains closed external gates without leaking crede
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 
+test('credential coverage maps usable and unbound keys without leaking values', () => {
+  const map = buildCredentialCoverageMap({
+    env: {
+      ALLOW_PAID_GENERATION: 'true',
+      OPENAI_API_KEY: 'present-for-test',
+      OPENROUTER_API_KEY: 'router-secret-for-test',
+    },
+    rootDir: process.cwd(),
+  });
+  const serialized = JSON.stringify(map);
+  const openAi = map.keys.find((key) => key.key === 'OPENAI_API_KEY');
+  const openRouter = map.keys.find((key) => key.key === 'OPENROUTER_API_KEY');
+
+  assert.equal(map.credential_policy, 'available_flags_only_no_secret_values');
+  assert.ok(openAi);
+  assert.equal(openAi.status, 'usable_now');
+  assert.ok(openAi.ready_request_ids.includes('sample-openai-image-live-request'));
+  assert.ok(openRouter);
+  assert.equal(openRouter.status, 'present_but_unbound');
+  assert.equal(openRouter.current_binding, 'unbound');
+  assert.equal(map.summary.usable_now_count >= 1, true);
+  assert.doesNotMatch(serialized, /present-for-test|router-secret-for-test/);
+});
+
 test('capability env plan reads ignored env files without leaking values', () => {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-env-plan-'));
   fs.writeFileSync(path.join(rootDir, '.env'), [
     'ALLOW_PAID_GENERATION=true',
     'OPENAI_API_KEY=secret-value-for-test',
+    'OPENROUTER_API_KEY=router-secret-for-test',
     'OPENAI_IMAGE_SIZE=1024x1536',
     'not a valid env line',
   ].join('\n'));
@@ -363,6 +391,7 @@ test('capability env plan reads ignored env files without leaking values', () =>
   const plan = buildCapabilityEnvPlan({ env: {}, rootDir, envFile: '.env' });
   const serialized = JSON.stringify(plan);
   const openAiKey = plan.keys.find((key) => key.key === 'OPENAI_API_KEY');
+  const openRouterKey = plan.keys.find((key) => key.key === 'OPENROUTER_API_KEY');
   const paidGate = plan.keys.find((key) => key.key === 'ALLOW_PAID_GENERATION');
 
   assert.equal(plan.env_file?.exists, true);
@@ -370,9 +399,10 @@ test('capability env plan reads ignored env files without leaking values', () =>
   assert.equal(plan.capability_profile.gates.allow_paid_generation, true);
   assert.equal(plan.capability_profile.credentials.openai_api_key_available, true);
   assert.equal(openAiKey?.source, 'env_file');
+  assert.equal(openRouterKey?.source, 'env_file');
   assert.equal(paidGate?.present, true);
   assert.ok(plan.warnings.some((warning) => warning.includes('Ignored line')));
-  assert.doesNotMatch(serialized, /secret-value-for-test/);
+  assert.doesNotMatch(serialized, /secret-value-for-test|router-secret-for-test/);
 });
 
 test('autonomy plan returns an ordered Codex execution queue without leaking credentials', () => {
@@ -392,6 +422,7 @@ test('autonomy plan returns an ordered Codex execution queue without leaking cre
   assert.ok(plan.steps.some((step) => step.id === 'information.run_history'));
   assert.ok(plan.steps.some((step) => step.id === 'verification.map'));
   assert.ok(plan.steps.some((step) => step.id === 'capability.unlock_map'));
+  assert.ok(plan.steps.some((step) => step.id === 'capability.credential_coverage'));
   assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
   assert.ok(plan.steps.some((step) => step.id.startsWith('provider.')));
   assert.ok(plan.command_policy.safe_default_commands.some((command) => command.includes('autonomy-plan')));
@@ -540,6 +571,7 @@ test('autonomy audit reports objective-level gates with evidence', () => {
   assert.ok(ids.includes('codex.provider_autonomy'));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- capability-plan')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- credential-coverage')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- reproducibility-manifest')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
@@ -552,6 +584,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.equal(doctor.repo_status.is_git_repo, true);
   assert.ok(doctor.capability_plan.provider_requests.length >= 1);
   assert.ok(doctor.provider_preflight.preflights.length >= 1);
+  assert.ok(doctor.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
   assert.ok(Array.isArray(doctor.run_history.runs));
   assert.ok(doctor.reproducibility_manifest.source_of_truth.file_count > 0);
   assert.ok(doctor.autonomy_audit.criteria.some((criterion) => criterion.id === 'codex.reproducibility'));
@@ -562,6 +595,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- credential-coverage')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run-history')));
 });
 

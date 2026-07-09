@@ -80,6 +80,37 @@ export interface HarnessCapabilityEnvPlan {
   next_commands: string[];
 }
 
+export interface HarnessCredentialCoverageKey {
+  key: string;
+  present: boolean;
+  source: 'process_env' | 'env_file' | 'both' | 'local_file' | 'none';
+  provider_or_surface: string;
+  current_binding: 'live_provider' | 'provider_handoff' | 'research_or_legacy' | 'local_token_file' | 'unbound';
+  status: 'usable_now' | 'present_but_gated' | 'present_but_unimplemented' | 'present_but_unbound' | 'missing_required' | 'not_configured';
+  required_by_request_ids: string[];
+  ready_request_ids: string[];
+  blocked_request_ids: string[];
+  blockers: string[];
+}
+
+export interface HarnessCredentialCoverageMap {
+  created_at: string;
+  root_dir: string;
+  env_file: HarnessEnvFileSummary | null;
+  credential_policy: HarnessCapabilityProfile['credential_policy'];
+  gates: HarnessCapabilityProfile['gates'];
+  key_count: number;
+  keys: HarnessCredentialCoverageKey[];
+  summary: {
+    usable_now_count: number;
+    missing_required_count: number;
+    present_but_unbound_count: number;
+    present_but_gated_count: number;
+    present_but_unimplemented_count: number;
+  };
+  next_commands: string[];
+}
+
 export interface HarnessCapabilityPlanLane {
   id: 'local' | 'provider' | 'browser' | 'publishing';
   status: 'ready' | 'blocked' | 'needs_gate' | 'needs_credential' | 'human_boundary';
@@ -711,6 +742,7 @@ export interface HarnessDoctorReport {
   autonomy_audit: HarnessAutonomyAudit;
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
+  credential_coverage: HarnessCredentialCoverageMap;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -920,6 +952,53 @@ export function buildCapabilityEnvPlan(
   };
 }
 
+export function buildCredentialCoverageMap(
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessCredentialCoverageMap {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
+  const providerPreflight = preflightProviderRequests(merged.effective_env, rootDir);
+  const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
+  const keys = credentialCoverageDefinitions().map((definition) => credentialCoverageForDefinition({
+    definition,
+    baseEnv,
+    mergedEnv: merged.effective_env,
+    envFile: merged.env_file,
+    rootDir,
+    providerPreflight,
+  }));
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    env_file: envFileSummary,
+    credential_policy: capabilityProfile.credential_policy,
+    gates: capabilityProfile.gates,
+    key_count: keys.length,
+    keys,
+    summary: {
+      usable_now_count: keys.filter((key) => key.status === 'usable_now').length,
+      missing_required_count: keys.filter((key) => key.status === 'missing_required').length,
+      present_but_unbound_count: keys.filter((key) => key.status === 'present_but_unbound').length,
+      present_but_gated_count: keys.filter((key) => key.status === 'present_but_gated').length,
+      present_but_unimplemented_count: keys.filter((key) => key.status === 'present_but_unimplemented').length,
+    },
+    next_commands: [
+      'npm run harness -- capability-env --env-file .env',
+      'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --env-file .env --file .ops/provider_requests/sample_openai_image_live_request.json --package-dir .ops/creative_jobs/rendered/scan_bike_001',
+    ],
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -972,6 +1051,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- capability-env --env-file .env',
       purpose: 'Inspect a local ignored env file and process env as redacted key-presence flags for capability gates and provider credentials.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.credential_coverage',
+      kind: 'doctor',
+      command: 'npm run harness -- credential-coverage --env-file .env',
+      purpose: 'Map redacted credential presence to current provider requests, live readiness, unbound keys, missing required credentials, and gate blockers.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2675,6 +2763,7 @@ export function buildAutonomyAudit(
     'harness.capability_plan',
     'harness.capability_unlock_map',
     'harness.capability_env',
+    'harness.credential_coverage',
     'harness.reproducibility_manifest',
     'harness.verification_map',
     'harness.autonomy_audit',
@@ -2801,6 +2890,7 @@ export function buildAutonomyAudit(
       'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
       'npm run harness -- capability-plan',
       'npm run harness -- capability-unlock-map',
+      'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
@@ -2839,6 +2929,7 @@ export function buildHarnessDoctor(
   const autonomyAudit = buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir);
   const capabilityPlan = buildCapabilityPlan(env, rootDir);
   const capabilityUnlockMap = buildCapabilityUnlockMap(env, rootDir);
+  const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
@@ -2865,6 +2956,7 @@ export function buildHarnessDoctor(
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
     'npm run harness -- capability-unlock-map',
+    'npm run harness -- credential-coverage --env-file .env',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -2896,6 +2988,7 @@ export function buildHarnessDoctor(
     autonomy_audit: autonomyAudit,
     capability_plan: capabilityPlan,
     capability_unlock_map: capabilityUnlockMap,
+    credential_coverage: credentialCoverage,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -3082,6 +3175,23 @@ export function buildAutonomyPlan(
     writes: [],
   });
 
+  addStep({
+    id: 'capability.credential_coverage',
+    priority: 36,
+    lane: 'information',
+    status: doctor.credential_coverage.summary.missing_required_count ? 'needs_capability' : 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- credential-coverage --env-file .env',
+    reason: 'Map redacted API key presence to current provider requests so Codex can distinguish usable, gated, missing, unimplemented, and unbound credentials.',
+    evidence: [
+      `usable_now_count=${doctor.credential_coverage.summary.usable_now_count}`,
+      `missing_required_count=${doctor.credential_coverage.summary.missing_required_count}`,
+      `present_but_unbound_count=${doctor.credential_coverage.summary.present_but_unbound_count}`,
+    ],
+    required_gates: [],
+    writes: [],
+  });
+
   for (const preflight of doctor.provider_preflight.preflights) {
     const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
     if (preflight.ready_for_live_request) {
@@ -3208,6 +3318,7 @@ export function inspectHarness(
   autonomy_audit: HarnessAutonomyAudit;
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
+  credential_coverage: HarnessCredentialCoverageMap;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
   information_sources: HarnessInformationSource[];
@@ -3228,6 +3339,7 @@ export function inspectHarness(
     autonomy_audit: buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir),
     capability_plan: buildCapabilityPlan(env, rootDir),
     capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
+    credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
     information_sources: buildInformationIndex(rootDir),
@@ -4208,6 +4320,153 @@ function isHarnessRunStatus(value: unknown): value is HarnessRunRecord['status']
   return value === 'advanced' || value === 'needs_capability' || value === 'blocked';
 }
 
+interface CredentialCoverageDefinition {
+  key: string;
+  provider_or_surface: string;
+  current_binding: HarnessCredentialCoverageKey['current_binding'];
+  requestProviders: CreativeProviderName[];
+  filePath?: string;
+}
+
+function credentialCoverageDefinitions(): CredentialCoverageDefinition[] {
+  return [
+    {
+      key: 'OPENAI_API_KEY',
+      provider_or_surface: 'OpenAI image live generation',
+      current_binding: 'live_provider',
+      requestProviders: ['openai_image'],
+    },
+    {
+      key: 'GEMINI_API_KEY',
+      provider_or_surface: 'Gemini image or video provider requests',
+      current_binding: 'provider_handoff',
+      requestProviders: ['gemini_image', 'gemini_video_understanding'],
+    },
+    {
+      key: 'GOOGLE_API_KEY',
+      provider_or_surface: 'Gemini image or video provider requests',
+      current_binding: 'provider_handoff',
+      requestProviders: ['gemini_image', 'gemini_video_understanding'],
+    },
+    {
+      key: 'LIGHTREEL_API_KEY',
+      provider_or_surface: 'legacy Lightreel media-generation seam',
+      current_binding: 'research_or_legacy',
+      requestProviders: [],
+    },
+    {
+      key: 'SCRAPE_CREATORS_API_KEY',
+      provider_or_surface: 'legacy creator-scrape research seam',
+      current_binding: 'research_or_legacy',
+      requestProviders: [],
+    },
+    {
+      key: 'OPENROUTER_API_KEY',
+      provider_or_surface: 'unbound LLM routing key',
+      current_binding: 'unbound',
+      requestProviders: [],
+    },
+    {
+      key: 'DOUBLESPEED_TOKENS_FILE',
+      provider_or_surface: 'local Doublespeed token file',
+      current_binding: 'local_token_file',
+      requestProviders: [],
+      filePath: '.doublespeed-tokens.json',
+    },
+  ];
+}
+
+function credentialCoverageForDefinition(input: {
+  definition: CredentialCoverageDefinition;
+  baseEnv: EnvMap;
+  mergedEnv: EnvMap;
+  envFile: LoadedEnvFile | null;
+  rootDir: string;
+  providerPreflight: HarnessProviderPreflightReport;
+}): HarnessCredentialCoverageKey {
+  const { definition, baseEnv, mergedEnv, envFile, rootDir, providerPreflight } = input;
+  const presence = definition.filePath
+    ? localFileCredentialPresence(rootDir, definition.filePath)
+    : envCredentialPresence(definition.key, baseEnv, envFile);
+  const relevantRequests = providerPreflight.preflights.filter((preflight) => (
+    definition.requestProviders.includes(preflight.provider)
+  ));
+  const providerCredentialSatisfied = definition.key === 'GEMINI_API_KEY' || definition.key === 'GOOGLE_API_KEY'
+    ? Boolean(nonEmpty(mergedEnv.GEMINI_API_KEY) || nonEmpty(mergedEnv.GOOGLE_API_KEY))
+    : presence.present;
+  const readyRequestIds = relevantRequests
+    .filter((preflight) => preflight.ready_for_live_request && providerCredentialSatisfied)
+    .map((preflight) => preflight.request_id);
+  const blockedRequests = relevantRequests.filter((preflight) => !preflight.ready_for_live_request);
+  const blockers = uniqueSorted(blockedRequests.flatMap((preflight) => preflight.live_blockers));
+
+  return {
+    key: definition.key,
+    present: presence.present,
+    source: presence.source,
+    provider_or_surface: definition.provider_or_surface,
+    current_binding: definition.current_binding,
+    status: credentialCoverageStatus({
+      present: presence.present,
+      providerCredentialSatisfied,
+      relevantRequests,
+      readyRequestIds,
+      blockers,
+      currentBinding: definition.current_binding,
+    }),
+    required_by_request_ids: relevantRequests.map((preflight) => preflight.request_id),
+    ready_request_ids: readyRequestIds,
+    blocked_request_ids: blockedRequests.map((preflight) => preflight.request_id),
+    blockers,
+  };
+}
+
+function credentialCoverageStatus(input: {
+  present: boolean;
+  providerCredentialSatisfied: boolean;
+  relevantRequests: HarnessProviderPreflight[];
+  readyRequestIds: string[];
+  blockers: string[];
+  currentBinding: HarnessCredentialCoverageKey['current_binding'];
+}): HarnessCredentialCoverageKey['status'] {
+  if (input.readyRequestIds.length) return 'usable_now';
+  if (input.relevantRequests.length && !input.providerCredentialSatisfied && input.blockers.includes('provider credential')) {
+    return 'missing_required';
+  }
+  if (input.present && input.blockers.some((blocker) => blocker.includes('ALLOW_'))) return 'present_but_gated';
+  if (input.present && input.blockers.includes('live provider implementation')) return 'present_but_unimplemented';
+  if (input.present && (input.relevantRequests.length === 0 || input.currentBinding !== 'live_provider')) return 'present_but_unbound';
+  return 'not_configured';
+}
+
+function envCredentialPresence(
+  key: string,
+  baseEnv: EnvMap,
+  envFile: LoadedEnvFile | null,
+): { present: boolean; source: HarnessCredentialCoverageKey['source'] } {
+  const processPresent = Boolean(nonEmpty(baseEnv[key]));
+  const filePresent = Boolean(nonEmpty(envFile?.values[key]));
+  return {
+    present: processPresent || filePresent,
+    source: processPresent && filePresent
+      ? 'both'
+      : processPresent
+        ? 'process_env'
+        : filePresent
+          ? 'env_file'
+          : 'none',
+  };
+}
+
+function localFileCredentialPresence(
+  rootDir: string,
+  filePath: string,
+): { present: boolean; source: HarnessCredentialCoverageKey['source'] } {
+  return fs.existsSync(path.join(rootDir, filePath))
+    ? { present: true, source: 'local_file' }
+    : { present: false, source: 'none' };
+}
+
 function requiredEnvForProvider(provider: CreativeProviderName): string[] {
   if (provider === 'browser_manual') return ['ALLOW_BROWSER_UI=true'];
   if (provider === 'openai_image' || provider === 'gemini_image' || provider === 'gemini_video_understanding') {
@@ -4719,6 +4978,7 @@ function capabilityEnvKeys(): string[] {
     'OPENAI_IMAGE_OUTPUT_FORMAT',
     'GEMINI_API_KEY',
     'GOOGLE_API_KEY',
+    'OPENROUTER_API_KEY',
     'LIGHTREEL_API_KEY',
     'SCRAPE_CREATORS_API_KEY',
   ];
@@ -4731,6 +4991,7 @@ function capabilityEnvKeyPurpose(key: string): string[] {
   if (key === 'OPENAI_API_KEY') return ['openai_image provider credential'];
   if (key.startsWith('OPENAI_IMAGE_')) return ['openai_image live generation option'];
   if (key === 'GEMINI_API_KEY' || key === 'GOOGLE_API_KEY') return ['gemini provider credential'];
+  if (key === 'OPENROUTER_API_KEY') return ['unbound OpenRouter credential'];
   if (key === 'LIGHTREEL_API_KEY') return ['legacy Lightreel provider credential'];
   if (key === 'SCRAPE_CREATORS_API_KEY') return ['legacy ScrapeCreators provider credential'];
   return ['capability environment'];
@@ -4828,6 +5089,9 @@ Commands:
 
   capability-env [--env-file .env]
     Print redacted key-presence and source information for capability gates and provider credentials.
+
+  credential-coverage [--env-file .env]
+    Print redacted credential usefulness across provider requests, live readiness, missing requirements, and unbound keys.
 
   provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
     Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
@@ -4941,6 +5205,14 @@ async function main(): Promise<void> {
 
     case 'capability-env':
       console.log(JSON.stringify(buildCapabilityEnvPlan({
+        env: process.env,
+        envFile: stringOpt(options, 'env-file'),
+        rootDir: process.cwd(),
+      }), null, 2));
+      return;
+
+    case 'credential-coverage':
+      console.log(JSON.stringify(buildCredentialCoverageMap({
         env: process.env,
         envFile: stringOpt(options, 'env-file'),
         rootDir: process.cwd(),
