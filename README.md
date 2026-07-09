@@ -104,6 +104,8 @@ npm run harness -- blockers
 
 npm run harness -- resume --run .ops/harness/runs/<run_id>
 
+npm run harness -- run-brief --run .ops/harness/runs/<run_id>
+
 npm run harness -- run-history
 
 npm run harness -- inventory --run .ops/harness/runs/<run_id>
@@ -230,11 +232,16 @@ remain open.
 autonomy plan, goal audit, blocker ledger, provider readiness, credential
 coverage, launch state, and run history into safe-now, capability-gated,
 human-boundary, and blocked action queues. When a latest durable run exists, it
-prefers a resume action before creating another local auto run.
+prefers a run brief before creating another local auto run.
+
+`run-brief` is the compact durable-run handoff. It summarizes stage counts,
+provider dry-run gates, next actions, key artifact hashes, and bounded text
+excerpts for the latest or specified run.
 
 `inspect` returns:
 
 - repo status and latest usable harness run
+- latest run brief with stage counts, provider gates, next actions, and artifact excerpts
 - reproducibility manifest and autonomy audit
 - goal completion audit with explicit blockers and proof commands
 - decision surface with safe-now, gated, human-boundary, and blocked queues

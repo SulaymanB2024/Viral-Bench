@@ -586,6 +586,41 @@ export interface HarnessResumeReport {
   next_commands: string[];
 }
 
+export interface HarnessRunBriefArtifact {
+  role: string;
+  path: string;
+  absolute_path: string;
+  exists: boolean;
+  kind: HarnessArtifactInventoryItem['kind'];
+  size_bytes: number | null;
+  sha256: string | null;
+  excerpt?: string;
+  truncated?: boolean;
+}
+
+export interface HarnessRunBrief {
+  created_at: string;
+  root_dir: string;
+  run_dir: string | null;
+  run_id: string | null;
+  status: HarnessRunRecord['status'] | 'no_run' | 'unreadable';
+  selected_job: HarnessRunRecord['selected_job'] | null;
+  missing_artifacts: string[];
+  stage_status_counts: Record<HarnessStage['status'], number>;
+  stages: HarnessStage[];
+  provider_gate_summary: {
+    request_count: number;
+    blocked_count: number;
+    external_calls_made: number;
+    results: ProviderDryRunResult[];
+  };
+  next_actions: string[];
+  artifacts: HarnessRunBriefArtifact[];
+  resume_commands: string[];
+  next_commands: string[];
+  error: string | null;
+}
+
 export interface HarnessRunHistoryEntry {
   run_id: string;
   run_dir: string;
@@ -774,6 +809,7 @@ export interface HarnessDoctorReport {
   provider_request_count: number;
   provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
+  latest_run_brief: HarnessRunBrief;
   run_history: HarnessRunHistory;
   secret_scan: {
     status: 'clear' | 'blocked';
@@ -1309,6 +1345,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'inspect',
       command: 'npm run harness -- run-history',
       purpose: 'Summarize recent durable harness runs, selected jobs, statuses, missing artifacts, provider dry-run counts, next actions, and resume commands.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.run_brief',
+      kind: 'inspect',
+      command: 'npm run harness -- run-brief --run .ops/harness/runs/<run_id>',
+      purpose: 'Return a compact Codex handoff for the latest or specified run, including stage counts, provider gate results, next actions, artifact hashes, and bounded excerpts.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2124,6 +2169,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     autonomy_audit_path: record.autonomy_audit_path,
     next_commands: [
       `npm run harness -- inventory --run ${resolvedRunDir}`,
+      `npm run harness -- run-brief --run ${resolvedRunDir}`,
       `npm run harness -- run-history`,
       `npm run harness -- evidence-map`,
       `npm run harness -- launch-map`,
@@ -2139,6 +2185,191 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
       `npm run creative -- render --job ${record.selected_job.path}`,
     ],
   };
+}
+
+export function buildRunBrief(
+  options: { runDir?: string; rootDir?: string; maxTextChars?: number } = {},
+): HarnessRunBrief {
+  const rootDir = options.rootDir ?? process.cwd();
+  const maxTextChars = options.maxTextChars ?? 1200;
+  const resume = options.runDir
+    ? resumeHarnessRun(options.runDir)
+    : findLatestHarnessRun(rootDir);
+  if (!resume) {
+    return {
+      created_at: new Date().toISOString(),
+      root_dir: rootDir,
+      run_dir: null,
+      run_id: null,
+      status: 'no_run',
+      selected_job: null,
+      missing_artifacts: [],
+      stage_status_counts: emptyStageStatusCounts(),
+      stages: [],
+      provider_gate_summary: {
+        request_count: 0,
+        blocked_count: 0,
+        external_calls_made: 0,
+        results: [],
+      },
+      next_actions: [],
+      artifacts: [],
+      resume_commands: [],
+      next_commands: [
+        'npm run harness -- auto --goal "<goal>"',
+        'npm run harness -- run-history',
+        'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      ],
+      error: null,
+    };
+  }
+
+  try {
+    const runPath = path.join(resume.run_dir, 'run.json');
+    const record = JSON.parse(fs.readFileSync(runPath, 'utf8')) as HarnessRunRecord;
+    const stageStatusCounts = record.stages.reduce((counts, stage) => {
+      counts[stage.status] += 1;
+      return counts;
+    }, emptyStageStatusCounts());
+    const providerResults = Array.isArray(record.provider_dry_runs) ? record.provider_dry_runs : [];
+
+    return {
+      created_at: new Date().toISOString(),
+      root_dir: rootDir,
+      run_dir: resume.run_dir,
+      run_id: record.run_id,
+      status: record.status,
+      selected_job: record.selected_job,
+      missing_artifacts: resume.missing_artifacts,
+      stage_status_counts: stageStatusCounts,
+      stages: record.stages,
+      provider_gate_summary: {
+        request_count: providerResults.length,
+        blocked_count: providerResults.filter((result) => result.status === 'blocked').length,
+        external_calls_made: providerResults.reduce((total, result) => total + result.external_calls_made, 0),
+        results: providerResults,
+      },
+      next_actions: record.next_actions,
+      artifacts: runBriefArtifacts(record, resume.run_dir, rootDir, maxTextChars),
+      resume_commands: resume.next_commands,
+      next_commands: uniqueSorted([
+        `npm run harness -- run-brief --run ${shellQuote(resume.run_dir)}`,
+        `npm run harness -- resume --run ${shellQuote(resume.run_dir)}`,
+        `npm run harness -- inventory --run ${shellQuote(resume.run_dir)}`,
+        'npm run harness -- run-history',
+        'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
+        'npm run harness -- provider-preflight --env-file .env',
+        'npm run harness -- capability-unlock-map --env-file .env',
+        ...resume.next_commands,
+      ]),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      created_at: new Date().toISOString(),
+      root_dir: rootDir,
+      run_dir: resume.run_dir,
+      run_id: resume.run_id,
+      status: 'unreadable',
+      selected_job: resume.selected_job,
+      missing_artifacts: resume.missing_artifacts,
+      stage_status_counts: emptyStageStatusCounts(),
+      stages: [],
+      provider_gate_summary: {
+        request_count: 0,
+        blocked_count: 0,
+        external_calls_made: 0,
+        results: [],
+      },
+      next_actions: [],
+      artifacts: [],
+      resume_commands: resume.next_commands,
+      next_commands: [
+        `npm run harness -- resume --run ${shellQuote(resume.run_dir)}`,
+        'npm run harness -- run-history',
+      ],
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+function runBriefArtifacts(
+  record: HarnessRunRecord,
+  runDir: string,
+  rootDir: string,
+  maxTextChars: number,
+): HarnessRunBriefArtifact[] {
+  const artifactSpecs: Array<{ role: string; filePath: string | undefined }> = [
+    { role: 'run_record', filePath: path.join(runDir, 'run.json') },
+    { role: 'primitives', filePath: record.primitives_path },
+    { role: 'capabilities', filePath: record.capabilities_path },
+    { role: 'information_index', filePath: record.information_index_path },
+    { role: 'context_pack', filePath: record.context_pack_path },
+    { role: 'job_rankings', filePath: record.job_rankings_path },
+    { role: 'evidence_map', filePath: record.evidence_map_path },
+    { role: 'launch_map', filePath: record.launch_map_path },
+    { role: 'verification_map', filePath: record.verification_map_path },
+    { role: 'capability_unlock_map', filePath: record.capability_unlock_map_path },
+    { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
+    { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
+    { role: 'provider_preflight', filePath: record.provider_preflight_path },
+    { role: 'artifact_inventory', filePath: record.artifact_inventory_path },
+    { role: 'blocker_ledger', filePath: record.blocker_ledger_path },
+    { role: 'next_actions', filePath: record.next_actions_path },
+    { role: 'prompt_packet', filePath: record.prompt_packet_path },
+    { role: 'render_manifest', filePath: path.join(record.render_output_dir, 'manifest.json') },
+    { role: 'render_caption', filePath: path.join(record.render_output_dir, 'output', 'caption.txt') },
+    { role: 'render_posting_notes', filePath: path.join(record.render_output_dir, 'output', 'posting_notes.md') },
+    { role: 'render_qa_checklist', filePath: path.join(record.render_output_dir, 'qa', 'checklist.md') },
+  ];
+  const seen = new Set<string>();
+  return artifactSpecs
+    .filter((spec): spec is { role: string; filePath: string } => typeof spec.filePath === 'string' && spec.filePath.length > 0)
+    .map((spec) => ({ role: spec.role, absolutePath: path.isAbsolute(spec.filePath) ? spec.filePath : path.join(rootDir, spec.filePath) }))
+    .filter((spec) => {
+      if (seen.has(spec.absolutePath)) return false;
+      seen.add(spec.absolutePath);
+      return true;
+    })
+    .map((spec) => runBriefArtifact(spec.role, spec.absolutePath, rootDir, maxTextChars));
+}
+
+function runBriefArtifact(
+  role: string,
+  filePath: string,
+  rootDir: string,
+  maxTextChars: number,
+): HarnessRunBriefArtifact {
+  const exists = fs.existsSync(filePath);
+  const kind = artifactKind(filePath);
+  if (!exists) {
+    return {
+      role,
+      path: relativeToRoot(rootDir, filePath),
+      absolute_path: filePath,
+      exists: false,
+      kind,
+      size_bytes: null,
+      sha256: null,
+    };
+  }
+
+  const content = fs.readFileSync(filePath);
+  const artifact: HarnessRunBriefArtifact = {
+    role,
+    path: relativeToRoot(rootDir, filePath),
+    absolute_path: filePath,
+    exists: true,
+    kind,
+    size_bytes: content.byteLength,
+    sha256: crypto.createHash('sha256').update(content).digest('hex'),
+  };
+  if (kind === 'json' || kind === 'markdown' || kind === 'text') {
+    const text = content.toString('utf8');
+    artifact.excerpt = text.slice(0, maxTextChars);
+    artifact.truncated = text.length > maxTextChars;
+  }
+  return artifact;
 }
 
 export function buildHarnessRunHistory(
@@ -2189,6 +2420,7 @@ export function buildHarnessRunHistory(
       'npm run harness -- run-history',
       'npm run harness -- latest-run',
       ...(latestUsable ? [`npm run harness -- resume --run ${latestUsable.run_dir}`] : ['npm run harness -- auto --goal "<goal>"']),
+      ...(latestUsable ? [`npm run harness -- run-brief --run ${latestUsable.run_dir}`] : []),
       'npm run harness -- inventory --run .ops/harness/runs/<run_id>',
     ],
   };
@@ -2867,6 +3099,7 @@ export function buildAutonomyAudit(
     'harness.launch_map',
     'harness.resume',
     'harness.run_history',
+    'harness.run_brief',
     'harness.inventory',
     'harness.blockers',
     'harness.provider_preflight',
@@ -2983,6 +3216,7 @@ export function buildAutonomyAudit(
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- run-history',
+      'npm run harness -- run-brief',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
       ...reproducibility.commands.verify,
@@ -3043,6 +3277,7 @@ export function buildGoalCompletionAudit(
     'harness.credential_coverage',
     'harness.provider_preflight',
     'harness.run_history',
+    'harness.run_brief',
     'harness.verification_map',
     'harness.stage_source',
   ];
@@ -3277,6 +3512,7 @@ export function buildHarnessDoctor(
     'npm run harness -- evidence-map',
     'npm run harness -- launch-map',
     'npm run harness -- run-history',
+    'npm run harness -- run-brief',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
   ];
@@ -3286,6 +3522,7 @@ export function buildHarnessDoctor(
   }
   const latestRun = findLatestHarnessRun(rootDir);
   if (latestRun) {
+    recommendedCommands.push(`npm run harness -- run-brief --run ${latestRun.run_dir}`);
     recommendedCommands.push(`npm run harness -- resume --run ${latestRun.run_dir}`);
   }
 
@@ -3309,6 +3546,7 @@ export function buildHarnessDoctor(
     incoming_job_count: incomingJobs.length,
     provider_request_count: providerRequests.length,
     latest_run: latestRun,
+    latest_run_brief: buildRunBrief({ rootDir }),
     run_history: runHistory,
     secret_scan: {
       status: secretFindings.length ? 'blocked' : 'clear',
@@ -3649,7 +3887,7 @@ export function buildDecisionSurface(
   const runHistory = buildHarnessRunHistory({ rootDir, limit: 5 });
   const latestRun = findLatestHarnessRun(rootDir);
   const actions = [
-    ...(latestRun ? [decisionSurfaceResumeAction(latestRun)] : []),
+    ...(latestRun ? decisionSurfaceLatestRunActions(latestRun) : []),
     ...plan.steps.map((step) => decisionSurfaceAction(step)),
   ];
   const safeNow = actions.filter((action) => action.queue === 'safe_now');
@@ -3699,6 +3937,7 @@ export function buildDecisionSurface(
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- run-history',
+      'npm run harness -- run-brief',
     ]),
   };
 }
@@ -3719,24 +3958,39 @@ function decisionSurfaceAction(step: HarnessAutonomyPlanStep): HarnessDecisionSu
   };
 }
 
-function decisionSurfaceResumeAction(latestRun: HarnessResumeReport): HarnessDecisionSurfaceAction {
-  return {
-    id: 'run.resume_latest',
-    queue: 'safe_now',
-    lane: 'local',
-    readiness_status: latestRun.missing_artifacts.length ? 'blocked' : 'ready',
-    command: `npm run harness -- resume --run ${shellQuote(latestRun.run_dir)}`,
-    reason: 'Inspect the latest durable harness run before creating another local auto run.',
-    evidence: [
-      `run_id=${latestRun.run_id}`,
-      `status=${latestRun.status}`,
-      `selected_job=${latestRun.selected_job.job_id}`,
-      `missing_artifact_count=${latestRun.missing_artifacts.length}`,
-    ],
-    required_gates: [],
-    writes: [],
-    source_ids: ['latest_run'],
-  };
+function decisionSurfaceLatestRunActions(latestRun: HarnessResumeReport): HarnessDecisionSurfaceAction[] {
+  const evidence = [
+    `run_id=${latestRun.run_id}`,
+    `status=${latestRun.status}`,
+    `selected_job=${latestRun.selected_job.job_id}`,
+    `missing_artifact_count=${latestRun.missing_artifacts.length}`,
+  ];
+  return [
+    {
+      id: 'run.brief_latest',
+      queue: 'safe_now',
+      lane: 'local',
+      readiness_status: latestRun.missing_artifacts.length ? 'blocked' : 'ready',
+      command: `npm run harness -- run-brief --run ${shellQuote(latestRun.run_dir)}`,
+      reason: 'Read the compact latest-run handoff before opening individual run artifacts or creating another auto run.',
+      evidence,
+      required_gates: [],
+      writes: [],
+      source_ids: ['latest_run', 'harness.run_brief'],
+    },
+    {
+      id: 'run.resume_latest',
+      queue: 'safe_now',
+      lane: 'local',
+      readiness_status: latestRun.missing_artifacts.length ? 'blocked' : 'ready',
+      command: `npm run harness -- resume --run ${shellQuote(latestRun.run_dir)}`,
+      reason: 'Inspect the latest durable harness run before creating another local auto run.',
+      evidence,
+      required_gates: [],
+      writes: [],
+      source_ids: ['latest_run'],
+    },
+  ];
 }
 
 function decisionSurfaceQueue(step: HarnessAutonomyPlanStep): HarnessDecisionSurfaceAction['queue'] {
@@ -3774,6 +4028,7 @@ export function inspectHarness(
   blocker_ledger: HarnessBlockerLedger;
   provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
+  latest_run_brief: HarnessRunBrief;
   run_history: HarnessRunHistory;
   incoming_jobs: Array<{ job_id: string; path: string }>;
   provider_requests: Array<{ request_id: string; provider: CreativeProviderName; path: string; status: string }>;
@@ -3797,6 +4052,7 @@ export function inspectHarness(
     blocker_ledger: buildBlockerLedger(env, rootDir),
     provider_preflight: preflightProviderRequests(env, rootDir),
     latest_run: findLatestHarnessRun(rootDir),
+    latest_run_brief: buildRunBrief({ rootDir }),
     run_history: buildHarnessRunHistory({ rootDir }),
     incoming_jobs: listIncomingJobs(rootDir),
     provider_requests: listProviderRequests(rootDir),
@@ -3979,6 +4235,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     : 'No open blocker ledger entries after the local harness run.';
   const nextCommands = [
     `npm run harness -- resume --run ${runDir}`,
+    `npm run harness -- run-brief --run ${runDir}`,
     `npm run harness -- inventory --run ${runDir}`,
     'npm run harness -- run-history',
     `npm run harness -- autonomy-audit --goal "${options.goal.replace(/"/g, '\\"')}"`,
@@ -5608,6 +5865,9 @@ Commands:
   resume --run .ops/harness/runs/<run_id>
     Inspect an existing run and return missing artifacts plus next commands.
 
+  run-brief [--run .ops/harness/runs/<run_id>] [--out .ops/harness/run_brief.json] [--max-chars 1200]
+    Summarize the latest or specified run with stage counts, provider gates, next actions, artifact hashes, and bounded excerpts.
+
   run-history [--limit 20]
     Summarize recent durable run folders, selected jobs, statuses, missing artifacts, provider dry-run counts, and resume commands.
 
@@ -5853,6 +6113,29 @@ async function main(): Promise<void> {
     case 'resume':
       console.log(JSON.stringify(resumeHarnessRun(requiredStringOpt(options, 'run')), null, 2));
       return;
+
+    case 'run-brief': {
+      const brief = buildRunBrief({
+        runDir: stringOpt(options, 'run'),
+        rootDir: process.cwd(),
+        maxTextChars: numberOpt(options, 'max-chars'),
+      });
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(brief, null, 2)}\n`);
+        console.log(JSON.stringify({
+          ok: true,
+          path: outPath,
+          run_id: brief.run_id,
+          status: brief.status,
+          artifact_count: brief.artifacts.length,
+        }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(brief, null, 2));
+      return;
+    }
 
     case 'run-history':
       console.log(JSON.stringify(buildHarnessRunHistory({ limit: numberOpt(options, 'limit') }), null, 2));

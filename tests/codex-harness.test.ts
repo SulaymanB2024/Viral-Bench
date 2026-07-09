@@ -21,6 +21,7 @@ import {
   buildHarnessDoctor,
   buildHarnessRunHistory,
   buildInformationIndex,
+  buildRunBrief,
   buildCapabilityProfile,
   buildJobReadinessMatrix,
   buildLaunchMap,
@@ -124,6 +125,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.inventory'));
   assert.ok(ids.includes('harness.resume'));
   assert.ok(ids.includes('harness.run_history'));
+  assert.ok(ids.includes('harness.run_brief'));
   assert.ok(ids.includes('harness.latest_run'));
   assert.ok(ids.includes('harness.blockers'));
   assert.ok(ids.includes('harness.provider_preflight'));
@@ -152,6 +154,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.equal(inspected.goal_completion_audit.can_mark_goal_complete, false);
   assert.equal(inspected.decision_surface.summary.can_mark_goal_complete, false);
+  assert.ok(['no_run', 'advanced', 'needs_capability', 'blocked', 'unreadable'].includes(inspected.latest_run_brief.status));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
   assert.ok(inspected.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
@@ -628,7 +631,7 @@ test('decision surface queues safe Codex actions separately from external gates'
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 
-test('decision surface resumes the latest run before creating another auto run', () => {
+test('decision surface briefs the latest run before creating another auto run', () => {
   const runId = `decision-surface-test-${Date.now()}`;
   const runDir = path.join(process.cwd(), '.ops', 'harness', 'runs', runId);
   const renderDir = path.join(runDir, 'rendered', 'worthscan_scooter_battery_001');
@@ -694,8 +697,10 @@ test('decision surface resumes the latest run before creating another auto run',
     const surface = buildDecisionSurface('Make WorthScan autonomous for Codex', {}, process.cwd());
 
     assert.equal(surface.current_state.latest_run_id, runId);
-    assert.equal(surface.selected_safe_action?.id, 'run.resume_latest');
+    assert.equal(surface.selected_safe_action?.id, 'run.brief_latest');
+    assert.ok(surface.selected_safe_action?.command?.includes('run-brief'));
     assert.ok(surface.selected_safe_action?.command?.includes(runDir));
+    assert.ok(surface.queues.safe_now.some((action) => action.id === 'run.resume_latest'));
     assert.ok(Object.values(surface.queues).some((queue) => queue.some((action) => action.id === 'local.auto')));
   } finally {
     fs.rmSync(runDir, { recursive: true, force: true });
@@ -795,9 +800,34 @@ test('resume reports missing artifacts and next commands for an existing run', a
   assert.equal(resume.autonomy_audit_path, record.autonomy_audit_path);
   assert.ok(record.provider_preflight_path);
   assert.ok(resume.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(resume.next_commands.some((command) => command.includes('npm run harness -- run-brief')));
   assert.ok(resume.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(resume.next_commands.some((command) => command.includes('npm run creative -- validate')));
   assert.ok(inventory.artifacts.some((artifact) => artifact.relative_path === 'run.json'));
+});
+
+test('run brief summarizes durable run artifacts and provider gates', async () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-run-brief-'));
+  const record = await runCodexHarness({
+    goal: 'Brief autonomous WorthScan work',
+    jobPath: SCOOTER_JOB,
+    outDir,
+    runId: 'brief-test',
+    env: {},
+  });
+  const brief = buildRunBrief({ runDir: outDir, rootDir: process.cwd(), maxTextChars: 160 });
+  const serialized = JSON.stringify(brief);
+
+  assert.equal(brief.run_id, 'brief-test');
+  assert.equal(brief.selected_job?.job_id, record.selected_job.job_id);
+  assert.equal(brief.provider_gate_summary.external_calls_made, 0);
+  assert.equal(brief.provider_gate_summary.request_count, record.provider_dry_runs.length);
+  assert.equal(brief.stage_status_counts.completed >= 1, true);
+  assert.ok(brief.next_actions.some((action) => action.includes('provider-preflight')));
+  assert.ok(brief.artifacts.some((artifact) => artifact.role === 'prompt_packet' && artifact.excerpt?.includes('Codex Harness Packet')));
+  assert.ok(brief.artifacts.some((artifact) => artifact.role === 'render_caption' && artifact.exists));
+  assert.ok(brief.next_commands.some((command) => command.includes('npm run harness -- run-brief')));
+  assert.doesNotMatch(serialized, /present-for-test|secret-value-for-test/);
 });
 
 test('run history summarizes usable and unreadable durable runs', () => {
@@ -872,10 +902,12 @@ test('run history summarizes usable and unreadable durable runs', () => {
   assert.equal(goodRun.external_calls_made, 0);
   assert.equal(goodRun.stage_status_counts.blocked, 1);
   assert.ok(goodRun.resume_commands.some((command) => command.includes('npm run harness -- resume') || command.includes('npm run harness -- inventory')));
+  assert.ok(goodRun.resume_commands.some((command) => command.includes('npm run harness -- run-brief')));
   assert.ok(badRun);
   assert.equal(badRun.status, 'unreadable');
   assert.match(badRun.error ?? '', /JSON|Unexpected|property/i);
   assert.ok(history.next_commands.some((command) => command.includes('npm run harness -- run-history')));
+  assert.ok(history.next_commands.some((command) => command.includes('npm run harness -- run-brief')));
 });
 
 test('auto loop writes a durable auto result and keeps external gates explicit', async () => {
@@ -898,6 +930,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- autonomy-audit')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- decision-surface')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- run-brief')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- source-package')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
