@@ -47,6 +47,8 @@ npm run harness -- doctor
 
 npm run harness -- repo-status
 
+npm run harness -- capability-plan
+
 npm run harness -- reproducibility-manifest
 
 npm run harness -- stage-source --dry-run
@@ -91,6 +93,12 @@ capability gates, and recommended next commands.
 `repo-status` returns branch, remote, dirty state, and untracked source-of-truth
 files as JSON so Codex does not need to parse ad hoc shell output.
 
+`capability-plan` turns capability gates into executable information: local,
+provider, browser, and publishing lane status; missing env gates; credential
+availability flags; provider request dry-run status; and request-level next
+actions. It never prints secret values and still reports live external calls as
+disabled unless the scaffold grows a reviewed live adapter.
+
 `reproducibility-manifest` returns the source-of-truth boundary, generated
 artifact boundary, exact `git add` command for modified or untracked source
 files, and the verification commands that prove the checkout can be replayed.
@@ -116,6 +124,7 @@ surface size.
 
 - repo status and latest usable harness run
 - reproducibility manifest and autonomy audit
+- capability plan
 - available incoming creative jobs
 - provider request manifests
 - credential availability flags, never secret values

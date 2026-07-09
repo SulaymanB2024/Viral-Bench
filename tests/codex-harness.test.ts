@@ -9,6 +9,7 @@ import {
   buildArtifactInventory,
   buildAutonomyAudit,
   buildBlockerLedger,
+  buildCapabilityPlan,
   buildContextPack,
   buildHarnessDoctor,
   buildInformationIndex,
@@ -58,6 +59,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.auto'));
   assert.ok(ids.includes('harness.doctor'));
   assert.ok(ids.includes('harness.repo_status'));
+  assert.ok(ids.includes('harness.capability_plan'));
   assert.ok(ids.includes('harness.reproducibility_manifest'));
   assert.ok(ids.includes('harness.stage_source'));
   assert.ok(ids.includes('harness.source_package'));
@@ -88,6 +90,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.information_sources.some((source) => source.kind === 'job'));
   assert.ok(inspected.job_rankings.some((ranking) => ranking.job_id === 'worthscan_scooter_battery_001'));
   assert.ok(inspected.blocker_ledger.blockers.some((blocker) => blocker.id === 'git.reproducibility'));
+  assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.equal(inspected.repo_status.is_git_repo, true);
   assert.equal(inspected.capability_profile.autonomy_level, 'local_only');
 });
@@ -148,6 +151,39 @@ test('blocker ledger exposes reproducibility and capability gates', () => {
   assert.ok(ids.includes('browser.research'));
   assert.ok(ids.includes('publishing.social'));
   assert.equal(ledger.blockers.find((blocker) => blocker.id === 'provider.paid_generation')?.status, 'open');
+});
+
+test('capability plan explains provider, browser, and publishing gates', () => {
+  const plan = buildCapabilityPlan({}, process.cwd());
+  const providerLane = plan.lanes.find((lane) => lane.id === 'provider');
+  const browserLane = plan.lanes.find((lane) => lane.id === 'browser');
+  const publishingLane = plan.lanes.find((lane) => lane.id === 'publishing');
+  const openAiRequest = plan.provider_requests.find((request) => request.provider === 'openai_image');
+
+  assert.equal(plan.capability_profile.credential_policy, 'available_flags_only_no_secret_values');
+  assert.equal(providerLane?.status, 'needs_credential');
+  assert.equal(browserLane?.status, 'needs_gate');
+  assert.equal(publishingLane?.status, 'human_boundary');
+  assert.ok(openAiRequest);
+  assert.equal(openAiRequest?.live_external_call_allowed, false);
+  assert.ok(openAiRequest?.missing_gates.includes('provider credential'));
+  assert.ok(plan.browser.allowed_tasks_path?.endsWith('.ops/browser/allowed_browser_tasks.md'));
+  assert.ok(plan.publishing.launch_queue_path?.endsWith('.ops/launch/launch_queue.md'));
+});
+
+test('capability plan reflects enabled gates without leaking credential values', () => {
+  const plan = buildCapabilityPlan({
+    ALLOW_PAID_GENERATION: 'true',
+    ALLOW_BROWSER_UI: 'true',
+    ALLOW_SOCIAL_PUBLISHING: 'true',
+    OPENAI_API_KEY: 'present-for-test',
+  }, process.cwd());
+  const serialized = JSON.stringify(plan);
+  const openAiRequest = plan.provider_requests.find((request) => request.provider === 'openai_image');
+
+  assert.equal(plan.capability_profile.autonomy_level, 'publishing_enabled');
+  assert.equal(openAiRequest?.credential_available, true);
+  assert.doesNotMatch(serialized, /present-for-test/);
 });
 
 test('reproducibility manifest separates source-of-truth from generated artifacts', () => {
@@ -222,6 +258,7 @@ test('autonomy audit reports objective-level gates with evidence', () => {
   assert.ok(ids.includes('codex.local_execution'));
   assert.ok(ids.includes('codex.reproducibility'));
   assert.ok(ids.includes('codex.provider_autonomy'));
+  assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- capability-plan')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- reproducibility-manifest')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- source-package')));
@@ -231,6 +268,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   const doctor = buildHarnessDoctor({}, process.cwd());
 
   assert.equal(doctor.repo_status.is_git_repo, true);
+  assert.ok(doctor.capability_plan.provider_requests.length >= 1);
   assert.ok(doctor.reproducibility_manifest.source_of_truth.file_count > 0);
   assert.ok(doctor.autonomy_audit.criteria.some((criterion) => criterion.id === 'codex.reproducibility'));
   assert.ok(doctor.incoming_job_count >= 10);

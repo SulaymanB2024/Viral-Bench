@@ -39,6 +39,47 @@ export interface HarnessCapabilityProfile {
   credential_policy: 'available_flags_only_no_secret_values';
 }
 
+export interface HarnessCapabilityPlanLane {
+  id: 'local' | 'provider' | 'browser' | 'publishing';
+  status: 'ready' | 'blocked' | 'needs_gate' | 'needs_credential' | 'human_boundary';
+  evidence: string[];
+  next_commands: string[];
+}
+
+export interface HarnessProviderRequestPlan {
+  request_id: string;
+  provider: CreativeProviderName;
+  provider_mode: ProviderRequestManifest['provider_mode'];
+  path: string;
+  status: ProviderRequestManifest['status'];
+  dry_run_status: ProviderDryRunResult['status'];
+  credential_available: boolean;
+  required_env: string[];
+  missing_gates: string[];
+  policy_allows_requested_capability: boolean;
+  live_external_call_allowed: false;
+  next_action: string;
+}
+
+export interface HarnessCapabilityPlan {
+  created_at: string;
+  root_dir: string;
+  capability_profile: HarnessCapabilityProfile;
+  lanes: HarnessCapabilityPlanLane[];
+  provider_requests: HarnessProviderRequestPlan[];
+  browser: {
+    allowed_tasks_path: string | null;
+    blocked_tasks_path: string | null;
+    reviewed_capture_count: number;
+    raw_capture_count: number;
+  };
+  publishing: {
+    launch_queue_path: string | null;
+    jobs_allowing_social_publishing: string[];
+    approved_jobs_ready_for_posting: string[];
+  };
+}
+
 export interface CodexPrimitive {
   id: string;
   kind: 'auto' | 'doctor' | 'reproducibility' | 'inspect' | 'rank' | 'context' | 'trend' | 'creative' | 'provider' | 'browser' | 'metrics' | 'publish';
@@ -251,6 +292,7 @@ export interface HarnessDoctorReport {
   repo_status: HarnessRepoStatus;
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
+  capability_plan: HarnessCapabilityPlan;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -395,6 +437,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'inspect',
       command: 'npm run harness -- repo-status',
       purpose: 'Return branch, remote, dirty state, and untracked source-of-truth files without shelling through ad hoc status commands.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.capability_plan',
+      kind: 'doctor',
+      command: 'npm run harness -- capability-plan',
+      purpose: 'Explain what local, provider, browser, and publishing lanes can do now, which gates or credentials are missing, and which request manifests are ready only for dry-run.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -911,6 +962,125 @@ export function buildReproducibilityManifest(rootDir = process.cwd()): HarnessRe
   };
 }
 
+export function buildCapabilityPlan(
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessCapabilityPlan {
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const incomingJobs = listIncomingJobs(rootDir).map((item) => ({
+    ...item,
+    job: loadCreativeJobManifest(item.path),
+  }));
+  const providerRequests = listProviderRequests(rootDir).map((item) => {
+    const request = loadProviderRequestManifest(item.path);
+    const dryRun = runProviderDryRun(request, { env });
+    const credentialAvailable = providerCredentialAvailable(request.provider, capabilityProfile);
+    const requiredEnv = requiredEnvForProvider(request.provider);
+    const missingGates = missingGatesForProviderRequest(request, capabilityProfile, credentialAvailable);
+    return {
+      request_id: request.request_id,
+      provider: request.provider,
+      provider_mode: request.provider_mode,
+      path: item.path,
+      status: request.status,
+      dry_run_status: dryRun.status,
+      credential_available: credentialAvailable,
+      required_env: requiredEnv,
+      missing_gates: missingGates,
+      policy_allows_requested_capability: providerRequestPolicyAllowsCapability(request),
+      live_external_call_allowed: false as const,
+      next_action: capabilityNextAction(request, missingGates, credentialAvailable),
+    };
+  });
+  const providerLaneStatus = providerRequests.some((request) => request.missing_gates.includes('provider credential'))
+    ? 'needs_credential'
+    : capabilityProfile.gates.allow_paid_generation
+      ? 'ready'
+      : 'needs_gate';
+  const browserReviewedDir = path.join(rootDir, '.ops', 'browser', 'captures', 'reviewed');
+  const browserRawDir = path.join(rootDir, '.ops', 'browser', 'captures', 'raw');
+  const publishingJobs = incomingJobs.filter(({ job }) => job.provider_policy.allow_social_publishing);
+  const approvedJobsReadyForPosting = publishingJobs
+    .filter(({ job }) => {
+      const assetsApproved = job.generated_assets.length > 0 && job.generated_assets.every((asset) => asset.approved_for_posting);
+      return job.approval_status.state === 'approved' && Boolean(job.approval_status.human_reviewer) && assetsApproved;
+    })
+    .map(({ job_id }) => job_id);
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    capability_profile: capabilityProfile,
+    lanes: [
+      {
+        id: 'local',
+        status: incomingJobs.length ? 'ready' : 'blocked',
+        evidence: [
+          `incoming_job_count=${incomingJobs.length}`,
+          `top_ranked_job=${rankIncomingJobs(env, rootDir)[0]?.job_id ?? 'none'}`,
+        ],
+        next_commands: [
+          'npm run harness -- rank-jobs',
+          'npm run harness -- auto --goal "<goal>"',
+        ],
+      },
+      {
+        id: 'provider',
+        status: providerLaneStatus,
+        evidence: [
+          `ALLOW_PAID_GENERATION=${capabilityProfile.gates.allow_paid_generation}`,
+          `openai_api_key_available=${capabilityProfile.credentials.openai_api_key_available}`,
+          `gemini_api_key_available=${capabilityProfile.credentials.gemini_api_key_available}`,
+          `provider_request_count=${providerRequests.length}`,
+          'live_external_call_allowed=false',
+        ],
+        next_commands: [
+          'npm run harness -- capability-plan',
+          'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json',
+        ],
+      },
+      {
+        id: 'browser',
+        status: capabilityProfile.gates.allow_browser_ui ? 'ready' : 'needs_gate',
+        evidence: [
+          `ALLOW_BROWSER_UI=${capabilityProfile.gates.allow_browser_ui}`,
+          `reviewed_capture_count=${countJsonFiles(browserReviewedDir)}`,
+          `raw_capture_count=${countJsonFiles(browserRawDir)}`,
+        ],
+        next_commands: [
+          'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
+          'ALLOW_BROWSER_UI=true npm run harness -- capability-plan',
+        ],
+      },
+      {
+        id: 'publishing',
+        status: approvedJobsReadyForPosting.length && capabilityProfile.gates.allow_social_publishing ? 'ready' : 'human_boundary',
+        evidence: [
+          `ALLOW_SOCIAL_PUBLISHING=${capabilityProfile.gates.allow_social_publishing}`,
+          `jobs_allowing_social_publishing=${publishingJobs.length}`,
+          `approved_jobs_ready_for_posting=${approvedJobsReadyForPosting.length}`,
+        ],
+        next_commands: [
+          'npm run harness -- blockers',
+          'ALLOW_SOCIAL_PUBLISHING=true npm run harness -- capability-plan',
+        ],
+      },
+    ],
+    provider_requests: providerRequests,
+    browser: {
+      allowed_tasks_path: filePathIfExists(rootDir, '.ops/browser/allowed_browser_tasks.md'),
+      blocked_tasks_path: filePathIfExists(rootDir, '.ops/browser/blocked_browser_tasks.md'),
+      reviewed_capture_count: countJsonFiles(browserReviewedDir),
+      raw_capture_count: countJsonFiles(browserRawDir),
+    },
+    publishing: {
+      launch_queue_path: filePathIfExists(rootDir, '.ops/launch/launch_queue.md'),
+      jobs_allowing_social_publishing: publishingJobs.map(({ job_id }) => job_id),
+      approved_jobs_ready_for_posting: approvedJobsReadyForPosting,
+    },
+  };
+}
+
 export function stageSourceOfTruth(
   options: { apply?: boolean; rootDir?: string } = {},
 ): HarnessStageSourceReport {
@@ -1097,6 +1267,7 @@ export function buildAutonomyAudit(
     'harness.inspect',
     'harness.doctor',
     'harness.repo_status',
+    'harness.capability_plan',
     'harness.reproducibility_manifest',
     'harness.autonomy_audit',
     'harness.source_package',
@@ -1207,6 +1378,7 @@ export function buildAutonomyAudit(
       'npm run harness -- reproducibility-manifest',
       'npm run harness -- stage-source --dry-run',
       'npm run harness -- source-package',
+      'npm run harness -- capability-plan',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
       ...reproducibility.commands.verify,
@@ -1242,6 +1414,7 @@ export function buildHarnessDoctor(
   const repoStatus = buildRepoStatus(rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir);
+  const capabilityPlan = buildCapabilityPlan(env, rootDir);
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const informationSources = buildInformationIndex(rootDir);
@@ -1262,6 +1435,7 @@ export function buildHarnessDoctor(
   const localAutonomy = incomingJobs.length > 0 && secretFindings.length === 0;
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
+    'npm run harness -- capability-plan',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
@@ -1284,6 +1458,7 @@ export function buildHarnessDoctor(
     repo_status: repoStatus,
     reproducibility_manifest: reproducibilityManifest,
     autonomy_audit: autonomyAudit,
+    capability_plan: capabilityPlan,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     information_surface: {
@@ -1314,6 +1489,7 @@ export function inspectHarness(
   repo_status: HarnessRepoStatus;
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
+  capability_plan: HarnessCapabilityPlan;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
   information_sources: HarnessInformationSource[];
@@ -1327,6 +1503,7 @@ export function inspectHarness(
     repo_status: buildRepoStatus(rootDir),
     reproducibility_manifest: buildReproducibilityManifest(rootDir),
     autonomy_audit: buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir),
+    capability_plan: buildCapabilityPlan(env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
     information_sources: buildInformationIndex(rootDir),
@@ -1892,6 +2069,76 @@ function sourceOfTruthRole(filePath: string): string {
   return 'repository source';
 }
 
+function providerCredentialAvailable(
+  provider: CreativeProviderName,
+  capabilityProfile: HarnessCapabilityProfile,
+): boolean {
+  if (provider === 'openai_image') return capabilityProfile.credentials.openai_api_key_available;
+  if (provider === 'gemini_image' || provider === 'gemini_video_understanding') {
+    return capabilityProfile.credentials.gemini_api_key_available;
+  }
+  return true;
+}
+
+function requiredEnvForProvider(provider: CreativeProviderName): string[] {
+  if (provider === 'browser_manual') return ['ALLOW_BROWSER_UI=true'];
+  if (provider === 'openai_image' || provider === 'gemini_image' || provider === 'gemini_video_understanding') {
+    return ['ALLOW_PAID_GENERATION=true'];
+  }
+  return [];
+}
+
+function providerRequestPolicyAllowsCapability(request: ProviderRequestManifest): boolean {
+  if (request.provider === 'browser_manual') return request.cost_policy.allow_browser_ui;
+  if (request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding') {
+    return request.cost_policy.allow_paid_generation;
+  }
+  return true;
+}
+
+function missingGatesForProviderRequest(
+  request: ProviderRequestManifest,
+  capabilityProfile: HarnessCapabilityProfile,
+  credentialAvailable: boolean,
+): string[] {
+  const missing: string[] = [];
+  if (request.status !== 'draft') missing.push(`request.status=${request.status}`);
+  if (!providerRequestPolicyAllowsCapability(request)) missing.push('request cost policy');
+  if (request.provider === 'browser_manual' && !capabilityProfile.gates.allow_browser_ui) missing.push('ALLOW_BROWSER_UI=true');
+  if ((request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding')
+    && !capabilityProfile.gates.allow_paid_generation) {
+    missing.push('ALLOW_PAID_GENERATION=true');
+  }
+  if (!credentialAvailable) missing.push('provider credential');
+  if (request.provider !== 'local_renderer') missing.push('live provider implementation');
+  return missing;
+}
+
+function capabilityNextAction(
+  request: ProviderRequestManifest,
+  missingGates: string[],
+  credentialAvailable: boolean,
+): string {
+  if (!missingGates.length) return `Dry-run gate is clear for ${request.request_id}; live external calls remain disabled by scaffold policy.`;
+  if (missingGates.includes('provider credential') && !credentialAvailable) {
+    return `Provide a ${request.provider} credential through environment or platform tooling, then rerun capability-plan.`;
+  }
+  if (missingGates.includes('live provider implementation')) {
+    return 'Keep this request in dry-run/manual mode until a reviewed live adapter exists and external-call policy changes.';
+  }
+  return `Resolve missing gate(s): ${missingGates.join(', ')}.`;
+}
+
+function countJsonFiles(dir: string): number {
+  if (!fs.existsSync(dir)) return 0;
+  return fs.readdirSync(dir).filter((file) => file.endsWith('.json')).length;
+}
+
+function filePathIfExists(rootDir: string, relativePath: string): string | null {
+  const absolutePath = path.join(rootDir, relativePath);
+  return fs.existsSync(absolutePath) ? absolutePath : null;
+}
+
 function shellQuote(value: string): string {
   return `'${value.replace(/'/g, "'\\''")}'`;
 }
@@ -2084,6 +2331,9 @@ Commands:
   repo-status
     Print branch, remote, dirty state, and untracked source-of-truth files.
 
+  capability-plan
+    Print local/provider/browser/publishing readiness with missing gates, credentials, and request-level next actions.
+
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
     Print or write the source-of-truth boundary, generated artifact boundary, stage command, and verification commands.
 
@@ -2154,6 +2404,10 @@ async function main(): Promise<void> {
 
     case 'repo-status':
       console.log(JSON.stringify(buildRepoStatus(), null, 2));
+      return;
+
+    case 'capability-plan':
+      console.log(JSON.stringify(buildCapabilityPlan(), null, 2));
       return;
 
     case 'reproducibility-manifest': {
