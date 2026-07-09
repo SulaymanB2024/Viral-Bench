@@ -111,6 +111,45 @@ export interface HarnessCredentialCoverageMap {
   next_commands: string[];
 }
 
+export interface HarnessProviderRoute {
+  request_id: string;
+  provider: CreativeProviderName;
+  request_path: string;
+  job_id: string;
+  route_type: 'live_provider' | 'provider_handoff' | 'browser_manual' | 'unsupported_live_provider';
+  status: 'ready_for_live' | 'ready_for_handoff' | 'needs_local_input' | 'needs_credential' | 'needs_gate' | 'needs_adapter' | 'blocked';
+  score: number;
+  ready_for_provider_handoff: boolean;
+  ready_for_live_request: boolean;
+  would_api_key_help: boolean;
+  credential_available: boolean;
+  recommended_credentials: string[];
+  required_env: string[];
+  blockers: string[];
+  next_action: string;
+  safe_probe_commands: string[];
+  activation_commands: string[];
+  writes: string[];
+}
+
+export interface HarnessProviderRouteMap {
+  created_at: string;
+  root_dir: string;
+  credential_policy: HarnessCapabilityProfile['credential_policy'];
+  capability_profile: HarnessCapabilityProfile;
+  summary: {
+    request_count: number;
+    live_ready_count: number;
+    handoff_ready_count: number;
+    api_key_would_help_count: number;
+    recommended_route_id: string | null;
+    recommended_credential: string | null;
+    external_calls_made: 0;
+  };
+  routes: HarnessProviderRoute[];
+  next_commands: string[];
+}
+
 export interface HarnessCapabilityPlanLane {
   id: 'local' | 'provider' | 'browser' | 'publishing';
   status: 'ready' | 'blocked' | 'needs_gate' | 'needs_credential' | 'human_boundary';
@@ -799,6 +838,7 @@ export interface HarnessDoctorReport {
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
+  provider_route_map: HarnessProviderRouteMap;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -984,6 +1024,7 @@ export interface HarnessRunRecord {
   launch_map_path: string;
   verification_map_path: string;
   capability_unlock_map_path: string;
+  provider_route_map_path?: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   next_action_path?: string;
@@ -1129,6 +1170,53 @@ export function buildCredentialCoverageMap(
   };
 }
 
+export function buildProviderRouteMap(
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessProviderRouteMap {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
+  const providerPreflight = preflightProviderRequests(merged.effective_env, rootDir);
+  const routes = providerPreflight.preflights
+    .map((preflight) => providerRouteForPreflight(preflight, capabilityProfile))
+    .sort((a, b) => b.score - a.score || a.request_id.localeCompare(b.request_id));
+  const recommendedRoute = routes.find((route) => route.would_api_key_help)
+    ?? routes.find((route) => route.ready_for_live_request)
+    ?? routes.find((route) => route.ready_for_provider_handoff)
+    ?? routes[0]
+    ?? null;
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    credential_policy: capabilityProfile.credential_policy,
+    capability_profile: capabilityProfile,
+    summary: {
+      request_count: routes.length,
+      live_ready_count: routes.filter((route) => route.ready_for_live_request).length,
+      handoff_ready_count: routes.filter((route) => route.ready_for_provider_handoff).length,
+      api_key_would_help_count: routes.filter((route) => route.would_api_key_help).length,
+      recommended_route_id: recommendedRoute?.request_id ?? null,
+      recommended_credential: recommendedRoute?.recommended_credentials[0] ?? null,
+      external_calls_made: 0,
+    },
+    routes,
+    next_commands: uniqueSorted([
+      'npm run harness -- provider-route-map --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      ...(recommendedRoute?.safe_probe_commands ?? []),
+      ...(recommendedRoute?.activation_commands ?? []),
+    ]),
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -1190,6 +1278,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- credential-coverage --env-file .env',
       purpose: 'Map redacted credential presence to current provider requests, live readiness, unbound keys, missing required credentials, and gate blockers.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.provider_route_map',
+      kind: 'provider',
+      command: 'npm run harness -- provider-route-map --env-file .env',
+      purpose: 'Rank provider request routes and report whether an API key, env gate, local input, or adapter would move each route toward live execution.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2180,6 +2277,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.launch_map_path,
     record.verification_map_path,
     record.capability_unlock_map_path,
+    record.provider_route_map_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -2344,6 +2442,7 @@ function runBriefArtifacts(
     { role: 'launch_map', filePath: record.launch_map_path },
     { role: 'verification_map', filePath: record.verification_map_path },
     { role: 'capability_unlock_map', filePath: record.capability_unlock_map_path },
+    { role: 'provider_route_map', filePath: record.provider_route_map_path },
     { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
     { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
     { role: 'next_action', filePath: record.next_action_path },
@@ -3118,6 +3217,7 @@ export function buildAutonomyAudit(
     'harness.capability_unlock_map',
     'harness.capability_env',
     'harness.credential_coverage',
+    'harness.provider_route_map',
     'harness.reproducibility_manifest',
     'harness.verification_map',
     'harness.autonomy_audit',
@@ -3245,6 +3345,7 @@ export function buildAutonomyAudit(
       'npm run harness -- stage-source --dry-run',
       'npm run harness -- source-package',
       'npm run harness -- provider-preflight',
+      'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
       'npm run harness -- capability-plan',
       'npm run harness -- capability-unlock-map',
@@ -3313,6 +3414,7 @@ export function buildGoalCompletionAudit(
     'harness.capability_plan',
     'harness.capability_unlock_map',
     'harness.credential_coverage',
+    'harness.provider_route_map',
     'harness.provider_preflight',
     'harness.run_history',
     'harness.run_brief',
@@ -3494,6 +3596,7 @@ export function buildGoalCompletionAudit(
       'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm test -- --runInBand',
     ],
@@ -3541,6 +3644,7 @@ export function buildHarnessDoctor(
     'npm run harness -- capability-plan',
     'npm run harness -- capability-unlock-map',
     'npm run harness -- credential-coverage --env-file .env',
+    'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -3576,6 +3680,7 @@ export function buildHarnessDoctor(
     capability_plan: capabilityPlan,
     capability_unlock_map: capabilityUnlockMap,
     credential_coverage: credentialCoverage,
+    provider_route_map: buildProviderRouteMap({ env, rootDir }),
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -3797,6 +3902,25 @@ export function buildAutonomyPlan(
     writes: [],
   });
 
+  addStep({
+    id: 'provider.route_map',
+    priority: 33,
+    lane: 'provider',
+    status: doctor.provider_route_map.summary.live_ready_count ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: 'npm run harness -- provider-route-map --env-file .env',
+    reason: 'Rank provider request routes and identify whether an API key, env gate, local input, or adapter is the next unlock for each route.',
+    evidence: [
+      `request_count=${doctor.provider_route_map.summary.request_count}`,
+      `live_ready_count=${doctor.provider_route_map.summary.live_ready_count}`,
+      `api_key_would_help_count=${doctor.provider_route_map.summary.api_key_would_help_count}`,
+      `recommended_route_id=${doctor.provider_route_map.summary.recommended_route_id ?? 'none'}`,
+      `recommended_credential=${doctor.provider_route_map.summary.recommended_credential ?? 'none'}`,
+    ],
+    required_gates: [],
+    writes: [],
+  });
+
   for (const preflight of doctor.provider_preflight.preflights) {
     const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
     if (preflight.ready_for_live_request) {
@@ -3975,6 +4099,7 @@ export function buildDecisionSurface(
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- provider-preflight --env-file .env',
+      'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- run-history',
@@ -4004,7 +4129,8 @@ export function buildNextActionReport(
     action.id !== orientationAction?.id
     && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
   )) ?? null;
-  const capabilityUnlockAction = safeActions.find((action) => action.id === 'capability.unlock_map')
+  const capabilityUnlockAction = safeActions.find((action) => action.id === 'provider.route_map')
+    ?? safeActions.find((action) => action.id === 'capability.unlock_map')
     ?? safeActions.find((action) => action.id === 'capability.credential_coverage')
     ?? safeActions.find((action) => action.id === 'provider.preflight_all')
     ?? surface.queues.capability_gated.find((action) => action.command)
@@ -4121,6 +4247,7 @@ export function inspectHarness(
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
+  provider_route_map: HarnessProviderRouteMap;
   next_action: HarnessNextActionReport;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
@@ -4146,6 +4273,7 @@ export function inspectHarness(
     capability_plan: buildCapabilityPlan(env, rootDir),
     capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
     credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
+    provider_route_map: buildProviderRouteMap({ env, rootDir }),
     next_action: buildNextActionReport('Make WorthScan autonomous for Codex', env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
@@ -4242,6 +4370,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const launchMapPath = path.join(runDir, 'launch_map.json');
   const verificationMapPath = path.join(runDir, 'verification_map.json');
   const capabilityUnlockMapPath = path.join(runDir, 'capability_unlock_map.json');
+  const providerRouteMapPath = path.join(runDir, 'provider_route_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const nextActionPath = path.join(runDir, 'next_action.json');
@@ -4261,6 +4390,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const launchMap = buildLaunchMap(options.env ?? process.env, rootDir);
   const verificationMap = buildVerificationMap(rootDir);
   const capabilityUnlockMap = buildCapabilityUnlockMap(options.env ?? process.env, rootDir);
+  const providerRouteMap = buildProviderRouteMap({ env: options.env ?? process.env, rootDir });
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -4275,6 +4405,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(launchMapPath, `${JSON.stringify(launchMap, null, 2)}\n`);
   fs.writeFileSync(verificationMapPath, `${JSON.stringify(verificationMap, null, 2)}\n`);
   fs.writeFileSync(capabilityUnlockMapPath, `${JSON.stringify(capabilityUnlockMap, null, 2)}\n`);
+  fs.writeFileSync(providerRouteMapPath, `${JSON.stringify(providerRouteMap, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -4304,6 +4435,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     launch_map_path: launchMapPath,
     verification_map_path: verificationMapPath,
     capability_unlock_map_path: capabilityUnlockMapPath,
+    provider_route_map_path: providerRouteMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     next_action_path: nextActionPath,
@@ -4356,6 +4488,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
     'npm run harness -- provider-preflight',
+    'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- capability-unlock-map',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
@@ -5028,6 +5161,148 @@ function providerCredentialAvailable(
     return capabilityProfile.credentials.gemini_api_key_available;
   }
   return true;
+}
+
+function providerRouteForPreflight(
+  preflight: HarnessProviderPreflight,
+  capabilityProfile: HarnessCapabilityProfile,
+): HarnessProviderRoute {
+  const credentialAvailable = providerCredentialAvailable(preflight.provider, capabilityProfile);
+  const recommendedCredentials = recommendedCredentialsForProvider(preflight.provider);
+  const requiredEnv = requiredEnvForProvider(preflight.provider);
+  const blockers = uniqueSorted(preflight.live_blockers);
+  const hasMissingLocalInput = Boolean(preflight.missing_prompt || preflight.missing_input_assets.length);
+  const hasMissingCredential = blockers.includes('provider credential') && !credentialAvailable;
+  const hasMissingAdapter = blockers.includes('live provider implementation');
+  const routeType = providerRouteType(preflight);
+  const wouldApiKeyHelp = hasMissingCredential
+    && preflight.ready_for_provider_handoff
+    && routeType === 'live_provider'
+    && recommendedCredentials.length > 0
+    && !hasMissingAdapter;
+  const status: HarnessProviderRoute['status'] = preflight.ready_for_live_request
+    ? 'ready_for_live'
+    : hasMissingLocalInput
+      ? 'needs_local_input'
+      : hasMissingAdapter
+        ? 'needs_adapter'
+        : hasMissingCredential
+          ? 'needs_credential'
+          : blockers.length
+            ? 'needs_gate'
+            : 'ready_for_handoff';
+  const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
+
+  return {
+    request_id: preflight.request_id,
+    provider: preflight.provider,
+    request_path: preflight.request_path,
+    job_id: preflight.job_id,
+    route_type: routeType,
+    status,
+    score: providerRouteScore({
+      routeType,
+      status,
+      blockerCount: blockers.length,
+      wouldApiKeyHelp,
+      readyForProviderHandoff: preflight.ready_for_provider_handoff,
+      readyForLiveRequest: preflight.ready_for_live_request,
+    }),
+    ready_for_provider_handoff: preflight.ready_for_provider_handoff,
+    ready_for_live_request: preflight.ready_for_live_request,
+    would_api_key_help: wouldApiKeyHelp,
+    credential_available: credentialAvailable,
+    recommended_credentials: recommendedCredentials,
+    required_env: requiredEnv,
+    blockers,
+    next_action: providerRouteNextAction(preflight, status, recommendedCredentials, requiredEnv),
+    safe_probe_commands: uniqueSorted([
+      `npm run harness -- provider-preflight --request ${shellQuote(preflight.request_path)}`,
+      'npm run harness -- credential-coverage --env-file .env',
+      ...(preflight.ready_for_provider_handoff
+        ? [`npm run harness -- provider-handoff --request ${shellQuote(preflight.request_path)} --env-file .env`]
+        : preflight.suggested_prepare_command ? [preflight.suggested_prepare_command] : []),
+    ]),
+    activation_commands: providerRouteActivationCommands(preflight, status, requiredEnv, packageDir),
+    writes: preflight.ready_for_live_request
+      ? preflight.declared_outputs.map((output) => output.path)
+      : preflight.ready_for_provider_handoff
+        ? ['.ops/harness/provider_handoffs/<packet_id>/']
+        : preflight.suggested_prepare_command
+          ? [packageDir]
+          : [],
+  };
+}
+
+function providerRouteType(preflight: HarnessProviderPreflight): HarnessProviderRoute['route_type'] {
+  if (preflight.provider === 'browser_manual') return 'browser_manual';
+  if (preflight.provider === 'openai_image' && preflight.provider_mode === 'generation') return 'live_provider';
+  if (preflight.provider === 'gemini_image' || preflight.provider === 'gemini_video_understanding') return 'unsupported_live_provider';
+  return 'provider_handoff';
+}
+
+function recommendedCredentialsForProvider(provider: CreativeProviderName): string[] {
+  if (provider === 'openai_image') return ['OPENAI_API_KEY'];
+  if (provider === 'gemini_image' || provider === 'gemini_video_understanding') return ['GEMINI_API_KEY or GOOGLE_API_KEY'];
+  return [];
+}
+
+function providerRouteScore(input: {
+  routeType: HarnessProviderRoute['route_type'];
+  status: HarnessProviderRoute['status'];
+  blockerCount: number;
+  wouldApiKeyHelp: boolean;
+  readyForProviderHandoff: boolean;
+  readyForLiveRequest: boolean;
+}): number {
+  let score = input.readyForLiveRequest ? 100 : input.readyForProviderHandoff ? 55 : 20;
+  if (input.routeType === 'live_provider') score += 20;
+  if (input.routeType === 'provider_handoff') score += 8;
+  if (input.wouldApiKeyHelp) score += 15;
+  if (input.status === 'needs_adapter') score -= 35;
+  if (input.status === 'needs_local_input') score -= 20;
+  if (input.status === 'needs_gate') score -= 8;
+  score -= input.blockerCount * 2;
+  return score;
+}
+
+function providerRouteNextAction(
+  preflight: HarnessProviderPreflight,
+  status: HarnessProviderRoute['status'],
+  recommendedCredentials: string[],
+  requiredEnv: string[],
+): string {
+  if (status === 'ready_for_live') {
+    return `Run provider:run-live for ${preflight.request_id} only through its reviewed request manifest and declared package output paths.`;
+  }
+  if (status === 'ready_for_handoff') {
+    return `Write a provider handoff packet for ${preflight.request_id} before considering any external provider execution.`;
+  }
+  if (status === 'needs_local_input') return preflight.next_action;
+  if (status === 'needs_adapter') {
+    return `Do not provision a key for ${preflight.request_id} as the next step; this provider route still needs a reviewed live adapter or should remain a handoff.`;
+  }
+  if (status === 'needs_credential') {
+    return `A ${recommendedCredentials.join(' or ')} presence flag plus ${requiredEnv.join(' and ')} would move ${preflight.request_id} closer to live execution.`;
+  }
+  if (status === 'needs_gate') {
+    return `Resolve request policy and env gates for ${preflight.request_id} before using provider credentials.`;
+  }
+  return preflight.next_action;
+}
+
+function providerRouteActivationCommands(
+  preflight: HarnessProviderPreflight,
+  status: HarnessProviderRoute['status'],
+  requiredEnv: string[],
+  packageDir: string,
+): string[] {
+  if (preflight.provider !== 'openai_image' || preflight.provider_mode !== 'generation') return [];
+  const envPrefix = requiredEnv.includes('ALLOW_PAID_GENERATION=true') ? 'ALLOW_PAID_GENERATION=true ' : '';
+  const command = `${envPrefix}npm run trend -- provider:run-live --env-file .env --file ${shellQuote(preflight.request_path)} --package-dir ${shellQuote(packageDir)}`;
+  return status === 'ready_for_live' || status === 'needs_credential' || status === 'needs_gate'
+    ? [command]
+    : [];
 }
 
 function capabilityUnlockRequest(preflight: HarnessProviderPreflight): HarnessCapabilityUnlockRequest {
@@ -5910,6 +6185,9 @@ Commands:
   credential-coverage [--env-file .env]
     Print redacted credential usefulness across provider requests, live readiness, missing requirements, and unbound keys.
 
+  provider-route-map [--env-file .env]
+    Rank provider request routes and report whether an API key, env gate, local input, or adapter would unlock each route.
+
   provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
     Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
 
@@ -6042,6 +6320,14 @@ async function main(): Promise<void> {
 
     case 'credential-coverage':
       console.log(JSON.stringify(buildCredentialCoverageMap({
+        env: process.env,
+        envFile: stringOpt(options, 'env-file'),
+        rootDir: process.cwd(),
+      }), null, 2));
+      return;
+
+    case 'provider-route-map':
+      console.log(JSON.stringify(buildProviderRouteMap({
         env: process.env,
         envFile: stringOpt(options, 'env-file'),
         rootDir: process.cwd(),

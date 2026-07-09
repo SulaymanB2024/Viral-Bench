@@ -55,6 +55,8 @@ npm run harness -- capability-env --env-file .env
 
 npm run harness -- credential-coverage --env-file .env
 
+npm run harness -- provider-route-map --env-file .env
+
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
@@ -160,6 +162,12 @@ which are present but still gated or unimplemented, and which are present but
 unbound to any current request. It is the quickest way for Codex to decide
 whether an available API key can move a provider lane forward.
 
+`provider-route-map` ranks the current provider request routes and states
+whether each route needs a local input, env gate, API key, request-policy
+change, or live adapter before it can make an external call. It is the
+Codex-facing answer to "would an API key help right now?" and still reports
+credentials by presence only.
+
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
 declares whether it is safe to run now, the command to run, evidence, required
@@ -258,6 +266,7 @@ excerpts for the latest or specified run.
 - capability plan
 - capability unlock map for env, credential, policy, activation, and verification gates
 - credential coverage across live, gated, unimplemented, missing, and unbound keys
+- provider route map showing whether API keys, env gates, local inputs, or adapters unlock routes
 - available incoming creative jobs
 - provider request manifests
 - provider preflight with prompt/input/output readiness
@@ -296,6 +305,7 @@ primitives.json
 information_index.json
 context_pack.json
 job_rankings.json
+provider_route_map.json
 reproducibility_manifest.json
 autonomy_audit.json
 next_action.json
