@@ -175,6 +175,12 @@ commands, and the declared output writes. It is the surface to inspect before
 using an API key; it still makes zero external calls and prints no secret
 values.
 
+`browser-research-plan` consolidates the manual/browser research boundary into
+one Codex-readable report: browser operating docs, the `browser_manual` request,
+capture inventory across samples/raw/reviewed/rejected folders, validation and
+approved-capture ingestion commands, gate state, and safety notes. It does not
+launch browser UI or ingest captures by itself.
+
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
 declares whether it is safe to run now, the command to run, evidence, required
@@ -501,6 +507,9 @@ operating docs live in `.ops/browser/`:
 Validate a manually captured example:
 
 ```bash
+npm run harness -- browser-research-plan \
+  --env-file .env
+
 npm run trend -- browser:validate-capture \
   --file .ops/browser/samples/creative_center_bike_capture.json
 ```

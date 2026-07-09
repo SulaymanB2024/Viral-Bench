@@ -18,6 +18,10 @@ import {
   type MergedEnvFileReport,
 } from './env-loader';
 import {
+  loadBrowserCapture,
+  type BrowserCapture,
+} from './browser-capture';
+import {
   latestMetricSnapshot,
   loadPostMetricsStore,
 } from './post-metrics';
@@ -216,6 +220,68 @@ export interface HarnessProviderActivationPlan {
   };
   requests: HarnessProviderActivationRequest[];
   next_commands: string[];
+}
+
+export interface HarnessBrowserCaptureEntry {
+  path: string;
+  bucket: 'sample' | 'raw' | 'reviewed' | 'rejected';
+  valid: boolean;
+  capture_id: string | null;
+  source_name: string | null;
+  source_url: string | null;
+  captured_at: string | null;
+  niche: string | null;
+  platform: string | null;
+  observed_format: string | null;
+  human_review_status: BrowserCapture['human_review_status'] | null;
+  ingest_ready: boolean;
+  validation_command: string;
+  ingest_command: string | null;
+  blockers: string[];
+  error: string | null;
+}
+
+export interface HarnessBrowserResearchPlan {
+  created_at: string;
+  root_dir: string;
+  env_file: HarnessEnvFileSummary | null;
+  gates: {
+    allow_browser_ui: boolean;
+    required_env: string[];
+    missing_env: string[];
+  };
+  operating_docs: {
+    mcp_setup_path: string | null;
+    allowed_tasks_path: string | null;
+    blocked_tasks_path: string | null;
+    protocol_path: string | null;
+    capture_template_path: string | null;
+    schema_path: string | null;
+  };
+  browser_request: {
+    request_id: string | null;
+    request_path: string | null;
+    policy_allows_browser_ui: boolean;
+    ready_for_provider_handoff: boolean;
+    blockers: string[];
+  };
+  summary: {
+    capture_count: number;
+    valid_capture_count: number;
+    approved_capture_count: number;
+    pending_review_capture_count: number;
+    rejected_capture_count: number;
+    invalid_capture_count: number;
+    ingest_ready_count: number;
+    raw_capture_count: number;
+    reviewed_capture_count: number;
+    sample_capture_count: number;
+    recommended_capture_path: string | null;
+    external_calls_made: 0;
+  };
+  captures: HarnessBrowserCaptureEntry[];
+  next_commands: string[];
+  safety_notes: string[];
 }
 
 export interface HarnessCapabilityPlanLane {
@@ -918,6 +984,7 @@ export interface HarnessDoctorReport {
   credential_coverage: HarnessCredentialCoverageMap;
   provider_route_map: HarnessProviderRouteMap;
   provider_activation_plan: HarnessProviderActivationPlan;
+  browser_research_plan: HarnessBrowserResearchPlan;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -1105,6 +1172,7 @@ export interface HarnessRunRecord {
   capability_unlock_map_path: string;
   provider_route_map_path?: string;
   provider_activation_plan_path?: string;
+  browser_research_plan_path?: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   next_action_path?: string;
@@ -1378,6 +1446,83 @@ export function buildProviderActivationPlan(
   };
 }
 
+export function buildBrowserResearchPlan(
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessBrowserResearchPlan {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
+  const providerPreflight = preflightProviderRequests(merged.effective_env, rootDir);
+  const browserPreflight = providerPreflight.preflights.find((preflight) => preflight.provider === 'browser_manual') ?? null;
+  const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
+  const captures = browserCaptureFiles(rootDir).map((capture) => browserCaptureEntry(rootDir, capture));
+  const recommendedCapture = captures.find((capture) => capture.ingest_ready)
+    ?? captures.find((capture) => capture.valid && capture.human_review_status === 'pending_review')
+    ?? captures.find((capture) => capture.valid)
+    ?? null;
+  const browserRequest = browserPreflight ? browserRequestSummary(rootDir, browserPreflight) : null;
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    env_file: envFileSummary,
+    gates: {
+      allow_browser_ui: capabilityProfile.gates.allow_browser_ui,
+      required_env: ['ALLOW_BROWSER_UI=true'],
+      missing_env: capabilityProfile.gates.allow_browser_ui ? [] : ['ALLOW_BROWSER_UI=true'],
+    },
+    operating_docs: {
+      mcp_setup_path: filePathIfExists(rootDir, '.ops/browser/mcp_setup.md'),
+      allowed_tasks_path: filePathIfExists(rootDir, '.ops/browser/allowed_browser_tasks.md'),
+      blocked_tasks_path: filePathIfExists(rootDir, '.ops/browser/blocked_browser_tasks.md'),
+      protocol_path: filePathIfExists(rootDir, '.ops/browser/creative_center_research_protocol.md'),
+      capture_template_path: filePathIfExists(rootDir, '.ops/browser/browser_capture_template.md'),
+      schema_path: filePathIfExists(rootDir, 'schemas/browser-capture.schema.json'),
+    },
+    browser_request: browserRequest ?? {
+      request_id: null,
+      request_path: null,
+      policy_allows_browser_ui: false,
+      ready_for_provider_handoff: false,
+      blockers: ['browser_manual provider request missing'],
+    },
+    summary: {
+      capture_count: captures.length,
+      valid_capture_count: captures.filter((capture) => capture.valid).length,
+      approved_capture_count: captures.filter((capture) => capture.human_review_status === 'approved').length,
+      pending_review_capture_count: captures.filter((capture) => capture.human_review_status === 'pending_review').length,
+      rejected_capture_count: captures.filter((capture) => capture.human_review_status === 'rejected').length,
+      invalid_capture_count: captures.filter((capture) => !capture.valid).length,
+      ingest_ready_count: captures.filter((capture) => capture.ingest_ready).length,
+      raw_capture_count: captures.filter((capture) => capture.bucket === 'raw').length,
+      reviewed_capture_count: captures.filter((capture) => capture.bucket === 'reviewed').length,
+      sample_capture_count: captures.filter((capture) => capture.bucket === 'sample').length,
+      recommended_capture_path: recommendedCapture?.path ?? null,
+      external_calls_made: 0,
+    },
+    captures,
+    next_commands: uniqueSorted([
+      'npm run harness -- browser-research-plan --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      'npm exec tsx -- --test tests/browser-capture.test.ts --runInBand',
+      ...(recommendedCapture ? [recommendedCapture.validation_command] : []),
+      ...(recommendedCapture?.ingest_command ? [recommendedCapture.ingest_command] : []),
+      'ALLOW_BROWSER_UI=true npm run harness -- browser-research-plan --env-file .env',
+    ]),
+    safety_notes: [
+      'No browser UI action is run by this report.',
+      'Only visible UI facts belong in capture JSON.',
+      'Do not automate login, account creation, CAPTCHA, posting, hidden endpoints, or platform bypasses.',
+      'Ingest only approved captures; pending, rejected, or invalid captures remain local review artifacts.',
+    ],
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -1457,6 +1602,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'provider',
       command: 'npm run harness -- provider-activation-plan --env-file .env',
       purpose: 'Combine provider routes, redacted credential coverage, handoff history, and live-run commands into a single API-key activation boundary for Codex.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.browser_research_plan',
+      kind: 'browser',
+      command: 'npm run harness -- browser-research-plan --env-file .env',
+      purpose: 'Inventory browser research docs, reviewed/manual capture files, validation/ingestion commands, and browser gate blockers without running browser UI.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2495,6 +2649,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.capability_unlock_map_path,
     record.provider_route_map_path,
     record.provider_activation_plan_path,
+    record.browser_research_plan_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -2609,6 +2764,7 @@ export function buildRunBrief(
         'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
         'npm run harness -- provider-preflight --env-file .env',
         'npm run harness -- provider-activation-plan --env-file .env',
+        'npm run harness -- browser-research-plan --env-file .env',
         'npm run harness -- capability-unlock-map --env-file .env',
         ...resume.next_commands,
       ]),
@@ -2662,6 +2818,7 @@ function runBriefArtifacts(
     { role: 'capability_unlock_map', filePath: record.capability_unlock_map_path },
     { role: 'provider_route_map', filePath: record.provider_route_map_path },
     { role: 'provider_activation_plan', filePath: record.provider_activation_plan_path },
+    { role: 'browser_research_plan', filePath: record.browser_research_plan_path },
     { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
     { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
     { role: 'next_action', filePath: record.next_action_path },
@@ -3052,6 +3209,7 @@ export function buildCapabilityPlan(
           `raw_capture_count=${countJsonFiles(browserRawDir)}`,
         ],
         next_commands: [
+          'npm run harness -- browser-research-plan --env-file .env',
           'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
           'ALLOW_BROWSER_UI=true npm run harness -- capability-plan',
         ],
@@ -3183,6 +3341,7 @@ export function buildCapabilityUnlockMap(
       related_requests: browserRequests.map(capabilityUnlockRequest),
       related_jobs: [],
       safe_probe_commands: [
+        'npm run harness -- browser-research-plan --env-file .env',
         'npm run harness -- capability-plan --env-file .env',
         'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
       ],
@@ -3190,6 +3349,7 @@ export function buildCapabilityUnlockMap(
         'ALLOW_BROWSER_UI=true npm run harness -- capability-plan --env-file .env',
       ],
       verification_commands: [
+        'npm run harness -- browser-research-plan --env-file .env',
         'npm run harness -- capability-plan --env-file .env',
         'npm exec tsx -- --test tests/browser-capture.test.ts --runInBand',
       ],
@@ -3566,9 +3726,10 @@ export function buildAutonomyAudit(
       'npm run harness -- stage-source --dry-run',
       'npm run harness -- source-package',
       'npm run harness -- provider-preflight',
-      'npm run harness -- provider-route-map --env-file .env',
-      'npm run harness -- provider-activation-plan --env-file .env',
-      'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
+    'npm run harness -- provider-route-map --env-file .env',
+    'npm run harness -- provider-activation-plan --env-file .env',
+    'npm run harness -- browser-research-plan --env-file .env',
+    'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
       'npm run harness -- capability-plan',
       'npm run harness -- capability-unlock-map',
       'npm run harness -- credential-coverage --env-file .env',
@@ -3617,6 +3778,7 @@ export function buildGoalCompletionAudit(
   const capabilityPlan = buildCapabilityPlan(env, rootDir);
   const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
+  const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
   const providerPreflight = preflightProviderRequests(env, rootDir);
   const launchMap = buildLaunchMap(env, rootDir);
   const runHistory = buildHarnessRunHistory({ rootDir });
@@ -3639,6 +3801,7 @@ export function buildGoalCompletionAudit(
     'harness.credential_coverage',
     'harness.provider_route_map',
     'harness.provider_activation_plan',
+    'harness.browser_research_plan',
     'harness.provider_preflight',
     'harness.run_history',
     'harness.run_brief',
@@ -3755,15 +3918,19 @@ export function buildGoalCompletionAudit(
       evidence: [
         `browser_lane_status=${browserLane?.status ?? 'missing'}`,
         `ALLOW_BROWSER_UI=${capabilityProfile.gates.allow_browser_ui}`,
+        `browser_capture_count=${browserResearchPlan.summary.capture_count}`,
+        `browser_ingest_ready_count=${browserResearchPlan.summary.ingest_ready_count}`,
+        `browser_recommended_capture_path=${browserResearchPlan.summary.recommended_capture_path ?? 'none'}`,
       ],
       blockers: capabilityProfile.gates.allow_browser_ui ? [] : ['ALLOW_BROWSER_UI=true'],
       proof_commands: [
+        'npm run harness -- browser-research-plan --env-file .env',
         'npm run harness -- capability-unlock-map --env-file .env',
         'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
       ],
       next_action: capabilityProfile.gates.allow_browser_ui
         ? 'Validate reviewed captures before ingestion.'
-        : 'Keep browser research to local/manual reviewed capture files until ALLOW_BROWSER_UI=true is explicit.',
+        : 'Use browser-research-plan to inspect reviewed/manual captures, then keep browser UI work gated until ALLOW_BROWSER_UI=true is explicit.',
     },
     {
       id: 'goal.publishing_boundary',
@@ -3826,6 +3993,7 @@ export function buildGoalCompletionAudit(
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- provider-activation-plan --env-file .env',
+      'npm run harness -- browser-research-plan --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm test -- --runInBand',
     ],
@@ -3844,6 +4012,7 @@ export function buildHarnessDoctor(
   const capabilityUnlockMap = buildCapabilityUnlockMap(env, rootDir);
   const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
+  const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
@@ -3876,6 +4045,7 @@ export function buildHarnessDoctor(
     'npm run harness -- credential-coverage --env-file .env',
     'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- provider-activation-plan --env-file .env',
+    'npm run harness -- browser-research-plan --env-file .env',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -3913,6 +4083,7 @@ export function buildHarnessDoctor(
     credential_coverage: credentialCoverage,
     provider_route_map: buildProviderRouteMap({ env, rootDir }),
     provider_activation_plan: providerActivationPlan,
+    browser_research_plan: browserResearchPlan,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -4249,6 +4420,25 @@ export function buildAutonomyPlan(
   }
 
   addStep({
+    id: 'browser.research_plan',
+    priority: 44,
+    lane: 'browser',
+    status: doctor.browser_research_plan.gates.allow_browser_ui ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: 'npm run harness -- browser-research-plan --env-file .env',
+    reason: 'Inspect browser operating docs, manual capture inventory, review status, validation commands, and ingestion boundary before any browser UI work.',
+    evidence: [
+      `ALLOW_BROWSER_UI=${doctor.browser_research_plan.gates.allow_browser_ui}`,
+      `capture_count=${doctor.browser_research_plan.summary.capture_count}`,
+      `approved_capture_count=${doctor.browser_research_plan.summary.approved_capture_count}`,
+      `ingest_ready_count=${doctor.browser_research_plan.summary.ingest_ready_count}`,
+      `recommended_capture_path=${doctor.browser_research_plan.summary.recommended_capture_path ?? 'none'}`,
+    ],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
     id: 'browser.capture_validation',
     priority: doctor.readiness.browser_autonomy ? 45 : 75,
     lane: 'browser',
@@ -4541,6 +4731,7 @@ export function inspectHarness(
   credential_coverage: HarnessCredentialCoverageMap;
   provider_route_map: HarnessProviderRouteMap;
   provider_activation_plan: HarnessProviderActivationPlan;
+  browser_research_plan: HarnessBrowserResearchPlan;
   next_action: HarnessNextActionReport;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
@@ -4568,6 +4759,7 @@ export function inspectHarness(
     credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
     provider_route_map: buildProviderRouteMap({ env, rootDir }),
     provider_activation_plan: buildProviderActivationPlan({ env, rootDir }),
+    browser_research_plan: buildBrowserResearchPlan({ env, rootDir }),
     next_action: buildNextActionReport('Make WorthScan autonomous for Codex', env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
@@ -4666,6 +4858,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const capabilityUnlockMapPath = path.join(runDir, 'capability_unlock_map.json');
   const providerRouteMapPath = path.join(runDir, 'provider_route_map.json');
   const providerActivationPlanPath = path.join(runDir, 'provider_activation_plan.json');
+  const browserResearchPlanPath = path.join(runDir, 'browser_research_plan.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const nextActionPath = path.join(runDir, 'next_action.json');
@@ -4687,6 +4880,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const capabilityUnlockMap = buildCapabilityUnlockMap(options.env ?? process.env, rootDir);
   const providerRouteMap = buildProviderRouteMap({ env: options.env ?? process.env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env: options.env ?? process.env, rootDir });
+  const browserResearchPlan = buildBrowserResearchPlan({ env: options.env ?? process.env, rootDir });
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -4703,6 +4897,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(capabilityUnlockMapPath, `${JSON.stringify(capabilityUnlockMap, null, 2)}\n`);
   fs.writeFileSync(providerRouteMapPath, `${JSON.stringify(providerRouteMap, null, 2)}\n`);
   fs.writeFileSync(providerActivationPlanPath, `${JSON.stringify(providerActivationPlan, null, 2)}\n`);
+  fs.writeFileSync(browserResearchPlanPath, `${JSON.stringify(browserResearchPlan, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -4734,6 +4929,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     capability_unlock_map_path: capabilityUnlockMapPath,
     provider_route_map_path: providerRouteMapPath,
     provider_activation_plan_path: providerActivationPlanPath,
+    browser_research_plan_path: browserResearchPlanPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     next_action_path: nextActionPath,
@@ -4788,6 +4984,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- provider-preflight',
     'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- provider-activation-plan --env-file .env',
+    'npm run harness -- browser-research-plan --env-file .env',
     'npm run harness -- capability-unlock-map',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
@@ -5773,6 +5970,111 @@ function providerActivationNextAction(input: {
   return input.route.next_action;
 }
 
+function browserCaptureFiles(rootDir: string): Array<{ bucket: HarnessBrowserCaptureEntry['bucket']; filePath: string }> {
+  const specs: Array<{ bucket: HarnessBrowserCaptureEntry['bucket']; dir: string }> = [
+    { bucket: 'sample', dir: path.join(rootDir, '.ops', 'browser', 'samples') },
+    { bucket: 'raw', dir: path.join(rootDir, '.ops', 'browser', 'captures', 'raw') },
+    { bucket: 'reviewed', dir: path.join(rootDir, '.ops', 'browser', 'captures', 'reviewed') },
+    { bucket: 'rejected', dir: path.join(rootDir, '.ops', 'browser', 'captures', 'rejected') },
+  ];
+
+  return specs.flatMap((spec) => {
+    if (!fs.existsSync(spec.dir)) return [];
+    return fs.readdirSync(spec.dir)
+      .filter((file) => file.endsWith('.json'))
+      .sort()
+      .map((file) => ({ bucket: spec.bucket, filePath: path.join(spec.dir, file) }));
+  });
+}
+
+function browserCaptureEntry(
+  rootDir: string,
+  captureFile: { bucket: HarnessBrowserCaptureEntry['bucket']; filePath: string },
+): HarnessBrowserCaptureEntry {
+  const capturePath = relativeToRoot(rootDir, captureFile.filePath);
+  const validationCommand = `npm run trend -- browser:validate-capture --file ${shellQuote(capturePath)}`;
+  try {
+    const capture = loadBrowserCapture(captureFile.filePath);
+    const ingestReady = capture.human_review_status === 'approved';
+    return {
+      path: capturePath,
+      bucket: captureFile.bucket,
+      valid: true,
+      capture_id: capture.capture_id,
+      source_name: capture.source_name,
+      source_url: capture.source_url,
+      captured_at: capture.captured_at,
+      niche: capture.niche,
+      platform: capture.platform,
+      observed_format: capture.observed_format,
+      human_review_status: capture.human_review_status,
+      ingest_ready: ingestReady,
+      validation_command: validationCommand,
+      ingest_command: ingestReady
+        ? `npm run trend -- browser:ingest-capture --file ${shellQuote(capturePath)} --db trend_examples.sqlite`
+        : null,
+      blockers: browserCaptureBlockers(capture, captureFile.bucket),
+      error: null,
+    };
+  } catch (error) {
+    return {
+      path: capturePath,
+      bucket: captureFile.bucket,
+      valid: false,
+      capture_id: null,
+      source_name: null,
+      source_url: null,
+      captured_at: null,
+      niche: null,
+      platform: null,
+      observed_format: null,
+      human_review_status: null,
+      ingest_ready: false,
+      validation_command: validationCommand,
+      ingest_command: null,
+      blockers: ['capture validation failed'],
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+function browserCaptureBlockers(
+  capture: BrowserCapture,
+  bucket: HarnessBrowserCaptureEntry['bucket'],
+): string[] {
+  const blockers: string[] = [];
+  if (capture.human_review_status !== 'approved') {
+    blockers.push(`human_review_status=${capture.human_review_status}`);
+  }
+  if (bucket === 'raw') {
+    blockers.push('capture remains in raw review folder');
+  }
+  if (bucket === 'rejected') {
+    blockers.push('capture is in rejected folder');
+  }
+  return blockers;
+}
+
+function browserRequestSummary(
+  rootDir: string,
+  preflight: HarnessProviderPreflight,
+): HarnessBrowserResearchPlan['browser_request'] {
+  let policyAllowsBrowserUi = false;
+  try {
+    const request = loadProviderRequestManifest(resolveFromRoot(rootDir, preflight.request_path));
+    policyAllowsBrowserUi = request.cost_policy.allow_browser_ui;
+  } catch {
+    policyAllowsBrowserUi = false;
+  }
+  return {
+    request_id: preflight.request_id,
+    request_path: preflight.request_path,
+    policy_allows_browser_ui: policyAllowsBrowserUi,
+    ready_for_provider_handoff: preflight.ready_for_provider_handoff,
+    blockers: preflight.live_blockers,
+  };
+}
+
 function capabilityUnlockRequest(preflight: HarnessProviderPreflight): HarnessCapabilityUnlockRequest {
   return {
     request_id: preflight.request_id,
@@ -6659,6 +6961,9 @@ Commands:
   provider-activation-plan [--env-file .env]
     Print the API-key/live-provider activation boundary across route ranking, credential presence, handoff history, and exact commands.
 
+  browser-research-plan [--env-file .env]
+    Print browser research docs, capture inventory, review/ingestion readiness, and browser UI gate blockers.
+
   provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
     Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
 
@@ -6807,6 +7112,14 @@ async function main(): Promise<void> {
 
     case 'provider-activation-plan':
       console.log(JSON.stringify(buildProviderActivationPlan({
+        env: process.env,
+        envFile: stringOpt(options, 'env-file'),
+        rootDir: process.cwd(),
+      }), null, 2));
+      return;
+
+    case 'browser-research-plan':
+      console.log(JSON.stringify(buildBrowserResearchPlan({
         env: process.env,
         envFile: stringOpt(options, 'env-file'),
         rootDir: process.cwd(),
