@@ -57,6 +57,12 @@ npm run harness -- credential-coverage --env-file .env
 
 npm run harness -- provider-route-map --env-file .env
 
+npm run harness -- provider-activation-plan --env-file .env
+
+npm run harness -- browser-research-plan --env-file .env
+
+npm run harness -- publishing-handoff-plan --env-file .env
+
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
@@ -180,6 +186,12 @@ one Codex-readable report: browser operating docs, the `browser_manual` request,
 capture inventory across samples/raw/reviewed/rejected folders, validation and
 approved-capture ingestion commands, gate state, and safety notes. It does not
 launch browser UI or ingest captures by itself.
+
+`publishing-handoff-plan` consolidates the manual/social publishing boundary
+into one Codex-readable report: launch/account docs, handoff-ready packages,
+account-owner confirmation, human approval and generated-asset blockers, local
+metrics commands, and social-publishing gate state. It does not post, log in,
+upload, comment, DM, or open browser UI.
 
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
@@ -320,7 +332,14 @@ primitives.json
 information_index.json
 context_pack.json
 job_rankings.json
+evidence_map.json
+launch_map.json
+verification_map.json
+capability_unlock_map.json
 provider_route_map.json
+provider_activation_plan.json
+browser_research_plan.json
+publishing_handoff_plan.json
 reproducibility_manifest.json
 autonomy_audit.json
 next_action.json

@@ -29,6 +29,7 @@ import {
   buildNextActionReport,
   buildProviderRouteMap,
   buildProviderActivationPlan,
+  buildPublishingHandoffPlan,
   buildReproducibilityManifest,
   buildRepoStatus,
   buildVerificationMap,
@@ -200,6 +201,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.provider_route_map'));
   assert.ok(ids.includes('harness.provider_activation_plan'));
   assert.ok(ids.includes('harness.browser_research_plan'));
+  assert.ok(ids.includes('harness.publishing_handoff_plan'));
   assert.ok(ids.includes('harness.reproducibility_manifest'));
   assert.ok(ids.includes('harness.verification_map'));
   assert.ok(ids.includes('harness.stage_source'));
@@ -259,6 +261,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.provider_route_map.routes.some((route) => route.request_id === 'sample-openai-image-live-request'));
   assert.equal(inspected.provider_activation_plan.summary.recommended_request_id, 'sample-openai-image-live-request');
   assert.ok(inspected.browser_research_plan.summary.capture_count >= 1);
+  assert.ok(inspected.publishing_handoff_plan.summary.manual_handoff_ready_job_count >= 1);
   assert.ok(Array.isArray(inspected.run_history.runs));
   assert.equal(inspected.repo_status.is_git_repo, true);
   assert.equal(inspected.capability_profile.autonomy_level, 'local_only');
@@ -373,6 +376,44 @@ test('launch map separates manual handoff readiness from autonomous publishing g
   assert.ok(map.next_commands.some((command) => command.includes('evidence-map')));
 });
 
+test('publishing handoff plan keeps social publishing manual and maps launch blockers', () => {
+  const locked = buildPublishingHandoffPlan({ env: {}, rootDir: process.cwd() });
+  const enabled = buildPublishingHandoffPlan({
+    env: { ALLOW_SOCIAL_PUBLISHING: 'true' },
+    rootDir: process.cwd(),
+  });
+  const bike = locked.jobs.find((job) => job.job_id === 'worthscan_bike_commuter_001');
+
+  assert.equal(locked.summary.external_calls_made, 0);
+  assert.equal(locked.gates.allow_social_publishing, false);
+  assert.deepEqual(locked.gates.missing_env, ['ALLOW_SOCIAL_PUBLISHING=true']);
+  assert.equal(locked.summary.job_count, 3);
+  assert.equal(locked.summary.manual_handoff_ready_job_count, 3);
+  assert.equal(locked.summary.autonomous_publish_ready_job_count, 0);
+  assert.equal(locked.summary.recommended_job_id, 'worthscan_bike_commuter_001');
+  assert.ok(locked.operating_docs.launch_queue_path?.endsWith('.ops/launch/launch_queue.md'));
+  assert.ok(locked.operating_docs.manual_launch_packet_path?.endsWith('.ops/launch/manual_launch_packet.md'));
+  assert.ok(locked.operating_docs.posting_qa_checklist_path?.endsWith('.ops/launch/posting_qa_checklist.md'));
+  assert.ok(locked.operating_docs.first_10_posts_path?.endsWith('.ops/launch/first_10_posts.md'));
+  assert.ok(bike);
+  assert.equal(bike?.manual_handoff_ready, true);
+  assert.equal(bike?.autonomous_publish_ready, false);
+  assert.equal(bike?.manual_post_boundary.external_calls_made, 0);
+  assert.equal(bike?.manual_post_boundary.auto_post_allowed, false);
+  assert.equal(bike?.manual_post_boundary.requires_account_owner_confirmation, true);
+  assert.equal(bike?.manual_post_boundary.manual_post_allowed_after_confirmation, true);
+  assert.deepEqual(bike?.manual_post_boundary.writes, []);
+  assert.ok(bike?.manual_post_boundary.blocked_by.includes('account-owner confirmation required'));
+  assert.ok(bike?.blockers.includes('human approval missing'));
+  assert.ok(bike?.blockers.includes('job policy disallows social publishing'));
+  assert.ok(bike?.manual_review_commands.some((command) => command.includes('creative -- validate')));
+  assert.ok(bike?.metrics_commands.some((command) => command.includes('metrics:create-post')));
+  assert.ok(locked.next_commands.some((command) => command.includes('publishing-handoff-plan')));
+  assert.equal(enabled.gates.allow_social_publishing, true);
+  assert.deepEqual(enabled.gates.missing_env, []);
+  assert.equal(enabled.summary.external_calls_made, 0);
+});
+
 test('information index maps source, schemas, jobs, provider requests, tests, and ops docs', () => {
   const sources = buildInformationIndex(process.cwd());
   const kinds = new Set(sources.map((source) => source.kind));
@@ -461,6 +502,7 @@ test('capability unlock map explains closed external gates without leaking crede
   assert.ok(browser.required_env.includes('ALLOW_BROWSER_UI=true'));
   assert.ok(publishing);
   assert.equal(publishing.status, 'human_boundary');
+  assert.ok(publishing.safe_probe_commands.some((command) => command.includes('publishing-handoff-plan')));
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 
@@ -832,6 +874,7 @@ test('goal completion audit keeps the active objective unclosed until all eviden
   const audit = buildGoalCompletionAudit('Make WorthScan autonomous for Codex', {}, process.cwd());
   const ids = audit.requirements.map((requirement) => requirement.id);
   const provider = audit.requirements.find((requirement) => requirement.id === 'goal.api_key_provider_path');
+  const publishing = audit.requirements.find((requirement) => requirement.id === 'goal.publishing_boundary');
   const completion = audit.requirements.find((requirement) => requirement.id === 'goal.completion_claim');
 
   assert.equal(audit.summary_status === 'achieved', false);
@@ -843,6 +886,9 @@ test('goal completion audit keeps the active objective unclosed until all eviden
   assert.ok(provider);
   assert.notEqual(provider.status, 'passed');
   assert.ok(provider.proof_commands.some((command) => command.includes('provider:run-live')));
+  assert.ok(publishing);
+  assert.equal(publishing.status, 'open');
+  assert.ok(publishing.proof_commands.some((command) => command.includes('publishing-handoff-plan')));
   assert.ok(completion);
   assert.equal(completion.status, 'open');
   assert.ok(audit.next_commands.some((command) => command.includes('goal-completion-audit')));
@@ -861,6 +907,7 @@ test('decision surface queues safe Codex actions separately from external gates'
   assert.equal(surface.summary.can_mark_goal_complete, false);
   assert.ok(surface.selected_safe_action);
   assert.ok(surface.queues.safe_now.some((action) => action.id === 'reproducibility.stage_source_dry_run'));
+  assert.ok(surface.queues.safe_now.some((action) => action.id === 'publishing.handoff_plan'));
   assert.ok(surface.queues.safe_now.some((action) => action.id.startsWith('provider.handoff.')));
   assert.ok(surface.queues.capability_gated.every((action) => action.queue === 'capability_gated'));
   assert.ok(surface.queues.human_boundary.some((action) => action.id === 'publishing.boundary'));
@@ -1002,6 +1049,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.provider_route_map.routes.length >= 1);
   assert.equal(doctor.provider_activation_plan.summary.recommended_request_id, 'sample-openai-image-live-request');
   assert.ok(doctor.browser_research_plan.summary.capture_count >= 1);
+  assert.ok(doctor.publishing_handoff_plan.summary.manual_handoff_ready_job_count >= 1);
   assert.ok(doctor.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
   assert.ok(Array.isArray(doctor.run_history.runs));
   assert.ok(doctor.reproducibility_manifest.source_of_truth.file_count > 0);
@@ -1017,6 +1065,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-route-map')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-activation-plan')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- browser-research-plan')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- publishing-handoff-plan')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- next-action')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- decision-surface')));
@@ -1052,6 +1101,8 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.ok(fs.existsSync(record.provider_activation_plan_path));
   assert.ok(record.browser_research_plan_path);
   assert.ok(fs.existsSync(record.browser_research_plan_path));
+  assert.ok(record.publishing_handoff_plan_path);
+  assert.ok(fs.existsSync(record.publishing_handoff_plan_path));
   assert.ok(fs.existsSync(record.reproducibility_manifest_path));
   assert.ok(fs.existsSync(record.autonomy_audit_path));
   assert.ok(record.next_action_path);
@@ -1076,6 +1127,7 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.match(fs.readFileSync(record.provider_route_map_path, 'utf8'), /recommended_route_id/);
   assert.match(fs.readFileSync(record.provider_activation_plan_path, 'utf8'), /api_key_unlockable_count/);
   assert.match(fs.readFileSync(record.browser_research_plan_path, 'utf8'), /ingest_ready_count/);
+  assert.match(fs.readFileSync(record.publishing_handoff_plan_path, 'utf8'), /manual_handoff_ready_job_count/);
   assert.match(fs.readFileSync(record.reproducibility_manifest_path, 'utf8'), /source_of_truth/);
   assert.match(fs.readFileSync(record.autonomy_audit_path, 'utf8'), /codex\.reproducibility/);
   assert.match(fs.readFileSync(record.next_action_path, 'utf8'), /progress_action/);
@@ -1242,6 +1294,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-route-map')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-activation-plan')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- browser-research-plan')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- publishing-handoff-plan')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(result.decision.stop_reason.includes('provider.paid_generation') || result.status === 'advanced');

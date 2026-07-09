@@ -679,6 +679,77 @@ export interface HarnessLaunchMap {
   next_commands: string[];
 }
 
+export interface HarnessPublishingHandoffJob {
+  job_id: string;
+  launch_order: number | null;
+  job_path: string;
+  rendered_package_path: string;
+  manifest_path: string | null;
+  caption_path: string | null;
+  hashtags_path: string | null;
+  posting_notes_path: string | null;
+  qa_checklist_path: string | null;
+  approval_path: string | null;
+  slides_path: string | null;
+  approval_state: CreativeJobManifest['approval_status']['state'];
+  job_allows_social_publishing: boolean;
+  generated_asset_count: number;
+  approved_generated_asset_count: number;
+  manual_handoff_ready: boolean;
+  autonomous_publish_ready: boolean;
+  blockers: string[];
+  manual_review_commands: string[];
+  manual_post_boundary: {
+    external_calls_made: 0;
+    auto_post_allowed: false;
+    manual_post_allowed_after_confirmation: boolean;
+    requires_account_owner_confirmation: true;
+    requires_human_approval: true;
+    requires_approved_generated_assets: true;
+    writes: [];
+    blocked_by: string[];
+  };
+  metrics_commands: string[];
+  next_action: string;
+}
+
+export interface HarnessPublishingHandoffPlan {
+  created_at: string;
+  root_dir: string;
+  env_file: HarnessEnvFileSummary | null;
+  gates: {
+    allow_social_publishing: boolean;
+    required_env: string[];
+    missing_env: string[];
+  };
+  operating_docs: {
+    account_setup_checklist_path: string | null;
+    socials_path: string | null;
+    launch_checklist_path: string | null;
+    launch_queue_path: string | null;
+    manual_launch_packet_path: string | null;
+    posting_qa_checklist_path: string | null;
+    metrics_tracking_template_path: string | null;
+    first_10_posts_path: string | null;
+    launch_calendar_path: string | null;
+    dm_response_templates_path: string | null;
+    pinned_comment_templates_path: string | null;
+  };
+  summary: {
+    job_count: number;
+    queued_job_count: number;
+    manual_handoff_ready_job_count: number;
+    autonomous_publish_ready_job_count: number;
+    blocked_job_count: number;
+    metrics_job_count: number;
+    recommended_job_id: string | null;
+    external_calls_made: 0;
+  };
+  jobs: HarnessPublishingHandoffJob[];
+  next_commands: string[];
+  safety_notes: string[];
+}
+
 export interface HarnessVerificationChangedFile {
   path: string;
   status: 'modified_or_staged' | 'untracked';
@@ -985,6 +1056,7 @@ export interface HarnessDoctorReport {
   provider_route_map: HarnessProviderRouteMap;
   provider_activation_plan: HarnessProviderActivationPlan;
   browser_research_plan: HarnessBrowserResearchPlan;
+  publishing_handoff_plan: HarnessPublishingHandoffPlan;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -1173,6 +1245,7 @@ export interface HarnessRunRecord {
   provider_route_map_path?: string;
   provider_activation_plan_path?: string;
   browser_research_plan_path?: string;
+  publishing_handoff_plan_path?: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   next_action_path?: string;
@@ -1523,6 +1596,75 @@ export function buildBrowserResearchPlan(
   };
 }
 
+export function buildPublishingHandoffPlan(
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessPublishingHandoffPlan {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
+  const launchMap = buildLaunchMap(merged.effective_env, rootDir);
+  const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
+  const jobs = launchMap.jobs.map((job) => publishingHandoffJob(job));
+  const recommendedJob = jobs.find((job) => job.manual_handoff_ready && !job.autonomous_publish_ready)
+    ?? jobs.find((job) => job.manual_handoff_ready)
+    ?? jobs[0]
+    ?? null;
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    env_file: envFileSummary,
+    gates: {
+      allow_social_publishing: capabilityProfile.gates.allow_social_publishing,
+      required_env: ['ALLOW_SOCIAL_PUBLISHING=true'],
+      missing_env: capabilityProfile.gates.allow_social_publishing ? [] : ['ALLOW_SOCIAL_PUBLISHING=true'],
+    },
+    operating_docs: {
+      account_setup_checklist_path: filePathIfExists(rootDir, '.ops/accounts/account_setup_checklist.md'),
+      socials_path: filePathIfExists(rootDir, '.ops/accounts/socials.md'),
+      launch_checklist_path: filePathIfExists(rootDir, '.ops/accounts/launch_checklist.md'),
+      launch_queue_path: filePathIfExists(rootDir, '.ops/launch/launch_queue.md'),
+      manual_launch_packet_path: filePathIfExists(rootDir, '.ops/launch/manual_launch_packet.md'),
+      posting_qa_checklist_path: filePathIfExists(rootDir, '.ops/launch/posting_qa_checklist.md'),
+      metrics_tracking_template_path: filePathIfExists(rootDir, '.ops/launch/metrics_tracking_template.md'),
+      first_10_posts_path: filePathIfExists(rootDir, '.ops/launch/first_10_posts.md'),
+      launch_calendar_path: filePathIfExists(rootDir, '.ops/launch/launch_calendar.md'),
+      dm_response_templates_path: filePathIfExists(rootDir, '.ops/launch/dm_response_templates.md'),
+      pinned_comment_templates_path: filePathIfExists(rootDir, '.ops/launch/pinned_comment_templates.md'),
+    },
+    summary: {
+      job_count: jobs.length,
+      queued_job_count: launchMap.queued_job_count,
+      manual_handoff_ready_job_count: launchMap.manual_handoff_ready_job_count,
+      autonomous_publish_ready_job_count: launchMap.autonomous_publish_ready_job_count,
+      blocked_job_count: jobs.filter((job) => job.blockers.length > 0).length,
+      metrics_job_count: launchMap.metrics_job_count,
+      recommended_job_id: recommendedJob?.job_id ?? null,
+      external_calls_made: 0,
+    },
+    jobs,
+    next_commands: uniqueSorted([
+      'npm run harness -- publishing-handoff-plan --env-file .env',
+      'npm run harness -- launch-map',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      'npm run harness -- blockers',
+      ...(recommendedJob?.manual_review_commands ?? []),
+      ...(recommendedJob?.metrics_commands ?? []),
+    ]),
+    safety_notes: [
+      'No social platform login, upload, post, DM, comment, or browser action is run by this report.',
+      'Autonomous posting remains disabled; account-owner confirmation is required even when package files are ready.',
+      'Metrics commands are local recordkeeping commands and require a real posted URL from a manual post.',
+      'Do not treat missing social-publishing evidence as negative performance evidence; it is a manual execution gap.',
+    ],
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -1611,6 +1753,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'browser',
       command: 'npm run harness -- browser-research-plan --env-file .env',
       purpose: 'Inventory browser research docs, reviewed/manual capture files, validation/ingestion commands, and browser gate blockers without running browser UI.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.publishing_handoff_plan',
+      kind: 'publish',
+      command: 'npm run harness -- publishing-handoff-plan --env-file .env',
+      purpose: 'Consolidate launch docs, manual handoff-ready jobs, account-owner confirmation, local metrics commands, and social-publishing blockers without posting.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2650,6 +2801,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.provider_route_map_path,
     record.provider_activation_plan_path,
     record.browser_research_plan_path,
+    record.publishing_handoff_plan_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -2765,6 +2917,7 @@ export function buildRunBrief(
         'npm run harness -- provider-preflight --env-file .env',
         'npm run harness -- provider-activation-plan --env-file .env',
         'npm run harness -- browser-research-plan --env-file .env',
+        'npm run harness -- publishing-handoff-plan --env-file .env',
         'npm run harness -- capability-unlock-map --env-file .env',
         ...resume.next_commands,
       ]),
@@ -2819,6 +2972,7 @@ function runBriefArtifacts(
     { role: 'provider_route_map', filePath: record.provider_route_map_path },
     { role: 'provider_activation_plan', filePath: record.provider_activation_plan_path },
     { role: 'browser_research_plan', filePath: record.browser_research_plan_path },
+    { role: 'publishing_handoff_plan', filePath: record.publishing_handoff_plan_path },
     { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
     { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
     { role: 'next_action', filePath: record.next_action_path },
@@ -3223,6 +3377,7 @@ export function buildCapabilityPlan(
           `approved_jobs_ready_for_posting=${approvedJobsReadyForPosting.length}`,
         ],
         next_commands: [
+          'npm run harness -- publishing-handoff-plan --env-file .env',
           'npm run harness -- blockers',
           'ALLOW_SOCIAL_PUBLISHING=true npm run harness -- capability-plan',
         ],
@@ -3375,6 +3530,7 @@ export function buildCapabilityUnlockMap(
         blockers: job.blockers,
       })),
       safe_probe_commands: [
+        'npm run harness -- publishing-handoff-plan --env-file .env',
         'npm run harness -- launch-map',
         'npm run harness -- blockers',
       ],
@@ -3382,6 +3538,7 @@ export function buildCapabilityUnlockMap(
         'ALLOW_SOCIAL_PUBLISHING=true npm run harness -- capability-plan --env-file .env',
       ],
       verification_commands: [
+        'npm run harness -- publishing-handoff-plan --env-file .env',
         'npm run harness -- launch-map',
         'npm exec tsx -- --test tests/launch-kit.test.ts --runInBand',
       ],
@@ -3400,6 +3557,7 @@ export function buildCapabilityUnlockMap(
       'npm run harness -- capability-plan --env-file .env',
       'npm run harness -- provider-preflight --env-file .env',
       'npm run harness -- provider-activation-plan --env-file .env',
+      'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- launch-map',
       'npm run harness -- verification-map',
     ],
@@ -3779,6 +3937,7 @@ export function buildGoalCompletionAudit(
   const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
   const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
+  const publishingHandoffPlan = buildPublishingHandoffPlan({ env, rootDir });
   const providerPreflight = preflightProviderRequests(env, rootDir);
   const launchMap = buildLaunchMap(env, rootDir);
   const runHistory = buildHarnessRunHistory({ rootDir });
@@ -3802,6 +3961,7 @@ export function buildGoalCompletionAudit(
     'harness.provider_route_map',
     'harness.provider_activation_plan',
     'harness.browser_research_plan',
+    'harness.publishing_handoff_plan',
     'harness.provider_preflight',
     'harness.run_history',
     'harness.run_brief',
@@ -3941,15 +4101,18 @@ export function buildGoalCompletionAudit(
         `ALLOW_SOCIAL_PUBLISHING=${capabilityProfile.gates.allow_social_publishing}`,
         `manual_handoff_ready_job_count=${launchMap.manual_handoff_ready_job_count}`,
         `autonomous_publish_ready_job_count=${launchMap.autonomous_publish_ready_job_count}`,
+        `publishing_handoff_recommended_job_id=${publishingHandoffPlan.summary.recommended_job_id ?? 'none'}`,
+        `publishing_handoff_external_calls_made=${publishingHandoffPlan.summary.external_calls_made}`,
       ],
       blockers: uniqueSorted(launchMap.jobs.flatMap((job) => job.blockers)),
       proof_commands: [
+        'npm run harness -- publishing-handoff-plan --env-file .env',
         'npm run harness -- launch-map',
         'npm run harness -- blockers',
       ],
       next_action: launchMap.autonomous_publish_ready_job_count
         ? 'Use manual account-owner confirmation before any external publishing action.'
-        : 'Keep launch work at manual handoff until social publishing policy, approvals, and assets are ready.',
+        : 'Use publishing-handoff-plan to keep launch work at manual handoff until social publishing policy, approvals, assets, and account-owner confirmation are ready.',
     },
     {
       id: 'goal.completion_claim',
@@ -3994,6 +4157,7 @@ export function buildGoalCompletionAudit(
       'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- provider-activation-plan --env-file .env',
       'npm run harness -- browser-research-plan --env-file .env',
+      'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm test -- --runInBand',
     ],
@@ -4013,6 +4177,7 @@ export function buildHarnessDoctor(
   const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
   const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
+  const publishingHandoffPlan = buildPublishingHandoffPlan({ env, rootDir });
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
@@ -4046,6 +4211,7 @@ export function buildHarnessDoctor(
     'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- provider-activation-plan --env-file .env',
     'npm run harness -- browser-research-plan --env-file .env',
+    'npm run harness -- publishing-handoff-plan --env-file .env',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -4084,6 +4250,7 @@ export function buildHarnessDoctor(
     provider_route_map: buildProviderRouteMap({ env, rootDir }),
     provider_activation_plan: providerActivationPlan,
     browser_research_plan: browserResearchPlan,
+    publishing_handoff_plan: publishingHandoffPlan,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -4228,6 +4395,25 @@ export function buildAutonomyPlan(
     command: 'npm run harness -- launch-map',
     reason: 'Inspect queued launch jobs, rendered posting files, platform copy coverage, human approval gates, publishing blockers, and metrics follow-up commands.',
     evidence: auditById.get('codex.publishing_autonomy')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
+    id: 'publishing.handoff_plan',
+    priority: 43,
+    lane: 'publishing',
+    status: doctor.publishing_handoff_plan.summary.autonomous_publish_ready_job_count ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: 'npm run harness -- publishing-handoff-plan --env-file .env',
+    reason: 'Inspect manual launch packets, account-owner confirmation requirements, local metrics commands, and social-publishing blockers without posting.',
+    evidence: [
+      `ALLOW_SOCIAL_PUBLISHING=${doctor.publishing_handoff_plan.gates.allow_social_publishing}`,
+      `manual_handoff_ready_job_count=${doctor.publishing_handoff_plan.summary.manual_handoff_ready_job_count}`,
+      `autonomous_publish_ready_job_count=${doctor.publishing_handoff_plan.summary.autonomous_publish_ready_job_count}`,
+      `recommended_job_id=${doctor.publishing_handoff_plan.summary.recommended_job_id ?? 'none'}`,
+      `external_calls_made=${doctor.publishing_handoff_plan.summary.external_calls_made}`,
+    ],
     required_gates: [],
     writes: [],
   });
@@ -4558,6 +4744,7 @@ export function buildDecisionSurface(
       'npm run harness -- provider-preflight --env-file .env',
       'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- run-brief',
@@ -4648,6 +4835,7 @@ export function buildNextActionReport(
       'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
     ]),
   };
@@ -4732,6 +4920,7 @@ export function inspectHarness(
   provider_route_map: HarnessProviderRouteMap;
   provider_activation_plan: HarnessProviderActivationPlan;
   browser_research_plan: HarnessBrowserResearchPlan;
+  publishing_handoff_plan: HarnessPublishingHandoffPlan;
   next_action: HarnessNextActionReport;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
@@ -4760,6 +4949,7 @@ export function inspectHarness(
     provider_route_map: buildProviderRouteMap({ env, rootDir }),
     provider_activation_plan: buildProviderActivationPlan({ env, rootDir }),
     browser_research_plan: buildBrowserResearchPlan({ env, rootDir }),
+    publishing_handoff_plan: buildPublishingHandoffPlan({ env, rootDir }),
     next_action: buildNextActionReport('Make WorthScan autonomous for Codex', env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
@@ -4859,6 +5049,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const providerRouteMapPath = path.join(runDir, 'provider_route_map.json');
   const providerActivationPlanPath = path.join(runDir, 'provider_activation_plan.json');
   const browserResearchPlanPath = path.join(runDir, 'browser_research_plan.json');
+  const publishingHandoffPlanPath = path.join(runDir, 'publishing_handoff_plan.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const nextActionPath = path.join(runDir, 'next_action.json');
@@ -4881,6 +5072,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const providerRouteMap = buildProviderRouteMap({ env: options.env ?? process.env, rootDir });
   const providerActivationPlan = buildProviderActivationPlan({ env: options.env ?? process.env, rootDir });
   const browserResearchPlan = buildBrowserResearchPlan({ env: options.env ?? process.env, rootDir });
+  const publishingHandoffPlan = buildPublishingHandoffPlan({ env: options.env ?? process.env, rootDir });
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -4898,6 +5090,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(providerRouteMapPath, `${JSON.stringify(providerRouteMap, null, 2)}\n`);
   fs.writeFileSync(providerActivationPlanPath, `${JSON.stringify(providerActivationPlan, null, 2)}\n`);
   fs.writeFileSync(browserResearchPlanPath, `${JSON.stringify(browserResearchPlan, null, 2)}\n`);
+  fs.writeFileSync(publishingHandoffPlanPath, `${JSON.stringify(publishingHandoffPlan, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -4930,6 +5123,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     provider_route_map_path: providerRouteMapPath,
     provider_activation_plan_path: providerActivationPlanPath,
     browser_research_plan_path: browserResearchPlanPath,
+    publishing_handoff_plan_path: publishingHandoffPlanPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     next_action_path: nextActionPath,
@@ -4985,6 +5179,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- provider-route-map --env-file .env',
     'npm run harness -- provider-activation-plan --env-file .env',
     'npm run harness -- browser-research-plan --env-file .env',
+    'npm run harness -- publishing-handoff-plan --env-file .env',
     'npm run harness -- capability-unlock-map',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
@@ -6591,6 +6786,61 @@ function launchDocPaths(): string[] {
   ];
 }
 
+function publishingHandoffJob(job: HarnessLaunchMapJob): HarnessPublishingHandoffJob {
+  const requiredPath = (role: HarnessLaunchMapRequiredFile['role']): string | null => (
+    job.required_files.find((file) => file.role === role)?.path ?? null
+  );
+  const metricsCommands = job.next_commands.filter((command) => command.includes('npm run metrics:'));
+  const manualReviewCommands = uniqueSorted([
+    `npm run creative -- validate --job ${shellQuote(job.job_path)}`,
+    'npm run harness -- evidence-map',
+    'npm run harness -- launch-map',
+    'npm run harness -- publishing-handoff-plan --env-file .env',
+    ...job.next_commands.filter((command) => !command.includes('npm run metrics:')),
+  ]);
+  const postingBlockers = uniqueSorted([
+    ...job.blockers,
+    ...(!job.manual_handoff_ready ? ['manual launch handoff files are incomplete'] : []),
+    'account-owner confirmation required',
+  ]);
+
+  return {
+    job_id: job.job_id,
+    launch_order: job.order,
+    job_path: job.job_path,
+    rendered_package_path: job.package_path,
+    manifest_path: requiredPath('manifest'),
+    caption_path: requiredPath('caption'),
+    hashtags_path: requiredPath('hashtags'),
+    posting_notes_path: requiredPath('posting_notes'),
+    qa_checklist_path: requiredPath('qa_checklist'),
+    approval_path: requiredPath('approval'),
+    slides_path: requiredPath('slides'),
+    approval_state: job.approval_state,
+    job_allows_social_publishing: job.job_allows_social_publishing,
+    generated_asset_count: job.generated_asset_count,
+    approved_generated_asset_count: job.approved_generated_asset_count,
+    manual_handoff_ready: job.manual_handoff_ready,
+    autonomous_publish_ready: job.autonomous_publish_ready,
+    blockers: job.blockers,
+    manual_review_commands: manualReviewCommands,
+    manual_post_boundary: {
+      external_calls_made: 0,
+      auto_post_allowed: false,
+      manual_post_allowed_after_confirmation: job.manual_handoff_ready,
+      requires_account_owner_confirmation: true,
+      requires_human_approval: true,
+      requires_approved_generated_assets: true,
+      writes: [],
+      blocked_by: postingBlockers,
+    },
+    metrics_commands: metricsCommands,
+    next_action: job.manual_handoff_ready
+      ? 'Have the account owner review the package, post manually if approved, then record the posted URL with the metrics command.'
+      : 'Complete the missing launch package files and copy before manual account-owner review.',
+  };
+}
+
 function launchRequiredFile(
   rootDir: string,
   role: Exclude<HarnessLaunchMapRequiredFile['role'], 'slides'>,
@@ -6964,6 +7214,9 @@ Commands:
   browser-research-plan [--env-file .env]
     Print browser research docs, capture inventory, review/ingestion readiness, and browser UI gate blockers.
 
+  publishing-handoff-plan [--env-file .env]
+    Print manual launch docs, ready packages, account-owner confirmation, local metrics commands, and social-publishing blockers.
+
   provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
     Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
 
@@ -7120,6 +7373,14 @@ async function main(): Promise<void> {
 
     case 'browser-research-plan':
       console.log(JSON.stringify(buildBrowserResearchPlan({
+        env: process.env,
+        envFile: stringOpt(options, 'env-file'),
+        rootDir: process.cwd(),
+      }), null, 2));
+      return;
+
+    case 'publishing-handoff-plan':
+      console.log(JSON.stringify(buildPublishingHandoffPlan({
         env: process.env,
         envFile: stringOpt(options, 'env-file'),
         rootDir: process.cwd(),
