@@ -1,0 +1,38 @@
+{
+  "request_id": "sample-gemini-image-request",
+  "provider": "gemini_image",
+  "provider_mode": "dry_run",
+  "job_id": "scan_bike_001",
+  "input_assets": [
+    ".ops/creative_jobs/rendered/scan_bike_001/source/bike_001.jpg",
+    ".ops/creative_jobs/rendered/scan_bike_001/manifest.json"
+  ],
+  "prompt_path": ".ops/prompts/gemini/image_generation.md",
+  "output_requirements": {
+    "package_subdir": "provider_outputs/gemini_image",
+    "files": [
+      {
+        "path": "image_generation_plan.md",
+        "kind": "image",
+        "description": "Provider-returned image plan or local artifact index."
+      }
+    ],
+    "notes": [
+      "No live Gemini call is made by dry-run commands.",
+      "Generated assets must remain human-review gated."
+    ]
+  },
+  "cost_policy": {
+    "allow_paid_generation": true,
+    "allow_browser_ui": false,
+    "external_calls_allowed": false,
+    "max_cost_usd": 0,
+    "currency": "USD",
+    "notes": [
+      "This sample is approved only for dry-run gate testing.",
+      "A live call still requires ALLOW_PAID_GENERATION=true and future provider implementation."
+    ]
+  },
+  "approval_required": true,
+  "status": "draft"
+}

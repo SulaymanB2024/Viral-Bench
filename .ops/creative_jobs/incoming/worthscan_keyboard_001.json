@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_keyboard_001",
+  "niche": "WorthScan used digital piano and keyboard resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a used digital keyboard or stage piano listing."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check model, key count, weighted keys, pedals, stand, power supply, speaker condition, cosmetic wear, and three local instrument comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use manually reviewed examples and local notes only. No platform scraping or account automation."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-keyboard-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:00:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Count the keys before you pay",
+      "notes": "Specific inspection hook works for instruments."
+    },
+    {
+      "id": "worthscan-manual-piano-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:05:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Weighted keys changed the answer",
+      "notes": "Feature reveal gives the value range a concrete driver."
+    },
+    {
+      "id": "worthscan-manual-accessories-002",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:10:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Missing pedals are not a small detail",
+      "notes": "Accessory-risk reveal fits short-form resale advice."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local renderer is the only approved provider.",
+      "No provider credentials or external calls.",
+      "Social posting remains manual and disabled by default."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this keyboard before you pay",
+        "visual_direction": "Show full keyboard, asking price, and visible model name."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Check model, keys, pedals, stand, and power",
+        "visual_direction": "Crop model plate, keys, power supply, stand, and pedal accessories."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three local keyboard comps",
+        "visual_direction": "Show comp cards with model, key count, included gear, and price."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract missing pedals, dead keys, and transport risk",
+        "visual_direction": "Show checklist of testable risks."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: good buy or wrong model",
+        "visual_direction": "Show final range, confidence, and CTA."
+      }
+    ],
+    "caption": "Used keyboard deal or wrong model? Comment \"scan\" with the next listing. WorthScan estimates resale range, not guaranteed value.",
+    "hashtags": ["worthscan", "usedkeyboard", "musicgear", "digitalpiano", "resale"],
+    "spoken_script": "A used keyboard value depends on model, key count, weighted action, pedals, stand, and power supply. Compare three similar local listings and subtract missing accessories or testing risk before giving the range.",
+    "posting_notes": [
+      "Do not claim every key works unless verified by the human reviewer.",
+      "Avoid showing private seller details.",
+      "Keep the valuation disclaimer in posting notes.",
+      "Post manually only."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "No external provider calls.",
+    "No social automation.",
+    "Manual verification required for function claims."
+  ]
+}

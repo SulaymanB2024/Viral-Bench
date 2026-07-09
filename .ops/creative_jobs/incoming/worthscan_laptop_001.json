@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_laptop_001",
+  "niche": "WorthScan used student laptop resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a used laptop listing where specs and battery health decide the range."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check model year, CPU, RAM, storage, battery cycle count if visible, charger, cosmetic condition, lock status, and three local laptop comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use manually reviewed examples and local notes only; do not scrape, log in, or automate accounts."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-laptop-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:45:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "The specs decide if this laptop is a deal",
+      "notes": "Specific spec hook invites viewers to compare their own listings."
+    },
+    {
+      "id": "worthscan-manual-electronics-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:50:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Ask for this screenshot before buying used tech",
+      "notes": "Evidence request creates a practical checklist."
+    },
+    {
+      "id": "worthscan-manual-risk-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:55:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "One missing detail can wipe out the deal",
+      "notes": "Risk reveal works for electronics with lock or battery uncertainty."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Only local renderer may run.",
+      "No provider credentials are needed.",
+      "No social publishing or account automation."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this laptop before the price fools you",
+        "visual_direction": "Show listing image, asking price, model name, and year if visible."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Confirm model year, specs, charger, and battery",
+        "visual_direction": "Use screenshot-style cards for specs and battery details."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three similar local laptops",
+        "visual_direction": "Show comp cards with model, RAM, storage, and condition."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract lock risk, battery wear, and missing charger",
+        "visual_direction": "Highlight risks that require human verification."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: buy, negotiate, or skip",
+        "visual_direction": "Show final range and confidence level."
+      }
+    ],
+    "caption": "Used laptop deal or spec trap? Comment \"scan\" with the next listing. This is a resale estimate, not a guarantee.",
+    "hashtags": ["worthscan", "usedlaptop", "studenttech", "resale", "whatisitworth"],
+    "spoken_script": "For a used laptop, the headline price is not enough. Confirm model year, CPU, RAM, storage, charger, battery, and lock status, compare three similar local listings, then subtract missing-proof risk before calling the range.",
+    "posting_notes": [
+      "Never show serial numbers, account names, or private seller details.",
+      "Do not claim the laptop is unlocked unless a human verified it.",
+      "Use a range and confidence level.",
+      "Post manually only after approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Electronics claims require manually verified visible evidence.",
+    "No credentials or account automation.",
+    "Range language only."
+  ]
+}

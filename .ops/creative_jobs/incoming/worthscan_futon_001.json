@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_futon_001",
+  "niche": "WorthScan used futon and dorm furniture resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a used futon listing in student resale."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check size, frame type, cushion condition, stains, odor risk, stairs/pickup hassle, and three local dorm furniture comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use manual reviewed trend examples only; no scraping, account automation, or auto-posting."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-futon-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:30:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Free furniture can still cost you",
+      "notes": "Pickup and condition risk can carry the post."
+    },
+    {
+      "id": "worthscan-manual-dorm-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:35:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Would you drag this futon up three flights?",
+      "notes": "Specific hassle makes the valuation relatable."
+    },
+    {
+      "id": "worthscan-manual-stains-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:40:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Condition changed the answer fast",
+      "notes": "Visible condition risk creates a clear before/after answer."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local renderer only.",
+      "No external calls or browser workflows.",
+      "Manual posting and manual metrics only."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this futon before you rent a truck",
+        "visual_direction": "Show the futon, asking price, and pickup constraints."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Check size, frame, stains, and cushion wear",
+        "visual_direction": "Use detail crops for frame, cushion, and visible condition."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three dorm furniture comps",
+        "visual_direction": "Show comp cards with size, condition, pickup, and price."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract odor risk, stairs, and transport",
+        "visual_direction": "Show pickup-hassle checklist."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: take it, negotiate, or skip",
+        "visual_direction": "Show final range, confidence, and comment CTA."
+      }
+    ],
+    "caption": "Would you pick up this futon? Comment \"scan\" with the next dorm deal. WorthScan is an estimate, not a guarantee.",
+    "hashtags": ["worthscan", "dormfurniture", "furnitureflip", "studentdeals", "resale"],
+    "spoken_script": "A futon price is not just the asking price. Check size, frame, cushion wear, stains, pickup difficulty, and transport cost, compare three nearby listings, then decide whether to take it, negotiate, or skip.",
+    "posting_notes": [
+      "Avoid health or cleanliness claims beyond visible facts.",
+      "Do not include addresses or seller contact details.",
+      "Keep all valuation language range-based.",
+      "Post manually only."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Use visible listing facts only.",
+    "No social publishing by default.",
+    "No platform scraping."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "request_id": "sample-browser-manual-request",
+  "provider": "browser_manual",
+  "provider_mode": "dry_run",
+  "job_id": "scan_bike_001",
+  "input_assets": [
+    ".ops/prompts/creative_center/research_capture.md"
+  ],
+  "prompt_path": ".ops/prompts/creative_center/research_capture.md",
+  "output_requirements": {
+    "package_subdir": "research/browser_manual",
+    "files": [
+      {
+        "path": "creative_center_capture.json",
+        "kind": "research",
+        "description": "Human-reviewed browser capture JSON."
+      }
+    ],
+    "notes": [
+      "Manual capture only.",
+      "Do not scrape Creative Center or automate account workflows."
+    ]
+  },
+  "cost_policy": {
+    "allow_paid_generation": false,
+    "allow_browser_ui": true,
+    "external_calls_allowed": false,
+    "max_cost_usd": 0,
+    "currency": "USD",
+    "notes": [
+      "This sample is approved only for dry-run gate testing.",
+      "Browser UI still requires ALLOW_BROWSER_UI=true and a task listed as allowed."
+    ]
+  },
+  "approval_required": true,
+  "status": "draft"
+}

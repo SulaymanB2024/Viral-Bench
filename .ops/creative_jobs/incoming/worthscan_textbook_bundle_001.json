@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_textbook_bundle_001",
+  "niche": "WorthScan student textbook bundle resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a bundle of used textbooks and course materials."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check edition, ISBN, course relevance, access-code status, bundle completeness, writing/highlights, and three student resale comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Manual reviewed examples only. Do not scrape bookstores, campus marketplaces, or social platforms."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-textbook-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:15:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "The edition can kill the resale value",
+      "notes": "Specific course-material detail creates immediate utility."
+    },
+    {
+      "id": "worthscan-manual-course-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:20:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Ask this before buying a textbook bundle",
+      "notes": "Question hook supports a checklist structure."
+    },
+    {
+      "id": "worthscan-manual-accesscode-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T20:25:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "No access code means a different price",
+      "notes": "Missing component reveal gives the final range context."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local rendering only.",
+      "No scraping, provider calls, or social publishing.",
+      "Manual metrics after manual posting."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this textbook bundle before you buy",
+        "visual_direction": "Show bundle photo, asking price, course name if approved, and edition."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Check ISBN, edition, course, and access code",
+        "visual_direction": "Crop ISBN, edition, access-code note, and included materials."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three student resale comps",
+        "visual_direction": "Show comp cards with edition, condition, and access-code status."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract old edition, writing, and missing code",
+        "visual_direction": "Highlight the biggest resale risk."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: buy, negotiate, or skip",
+        "visual_direction": "Show final range, confidence, and comment prompt."
+      }
+    ],
+    "caption": "Textbook bundle deal or outdated edition? Comment \"scan\" with the next listing. WorthScan is a resale estimate, not a guarantee.",
+    "hashtags": ["worthscan", "textbooks", "studentdeals", "campusresale", "whatisitworth"],
+    "spoken_script": "For textbook bundles, edition and access-code status can change the whole answer. Check ISBN, course relevance, condition, included materials, and three student resale comps before calling the range.",
+    "posting_notes": [
+      "Do not include student names, schedules, or private seller details.",
+      "Do not imply official bookstore pricing.",
+      "Keep the range and disclaimer visible.",
+      "Manual posting after approval only."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Course relevance must be manually verified.",
+    "No scraping or hidden endpoint use.",
+    "No social publishing by default."
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/provider-request.schema.json",
+  "title": "Provider Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "provider",
+    "provider_mode",
+    "job_id",
+    "input_assets",
+    "prompt_path",
+    "output_requirements",
+    "cost_policy",
+    "approval_required",
+    "status"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "local_renderer",
+        "gemini_image",
+        "gemini_video_understanding",
+        "openai_image",
+        "browser_manual"
+      ]
+    },
+    "provider_mode": {
+      "type": "string",
+      "enum": ["dry_run", "manual", "generation", "analysis"]
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_assets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "prompt_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "output_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["package_subdir", "files", "notes"],
+      "properties": {
+        "package_subdir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "kind", "description"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["image", "video", "text", "qa", "manifest", "research"]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "cost_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allow_paid_generation",
+        "allow_browser_ui",
+        "external_calls_allowed",
+        "max_cost_usd",
+        "currency",
+        "notes"
+      ],
+      "properties": {
+        "allow_paid_generation": {
+          "type": "boolean"
+        },
+        "allow_browser_ui": {
+          "type": "boolean"
+        },
+        "external_calls_allowed": {
+          "type": "boolean",
+          "const": false
+        },
+        "max_cost_usd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "const": "USD"
+        },
+        "notes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "approval_required": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "blocked", "skipped", "completed"]
+    }
+  }
+}

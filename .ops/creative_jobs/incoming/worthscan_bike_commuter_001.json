@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_bike_commuter_001",
+  "niche": "WorthScan used commuter bike resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a five-slide WorthScan package for a used commuter bike listing near campus."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Compare frame brand, wheel size, drivetrain condition, tire/brake wear, accessories, and three local bicycle listings before giving a range."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use only manually reviewed Creative Center examples and local operator notes. Do not scrape or automate any platform."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-bike-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:00:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Scan this bike before you pay campus prices",
+      "notes": "Item-first hook, visible asking price, and a fast buy/pass payoff."
+    },
+    {
+      "id": "worthscan-manual-repair-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:05:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "The cheap listing gets expensive after repairs",
+      "notes": "Repair-risk reveal gives viewers a reason to keep swiping."
+    },
+    {
+      "id": "worthscan-manual-comps-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:10:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "I checked three local comps before I answered",
+      "notes": "Comparable cards make the final range feel grounded."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local rendering only.",
+      "Paid generation, browser UI, scraping, and social publishing are disabled.",
+      "Manual posting records are created only after human posting."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this commuter bike before you pay",
+        "visual_direction": "Show the full bike and asking price from an approved listing screenshot."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Confirm brand, size, and drivetrain",
+        "visual_direction": "Crop the badge, wheel size, shifters, chain, and brake condition."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three local bike listings",
+        "visual_direction": "Use three simple comp cards with price, condition, and distance."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract tires, brakes, rust, and tuneup",
+        "visual_direction": "Highlight one repair risk and a rough repair-cost range."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: buy, negotiate, or pass",
+        "visual_direction": "Show estimated range, confidence, and a comment-scan prompt."
+      }
+    ],
+    "caption": "Would you pay the asking price for this commuter bike? Comment \"scan\" with the next listing. WorthScan gives a resale estimate, not a guarantee.",
+    "hashtags": ["worthscan", "usedbikes", "campusdeals", "resale", "whatisitworth"],
+    "spoken_script": "Before you pay for this commuter bike, scan the listing like a reseller. Confirm the exact model and size, compare three local bike listings, subtract tires, brakes, rust, and tuneup risk, then call the answer a range: buy, negotiate, or pass.",
+    "posting_notes": [
+      "Replace placeholders with approved listing images before posting.",
+      "Verify local bike comps on the posting day.",
+      "Do not claim a guaranteed appraisal or exact value.",
+      "Post manually only after human approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Manual trend references only.",
+    "Provider policy disables paid, browser, social, and account actions.",
+    "Valuation language must remain range-based."
+  ]
+}

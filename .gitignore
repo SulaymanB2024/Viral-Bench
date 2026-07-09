@@ -2,3 +2,6 @@ node_modules/
 .doublespeed-tokens.json
 .marketing-agent-runs.json
 .env
+trend_examples.sqlite
+trend_outputs/
+.ops/harness/

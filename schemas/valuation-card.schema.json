@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/valuation-card.schema.json",
+  "title": "Valuation Card",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "item_type",
+    "asking_price",
+    "estimated_range_low",
+    "estimated_range_high",
+    "confidence",
+    "value_drivers",
+    "risk_flags",
+    "comps",
+    "verdict",
+    "disclaimer"
+  ],
+  "properties": {
+    "item_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asking_price": {
+      "type": "number",
+      "minimum": 0
+    },
+    "estimated_range_low": {
+      "type": "number",
+      "minimum": 0
+    },
+    "estimated_range_high": {
+      "type": "number",
+      "minimum": 0
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "value_drivers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "risk_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "comps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/comp"
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "minLength": 1
+    },
+    "disclaimer": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "comp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "source", "price", "condition"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

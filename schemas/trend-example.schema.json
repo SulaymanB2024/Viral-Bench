@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/trend-example.schema.json",
+  "title": "Trend Example",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "source_url",
+    "source_name",
+    "captured_at",
+    "niche",
+    "platform",
+    "format",
+    "hook",
+    "caption",
+    "observed_metrics",
+    "visual_structure",
+    "CTA",
+    "why_it_works",
+    "remake_notes"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "source_name": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["TikTok Creative Center"]
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "niche": {
+      "type": "string",
+      "minLength": 1
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["TikTok"]
+    },
+    "format": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["slideshow", "video"]
+    },
+    "hook": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caption": {
+      "type": "string"
+    },
+    "observed_metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "integer", "boolean", "null"]
+      }
+    },
+    "visual_structure": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "CTA": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why_it_works": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "remake_notes": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

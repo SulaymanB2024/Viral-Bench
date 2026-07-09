@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/post-metrics.schema.json",
+  "title": "Post Metrics Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "post_id",
+    "job_id",
+    "platform",
+    "account_handle",
+    "posted_url",
+    "posted_at",
+    "content_type",
+    "hook",
+    "format",
+    "CTA",
+    "metric_snapshots",
+    "notes"
+  ],
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1
+    },
+    "account_handle": {
+      "type": "string",
+      "minLength": 1
+    },
+    "posted_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "posted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "content_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hook": {
+      "type": "string",
+      "minLength": 1
+    },
+    "format": {
+      "type": "string",
+      "minLength": 1
+    },
+    "CTA": {
+      "type": "string",
+      "minLength": 1
+    },
+    "metric_snapshots": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/metric_snapshot"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "metric_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_at",
+        "views",
+        "likes",
+        "comments",
+        "shares",
+        "saves",
+        "follows",
+        "profile_visits",
+        "dms",
+        "notes"
+      ],
+      "properties": {
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "views": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "likes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comments": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shares": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "saves": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "follows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "profile_visits": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

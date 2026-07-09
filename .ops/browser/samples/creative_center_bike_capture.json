@@ -1,0 +1,21 @@
+{
+  "capture_id": "creative-center-bike-capture-001",
+  "source_name": "TikTok Creative Center",
+  "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+  "captured_at": "2026-07-06T18:00:00.000Z",
+  "niche": "AI-assisted resale valuation: used bikes and student resale",
+  "platform": "TikTok",
+  "observed_format": "slideshow",
+  "visible_metrics": {
+    "likes": "visible high-engagement example",
+    "comments": "visible comment activity",
+    "saves": "not shown in capture"
+  },
+  "hook": "Scan this bike before you pay the asking price",
+  "caption_or_visible_text": "Comment scan and I will check the next campus listing.",
+  "visual_notes": "Opens on the item and asking price, then shows condition checks, comparable listings, repair risk, and a buy/pass payoff.",
+  "why_it_may_work": "The hook creates immediate price tension and gives the viewer a fast checklist they can apply to their own listing.",
+  "remake_notes": "Use the same structure for scooters, mini fridges, textbooks, and dorm furniture with local comparable prices.",
+  "evidence_notes": "Manual Creative Center observation recorded from visible UI only; no scraping, hidden endpoint, login bypass, or private metric collection.",
+  "human_review_status": "approved"
+}

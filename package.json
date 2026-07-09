@@ -2,14 +2,27 @@
   "name": "viral-bench",
   "version": "1.0.0",
   "private": true,
-  "description": "Self-contained agent that researches fitness short-form via Lightreel, generates imagery, and builds a Doublespeed slideshow draft.",
+  "description": "Local trend research and content brief tools for short-form scan/value resale posts.",
   "scripts": {
-    "auth": "tsx marketing-agent.ts auth",
-    "start": "tsx marketing-agent.ts"
+    "start": "tsx src/trend-cli.ts help",
+    "harness": "tsx src/codex-harness.ts",
+    "trend": "tsx src/trend-cli.ts",
+    "creative": "tsx packages/creative/cli.ts",
+    "creative:sample": "tsx packages/creative/cli.ts render --job .ops/creative_jobs/incoming/scan_bike_001.json",
+    "metrics:create-post": "tsx src/post-metrics.ts create-post",
+    "metrics:add-snapshot": "tsx src/post-metrics.ts add-snapshot",
+    "metrics:list": "tsx src/post-metrics.ts list",
+    "metrics:compare": "tsx src/post-metrics.ts compare",
+    "metrics:export": "tsx src/post-metrics.ts export",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.0",
-    "@types/node": "^22.0.0"
+    "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
   }
 }

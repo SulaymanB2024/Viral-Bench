@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_minifridge_001",
+  "niche": "WorthScan student mini fridge resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a student mini fridge listing during move-out resale season."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check size, brand, freezer compartment, smell/cleanliness risk, pickup timing, and three local student resale comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use only manually reviewed trend examples. No social scraping or automated account actions."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-student-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:30:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Move-out deals are not all deals",
+      "notes": "Seasonal hook creates urgency without claiming a platform trend."
+    },
+    {
+      "id": "worthscan-manual-fridge-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:35:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Check this before buying a used mini fridge",
+      "notes": "Checklist framing fits a five-slide carousel."
+    },
+    {
+      "id": "worthscan-manual-pickup-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:40:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "The pickup hassle changes the price",
+      "notes": "Hassle-cost reveal gives the post a practical payoff."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local-only creative package.",
+      "External calls and browser UI are disabled.",
+      "Posting and metrics remain manual."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this mini fridge before move-in week",
+        "visual_direction": "Show the listing photo, asking price, and size claim."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Check brand, size, freezer, and cleanliness",
+        "visual_direction": "Use detail crops for label, interior, shelves, and freezer compartment."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three student resale comps",
+        "visual_direction": "Show comp cards from local marketplace notes."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract smell, missing shelves, and pickup hassle",
+        "visual_direction": "Highlight practical risks students forget before pickup."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: fair deal or dorm tax",
+        "visual_direction": "Show range, confidence, and a comment prompt."
+      }
+    ],
+    "caption": "Is this mini fridge a campus deal or dorm tax? Comment \"scan\" with the next listing. WorthScan gives an estimate, not a guarantee.",
+    "hashtags": ["worthscan", "studentdeals", "minifridge", "resale", "campusmovein"],
+    "spoken_script": "Mini fridges spike around move-in week, so do not judge by the first listing. Check size, brand, freezer compartment, smell and shelf risk, compare three local student listings, then subtract pickup hassle before naming the range.",
+    "posting_notes": [
+      "Confirm the listing date and pickup location manually.",
+      "Do not include seller contact details in visuals.",
+      "Use a value range and a disclaimer.",
+      "Manual posting only after approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Student resale comps must be manually checked.",
+    "No scraping or account automation.",
+    "Avoid exact-value claims."
+  ]
+}

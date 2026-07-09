@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/browser-capture.schema.json",
+  "title": "Browser Capture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capture_id",
+    "source_name",
+    "source_url",
+    "captured_at",
+    "niche",
+    "platform",
+    "observed_format",
+    "visible_metrics",
+    "hook",
+    "caption_or_visible_text",
+    "visual_notes",
+    "why_it_may_work",
+    "remake_notes",
+    "evidence_notes",
+    "human_review_status"
+  ],
+  "properties": {
+    "capture_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "niche": {
+      "type": "string",
+      "minLength": 1
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_format": {
+      "type": "string",
+      "minLength": 1
+    },
+    "visible_metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "integer", "boolean", "null"]
+      }
+    },
+    "hook": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caption_or_visible_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "visual_notes": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why_it_may_work": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remake_notes": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_notes": {
+      "type": "string",
+      "minLength": 1
+    },
+    "human_review_status": {
+      "type": "string",
+      "enum": ["draft", "pending_review", "approved", "rejected"]
+    }
+  }
+}

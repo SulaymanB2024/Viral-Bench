@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_desk_chair_001",
+  "niche": "WorthScan used desk chair resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a used ergonomic desk chair listing."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check brand/model, adjustment controls, mesh/foam wear, cylinder height, wheel condition, pickup hassle, and three local furniture comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use only reviewed manual examples. Do not scrape furniture listings or social platforms."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-chair-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:15:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "This desk chair price depends on one label",
+      "notes": "Brand/model reveal works well for furniture valuation."
+    },
+    {
+      "id": "worthscan-manual-furniture-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:20:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Pickup hassle is part of the price",
+      "notes": "Hassle cost gives furniture posts a practical angle."
+    },
+    {
+      "id": "worthscan-manual-condition-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:25:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Condition details changed my answer",
+      "notes": "Condition crops support the final range."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local-only rendering.",
+      "No live provider calls or social automation.",
+      "Human approval required before manual posting."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this desk chair before pickup",
+        "visual_direction": "Show the chair, asking price, and pickup context."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Find brand, controls, cylinder, and wear",
+        "visual_direction": "Crop the label, armrests, wheels, mesh, and adjustment controls."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three local chair listings",
+        "visual_direction": "Show comp cards with brand, condition, and pickup distance."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract stains, broken levers, and pickup hassle",
+        "visual_direction": "Highlight the biggest condition risk."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: steal, fair, or pass",
+        "visual_direction": "Show final range and confidence."
+      }
+    ],
+    "caption": "Desk chair deal or pickup regret? Comment \"scan\" with the next listing. WorthScan estimates range, not guaranteed value.",
+    "hashtags": ["worthscan", "furnitureflip", "deskchair", "resale", "studentdeals"],
+    "spoken_script": "A used desk chair is all about model, condition, and pickup hassle. Confirm the brand and controls, check wear and cylinder risk, compare three local listings, then call the price a steal, fair, or pass.",
+    "posting_notes": [
+      "Use approved listing photos only.",
+      "Do not claim ergonomic or safety condition beyond visible evidence.",
+      "Keep the range and disclaimer visible.",
+      "Manual posting after approval only."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Furniture pickup risk is a value factor, not a health claim.",
+    "No scraping or browser automation.",
+    "Social publishing disabled by default."
+  ]
+}

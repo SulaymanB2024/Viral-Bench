@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_scooter_battery_001",
+  "niche": "WorthScan used electric scooter resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a five-slide WorthScan package for a used electric scooter with unknown battery history."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Compare model, mileage, battery health clues, charger inclusion, tire/brake condition, folding mechanism, and three local scooter comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use reviewed manual examples only. No TikTok, Instagram, YouTube, or Creative Center scraping."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-scooter-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:15:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "This cheap scooter could hide a battery bill",
+      "notes": "The hidden-cost hook fits repair-risk resale content."
+    },
+    {
+      "id": "worthscan-manual-battery-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:20:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Ask this before buying a used scooter",
+      "notes": "Question hook leads into checklist slides."
+    },
+    {
+      "id": "worthscan-manual-comps-002",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T18:25:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Three comps changed the answer",
+      "notes": "Comp reveal supports a range instead of a single price."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local renderer only.",
+      "No browser actions, provider calls, scraping, or social publishing.",
+      "Manual metrics are recorded after manual posts."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this scooter before battery risk eats the deal",
+        "visual_direction": "Show scooter listing, price, and charger status if visible."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Find model, mileage, charger, and battery clues",
+        "visual_direction": "Crop model label, display, charger, and tire/brake closeups."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three local scooters",
+        "visual_direction": "Show comp cards with model, range claims, condition, and price."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract battery, tire, brake, and charger risk",
+        "visual_direction": "Use a red risk bar for missing charger or weak battery evidence."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: negotiate hard or pass",
+        "visual_direction": "Show range, confidence, and viewer comment prompt."
+      }
+    ],
+    "caption": "Used scooter deal or battery trap? Comment \"scan\" with the next listing. WorthScan is an estimate, not a guarantee.",
+    "hashtags": ["worthscan", "scootercheck", "resale", "campusdeals", "usedscooter"],
+    "spoken_script": "A cheap used scooter can become expensive if the battery or charger is questionable. Start with the model, mileage, charger, tires, and brakes, compare three local scooters, then subtract the risk before calling it a buy or pass.",
+    "posting_notes": [
+      "Use only approved item photos or listing screenshots.",
+      "Do not imply battery testing unless a human performed it.",
+      "Use a range and confidence level, not an exact appraisal.",
+      "Post manually after approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Manual examples only.",
+    "Battery and range claims require source evidence.",
+    "No social publishing is allowed by default."
+  ]
+}

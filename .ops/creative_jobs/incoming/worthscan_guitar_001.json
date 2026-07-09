@@ -1,0 +1,125 @@
+{
+  "job_id": "worthscan_guitar_001",
+  "niche": "WorthScan used guitar resale valuation",
+  "platform_targets": ["TikTok", "Instagram Reels", "YouTube Shorts"],
+  "content_type": "scan/value slideshow",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a WorthScan post for a used electric guitar listing with brand and condition details."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Check brand/model, pickups, neck condition, fret wear, included case, modifications, serial visibility if approved, and three local instrument comps."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Research boundary",
+      "value": "Use reviewed manual trend notes only. Do not scrape music marketplaces or social platforms."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "worthscan-manual-guitar-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:45:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "This guitar price depends on the headstock",
+      "notes": "Brand/model reveal supports music gear valuation."
+    },
+    {
+      "id": "worthscan-manual-gear-001",
+      "source_name": "WorthScan reviewed example",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:50:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Case included changed the range",
+      "notes": "Included accessories provide a simple value driver."
+    },
+    {
+      "id": "worthscan-manual-fretwear-001",
+      "source_name": "Creative Center reviewed pattern",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T19:55:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Do not skip the neck and frets",
+      "notes": "Condition checklist creates practical value."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local rendering only.",
+      "No paid generation or live research providers.",
+      "Manual approval before manual posting."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this guitar before you meet up",
+        "visual_direction": "Show approved listing image, asking price, and model clue."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Check brand, model, pickups, neck, and frets",
+        "visual_direction": "Detail crop headstock, pickups, neck joint, frets, and case."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare three local guitar comps",
+        "visual_direction": "Show comp cards with brand, model, condition, and accessories."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract fret wear, setup work, and missing case",
+        "visual_direction": "Show repair/accessory risk chips."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Worth range: jam, negotiate, or pass",
+        "visual_direction": "Show final range, confidence, and CTA."
+      }
+    ],
+    "caption": "Would you buy this guitar? Comment \"scan\" with the next listing. WorthScan gives a resale estimate, not a guarantee.",
+    "hashtags": ["worthscan", "usedguitar", "musicgear", "resale", "whatisitworth"],
+    "spoken_script": "Before buying a used guitar, check the exact model, pickups, neck, frets, included case, and modifications. Compare three similar local listings and subtract setup or repair risk before calling the range.",
+    "posting_notes": [
+      "Do not show full serial numbers unless approved and necessary.",
+      "Do not claim authenticity or repair status without human evidence.",
+      "Use range-based valuation language.",
+      "Post manually only after approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["WorthScan pilot incoming job."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Instrument claims require manual evidence.",
+    "No scraping or external calls.",
+    "No auto-posting."
+  ]
+}

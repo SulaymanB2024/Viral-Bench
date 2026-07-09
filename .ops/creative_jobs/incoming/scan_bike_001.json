@@ -1,0 +1,146 @@
+{
+  "job_id": "scan_bike_001",
+  "niche": "used bikes and scooters resale valuation",
+  "platform_targets": [
+    "TikTok",
+    "Instagram Reels",
+    "YouTube Shorts"
+  ],
+  "content_type": "scan this, what is it worth?",
+  "source_inputs": [
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Create a five-slide short-form package that helps viewers inspect a used bike or scooter listing before paying."
+    },
+    {
+      "kind": "item_pricing_note",
+      "label": "Valuation method",
+      "value": "Use model, condition, included accessories, three local comparable listings, repair risk, pickup hassle, and resale confidence."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Creative Center intake boundary",
+      "value": "Only use manually saved observations from TikTok Creative Center. Do not scrape or bypass platform gates."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "creative-center-manual-bike-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T16:00:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "Scan this bike before you pay the asking price",
+      "notes": "Item-first hook with visible price and a fast buy/pass payoff."
+    },
+    {
+      "id": "creative-center-manual-scooter-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T16:10:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "This cheap scooter could hide a battery bill",
+      "notes": "Repair-risk reveal creates a reason to swipe."
+    },
+    {
+      "id": "creative-center-manual-resale-001",
+      "source_name": "TikTok Creative Center manual note",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en",
+      "captured_at": "2026-07-06T16:20:00.000Z",
+      "platform": "TikTok",
+      "format": "slideshow",
+      "hook": "I checked three local listings before I answered",
+      "notes": "Comparable-listing proof makes the final value range feel grounded."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": [
+      "local_renderer",
+      "browser_manual"
+    ],
+    "allow_paid_generation": false,
+    "allow_browser_ui": false,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local rendering is allowed by default.",
+      "Browser UI research is manual only and requires ALLOW_BROWSER_UI=true.",
+      "No paid generation, scraping, account automation, or auto-posting."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": {
+      "width": 1080,
+      "height": 1920
+    },
+    "slide_count": 5,
+    "required_outputs": [
+      "slides",
+      "caption",
+      "hashtags",
+      "spoken_script",
+      "posting_notes"
+    ],
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Scan this bike or scooter before you pay",
+        "visual_direction": "Phone-camera listing screenshot or item photo with the asking price visible."
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Find the exact model and age first",
+        "visual_direction": "Crop the brand mark, serial clue, battery label, tire size, or model badge."
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Compare it to three local listings",
+        "visual_direction": "Show three comparable price cards with condition notes."
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Subtract repairs before calling it a deal",
+        "visual_direction": "Highlight battery health, brake work, tires, missing charger, rust, or pickup risk."
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "Final range: buy, bargain, or pass",
+        "visual_direction": "Show the value range, confidence level, and a comment prompt."
+      }
+    ],
+    "caption": "Would you pay the asking price for this bike or scooter? Comment \"scan\" and drop the next listing to check. This is a resale estimate, not a guarantee.",
+    "hashtags": [
+      "resale",
+      "usedbikes",
+      "scootercheck",
+      "campusdeals",
+      "whatisitworth"
+    ],
+    "spoken_script": "Before you pay for a used bike or scooter, scan the listing like a reseller. Start with the exact model and age, compare it to three local listings, subtract repairs and pickup risk, then call the final number a range: buy, bargain, or pass.",
+    "posting_notes": [
+      "Replace placeholders with real item photos or listing screenshots before publishing.",
+      "Verify comparable prices manually in the target city on the posting day.",
+      "Do not imply guaranteed appraisal, safety inspection, or platform endorsement.",
+      "Post manually only after human approval."
+    ]
+  },
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": [
+      "Incoming sample job. Render locally for review before approval."
+    ]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "Trend examples are manual notes, not scraped data.",
+    "The local renderer may create placeholder slides for operator review.",
+    "Generated assets must be human-approved before any posted ledger move."
+  ]
+}
