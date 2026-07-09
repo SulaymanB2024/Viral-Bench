@@ -54,6 +54,9 @@ npm run harness -- provider-preflight
 npm run harness -- prepare-provider-inputs \
   --request .ops/provider_requests/sample_openai_image_request.json
 
+npm run harness -- provider-handoff \
+  --request .ops/provider_requests/sample_openai_image_request.json
+
 npm run harness -- reproducibility-manifest
 
 npm run harness -- stage-source --dry-run
@@ -113,6 +116,13 @@ before any browser, paid API, or external adapter boundary is considered.
 job, usually under `.ops/creative_jobs/rendered/<job_id>/`, so declared provider
 input assets such as `source/bike_001.jpg` and `manifest.json` exist before a
 dry run or future approved live adapter.
+
+`provider-handoff` writes an ignored packet under
+`.ops/harness/provider_handoffs/<packet_id>/` with the request manifest, job
+manifest, prompt copy, input-asset hashes/excerpts, declared output targets,
+dry-run result, capability flags, and live blockers. It is the bounded context
+bundle Codex should use before implementing or invoking any future reviewed
+provider adapter.
 
 `reproducibility-manifest` returns the source-of-truth boundary, generated
 artifact boundary, exact `git add` command for modified or untracked source
@@ -403,6 +413,9 @@ npm run harness -- provider-preflight \
   --request .ops/provider_requests/sample_openai_image_request.json
 
 npm run harness -- prepare-provider-inputs \
+  --request .ops/provider_requests/sample_openai_image_request.json
+
+npm run harness -- provider-handoff \
   --request .ops/provider_requests/sample_openai_image_request.json
 
 npm run trend -- provider:validate-request \

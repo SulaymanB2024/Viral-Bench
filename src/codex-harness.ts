@@ -126,6 +126,51 @@ export interface HarnessProviderPreflightReport {
   preflights: HarnessProviderPreflight[];
 }
 
+export interface HarnessProviderHandoffAsset {
+  role: 'prompt' | 'input_asset';
+  path: string;
+  absolute_path: string;
+  exists: boolean;
+  kind: HarnessProviderPreflightAsset['kind'];
+  size_bytes: number | null;
+  sha256: string | null;
+  text_excerpt?: string;
+  truncated?: boolean;
+}
+
+export interface HarnessProviderHandoffPacket {
+  created_at: string;
+  root_dir: string;
+  packet_dir: string;
+  manifest_path: string;
+  request_id: string;
+  provider: CreativeProviderName;
+  job_id: string;
+  request_path: string;
+  request: ProviderRequestManifest;
+  job_path: string;
+  job_manifest: CreativeJobManifest | null;
+  capability_profile: HarnessCapabilityProfile;
+  provider_preflight: HarnessProviderPreflight;
+  prompt: HarnessProviderHandoffAsset;
+  input_assets: HarnessProviderHandoffAsset[];
+  declared_outputs: HarnessProviderPreflightAsset[];
+  external_call_policy: {
+    external_calls_made: 0;
+    live_external_call_allowed: false;
+    credential_policy: HarnessCapabilityProfile['credential_policy'];
+    live_blockers: string[];
+  };
+  files: {
+    manifest_path: string;
+    request_copy_path: string;
+    job_copy_path: string | null;
+    prompt_copy_path: string | null;
+    asset_manifest_path: string;
+  };
+  next_commands: string[];
+}
+
 export interface CodexPrimitive {
   id: string;
   kind: 'auto' | 'doctor' | 'reproducibility' | 'inspect' | 'rank' | 'context' | 'trend' | 'creative' | 'provider' | 'browser' | 'metrics' | 'publish';
@@ -688,6 +733,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       autonomy: 'safe_default',
     },
     {
+      id: 'harness.provider_handoff',
+      kind: 'provider',
+      command: 'npm run harness -- provider-handoff --request .ops/provider_requests/<request>.json',
+      purpose: 'Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, output targets, and live blockers for Codex or a future reviewed adapter.',
+      writes: ['.ops/harness/provider_handoffs/<packet_id>/'],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
       id: 'provider.live_ready',
       kind: 'provider',
       command: 'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/<request>.json',
@@ -855,6 +909,93 @@ export async function prepareProviderInputs(
   };
 }
 
+export function exportProviderHandoffPacket(
+  requestPath: string,
+  options: {
+    rootDir?: string;
+    outDir?: string;
+    env?: Record<string, string | undefined>;
+    maxTextChars?: number;
+  } = {},
+): HarnessProviderHandoffPacket {
+  const rootDir = options.rootDir ?? process.cwd();
+  const env = options.env ?? process.env;
+  const maxTextChars = options.maxTextChars ?? 8000;
+  const createdAt = new Date().toISOString();
+  const resolvedRequestPath = resolveFromRoot(rootDir, requestPath);
+  const request = loadProviderRequestManifest(resolvedRequestPath);
+  const preflight = buildProviderPreflight(resolvedRequestPath, env, rootDir);
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const jobPath = incomingJobPath(rootDir, request.job_id);
+  const jobManifest = fs.existsSync(jobPath) ? loadCreativeJobManifest(jobPath) : null;
+  const packetId = createProviderHandoffId(createdAt, request.request_id);
+  const packetDir = path.resolve(options.outDir ?? path.join(rootDir, '.ops', 'harness', 'provider_handoffs', packetId));
+
+  if (fs.existsSync(packetDir) && fs.readdirSync(packetDir).length > 0) {
+    throw new Error(`provider handoff output directory already exists and is not empty: ${packetDir}`);
+  }
+  fs.mkdirSync(packetDir, { recursive: true });
+
+  const requestCopyPath = path.join(packetDir, 'request.json');
+  const jobCopyPath = jobManifest ? path.join(packetDir, 'job.json') : null;
+  const promptCopyPath = preflight.prompt.exists ? path.join(packetDir, 'prompt.md') : null;
+  const assetManifestPath = path.join(packetDir, 'input_assets.json');
+  const manifestPath = path.join(packetDir, 'provider_handoff.json');
+  const prompt = providerHandoffAsset(preflight.prompt, maxTextChars);
+  const inputAssets = preflight.input_assets.map((asset) => providerHandoffAsset(asset, maxTextChars));
+  const requestDisplayPath = relativeToRoot(rootDir, resolvedRequestPath);
+
+  fs.writeFileSync(requestCopyPath, `${JSON.stringify(request, null, 2)}\n`);
+  if (jobManifest && jobCopyPath) {
+    fs.writeFileSync(jobCopyPath, `${JSON.stringify(jobManifest, null, 2)}\n`);
+  }
+  if (promptCopyPath && prompt.text_excerpt !== undefined) {
+    fs.writeFileSync(promptCopyPath, `${prompt.text_excerpt}${prompt.truncated ? '\n\n[truncated]\n' : '\n'}`);
+  }
+  fs.writeFileSync(assetManifestPath, `${JSON.stringify(inputAssets, null, 2)}\n`);
+
+  const packet: HarnessProviderHandoffPacket = {
+    created_at: createdAt,
+    root_dir: rootDir,
+    packet_dir: packetDir,
+    manifest_path: manifestPath,
+    request_id: request.request_id,
+    provider: request.provider,
+    job_id: request.job_id,
+    request_path: requestDisplayPath,
+    request,
+    job_path: relativeToRoot(rootDir, jobPath),
+    job_manifest: jobManifest,
+    capability_profile: capabilityProfile,
+    provider_preflight: preflight,
+    prompt,
+    input_assets: inputAssets,
+    declared_outputs: preflight.declared_outputs,
+    external_call_policy: {
+      external_calls_made: preflight.dry_run.external_calls_made,
+      live_external_call_allowed: false,
+      credential_policy: capabilityProfile.credential_policy,
+      live_blockers: preflight.live_blockers,
+    },
+    files: {
+      manifest_path: manifestPath,
+      request_copy_path: requestCopyPath,
+      job_copy_path: jobCopyPath,
+      prompt_copy_path: promptCopyPath,
+      asset_manifest_path: assetManifestPath,
+    },
+    next_commands: [
+      `npm run harness -- provider-preflight --request ${shellQuote(requestDisplayPath)}`,
+      ...(preflight.suggested_prepare_command ? [preflight.suggested_prepare_command] : []),
+      `npm run trend -- provider:run-dry --file ${shellQuote(requestDisplayPath)}`,
+      'npm run harness -- capability-plan',
+    ],
+  };
+
+  fs.writeFileSync(manifestPath, `${JSON.stringify(packet, null, 2)}\n`);
+  return packet;
+}
+
 export function buildArtifactInventory(rootDir: string): HarnessArtifactInventory {
   const resolvedRoot = path.resolve(rootDir);
   const artifacts = fs.existsSync(resolvedRoot)
@@ -981,6 +1122,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
       `npm run harness -- provider-preflight`,
+      `npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json`,
       `npm run harness -- source-package`,
       `npm run harness -- blockers`,
       `npm run creative -- validate --job ${record.selected_job.path}`,
@@ -1185,6 +1327,7 @@ export function buildCapabilityPlan(
           'npm run harness -- capability-plan',
           'npm run harness -- provider-preflight',
           'npm run harness -- prepare-provider-inputs --request .ops/provider_requests/sample_openai_image_request.json',
+          'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
           'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json',
         ],
       },
@@ -1430,6 +1573,7 @@ export function buildAutonomyAudit(
     'harness.blockers',
     'harness.provider_preflight',
     'harness.prepare_provider_inputs',
+    'harness.provider_handoff',
   ];
   const missingInformationPrimitives = requiredInformationPrimitives.filter((id) => !primitiveIds.has(id));
   const criteria: HarnessAutonomyAuditCriterion[] = [
@@ -1532,6 +1676,7 @@ export function buildAutonomyAudit(
       'npm run harness -- stage-source --dry-run',
       'npm run harness -- source-package',
       'npm run harness -- provider-preflight',
+      'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
       'npm run harness -- capability-plan',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
@@ -1595,6 +1740,7 @@ export function buildHarnessDoctor(
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
     'npm run harness -- provider-preflight',
+    'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- rank-jobs',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
@@ -1840,6 +1986,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
     'npm run harness -- provider-preflight',
+    'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
     ...resume.next_commands,
   ];
@@ -2410,6 +2557,50 @@ function providerPreflightAsset(
   };
 }
 
+function providerHandoffAsset(
+  asset: HarnessProviderPreflightAsset,
+  maxTextChars: number,
+): HarnessProviderHandoffAsset {
+  const role = providerHandoffAssetRole(asset.role);
+  if (!asset.exists) {
+    return {
+      role,
+      path: asset.path,
+      absolute_path: asset.absolute_path,
+      exists: false,
+      kind: asset.kind,
+      size_bytes: null,
+      sha256: null,
+    };
+  }
+
+  const content = fs.readFileSync(asset.absolute_path);
+  const handoffAsset: HarnessProviderHandoffAsset = {
+    role,
+    path: asset.path,
+    absolute_path: asset.absolute_path,
+    exists: true,
+    kind: asset.kind,
+    size_bytes: content.byteLength,
+    sha256: crypto.createHash('sha256').update(content).digest('hex'),
+  };
+
+  if (['markdown', 'text', 'json', 'research', 'manifest', 'qa'].includes(asset.kind)) {
+    const text = content.toString('utf8');
+    handoffAsset.text_excerpt = text.slice(0, maxTextChars);
+    handoffAsset.truncated = text.length > maxTextChars;
+  }
+
+  return handoffAsset;
+}
+
+function providerHandoffAssetRole(role: HarnessProviderPreflightAsset['role']): HarnessProviderHandoffAsset['role'] {
+  if (role === 'declared_output') {
+    throw new Error('Declared outputs are targets and cannot be serialized as provider handoff input assets.');
+  }
+  return role;
+}
+
 function incomingJobPath(rootDir: string, jobId: string): string {
   return path.join(path.resolve(rootDir), '.ops', 'creative_jobs', 'incoming', `${jobId}.json`);
 }
@@ -2569,6 +2760,15 @@ function createPackageId(createdAt: string): string {
   return `${createdAt.replace(/[:.]/g, '-').replace('T', '-').replace('Z', '')}-source-package`;
 }
 
+function createProviderHandoffId(createdAt: string, requestId: string): string {
+  const safeRequestId = requestId
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48) || 'provider-request';
+  return `${createdAt.replace(/[:.]/g, '-').replace('T', '-').replace('Z', '')}-${safeRequestId}-handoff`;
+}
+
 function aggregateFileHashes(files: HarnessSourcePackageFile[]): string {
   const hash = crypto.createHash('sha256');
   for (const file of files.slice().sort((a, b) => a.source_path.localeCompare(b.source_path))) {
@@ -2653,6 +2853,9 @@ Commands:
 
   prepare-provider-inputs --request .ops/provider_requests/<request>.json [--out .ops/creative_jobs/rendered/<job_id>]
     Render the canonical local package for a provider request job so declared input assets exist.
+
+  provider-handoff --request .ops/provider_requests/<request>.json [--out .ops/harness/provider_handoffs/<packet_id>]
+    Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, and live blockers.
 
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
     Print or write the source-of-truth boundary, generated artifact boundary, stage command, and verification commands.
@@ -2758,6 +2961,13 @@ async function main(): Promise<void> {
     case 'prepare-provider-inputs':
       console.log(JSON.stringify(await prepareProviderInputs(requiredStringOpt(options, 'request'), {
         outDir: stringOpt(options, 'out'),
+      }), null, 2));
+      return;
+
+    case 'provider-handoff':
+      console.log(JSON.stringify(exportProviderHandoffPacket(requiredStringOpt(options, 'request'), {
+        outDir: stringOpt(options, 'out'),
+        maxTextChars: numberOpt(options, 'max-text-chars'),
       }), null, 2));
       return;
 

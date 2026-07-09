@@ -17,6 +17,7 @@ import {
   buildReproducibilityManifest,
   buildRepoStatus,
   exportSourcePackage,
+  exportProviderHandoffPacket,
   findLatestHarnessRun,
   inspectHarness,
   listCodexPrimitives,
@@ -105,6 +106,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.blockers'));
   assert.ok(ids.includes('harness.provider_preflight'));
   assert.ok(ids.includes('harness.prepare_provider_inputs'));
+  assert.ok(ids.includes('harness.provider_handoff'));
   assert.ok(ids.includes('creative.render'));
   assert.ok(ids.includes('provider.dry_run'));
   assert.ok(ids.includes('metrics.compare'));
@@ -248,6 +250,40 @@ test('prepare provider inputs renders canonical assets and clears local prefligh
   assert.ok(result.created_paths.some((createdPath) => createdPath.endsWith('source/bike_001.jpg')));
   assert.equal(result.provider_preflight.ready_for_provider_handoff, true);
   assert.ok(result.next_commands.some((command) => command.includes('provider:run-dry')));
+});
+
+test('provider handoff packet writes bounded context without secret values', async () => {
+  const { rootDir, requestPath } = createProviderFixtureRoot();
+  await prepareProviderInputs(requestPath, { rootDir });
+  const outDir = path.join(rootDir, '.ops', 'harness', 'provider_handoffs', 'test-openai-handoff');
+  const packet = exportProviderHandoffPacket(requestPath, {
+    rootDir,
+    outDir,
+    env: {
+      ALLOW_PAID_GENERATION: 'true',
+      OPENAI_API_KEY: 'secret-value-for-test',
+    },
+    maxTextChars: 120,
+  });
+  const serialized = JSON.stringify(packet);
+
+  assert.equal(packet.request_id, 'sample-openai-image-request');
+  assert.equal(packet.provider, 'openai_image');
+  assert.equal(packet.job_id, 'scan_bike_001');
+  assert.equal(packet.request.request_id, 'sample-openai-image-request');
+  assert.equal(packet.provider_preflight.ready_for_provider_handoff, true);
+  assert.equal(packet.external_call_policy.external_calls_made, 0);
+  assert.equal(packet.external_call_policy.live_external_call_allowed, false);
+  assert.equal(packet.capability_profile.credentials.openai_api_key_available, true);
+  assert.doesNotMatch(serialized, /secret-value-for-test/);
+  assert.ok(fs.existsSync(packet.files.manifest_path));
+  assert.ok(fs.existsSync(packet.files.request_copy_path));
+  assert.ok(fs.existsSync(packet.files.job_copy_path ?? ''));
+  assert.ok(fs.existsSync(packet.files.prompt_copy_path ?? ''));
+  assert.ok(fs.existsSync(packet.files.asset_manifest_path));
+  assert.ok(packet.prompt.text_excerpt?.includes('OpenAI image generation fixture'));
+  assert.ok(packet.input_assets.some((asset) => asset.path.endsWith('source/bike_001.jpg') && /^[a-f0-9]{64}$/.test(asset.sha256 ?? '')));
+  assert.ok(packet.next_commands.some((command) => command.includes('provider:run-dry')));
 });
 
 test('reproducibility manifest separates source-of-truth from generated artifacts', () => {
