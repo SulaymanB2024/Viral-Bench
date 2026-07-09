@@ -416,7 +416,9 @@ test('provider route map ranks API-key usefulness without leaking values', () =>
   assert.equal(lockedOpenAi?.would_api_key_help, true);
   assert.ok(lockedOpenAi?.recommended_credentials.includes('OPENAI_API_KEY'));
   assert.equal(planningOpenAi?.route_type, 'provider_handoff');
+  assert.equal(planningOpenAi?.status, 'ready_for_handoff');
   assert.equal(planningOpenAi?.would_api_key_help, false);
+  assert.doesNotMatch(planningOpenAi?.next_action ?? '', /presence flag/);
   assert.ok(locked.summary.recommended_route_id);
   assert.ok(gemini);
   assert.equal(gemini?.status, 'needs_adapter');
@@ -758,6 +760,9 @@ test('next action report separates orientation, progress, and external boundarie
   assert.notEqual(report.orientation_action?.id, report.progress_action?.id);
   assert.equal(report.progress_action?.queue, 'safe_now');
   assert.ok(report.progress_action?.command);
+  if (report.current_state.latest_run_id) {
+    assert.equal(report.progress_action?.id, 'provider.handoff.sample-openai-image-live-request');
+  }
   assert.ok(report.capability_unlock_action);
   assert.equal(report.capability_unlock_action?.id, 'provider.route_map');
   assert.ok(report.human_boundary_action);

@@ -178,7 +178,9 @@ machine-readable surface for a Codex agent deciding what to do next.
 the broad harness context. It separates the next orientation action, the next
 safe progress action, the next capability-unlock inspection, and the current
 human-boundary action so Codex can keep moving without confusing a read-only
-handoff with the next goal-advancing command.
+handoff with the next goal-advancing command. When a clean latest run already
+exists, it prefers the recommended provider handoff over creating another local
+auto run.
 
 `job-matrix` gives Codex a per-job readiness table covering harness rank,
 runnability, approval state, rendered package files, linked provider requests,

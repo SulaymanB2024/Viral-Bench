@@ -4114,21 +4114,28 @@ export function buildNextActionReport(
   rootDir = process.cwd(),
 ): HarnessNextActionReport {
   const surface = buildDecisionSurface(goal, env, rootDir);
+  const providerRouteMap = buildProviderRouteMap({ env, rootDir });
   const safeActions = surface.queues.safe_now.filter((action) => action.command);
   const readOnlyActions = safeActions.filter((action) => action.writes.length === 0);
+  const latestRunIsUsable = Boolean(surface.current_state.latest_run_id)
+    && surface.summary.dirty_source_of_truth_count === 0;
   const orientationAction = safeActions.find((action) => action.id === 'run.brief_latest')
     ?? readOnlyActions.find((action) => action.id === 'provider.preflight_all')
     ?? readOnlyActions.find((action) => action.id === 'goal.completion_audit')
     ?? readOnlyActions[0]
     ?? surface.selected_safe_action;
-  const progressAction = safeActions.find((action) => (
+  const preferredProviderHandoffAction = providerRouteMap.summary.recommended_route_id
+    ? safeActions.find((action) => action.id === `provider.handoff.${providerRouteMap.summary.recommended_route_id}`)
+    : null;
+  const progressCandidates = safeActions.filter((action) => (
     action.id !== orientationAction?.id
     && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
-    && action.writes.length > 0
-  )) ?? safeActions.find((action) => (
-    action.id !== orientationAction?.id
-    && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
-  )) ?? null;
+    && (!latestRunIsUsable || action.id !== 'local.auto')
+  ));
+  const progressAction = preferredProviderHandoffAction
+    ?? progressCandidates.find((action) => action.writes.length > 0)
+    ?? progressCandidates[0]
+    ?? (!latestRunIsUsable ? safeActions.find((action) => action.id === 'local.auto') ?? null : null);
   const capabilityUnlockAction = safeActions.find((action) => action.id === 'provider.route_map')
     ?? safeActions.find((action) => action.id === 'capability.unlock_map')
     ?? safeActions.find((action) => action.id === 'capability.credential_coverage')
@@ -5175,6 +5182,7 @@ function providerRouteForPreflight(
   const hasMissingCredential = blockers.includes('provider credential') && !credentialAvailable;
   const hasMissingAdapter = blockers.includes('live provider implementation');
   const routeType = providerRouteType(preflight);
+  const isHandoffOnlyRoute = routeType === 'provider_handoff';
   const wouldApiKeyHelp = hasMissingCredential
     && preflight.ready_for_provider_handoff
     && routeType === 'live_provider'
@@ -5184,6 +5192,8 @@ function providerRouteForPreflight(
     ? 'ready_for_live'
     : hasMissingLocalInput
       ? 'needs_local_input'
+      : isHandoffOnlyRoute && preflight.ready_for_provider_handoff
+        ? 'ready_for_handoff'
       : hasMissingAdapter
         ? 'needs_adapter'
         : hasMissingCredential
@@ -5215,7 +5225,7 @@ function providerRouteForPreflight(
     recommended_credentials: recommendedCredentials,
     required_env: requiredEnv,
     blockers,
-    next_action: providerRouteNextAction(preflight, status, recommendedCredentials, requiredEnv),
+    next_action: providerRouteNextAction(preflight, status, routeType, recommendedCredentials, requiredEnv),
     safe_probe_commands: uniqueSorted([
       `npm run harness -- provider-preflight --request ${shellQuote(preflight.request_path)}`,
       'npm run harness -- credential-coverage --env-file .env',
@@ -5269,6 +5279,7 @@ function providerRouteScore(input: {
 function providerRouteNextAction(
   preflight: HarnessProviderPreflight,
   status: HarnessProviderRoute['status'],
+  routeType: HarnessProviderRoute['route_type'],
   recommendedCredentials: string[],
   requiredEnv: string[],
 ): string {
@@ -5283,6 +5294,9 @@ function providerRouteNextAction(
     return `Do not provision a key for ${preflight.request_id} as the next step; this provider route still needs a reviewed live adapter or should remain a handoff.`;
   }
   if (status === 'needs_credential') {
+    if (routeType !== 'live_provider') {
+      return `Keep ${preflight.request_id} as a provider handoff until its request policy and live adapter path are explicit; do not provision a key as the next step.`;
+    }
     return `A ${recommendedCredentials.join(' or ')} presence flag plus ${requiredEnv.join(' and ')} would move ${preflight.request_id} closer to live execution.`;
   }
   if (status === 'needs_gate') {
