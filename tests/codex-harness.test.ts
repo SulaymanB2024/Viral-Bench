@@ -13,6 +13,7 @@ import {
   buildCapabilityEnvPlan,
   buildCapabilityPlan,
   buildContextPack,
+  buildEvidenceMap,
   buildHarnessDoctor,
   buildInformationIndex,
   buildCapabilityProfile,
@@ -104,6 +105,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.run'));
   assert.ok(ids.includes('harness.rank_jobs'));
   assert.ok(ids.includes('harness.job_matrix'));
+  assert.ok(ids.includes('harness.evidence_map'));
   assert.ok(ids.includes('harness.context_pack'));
   assert.ok(ids.includes('harness.information_index'));
   assert.ok(ids.includes('harness.inventory'));
@@ -129,6 +131,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.information_sources.some((source) => source.id === 'source.harness'));
   assert.ok(inspected.information_sources.some((source) => source.kind === 'job'));
   assert.ok(inspected.job_rankings.some((ranking) => ranking.job_id === 'worthscan_scooter_battery_001'));
+  assert.ok(inspected.evidence_map.jobs.some((job) => job.job_id === 'worthscan_scooter_battery_001'));
   assert.ok(inspected.blocker_ledger.blockers.some((blocker) => blocker.id === 'git.reproducibility'));
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
@@ -176,6 +179,27 @@ test('job matrix links jobs to renders, providers, launch queue, metrics, and co
   assert.ok(scanBike?.provider_requests.some((request) => request.provider === 'openai_image'));
   assert.ok(scanBike?.provider_requests.some((request) => request.ready_for_provider_handoff));
   assert.ok(matrix.next_commands.some((command) => command.includes('rank-jobs')));
+});
+
+test('evidence map exposes job sources, rendered evidence, claim safety, and commands', () => {
+  const map = buildEvidenceMap(process.cwd());
+  const scooter = map.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
+
+  assert.equal(map.job_count, 11);
+  assert.ok(map.jobs_with_trend_examples >= 10);
+  assert.ok(map.jobs_with_manual_boundary >= 10);
+  assert.ok(map.jobs_with_rendered_evidence >= 3);
+  assert.equal(map.jobs_with_claim_blockers, 0);
+  assert.ok(scooter);
+  assert.equal(scooter?.evidence_counts.trend_example_count, 3);
+  assert.equal(scooter?.manual_boundary_declared, true);
+  assert.equal(scooter?.claim_safety.disclaimer_present, true);
+  assert.equal(scooter?.claim_safety.range_language_present, true);
+  assert.equal(scooter?.claim_safety.exact_value_claim_present, false);
+  assert.equal(scooter?.claim_safety.guarantee_claim_present, false);
+  assert.equal(scooter?.rendered_evidence.manifest_exists, true);
+  assert.ok(scooter?.next_commands.some((command) => command.includes('creative -- validate')));
+  assert.ok(map.next_commands.some((command) => command.includes('job-matrix')));
 });
 
 test('information index maps source, schemas, jobs, provider requests, tests, and ops docs', () => {
@@ -282,6 +306,7 @@ test('autonomy plan returns an ordered Codex execution queue without leaking cre
   assert.ok(plan.selected_next_step?.safe_to_run_now);
   assert.ok(plan.steps.some((step) => step.id === 'local.auto'));
   assert.ok(plan.steps.some((step) => step.id === 'information.job_matrix'));
+  assert.ok(plan.steps.some((step) => step.id === 'information.evidence_map'));
   assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
   assert.ok(plan.steps.some((step) => step.id.startsWith('provider.')));
   assert.ok(plan.command_policy.safe_default_commands.some((command) => command.includes('autonomy-plan')));
@@ -469,6 +494,7 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.ok(fs.existsSync(record.information_index_path));
   assert.ok(fs.existsSync(record.context_pack_path));
   assert.ok(fs.existsSync(record.job_rankings_path));
+  assert.ok(fs.existsSync(record.evidence_map_path));
   assert.ok(fs.existsSync(record.reproducibility_manifest_path));
   assert.ok(fs.existsSync(record.autonomy_audit_path));
   assert.ok(record.provider_preflight_path);
@@ -484,6 +510,7 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.match(fs.readFileSync(record.information_index_path, 'utf8'), /source.harness/);
   assert.match(fs.readFileSync(record.context_pack_path, 'utf8'), /sha256/);
   assert.match(fs.readFileSync(record.job_rankings_path, 'utf8'), /score/);
+  assert.match(fs.readFileSync(record.evidence_map_path, 'utf8'), /claim_safety/);
   assert.match(fs.readFileSync(record.reproducibility_manifest_path, 'utf8'), /source_of_truth/);
   assert.match(fs.readFileSync(record.autonomy_audit_path, 'utf8'), /codex\.reproducibility/);
   assert.match(fs.readFileSync(record.provider_preflight_path, 'utf8'), /provider_preflight|preflights/);

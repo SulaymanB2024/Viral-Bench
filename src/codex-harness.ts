@@ -295,6 +295,77 @@ export interface HarnessJobMatrix {
   next_commands: string[];
 }
 
+export interface HarnessEvidenceSourceInput {
+  kind: CreativeJobManifest['source_inputs'][number]['kind'];
+  label: string;
+  value_present: boolean;
+  path: string | null;
+  path_exists: boolean | null;
+  url: string | null;
+  captured_at: string | null;
+  notes_present: boolean;
+}
+
+export interface HarnessEvidenceTrendExample {
+  id: string;
+  source_name: string;
+  platform: string;
+  format: string;
+  hook: string;
+  source_url: string;
+  captured_at: string;
+}
+
+export interface HarnessClaimSafety {
+  disclaimer_present: boolean;
+  range_language_present: boolean;
+  exact_value_claim_present: boolean;
+  guarantee_claim_present: boolean;
+  comparison_language_present: boolean;
+  risk_language_present: boolean;
+  manual_review_required: boolean;
+  blockers: string[];
+}
+
+export interface HarnessJobEvidenceRow {
+  job_id: string;
+  path: string;
+  niche: string;
+  content_type: string;
+  source_inputs: HarnessEvidenceSourceInput[];
+  trend_examples: HarnessEvidenceTrendExample[];
+  evidence_counts: {
+    source_input_count: number;
+    trend_example_count: number;
+    unique_source_url_count: number;
+    source_path_count: number;
+    existing_source_path_count: number;
+  };
+  manual_boundary_declared: boolean;
+  rendered_evidence: {
+    package_path: string;
+    manifest_exists: boolean;
+    trend_examples_exists: boolean;
+    research_notes_exists: boolean;
+    qa_checklist_exists: boolean;
+    approval_exists: boolean;
+  };
+  claim_safety: HarnessClaimSafety;
+  next_commands: string[];
+}
+
+export interface HarnessEvidenceMap {
+  created_at: string;
+  root_dir: string;
+  job_count: number;
+  jobs_with_trend_examples: number;
+  jobs_with_manual_boundary: number;
+  jobs_with_rendered_evidence: number;
+  jobs_with_claim_blockers: number;
+  jobs: HarnessJobEvidenceRow[];
+  next_commands: string[];
+}
+
 export interface HarnessContextPackSource {
   id: string;
   kind: HarnessInformationSource['kind'];
@@ -588,6 +659,7 @@ export interface HarnessRunRecord {
   information_index_path: string;
   context_pack_path: string;
   job_rankings_path: string;
+  evidence_map_path: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   artifact_inventory_path: string;
@@ -818,6 +890,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'rank',
       command: 'npm run harness -- job-matrix',
       purpose: 'Return per-job readiness across ranking, rendered package files, provider requests, launch queue presence, metrics records, blockers, and next commands.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.evidence_map',
+      kind: 'context',
+      command: 'npm run harness -- evidence-map',
+      purpose: 'Return per-job source inputs, trend references, rendered evidence files, valuation claim-safety flags, blockers, and next commands.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -1146,6 +1227,91 @@ export function buildJobReadinessMatrix(
   };
 }
 
+export function buildEvidenceMap(rootDir = process.cwd()): HarnessEvidenceMap {
+  const rows = listIncomingJobs(rootDir)
+    .map(({ job_id: jobId, path: jobPath }): HarnessJobEvidenceRow => {
+      const job = loadCreativeJobManifest(jobPath);
+      const packageDir = providerPackageDir(rootDir, jobId);
+      const sourceInputs = job.source_inputs.map((input): HarnessEvidenceSourceInput => {
+        const inputPath = input.path ? resolveFromRoot(rootDir, input.path) : null;
+        return {
+          kind: input.kind,
+          label: input.label,
+          value_present: Boolean(input.value),
+          path: input.path ?? null,
+          path_exists: inputPath ? fs.existsSync(inputPath) : null,
+          url: input.url ?? null,
+          captured_at: input.captured_at ?? null,
+          notes_present: Boolean(input.notes),
+        };
+      });
+      const trendExamples = job.trend_examples.map((example): HarnessEvidenceTrendExample => ({
+        id: example.id,
+        source_name: example.source_name,
+        platform: example.platform,
+        format: example.format,
+        hook: example.hook,
+        source_url: example.source_url,
+        captured_at: example.captured_at,
+      }));
+      const claimSafety = evaluateClaimSafety(job);
+      const sourcePathInputs = sourceInputs.filter((input) => input.path);
+      const nextCommands = Array.from(new Set([
+        `npm run creative -- validate --job ${shellQuote(relativeToRoot(rootDir, jobPath))}`,
+        `npm run harness -- job-matrix`,
+        ...(fs.existsSync(path.join(packageDir, 'manifest.json'))
+          ? []
+          : [`npm run creative -- render --job ${shellQuote(relativeToRoot(rootDir, jobPath))}`]),
+        ...(claimSafety.blockers.length ? ['Review claim_safety.blockers before provider handoff or posting.'] : []),
+      ]));
+
+      return {
+        job_id: jobId,
+        path: relativeToRoot(rootDir, jobPath),
+        niche: job.niche,
+        content_type: job.content_type,
+        source_inputs: sourceInputs,
+        trend_examples: trendExamples,
+        evidence_counts: {
+          source_input_count: sourceInputs.length,
+          trend_example_count: trendExamples.length,
+          unique_source_url_count: new Set(trendExamples.map((example) => example.source_url)).size,
+          source_path_count: sourcePathInputs.length,
+          existing_source_path_count: sourcePathInputs.filter((input) => input.path_exists).length,
+        },
+        manual_boundary_declared: hasManualBoundary(job),
+        rendered_evidence: {
+          package_path: relativeToRoot(rootDir, packageDir),
+          manifest_exists: fs.existsSync(path.join(packageDir, 'manifest.json')),
+          trend_examples_exists: fs.existsSync(path.join(packageDir, 'research', 'trend_examples.json')),
+          research_notes_exists: fs.existsSync(path.join(packageDir, 'research', 'notes.md')),
+          qa_checklist_exists: fs.existsSync(path.join(packageDir, 'qa', 'checklist.md')),
+          approval_exists: fs.existsSync(path.join(packageDir, 'qa', 'approval.md')),
+        },
+        claim_safety: claimSafety,
+        next_commands: nextCommands,
+      };
+    })
+    .sort((a, b) => a.job_id.localeCompare(b.job_id));
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    job_count: rows.length,
+    jobs_with_trend_examples: rows.filter((row) => row.evidence_counts.trend_example_count > 0).length,
+    jobs_with_manual_boundary: rows.filter((row) => row.manual_boundary_declared).length,
+    jobs_with_rendered_evidence: rows.filter((row) => row.rendered_evidence.manifest_exists).length,
+    jobs_with_claim_blockers: rows.filter((row) => row.claim_safety.blockers.length > 0).length,
+    jobs: rows,
+    next_commands: [
+      'npm run harness -- job-matrix',
+      'npm run harness -- context-pack --out .ops/harness/context_pack.json',
+      'npm run harness -- provider-preflight',
+      'npm run harness -- auto --goal "<goal>"',
+    ],
+  };
+}
+
 export function buildContextPack(
   rootDir = process.cwd(),
   options: { maxFiles?: number; maxCharsPerFile?: number } = {},
@@ -1430,6 +1596,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.information_index_path,
     record.context_pack_path,
     record.job_rankings_path,
+    record.evidence_map_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -1453,6 +1620,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     autonomy_audit_path: record.autonomy_audit_path,
     next_commands: [
       `npm run harness -- inventory --run ${resolvedRunDir}`,
+      `npm run harness -- evidence-map`,
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
       `npm run harness -- provider-preflight`,
@@ -1910,6 +2078,7 @@ export function buildAutonomyAudit(
     'harness.context_pack',
     'harness.rank_jobs',
     'harness.job_matrix',
+    'harness.evidence_map',
     'harness.resume',
     'harness.inventory',
     'harness.blockers',
@@ -2089,6 +2258,7 @@ export function buildHarnessDoctor(
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- rank-jobs',
     'npm run harness -- job-matrix',
+    'npm run harness -- evidence-map',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
   ];
@@ -2206,6 +2376,19 @@ export function buildAutonomyPlan(
       `job_count=${doctor.incoming_job_count}`,
       `provider_request_count=${doctor.provider_request_count}`,
     ],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
+    id: 'information.evidence_map',
+    priority: 39,
+    lane: 'information',
+    status: 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- evidence-map',
+    reason: 'Inspect job source inputs, trend references, rendered evidence files, and valuation claim-safety blockers before provider handoff or posting.',
+    evidence: auditById.get('codex.information_surface')?.evidence ?? [],
     required_gates: [],
     writes: [],
   });
@@ -2352,6 +2535,7 @@ export function inspectHarness(
   primitives: CodexPrimitive[];
   information_sources: HarnessInformationSource[];
   job_rankings: HarnessJobRanking[];
+  evidence_map: HarnessEvidenceMap;
   blocker_ledger: HarnessBlockerLedger;
   provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
@@ -2367,6 +2551,7 @@ export function inspectHarness(
     primitives: listCodexPrimitives(),
     information_sources: buildInformationIndex(rootDir),
     job_rankings: rankIncomingJobs(env, rootDir),
+    evidence_map: buildEvidenceMap(rootDir),
     blocker_ledger: buildBlockerLedger(env, rootDir),
     provider_preflight: preflightProviderRequests(env, rootDir),
     latest_run: findLatestHarnessRun(rootDir),
@@ -2449,6 +2634,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const informationIndexPath = path.join(runDir, 'information_index.json');
   const contextPackPath = path.join(runDir, 'context_pack.json');
   const jobRankingsPath = path.join(runDir, 'job_rankings.json');
+  const evidenceMapPath = path.join(runDir, 'evidence_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
@@ -2463,6 +2649,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     maxCharsPerFile: options.maxContextCharsPerFile,
   });
   const jobRankings = rankIncomingJobs(options.env ?? process.env, rootDir);
+  const evidenceMap = buildEvidenceMap(rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -2473,6 +2660,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(informationIndexPath, `${JSON.stringify(informationIndex, null, 2)}\n`);
   fs.writeFileSync(contextPackPath, `${JSON.stringify(contextPack, null, 2)}\n`);
   fs.writeFileSync(jobRankingsPath, `${JSON.stringify(jobRankings, null, 2)}\n`);
+  fs.writeFileSync(evidenceMapPath, `${JSON.stringify(evidenceMap, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -2498,6 +2686,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     information_index_path: informationIndexPath,
     context_pack_path: contextPackPath,
     job_rankings_path: jobRankingsPath,
+    evidence_map_path: evidenceMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     provider_preflight_path: providerPreflightPath,
@@ -3279,6 +3468,74 @@ function readLaunchQueue(rootDir: string): { path: string; text: string; orders:
   return { path: launchQueuePath, text, orders };
 }
 
+function evaluateClaimSafety(job: CreativeJobManifest): HarnessClaimSafety {
+  const text = jobTextCorpus(job);
+  const disclaimerPresent = /estimate|range|not a guarantee|not guaranteed|not an appraisal|not official/i.test(text);
+  const rangeLanguagePresent = /\brange\b|\blow(?:er)? half\b|\bhigh(?:er)? half\b|\bbuy, bargain, or pass\b/i.test(text);
+  const exactValueLanguagePresent = /\bexact(?:ly)?\s+(?:value|worth|price)\b|\bappraised at\b|\bworth\s+\$?\d[\d,]*(?:\.\d{2})?\b/i.test(text);
+  const exactValueClaimPresent = exactValueLanguagePresent
+    && !/\b(?:do not|don't|never|avoid)\s+claim(?:ing)?\b[^.\n]*(?:exact(?:ly)?\s+(?:value|worth|price)|appraised at|worth\s+\$?\d)/i.test(text);
+  const guaranteeClaimPresent = /guaranteed value|certified appraisal|official appraisal/i.test(text)
+    && !/not (?:a )?(?:guarantee|guaranteed|an appraisal|official appraisal)/i.test(text);
+  const comparisonLanguagePresent = /\bcomp(?:s|arable|are)?\b|\bcompare\b|\blisting(?:s)?\b/i.test(text);
+  const riskLanguagePresent = /\brisk\b|\brepair\b|\bmissing\b|\bcondition\b|\bsubtract\b|\bbattery\b|\btuneup\b/i.test(text);
+  const manualReviewRequired = job.approval_status.state !== 'approved'
+    || !job.approval_status.human_reviewer
+    || job.generated_assets.some((asset) => !asset.approved_for_posting);
+  const blockers = [
+    ...(job.source_inputs.length ? [] : ['no source inputs recorded']),
+    ...(job.trend_examples.length ? [] : ['no trend examples recorded']),
+    ...(disclaimerPresent ? [] : ['valuation disclaimer language missing']),
+    ...(rangeLanguagePresent ? [] : ['range-based valuation language missing']),
+    ...(exactValueClaimPresent ? ['exact value claim requires high-confidence valuation evidence'] : []),
+    ...(guaranteeClaimPresent ? ['guaranteed or official appraisal language is not allowed'] : []),
+  ];
+
+  return {
+    disclaimer_present: disclaimerPresent,
+    range_language_present: rangeLanguagePresent,
+    exact_value_claim_present: exactValueClaimPresent,
+    guarantee_claim_present: guaranteeClaimPresent,
+    comparison_language_present: comparisonLanguagePresent,
+    risk_language_present: riskLanguagePresent,
+    manual_review_required: manualReviewRequired,
+    blockers,
+  };
+}
+
+function hasManualBoundary(job: CreativeJobManifest): boolean {
+  return /manual|human|no scraping|no browser|no social publishing|post manually|approval/i.test(jobTextCorpus(job));
+}
+
+function jobTextCorpus(job: CreativeJobManifest): string {
+  return [
+    job.niche,
+    job.content_type,
+    ...job.source_inputs.flatMap((input) => [
+      input.label,
+      input.value ?? '',
+      input.notes ?? '',
+      input.url ?? '',
+    ]),
+    ...job.trend_examples.flatMap((example) => [
+      example.hook,
+      example.notes,
+      example.source_name,
+    ]),
+    ...job.provider_policy.notes,
+    ...job.output_requirements.slides.flatMap((slide) => [
+      slide.on_screen_text,
+      slide.visual_direction,
+    ]),
+    job.output_requirements.caption,
+    job.output_requirements.spoken_script,
+    ...job.output_requirements.posting_notes,
+    ...job.approval_status.notes,
+    ...job.generated_assets.map((asset) => asset.notes ?? ''),
+    ...job.qa_notes,
+  ].join('\n');
+}
+
 function buildNextActions(
   job: CreativeJobManifest,
   capabilities: HarnessCapabilityProfile,
@@ -3538,6 +3795,9 @@ Commands:
   job-matrix
     Print per-job readiness across rank, rendered package, providers, launch queue, metrics, blockers, and next commands.
 
+  evidence-map
+    Print per-job source inputs, trend references, rendered evidence files, claim-safety flags, blockers, and next commands.
+
   context-pack [--out .ops/harness/context_pack.json] [--max-files 80] [--max-chars-per-file 2400]
     Write a bounded context pack with hashed file excerpts for Codex.
 
@@ -3718,6 +3978,10 @@ async function main(): Promise<void> {
 
     case 'job-matrix':
       console.log(JSON.stringify(buildJobReadinessMatrix(effectiveEnv), null, 2));
+      return;
+
+    case 'evidence-map':
+      console.log(JSON.stringify(buildEvidenceMap(), null, 2));
       return;
 
     case 'inventory':

@@ -82,6 +82,8 @@ npm run harness -- rank-jobs
 
 npm run harness -- job-matrix
 
+npm run harness -- evidence-map
+
 npm run harness -- context-pack --out .ops/harness/context_pack.json
 
 npm run harness -- blockers
@@ -131,6 +133,11 @@ machine-readable surface for a Codex agent deciding what to do next.
 runnability, approval state, rendered package files, linked provider requests,
 provider handoff/live readiness, launch queue presence, metrics records,
 blockers, and next commands.
+
+`evidence-map` gives Codex a per-job evidence surface covering source inputs,
+trend references, rendered research/QA files, manual-boundary declarations,
+range/disclaimer/comparison/risk language, unsafe claim blockers, and next
+commands before provider handoff or posting.
 
 `provider-preflight` checks every provider request prompt, declared input asset,
 declared output target, dry-run result, and local preparation command. It is the
