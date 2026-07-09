@@ -12,6 +12,12 @@ import {
 import type { LocalRenderResult } from '../packages/creative/local_renderer';
 import { runCreativeProvider } from '../packages/creative/provider_router';
 import {
+  mergeEnvWithFile,
+  type EnvMap,
+  type LoadedEnvFile,
+  type MergedEnvFileReport,
+} from './env-loader';
+import {
   loadProviderRequestManifest,
   runProviderDryRun,
   type ProviderDryRunResult,
@@ -38,6 +44,36 @@ export interface HarnessCapabilityProfile {
   };
   credentials: HarnessCredentialProfile;
   credential_policy: 'available_flags_only_no_secret_values';
+}
+
+export interface HarnessEnvFileSummary {
+  path: string;
+  absolute_path: string;
+  exists: boolean;
+  loaded_key_count: number;
+  keys: string[];
+  ignored_line_count: number;
+  warnings: string[];
+}
+
+export interface HarnessCapabilityEnvKey {
+  key: string;
+  present: boolean;
+  source: 'process_env' | 'env_file' | 'both' | 'none';
+  used_for: string[];
+}
+
+export interface HarnessCapabilityEnvPlan {
+  created_at: string;
+  root_dir: string;
+  env_file: HarnessEnvFileSummary | null;
+  key_count: number;
+  keys: HarnessCapabilityEnvKey[];
+  capability_profile: HarnessCapabilityProfile;
+  provider_live_ready_request_count: number;
+  secret_policy: HarnessCapabilityProfile['credential_policy'];
+  warnings: string[];
+  next_commands: string[];
 }
 
 export interface HarnessCapabilityPlanLane {
@@ -540,6 +576,54 @@ export function buildCapabilityProfile(
   };
 }
 
+export function buildCapabilityEnvPlan(
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessCapabilityEnvPlan {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
+  const providerPreflight = preflightProviderRequests(merged.effective_env, rootDir);
+  const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
+  const keys = capabilityEnvKeys().map((key): HarnessCapabilityEnvKey => {
+    const processPresent = Boolean(nonEmpty(baseEnv[key]));
+    const filePresent = Boolean(nonEmpty(merged.env_file?.values[key]));
+    return {
+      key,
+      present: processPresent || filePresent,
+      source: processPresent && filePresent
+        ? 'both'
+        : processPresent
+          ? 'process_env'
+          : filePresent
+            ? 'env_file'
+            : 'none',
+      used_for: capabilityEnvKeyPurpose(key),
+    };
+  });
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    env_file: envFileSummary,
+    key_count: keys.length,
+    keys,
+    capability_profile: capabilityProfile,
+    provider_live_ready_request_count: providerPreflight.preflights.filter((preflight) => preflight.ready_for_live_request).length,
+    secret_policy: capabilityProfile.credential_policy,
+    warnings: envFileSummary?.warnings ?? [],
+    next_commands: [
+      'npm run harness -- capability-plan --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --env-file .env --file .ops/provider_requests/sample_openai_image_live_request.json --package-dir .ops/creative_jobs/rendered/scan_bike_001',
+    ],
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -574,6 +658,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- capability-plan',
       purpose: 'Explain what local, provider, browser, and publishing lanes can do now, which gates or credentials are missing, and which request manifests are ready only for dry-run.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.capability_env',
+      kind: 'doctor',
+      command: 'npm run harness -- capability-env --env-file .env',
+      purpose: 'Inspect a local ignored env file and process env as redacted key-presence flags for capability gates and provider credentials.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -833,6 +926,7 @@ export function buildInformationIndex(rootDir = process.cwd()): HarnessInformati
   addKnownSource(sources, rootDir, 'source.browser_capture', 'source', 'src/browser-capture.ts', 'Manual/browser-assisted capture validation and approved capture ingestion.');
   addKnownSource(sources, rootDir, 'source.post_metrics', 'source', 'src/post-metrics.ts', 'Posted-content metric store, snapshots, comparisons, and CSV/JSON export.');
   addKnownSource(sources, rootDir, 'source.valuation_card', 'source', 'src/valuation-card.ts', 'Range-based valuation cards and unsupported exact-value claim rejection.');
+  addKnownSource(sources, rootDir, 'source.env_loader', 'source', 'src/env-loader.ts', 'Ignored env-file parser and redacted capability key-presence reporting for Codex/provider gates.');
   addKnownSource(sources, rootDir, 'source.creative_schema', 'source', 'packages/creative/job_schema.ts', 'Creative job schema, provider policy gates, posting gates, and secret scanning.');
   addKnownSource(sources, rootDir, 'source.local_renderer', 'source', 'packages/creative/local_renderer.ts', 'Deterministic local package renderer for slides, prompts, QA, and approval artifacts.');
   addKnownSource(sources, rootDir, 'source.provider_router', 'source', 'packages/creative/provider_router.ts', 'Creative provider router for local renderer and gated provider stubs.');
@@ -1615,6 +1709,7 @@ export function buildAutonomyAudit(
     'harness.doctor',
     'harness.repo_status',
     'harness.capability_plan',
+    'harness.capability_env',
     'harness.reproducibility_manifest',
     'harness.autonomy_audit',
     'harness.autonomy_plan',
@@ -2687,7 +2782,7 @@ function isSourceOfTruthPath(filePath: string): boolean {
     || filePath.startsWith('schemas/')
     || filePath.startsWith('tests/')
     || filePath.startsWith('reports/')
-    || ['.gitignore', 'README.md', 'package.json', 'package-lock.json', 'tsconfig.json'].includes(filePath)
+    || ['.env.example', '.gitignore', 'README.md', 'package.json', 'package-lock.json', 'tsconfig.json'].includes(filePath)
   );
 }
 
@@ -2707,6 +2802,7 @@ function sourceOfTruthRole(filePath: string): string {
   if (filePath.startsWith('.ops/')) return 'operations source';
   if (filePath.startsWith('.codex/skills/')) return 'local Codex skill';
   if (filePath.startsWith('reports/')) return 'readiness or evidence report';
+  if (filePath === '.env.example') return 'redacted capability env template';
   if (filePath === '.gitignore') return 'generated artifact boundary';
   if (filePath === 'README.md') return 'operator documentation';
   if (filePath === 'package.json') return 'package scripts and dependency manifest';
@@ -3058,6 +3154,47 @@ function aggregateFileHashes(files: HarnessSourcePackageFile[]): string {
   return hash.digest('hex');
 }
 
+function capabilityEnvKeys(): string[] {
+  return [
+    'ALLOW_PAID_GENERATION',
+    'ALLOW_BROWSER_UI',
+    'ALLOW_SOCIAL_PUBLISHING',
+    'OPENAI_API_KEY',
+    'OPENAI_IMAGE_MODEL',
+    'OPENAI_IMAGE_SIZE',
+    'OPENAI_IMAGE_QUALITY',
+    'OPENAI_IMAGE_OUTPUT_FORMAT',
+    'GEMINI_API_KEY',
+    'GOOGLE_API_KEY',
+    'LIGHTREEL_API_KEY',
+    'SCRAPE_CREATORS_API_KEY',
+  ];
+}
+
+function capabilityEnvKeyPurpose(key: string): string[] {
+  if (key === 'ALLOW_PAID_GENERATION') return ['provider live generation gate'];
+  if (key === 'ALLOW_BROWSER_UI') return ['browser research gate'];
+  if (key === 'ALLOW_SOCIAL_PUBLISHING') return ['publishing gate'];
+  if (key === 'OPENAI_API_KEY') return ['openai_image provider credential'];
+  if (key.startsWith('OPENAI_IMAGE_')) return ['openai_image live generation option'];
+  if (key === 'GEMINI_API_KEY' || key === 'GOOGLE_API_KEY') return ['gemini provider credential'];
+  if (key === 'LIGHTREEL_API_KEY') return ['legacy Lightreel provider credential'];
+  if (key === 'SCRAPE_CREATORS_API_KEY') return ['legacy ScrapeCreators provider credential'];
+  return ['capability environment'];
+}
+
+function redactEnvFile(envFile: LoadedEnvFile): HarnessEnvFileSummary {
+  return {
+    path: envFile.path,
+    absolute_path: envFile.absolute_path,
+    exists: envFile.exists,
+    loaded_key_count: envFile.loaded_key_count,
+    keys: envFile.keys,
+    ignored_line_count: envFile.ignored_line_count,
+    warnings: envFile.warnings,
+  };
+}
+
 function envEnabled(env: Record<string, string | undefined>, key: string): boolean {
   return ['1', 'true', 'yes', 'on'].includes((env[key] ?? '').toLowerCase());
 }
@@ -3110,6 +3247,13 @@ function flagEnabled(options: Record<string, string | boolean>, key: string): bo
   return value === true || (typeof value === 'string' && ['1', 'true', 'yes', 'on'].includes(value.toLowerCase()));
 }
 
+function cliEnv(options: Record<string, string | boolean>): MergedEnvFileReport {
+  return mergeEnvWithFile(process.env, {
+    envFile: stringOpt(options, 'env-file'),
+    rootDir: process.cwd(),
+  });
+}
+
 function printHelp(): void {
   console.log(`Viral-Bench Codex harness
 
@@ -3126,13 +3270,16 @@ Commands:
   capability-plan
     Print local/provider/browser/publishing readiness with missing gates, credentials, and request-level next actions.
 
-  provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json]
+  capability-env [--env-file .env]
+    Print redacted key-presence and source information for capability gates and provider credentials.
+
+  provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
     Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
 
   prepare-provider-inputs --request .ops/provider_requests/<request>.json [--out .ops/creative_jobs/rendered/<job_id>]
     Render the canonical local package for a provider request job so declared input assets exist.
 
-  provider-handoff --request .ops/provider_requests/<request>.json [--out .ops/harness/provider_handoffs/<packet_id>]
+  provider-handoff --request .ops/provider_requests/<request>.json [--out .ops/harness/provider_handoffs/<packet_id>] [--env-file .env]
     Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, live-call eligibility, and blockers.
 
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
@@ -3147,10 +3294,10 @@ Commands:
   verify-source-package --package .ops/harness/source_packages/<package_id>
     Verify every copied source package file hash and aggregate package hash.
 
-  autonomy-audit --goal "<goal>" [--out .ops/harness/autonomy_audit.json]
+  autonomy-audit --goal "<goal>" [--out .ops/harness/autonomy_audit.json] [--env-file .env]
     Audit the autonomy objective against current repo evidence and capability gates.
 
-  autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json]
+  autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json] [--env-file .env]
     Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
 
   inspect
@@ -3180,13 +3327,15 @@ Commands:
   blockers
     Print the current autonomy blocker ledger.
 
-  run --goal "<goal>" [--job .ops/creative_jobs/incoming/<job>.json] [--out .ops/harness/runs/<id>] [--run-id <id>]
+  run --goal "<goal>" [--job .ops/creative_jobs/incoming/<job>.json] [--out .ops/harness/runs/<id>] [--run-id <id>] [--env-file .env]
     Select a job, render a local package, evaluate provider gates, and write durable Codex run artifacts.
 `);
 }
 
 async function main(): Promise<void> {
   const { command, options } = parseArgs(process.argv.slice(2));
+  const envReport = cliEnv(options);
+  const effectiveEnv = envReport.effective_env;
 
   switch (command) {
     case 'auto': {
@@ -3197,13 +3346,14 @@ async function main(): Promise<void> {
         runId: stringOpt(options, 'run-id'),
         maxContextFiles: numberOpt(options, 'max-context-files'),
         maxContextCharsPerFile: numberOpt(options, 'max-context-chars-per-file'),
+        env: effectiveEnv,
       });
       console.log(JSON.stringify(result, null, 2));
       return;
     }
 
     case 'doctor':
-      console.log(JSON.stringify(buildHarnessDoctor(), null, 2));
+      console.log(JSON.stringify(buildHarnessDoctor(effectiveEnv), null, 2));
       return;
 
     case 'repo-status':
@@ -3211,11 +3361,19 @@ async function main(): Promise<void> {
       return;
 
     case 'capability-plan':
-      console.log(JSON.stringify(buildCapabilityPlan(), null, 2));
+      console.log(JSON.stringify(buildCapabilityPlan(effectiveEnv), null, 2));
+      return;
+
+    case 'capability-env':
+      console.log(JSON.stringify(buildCapabilityEnvPlan({
+        env: process.env,
+        envFile: stringOpt(options, 'env-file'),
+        rootDir: process.cwd(),
+      }), null, 2));
       return;
 
     case 'autonomy-plan': {
-      const plan = buildAutonomyPlan(requiredStringOpt(options, 'goal'));
+      const plan = buildAutonomyPlan(requiredStringOpt(options, 'goal'), effectiveEnv);
       const outPath = stringOpt(options, 'out');
       if (outPath) {
         fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
@@ -3236,7 +3394,7 @@ async function main(): Promise<void> {
       const requestPath = stringOpt(options, 'request');
       const report = requestPath
         ? (() => {
-          const preflight = buildProviderPreflight(requestPath, process.env, process.cwd());
+          const preflight = buildProviderPreflight(requestPath, effectiveEnv, process.cwd());
           return {
             created_at: new Date().toISOString(),
             root_dir: process.cwd(),
@@ -3245,7 +3403,7 @@ async function main(): Promise<void> {
             preflights: [preflight],
           } satisfies HarnessProviderPreflightReport;
         })()
-        : preflightProviderRequests();
+        : preflightProviderRequests(effectiveEnv);
       const outPath = stringOpt(options, 'out');
       if (outPath) {
         fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
@@ -3260,6 +3418,7 @@ async function main(): Promise<void> {
     case 'prepare-provider-inputs':
       console.log(JSON.stringify(await prepareProviderInputs(requiredStringOpt(options, 'request'), {
         outDir: stringOpt(options, 'out'),
+        env: effectiveEnv,
       }), null, 2));
       return;
 
@@ -3267,6 +3426,7 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(exportProviderHandoffPacket(requiredStringOpt(options, 'request'), {
         outDir: stringOpt(options, 'out'),
         maxTextChars: numberOpt(options, 'max-text-chars'),
+        env: effectiveEnv,
       }), null, 2));
       return;
 
@@ -3298,7 +3458,7 @@ async function main(): Promise<void> {
       return;
 
     case 'autonomy-audit': {
-      const audit = buildAutonomyAudit(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex');
+      const audit = buildAutonomyAudit(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex', effectiveEnv);
       const outPath = stringOpt(options, 'out');
       if (outPath) {
         fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
@@ -3311,7 +3471,7 @@ async function main(): Promise<void> {
     }
 
     case 'inspect':
-      console.log(JSON.stringify(inspectHarness(), null, 2));
+      console.log(JSON.stringify(inspectHarness(effectiveEnv), null, 2));
       return;
 
     case 'primitives':
@@ -3323,11 +3483,11 @@ async function main(): Promise<void> {
       return;
 
     case 'blockers':
-      console.log(JSON.stringify(buildBlockerLedger(), null, 2));
+      console.log(JSON.stringify(buildBlockerLedger(effectiveEnv), null, 2));
       return;
 
     case 'rank-jobs':
-      console.log(JSON.stringify(rankIncomingJobs(), null, 2));
+      console.log(JSON.stringify(rankIncomingJobs(effectiveEnv), null, 2));
       return;
 
     case 'inventory':
@@ -3366,6 +3526,7 @@ async function main(): Promise<void> {
         runId: stringOpt(options, 'run-id'),
         maxContextFiles: numberOpt(options, 'max-context-files'),
         maxContextCharsPerFile: numberOpt(options, 'max-context-chars-per-file'),
+        env: effectiveEnv,
       });
       console.log(JSON.stringify(record, null, 2));
       return;

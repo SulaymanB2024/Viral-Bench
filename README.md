@@ -49,6 +49,8 @@ npm run harness -- repo-status
 
 npm run harness -- capability-plan
 
+npm run harness -- capability-env --env-file .env
+
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
@@ -110,6 +112,12 @@ availability flags; provider request dry-run status; and request-level next
 actions. It never prints secret values and reports live-call eligibility only
 when request policy, local inputs, env gates, and credential presence all line
 up.
+
+`capability-env` reads process env plus an optional ignored env file such as
+`.env`, then reports only key names, presence, source, warnings, and capability
+flags. It never prints secret values. Pass the same `--env-file .env` option to
+`capability-plan`, `provider-preflight`, `provider-handoff`, `autonomy-plan`,
+`run`, or `auto` when Codex should use locally stored gate/credential values.
 
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
@@ -435,6 +443,7 @@ npm run trend -- provider:run-dry \
   --file .ops/provider_requests/sample_openai_image_request.json
 
 ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live \
+  --env-file .env \
   --file .ops/provider_requests/sample_openai_image_live_request.json \
   --package-dir .ops/creative_jobs/rendered/scan_bike_001
 ```
@@ -514,7 +523,8 @@ Paid provider requests require both:
 Live provider requests additionally require `provider_mode: "generation"`,
 `cost_policy.external_calls_allowed: true`, a positive
 `cost_policy.max_cost_usd`, a supported reviewed adapter, and the provider API
-key. OpenAI image generation reads `OPENAI_API_KEY` from the environment.
+key. OpenAI image generation reads `OPENAI_API_KEY` from the environment, or
+from an explicitly supplied ignored env file via `--env-file .env`.
 
 Browser UI requests require both:
 

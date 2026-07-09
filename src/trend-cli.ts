@@ -24,6 +24,7 @@ import {
   searchTrendExamples,
   type TrendExampleInput,
 } from './trend-research';
+import { mergeEnvWithFile } from './env-loader';
 
 interface CliArgs {
   command: string;
@@ -33,6 +34,10 @@ interface CliArgs {
 async function main(): Promise<void> {
   const { command, options } = parseArgs(process.argv.slice(2));
   const dbPath = stringOpt(options, 'db') || DEFAULT_TREND_DB_PATH;
+  const effectiveEnv = mergeEnvWithFile(process.env, {
+    envFile: stringOpt(options, 'env-file'),
+    rootDir: process.cwd(),
+  }).effective_env;
 
   switch (command) {
     case 'init': {
@@ -150,7 +155,7 @@ async function main(): Promise<void> {
     case 'provider:run-dry': {
       const file = requiredStringOpt(options, 'file');
       const request = loadProviderRequestManifest(file);
-      const result = runProviderDryRun(request);
+      const result = runProviderDryRun(request, { env: effectiveEnv });
       console.log(JSON.stringify(result, null, 2));
       return;
     }
@@ -161,6 +166,7 @@ async function main(): Promise<void> {
       const result = await runProviderLive(request, {
         packageDir: requiredStringOpt(options, 'package-dir'),
         rootDir: stringOpt(options, 'root') || process.cwd(),
+        env: effectiveEnv,
         overwrite: booleanOpt(options, 'overwrite'),
         model: stringOpt(options, 'model'),
         size: stringOpt(options, 'size'),
@@ -299,7 +305,7 @@ Commands:
   provider:create-request --provider openai_image --job-id scan_bike_001 --prompt-path .ops/prompts/openai/image_generation.md
   provider:validate-request --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json
-  provider:run-live --file .ops/provider_requests/<live_request>.json --package-dir .ops/creative_jobs/rendered/<job_id>
+  provider:run-live --file .ops/provider_requests/<live_request>.json --package-dir .ops/creative_jobs/rendered/<job_id> [--env-file .env]
   schema
 
 Notes:

@@ -10,6 +10,7 @@ import {
   buildAutonomyAudit,
   buildAutonomyPlan,
   buildBlockerLedger,
+  buildCapabilityEnvPlan,
   buildCapabilityPlan,
   buildContextPack,
   buildHarnessDoctor,
@@ -91,6 +92,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.doctor'));
   assert.ok(ids.includes('harness.repo_status'));
   assert.ok(ids.includes('harness.capability_plan'));
+  assert.ok(ids.includes('harness.capability_env'));
   assert.ok(ids.includes('harness.reproducibility_manifest'));
   assert.ok(ids.includes('harness.stage_source'));
   assert.ok(ids.includes('harness.source_package'));
@@ -224,6 +226,30 @@ test('capability plan reflects enabled gates without leaking credential values',
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 
+test('capability env plan reads ignored env files without leaking values', () => {
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-env-plan-'));
+  fs.writeFileSync(path.join(rootDir, '.env'), [
+    'ALLOW_PAID_GENERATION=true',
+    'OPENAI_API_KEY=secret-value-for-test',
+    'OPENAI_IMAGE_SIZE=1024x1536',
+    'not a valid env line',
+  ].join('\n'));
+
+  const plan = buildCapabilityEnvPlan({ env: {}, rootDir, envFile: '.env' });
+  const serialized = JSON.stringify(plan);
+  const openAiKey = plan.keys.find((key) => key.key === 'OPENAI_API_KEY');
+  const paidGate = plan.keys.find((key) => key.key === 'ALLOW_PAID_GENERATION');
+
+  assert.equal(plan.env_file?.exists, true);
+  assert.ok(plan.env_file?.keys.includes('OPENAI_API_KEY'));
+  assert.equal(plan.capability_profile.gates.allow_paid_generation, true);
+  assert.equal(plan.capability_profile.credentials.openai_api_key_available, true);
+  assert.equal(openAiKey?.source, 'env_file');
+  assert.equal(paidGate?.present, true);
+  assert.ok(plan.warnings.some((warning) => warning.includes('Ignored line')));
+  assert.doesNotMatch(serialized, /secret-value-for-test/);
+});
+
 test('autonomy plan returns an ordered Codex execution queue without leaking credentials', () => {
   const plan = buildAutonomyPlan('Make WorthScan autonomous for Codex', {
     ALLOW_PAID_GENERATION: 'true',
@@ -313,6 +339,7 @@ test('reproducibility manifest separates source-of-truth from generated artifact
 
   assert.ok(manifest.source_of_truth.file_count >= manifest.source_of_truth.untracked_count);
   assert.ok(manifest.source_of_truth.files.some((file) => file.path === 'src/codex-harness.ts'));
+  assert.ok(manifest.source_of_truth.files.some((file) => file.path === '.env.example'));
   assert.ok(manifest.source_of_truth.files.some((file) => file.path === 'package.json'));
   assert.ok(manifest.source_of_truth.files.every((file) => !file.path.startsWith('.ops/harness/')));
   assert.ok(manifest.generated_artifacts.ignored_or_runtime_paths.includes('.ops/harness/runs/'));
