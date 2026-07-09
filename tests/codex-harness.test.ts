@@ -20,6 +20,8 @@ import {
   findLatestHarnessRun,
   inspectHarness,
   listCodexPrimitives,
+  prepareProviderInputs,
+  preflightProviderRequests,
   rankIncomingJobs,
   resumeHarnessRun,
   runCodexAutonomy,
@@ -35,6 +37,33 @@ const SCOOTER_JOB = path.join(
   'incoming',
   'worthscan_scooter_battery_001.json',
 );
+
+function createProviderFixtureRoot(): { rootDir: string; requestPath: string } {
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-provider-fixture-'));
+  const incomingDir = path.join(rootDir, '.ops', 'creative_jobs', 'incoming');
+  const requestDir = path.join(rootDir, '.ops', 'provider_requests');
+  const promptDir = path.join(rootDir, '.ops', 'prompts', 'openai');
+  fs.mkdirSync(incomingDir, { recursive: true });
+  fs.mkdirSync(requestDir, { recursive: true });
+  fs.mkdirSync(promptDir, { recursive: true });
+  fs.copyFileSync(
+    path.join(process.cwd(), '.ops', 'creative_jobs', 'incoming', 'scan_bike_001.json'),
+    path.join(incomingDir, 'scan_bike_001.json'),
+  );
+  fs.copyFileSync(
+    path.join(process.cwd(), '.ops', 'provider_requests', 'sample_openai_image_request.json'),
+    path.join(requestDir, 'sample_openai_image_request.json'),
+  );
+  fs.writeFileSync(
+    path.join(promptDir, 'image_generation.md'),
+    '# OpenAI image generation fixture\n',
+  );
+
+  return {
+    rootDir,
+    requestPath: path.join(requestDir, 'sample_openai_image_request.json'),
+  };
+}
 
 test('capability profile exposes availability flags without secret values', () => {
   const profile = buildCapabilityProfile({
@@ -74,6 +103,8 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.resume'));
   assert.ok(ids.includes('harness.latest_run'));
   assert.ok(ids.includes('harness.blockers'));
+  assert.ok(ids.includes('harness.provider_preflight'));
+  assert.ok(ids.includes('harness.prepare_provider_inputs'));
   assert.ok(ids.includes('creative.render'));
   assert.ok(ids.includes('provider.dry_run'));
   assert.ok(ids.includes('metrics.compare'));
@@ -90,6 +121,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.information_sources.some((source) => source.kind === 'job'));
   assert.ok(inspected.job_rankings.some((ranking) => ranking.job_id === 'worthscan_scooter_battery_001'));
   assert.ok(inspected.blocker_ledger.blockers.some((blocker) => blocker.id === 'git.reproducibility'));
+  assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.equal(inspected.repo_status.is_git_repo, true);
   assert.equal(inspected.capability_profile.autonomy_level, 'local_only');
@@ -166,6 +198,7 @@ test('capability plan explains provider, browser, and publishing gates', () => {
   assert.equal(publishingLane?.status, 'human_boundary');
   assert.ok(openAiRequest);
   assert.equal(openAiRequest?.live_external_call_allowed, false);
+  assert.ok(Array.isArray(openAiRequest?.missing_input_assets));
   assert.ok(openAiRequest?.missing_gates.includes('provider credential'));
   assert.ok(plan.browser.allowed_tasks_path?.endsWith('.ops/browser/allowed_browser_tasks.md'));
   assert.ok(plan.publishing.launch_queue_path?.endsWith('.ops/launch/launch_queue.md'));
@@ -184,6 +217,37 @@ test('capability plan reflects enabled gates without leaking credential values',
   assert.equal(plan.capability_profile.autonomy_level, 'publishing_enabled');
   assert.equal(openAiRequest?.credential_available, true);
   assert.doesNotMatch(serialized, /present-for-test/);
+});
+
+test('provider preflight reports missing local inputs and preparation commands', () => {
+  const { rootDir } = createProviderFixtureRoot();
+  const report = preflightProviderRequests({}, rootDir);
+  const preflight = report.preflights.find((item) => item.provider === 'openai_image');
+
+  assert.equal(report.request_count, 1);
+  assert.equal(report.prepared_request_count, 0);
+  assert.ok(preflight);
+  assert.equal(preflight?.missing_prompt, null);
+  assert.ok(preflight?.missing_input_assets.includes('.ops/creative_jobs/rendered/scan_bike_001/source/bike_001.jpg'));
+  assert.ok(preflight?.missing_input_assets.includes('.ops/creative_jobs/rendered/scan_bike_001/manifest.json'));
+  assert.ok(preflight?.suggested_prepare_command?.includes('prepare-provider-inputs'));
+  assert.equal(preflight?.ready_for_provider_handoff, false);
+  assert.equal(preflight?.ready_for_live_request, false);
+  assert.ok(preflight?.declared_outputs.some((asset) => asset.path.endsWith('provider_outputs/openai_image/image_generation_plan.md')));
+  assert.equal(preflight?.dry_run.external_calls_made, 0);
+});
+
+test('prepare provider inputs renders canonical assets and clears local preflight blockers', async () => {
+  const { rootDir, requestPath } = createProviderFixtureRoot();
+  const result = await prepareProviderInputs(requestPath, { rootDir });
+
+  assert.equal(result.request_id, 'sample-openai-image-request');
+  assert.equal(result.still_missing_inputs.length, 0);
+  assert.ok(fs.existsSync(path.join(rootDir, '.ops', 'creative_jobs', 'rendered', 'scan_bike_001', 'source', 'bike_001.jpg')));
+  assert.ok(fs.existsSync(path.join(rootDir, '.ops', 'creative_jobs', 'rendered', 'scan_bike_001', 'manifest.json')));
+  assert.ok(result.created_paths.some((createdPath) => createdPath.endsWith('source/bike_001.jpg')));
+  assert.equal(result.provider_preflight.ready_for_provider_handoff, true);
+  assert.ok(result.next_commands.some((command) => command.includes('provider:run-dry')));
 });
 
 test('reproducibility manifest separates source-of-truth from generated artifacts', () => {
@@ -269,6 +333,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
 
   assert.equal(doctor.repo_status.is_git_repo, true);
   assert.ok(doctor.capability_plan.provider_requests.length >= 1);
+  assert.ok(doctor.provider_preflight.preflights.length >= 1);
   assert.ok(doctor.reproducibility_manifest.source_of_truth.file_count > 0);
   assert.ok(doctor.autonomy_audit.criteria.some((criterion) => criterion.id === 'codex.reproducibility'));
   assert.ok(doctor.incoming_job_count >= 10);
@@ -276,6 +341,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.information_surface.source_count >= doctor.incoming_job_count);
   assert.equal(doctor.readiness.local_autonomy, doctor.secret_scan.status === 'clear' && doctor.incoming_job_count > 0);
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
 });
 
 test('harness run writes durable Codex artifacts and renders selected job', async () => {
@@ -299,6 +365,8 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.ok(fs.existsSync(record.job_rankings_path));
   assert.ok(fs.existsSync(record.reproducibility_manifest_path));
   assert.ok(fs.existsSync(record.autonomy_audit_path));
+  assert.ok(record.provider_preflight_path);
+  assert.ok(fs.existsSync(record.provider_preflight_path));
   assert.ok(fs.existsSync(record.artifact_inventory_path));
   assert.ok(fs.existsSync(record.blocker_ledger_path));
   assert.ok(fs.existsSync(record.next_actions_path));
@@ -312,6 +380,7 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.match(fs.readFileSync(record.job_rankings_path, 'utf8'), /score/);
   assert.match(fs.readFileSync(record.reproducibility_manifest_path, 'utf8'), /source_of_truth/);
   assert.match(fs.readFileSync(record.autonomy_audit_path, 'utf8'), /codex\.reproducibility/);
+  assert.match(fs.readFileSync(record.provider_preflight_path, 'utf8'), /provider_preflight|preflights/);
   assert.match(fs.readFileSync(record.artifact_inventory_path, 'utf8'), /artifact_count/);
   assert.match(fs.readFileSync(record.blocker_ledger_path, 'utf8'), /git\.reproducibility/);
   assert.match(fs.readFileSync(record.next_actions_path, 'utf8'), /next_actions/);
@@ -334,6 +403,7 @@ test('resume reports missing artifacts and next commands for an existing run', a
   assert.deepEqual(resume.missing_artifacts, []);
   assert.equal(resume.reproducibility_manifest_path, record.reproducibility_manifest_path);
   assert.equal(resume.autonomy_audit_path, record.autonomy_audit_path);
+  assert.ok(record.provider_preflight_path);
   assert.ok(resume.next_commands.some((command) => command.includes('npm run creative -- validate')));
   assert.ok(inventory.artifacts.some((artifact) => artifact.relative_path === 'run.json'));
 });
@@ -358,6 +428,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- autonomy-audit')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- source-package')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(result.decision.stop_reason.includes('provider.paid_generation') || result.status === 'advanced');
   assert.ok(inventory.artifacts.some((artifact) => artifact.relative_path === 'auto_result.json'));
 });

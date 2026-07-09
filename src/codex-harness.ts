@@ -9,6 +9,7 @@ import {
   loadCreativeJobManifest,
   scanRepositoryForSecrets,
 } from '../packages/creative/job_schema';
+import type { LocalRenderResult } from '../packages/creative/local_renderer';
 import { runCreativeProvider } from '../packages/creative/provider_router';
 import {
   loadProviderRequestManifest,
@@ -53,6 +54,10 @@ export interface HarnessProviderRequestPlan {
   path: string;
   status: ProviderRequestManifest['status'];
   dry_run_status: ProviderDryRunResult['status'];
+  input_assets_ready: boolean;
+  missing_input_assets: string[];
+  missing_prompt: string | null;
+  prepare_command: string | null;
   credential_available: boolean;
   required_env: string[];
   missing_gates: string[];
@@ -78,6 +83,47 @@ export interface HarnessCapabilityPlan {
     jobs_allowing_social_publishing: string[];
     approved_jobs_ready_for_posting: string[];
   };
+}
+
+export interface HarnessProviderPreflightAsset {
+  role: 'prompt' | 'input_asset' | 'declared_output';
+  path: string;
+  absolute_path: string;
+  exists: boolean;
+  kind: HarnessArtifactInventoryItem['kind'] | ProviderRequestManifest['output_requirements']['files'][number]['kind'];
+  description?: string;
+}
+
+export interface HarnessProviderPreflight {
+  request_id: string;
+  request_path: string;
+  provider: CreativeProviderName;
+  provider_mode: ProviderRequestManifest['provider_mode'];
+  status: ProviderRequestManifest['status'];
+  job_id: string;
+  job_path: string;
+  job_exists: boolean;
+  prompt: HarnessProviderPreflightAsset;
+  input_assets: HarnessProviderPreflightAsset[];
+  declared_outputs: HarnessProviderPreflightAsset[];
+  missing_prompt: string | null;
+  missing_input_assets: string[];
+  dry_run: ProviderDryRunResult;
+  renderable_job_available: boolean;
+  suggested_prepare_command: string | null;
+  ready_for_dry_run: boolean;
+  ready_for_provider_handoff: boolean;
+  ready_for_live_request: false;
+  live_blockers: string[];
+  next_action: string;
+}
+
+export interface HarnessProviderPreflightReport {
+  created_at: string;
+  root_dir: string;
+  request_count: number;
+  prepared_request_count: number;
+  preflights: HarnessProviderPreflight[];
 }
 
 export interface CodexPrimitive {
@@ -301,6 +347,7 @@ export interface HarnessDoctorReport {
   };
   incoming_job_count: number;
   provider_request_count: number;
+  provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
   secret_scan: {
     status: 'clear' | 'blocked';
@@ -368,6 +415,7 @@ export interface HarnessRunRecord {
   autonomy_audit_path: string;
   artifact_inventory_path: string;
   blocker_ledger_path: string;
+  provider_preflight_path?: string;
   next_actions_path: string;
   prompt_packet_path: string;
   render_output_dir: string;
@@ -622,6 +670,24 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       autonomy: 'safe_default',
     },
     {
+      id: 'harness.provider_preflight',
+      kind: 'provider',
+      command: 'npm run harness -- provider-preflight',
+      purpose: 'Check every provider request prompt, input asset, declared output path, dry-run result, and local preparation command before any provider handoff.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.prepare_provider_inputs',
+      kind: 'provider',
+      command: 'npm run harness -- prepare-provider-inputs --request .ops/provider_requests/<request>.json',
+      purpose: 'Render the canonical local package for a provider request job so declared input assets exist before provider dry-run or handoff.',
+      writes: ['.ops/creative_jobs/rendered/<job_id>/'],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
       id: 'provider.live_ready',
       kind: 'provider',
       command: 'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/<request>.json',
@@ -715,6 +781,77 @@ export function buildContextPack(
     max_chars_per_file: maxCharsPerFile,
     source_count: sources.length,
     sources,
+  };
+}
+
+export function preflightProviderRequests(
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessProviderPreflightReport {
+  const preflights = listProviderRequests(rootDir)
+    .map((request) => buildProviderPreflight(request.path, env, rootDir));
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    request_count: preflights.length,
+    prepared_request_count: preflights.filter((preflight) => preflight.ready_for_provider_handoff).length,
+    preflights,
+  };
+}
+
+export async function prepareProviderInputs(
+  requestPath: string,
+  options: { rootDir?: string; outDir?: string; env?: Record<string, string | undefined> } = {},
+): Promise<{
+  created_at: string;
+  root_dir: string;
+  request_id: string;
+  request_path: string;
+  job_id: string;
+  job_path: string;
+  render_output_dir: string;
+  created_paths: string[];
+  still_missing_inputs: string[];
+  provider_preflight: HarnessProviderPreflight;
+  next_commands: string[];
+}> {
+  const rootDir = options.rootDir ?? process.cwd();
+  const resolvedRequestPath = resolveFromRoot(rootDir, requestPath);
+  const request = loadProviderRequestManifest(resolvedRequestPath);
+  const jobPath = incomingJobPath(rootDir, request.job_id);
+  if (!fs.existsSync(jobPath)) {
+    throw new Error(`Cannot prepare provider inputs; incoming job manifest is missing: ${jobPath}`);
+  }
+
+  const job = loadCreativeJobManifest(jobPath);
+  const renderOutputDir = path.resolve(options.outDir ?? providerPackageDir(rootDir, request.job_id));
+  const renderResult = await runCreativeProvider('local_renderer', job, {
+    outDir: renderOutputDir,
+    env: options.env ?? process.env,
+  });
+  if (renderResult.status !== 'rendered') {
+    throw new Error(`local renderer returned unexpected status: ${renderResult.status}`);
+  }
+
+  const preflight = buildProviderPreflight(resolvedRequestPath, options.env ?? process.env, rootDir);
+  const requestDisplayPath = relativeToRoot(rootDir, resolvedRequestPath);
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    request_id: request.request_id,
+    request_path: requestDisplayPath,
+    job_id: request.job_id,
+    job_path: relativeToRoot(rootDir, jobPath),
+    render_output_dir: renderResult.render.output_dir,
+    created_paths: localRenderCreatedPaths(renderResult.render).sort(),
+    still_missing_inputs: preflight.missing_input_assets,
+    provider_preflight: preflight,
+    next_commands: [
+      `npm run harness -- provider-preflight --request ${shellQuote(requestDisplayPath)}`,
+      `npm run trend -- provider:run-dry --file ${shellQuote(requestDisplayPath)}`,
+    ],
   };
 }
 
@@ -820,6 +957,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.job_rankings_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
+    record.provider_preflight_path,
     record.artifact_inventory_path,
     record.blocker_ledger_path,
     record.next_actions_path,
@@ -842,6 +980,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
       `npm run harness -- inventory --run ${resolvedRunDir}`,
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
+      `npm run harness -- provider-preflight`,
       `npm run harness -- source-package`,
       `npm run harness -- blockers`,
       `npm run creative -- validate --job ${record.selected_job.path}`,
@@ -950,6 +1089,7 @@ export function buildReproducibilityManifest(rootDir = process.cwd()): HarnessRe
         'npm run harness -- reproducibility-manifest',
         'npm run harness -- stage-source --dry-run',
         'npm run harness -- source-package',
+        'npm run harness -- provider-preflight',
         'git status --short --untracked-files=all',
       ],
       stage_source_of_truth: stagePaths.length ? `git add ${stagePaths.map(shellQuote).join(' ')}` : null,
@@ -973,6 +1113,7 @@ export function buildCapabilityPlan(
   }));
   const providerRequests = listProviderRequests(rootDir).map((item) => {
     const request = loadProviderRequestManifest(item.path);
+    const preflight = buildProviderPreflight(item.path, env, rootDir);
     const dryRun = runProviderDryRun(request, { env });
     const credentialAvailable = providerCredentialAvailable(request.provider, capabilityProfile);
     const requiredEnv = requiredEnvForProvider(request.provider);
@@ -984,6 +1125,10 @@ export function buildCapabilityPlan(
       path: item.path,
       status: request.status,
       dry_run_status: dryRun.status,
+      input_assets_ready: preflight.ready_for_provider_handoff,
+      missing_input_assets: preflight.missing_input_assets,
+      missing_prompt: preflight.missing_prompt,
+      prepare_command: preflight.suggested_prepare_command,
       credential_available: credentialAvailable,
       required_env: requiredEnv,
       missing_gates: missingGates,
@@ -997,6 +1142,7 @@ export function buildCapabilityPlan(
     : capabilityProfile.gates.allow_paid_generation
       ? 'ready'
       : 'needs_gate';
+  const preparedProviderRequestCount = providerRequests.filter((request) => request.input_assets_ready).length;
   const browserReviewedDir = path.join(rootDir, '.ops', 'browser', 'captures', 'reviewed');
   const browserRawDir = path.join(rootDir, '.ops', 'browser', 'captures', 'raw');
   const publishingJobs = incomingJobs.filter(({ job }) => job.provider_policy.allow_social_publishing);
@@ -1032,10 +1178,13 @@ export function buildCapabilityPlan(
           `openai_api_key_available=${capabilityProfile.credentials.openai_api_key_available}`,
           `gemini_api_key_available=${capabilityProfile.credentials.gemini_api_key_available}`,
           `provider_request_count=${providerRequests.length}`,
+          `prepared_provider_request_count=${preparedProviderRequestCount}`,
           'live_external_call_allowed=false',
         ],
         next_commands: [
           'npm run harness -- capability-plan',
+          'npm run harness -- provider-preflight',
+          'npm run harness -- prepare-provider-inputs --request .ops/provider_requests/sample_openai_image_request.json',
           'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json',
         ],
       },
@@ -1256,6 +1405,7 @@ export function buildAutonomyAudit(
   const primitiveIds = new Set(primitives.map((primitive) => primitive.id));
   const incomingJobs = listIncomingJobs(rootDir);
   const providerRequests = listProviderRequests(rootDir);
+  const providerPreflight = preflightProviderRequests(env, rootDir);
   const informationSources = buildInformationIndex(rootDir);
   const secretFindings = scanRepositoryForSecrets(rootDir);
   const dirtySourceCount = reproducibility.source_of_truth.dirty_count;
@@ -1278,6 +1428,8 @@ export function buildAutonomyAudit(
     'harness.resume',
     'harness.inventory',
     'harness.blockers',
+    'harness.provider_preflight',
+    'harness.prepare_provider_inputs',
   ];
   const missingInformationPrimitives = requiredInformationPrimitives.filter((id) => !primitiveIds.has(id));
   const criteria: HarnessAutonomyAuditCriterion[] = [
@@ -1324,10 +1476,11 @@ export function buildAutonomyAudit(
         `ALLOW_PAID_GENERATION=${capabilityProfile.gates.allow_paid_generation}`,
         `provider_credential_available=${hasProviderCredential}`,
         `provider_request_count=${providerRequests.length}`,
+        `prepared_provider_request_count=${providerPreflight.prepared_request_count}`,
       ],
       next_action: capabilityProfile.gates.allow_paid_generation && hasProviderCredential
         ? 'Route live provider work through provider request manifests and keep secret values out of artifacts.'
-        : 'Stay in dry-run/local mode until a provider key and explicit ALLOW_PAID_GENERATION gate are present.',
+        : 'Use provider-preflight and prepare-provider-inputs locally, then stay in dry-run mode until a provider key and explicit ALLOW_PAID_GENERATION gate are present.',
     },
     {
       id: 'codex.browser_autonomy',
@@ -1378,6 +1531,7 @@ export function buildAutonomyAudit(
       'npm run harness -- reproducibility-manifest',
       'npm run harness -- stage-source --dry-run',
       'npm run harness -- source-package',
+      'npm run harness -- provider-preflight',
       'npm run harness -- capability-plan',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
@@ -1417,6 +1571,7 @@ export function buildHarnessDoctor(
   const capabilityPlan = buildCapabilityPlan(env, rootDir);
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
+  const providerPreflight = preflightProviderRequests(env, rootDir);
   const informationSources = buildInformationIndex(rootDir);
   const incomingJobs = listIncomingJobs(rootDir);
   const providerRequests = listProviderRequests(rootDir);
@@ -1439,6 +1594,7 @@ export function buildHarnessDoctor(
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
+    'npm run harness -- provider-preflight',
     'npm run harness -- rank-jobs',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
@@ -1461,6 +1617,7 @@ export function buildHarnessDoctor(
     capability_plan: capabilityPlan,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
+    provider_preflight: providerPreflight,
     information_surface: {
       source_count: informationSources.length,
       by_kind: byKind,
@@ -1495,6 +1652,7 @@ export function inspectHarness(
   information_sources: HarnessInformationSource[];
   job_rankings: HarnessJobRanking[];
   blocker_ledger: HarnessBlockerLedger;
+  provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
   incoming_jobs: Array<{ job_id: string; path: string }>;
   provider_requests: Array<{ request_id: string; provider: CreativeProviderName; path: string; status: string }>;
@@ -1509,6 +1667,7 @@ export function inspectHarness(
     information_sources: buildInformationIndex(rootDir),
     job_rankings: rankIncomingJobs(env, rootDir),
     blocker_ledger: buildBlockerLedger(env, rootDir),
+    provider_preflight: preflightProviderRequests(env, rootDir),
     latest_run: findLatestHarnessRun(rootDir),
     incoming_jobs: listIncomingJobs(rootDir),
     provider_requests: listProviderRequests(rootDir),
@@ -1591,6 +1750,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const jobRankingsPath = path.join(runDir, 'job_rankings.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
+  const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
   const artifactInventoryPath = path.join(runDir, 'artifact_inventory.json');
   const blockerLedgerPath = path.join(runDir, 'blocker_ledger.json');
   const nextActionsPath = path.join(runDir, 'next_actions.json');
@@ -1604,6 +1764,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const jobRankings = rankIncomingJobs(options.env ?? process.env, rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
+  const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
   const blockerLedger = buildBlockerLedger(options.env ?? process.env, rootDir);
 
   fs.writeFileSync(primitivesPath, `${JSON.stringify(listCodexPrimitives(), null, 2)}\n`);
@@ -1613,6 +1774,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(jobRankingsPath, `${JSON.stringify(jobRankings, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
+  fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
   fs.writeFileSync(blockerLedgerPath, `${JSON.stringify(blockerLedger, null, 2)}\n`);
   fs.writeFileSync(nextActionsPath, `${JSON.stringify({ run_id: runId, next_actions: nextActions }, null, 2)}\n`);
   fs.writeFileSync(promptPacketPath, renderPromptPacket(options.goal, selected.job, nextActions, capabilityProfile));
@@ -1637,6 +1799,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     job_rankings_path: jobRankingsPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
+    provider_preflight_path: providerPreflightPath,
     artifact_inventory_path: artifactInventoryPath,
     blocker_ledger_path: blockerLedgerPath,
     next_actions_path: nextActionsPath,
@@ -1676,6 +1839,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
+    'npm run harness -- provider-preflight',
     'npm run harness -- doctor',
     ...resume.next_commands,
   ];
@@ -1771,6 +1935,87 @@ function listProviderRequests(rootDir: string): Array<{ request_id: string; prov
         status: request.status,
       };
     });
+}
+
+function buildProviderPreflight(
+  requestPath: string,
+  env: Record<string, string | undefined>,
+  rootDir: string,
+): HarnessProviderPreflight {
+  const resolvedRequestPath = resolveFromRoot(rootDir, requestPath);
+  const request = loadProviderRequestManifest(resolvedRequestPath);
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const credentialAvailable = providerCredentialAvailable(request.provider, capabilityProfile);
+  const capabilityMissingGates = missingGatesForProviderRequest(request, capabilityProfile, credentialAvailable);
+  const dryRun = runProviderDryRun(request, { env });
+  const jobPath = incomingJobPath(rootDir, request.job_id);
+  const jobExists = fs.existsSync(jobPath);
+  let renderableJobAvailable = false;
+  if (jobExists) {
+    const job = loadCreativeJobManifest(jobPath);
+    renderableJobAvailable = job.provider_policy.approved_providers.includes('local_renderer');
+  }
+
+  const prompt = providerPreflightAsset(rootDir, 'prompt', request.prompt_path, artifactKind(request.prompt_path));
+  const inputAssets = request.input_assets.map((assetPath) => (
+    providerPreflightAsset(rootDir, 'input_asset', assetPath, artifactKind(assetPath))
+  ));
+  const packageDir = providerPackageDir(rootDir, request.job_id);
+  const declaredOutputs = request.output_requirements.files.map((file) => providerPreflightAsset(
+    rootDir,
+    'declared_output',
+    path.join(packageDir, request.output_requirements.package_subdir, file.path),
+    file.kind,
+    file.description,
+  ));
+  const missingInputAssets = inputAssets.filter((asset) => !asset.exists);
+  const missingInputPaths = missingInputAssets.map((asset) => asset.path);
+  const missingPrompt = prompt.exists ? null : prompt.path;
+  const canPrepareMissingInputs = missingInputAssets.length > 0
+    && renderableJobAvailable
+    && missingInputAssets.every((asset) => path.resolve(asset.absolute_path).startsWith(`${packageDir}${path.sep}`));
+  const requestDisplayPath = relativeToRoot(rootDir, resolvedRequestPath);
+  const suggestedPrepareCommand = canPrepareMissingInputs
+    ? `npm run harness -- prepare-provider-inputs --request ${shellQuote(requestDisplayPath)}`
+    : null;
+  const readyForProviderHandoff = !missingPrompt && missingInputPaths.length === 0 && dryRun.external_calls_made === 0;
+  const liveBlockers = Array.from(new Set([
+    ...(missingPrompt ? [`missing prompt_path: ${missingPrompt}`] : []),
+    ...(missingInputPaths.length ? [`missing input_assets: ${missingInputPaths.join(', ')}`] : []),
+    ...capabilityMissingGates,
+    ...(request.cost_policy.external_calls_allowed ? [] : ['request.cost_policy.external_calls_allowed=false']),
+  ]));
+  const nextAction = missingPrompt
+    ? `Restore or create the prompt file before provider handoff: ${missingPrompt}.`
+    : missingInputPaths.length && suggestedPrepareCommand
+      ? `Run ${suggestedPrepareCommand} to create the local provider input assets.`
+      : missingInputPaths.length
+        ? `Create or attach missing input asset(s): ${missingInputPaths.join(', ')}.`
+        : capabilityNextAction(request, capabilityMissingGates, credentialAvailable);
+
+  return {
+    request_id: request.request_id,
+    request_path: requestDisplayPath,
+    provider: request.provider,
+    provider_mode: request.provider_mode,
+    status: request.status,
+    job_id: request.job_id,
+    job_path: relativeToRoot(rootDir, jobPath),
+    job_exists: jobExists,
+    prompt,
+    input_assets: inputAssets,
+    declared_outputs: declaredOutputs,
+    missing_prompt: missingPrompt,
+    missing_input_assets: missingInputPaths,
+    dry_run: dryRun,
+    renderable_job_available: renderableJobAvailable,
+    suggested_prepare_command: suggestedPrepareCommand,
+    ready_for_dry_run: !missingPrompt && dryRun.external_calls_made === 0,
+    ready_for_provider_handoff: readyForProviderHandoff,
+    ready_for_live_request: false,
+    live_blockers: liveBlockers,
+    next_action: nextAction,
+  };
 }
 
 function runProviderRequests(
@@ -2088,6 +2333,14 @@ function requiredEnvForProvider(provider: CreativeProviderName): string[] {
   return [];
 }
 
+function providerDisplayName(provider: CreativeProviderName): string {
+  if (provider === 'openai_image') return 'OpenAI image';
+  if (provider === 'gemini_image') return 'Gemini image';
+  if (provider === 'gemini_video_understanding') return 'Gemini video-understanding';
+  if (provider === 'browser_manual') return 'browser manual';
+  return 'local renderer';
+}
+
 function providerRequestPolicyAllowsCapability(request: ProviderRequestManifest): boolean {
   if (request.provider === 'browser_manual') return request.cost_policy.allow_browser_ui;
   if (request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding') {
@@ -2121,7 +2374,7 @@ function capabilityNextAction(
 ): string {
   if (!missingGates.length) return `Dry-run gate is clear for ${request.request_id}; live external calls remain disabled by scaffold policy.`;
   if (missingGates.includes('provider credential') && !credentialAvailable) {
-    return `Provide a ${request.provider} credential through environment or platform tooling, then rerun capability-plan.`;
+    return `Provide ${providerDisplayName(request.provider)} credentials through environment or platform tooling, then rerun capability-plan.`;
   }
   if (missingGates.includes('live provider implementation')) {
     return 'Keep this request in dry-run/manual mode until a reviewed live adapter exists and external-call policy changes.';
@@ -2137,6 +2390,67 @@ function countJsonFiles(dir: string): number {
 function filePathIfExists(rootDir: string, relativePath: string): string | null {
   const absolutePath = path.join(rootDir, relativePath);
   return fs.existsSync(absolutePath) ? absolutePath : null;
+}
+
+function providerPreflightAsset(
+  rootDir: string,
+  role: HarnessProviderPreflightAsset['role'],
+  filePath: string,
+  kind: HarnessProviderPreflightAsset['kind'],
+  description?: string,
+): HarnessProviderPreflightAsset {
+  const absolutePath = resolveFromRoot(rootDir, filePath);
+  return {
+    role,
+    path: relativeToRoot(rootDir, absolutePath),
+    absolute_path: absolutePath,
+    exists: fs.existsSync(absolutePath),
+    kind,
+    ...(description ? { description } : {}),
+  };
+}
+
+function incomingJobPath(rootDir: string, jobId: string): string {
+  return path.join(path.resolve(rootDir), '.ops', 'creative_jobs', 'incoming', `${jobId}.json`);
+}
+
+function providerPackageDir(rootDir: string, jobId: string): string {
+  return path.join(path.resolve(rootDir), '.ops', 'creative_jobs', 'rendered', jobId);
+}
+
+function resolveFromRoot(rootDir: string, filePath: string): string {
+  return path.isAbsolute(filePath) ? path.resolve(filePath) : path.resolve(rootDir, filePath);
+}
+
+function relativeToRoot(rootDir: string, filePath: string): string {
+  const resolvedRoot = path.resolve(rootDir);
+  const resolvedPath = path.resolve(filePath);
+  const relativePath = path.relative(resolvedRoot, resolvedPath);
+  if (!relativePath) return '.';
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    return resolvedPath.replace(/\\/g, '/');
+  }
+  return relativePath.replace(/\\/g, '/');
+}
+
+function localRenderCreatedPaths(render: LocalRenderResult): string[] {
+  return [
+    render.source_image_path,
+    render.listing_path,
+    render.trend_examples_path,
+    render.research_notes_path,
+    render.gemini_image_prompt_path,
+    render.openai_image_prompt_path,
+    render.caption_prompt_path,
+    render.caption_path,
+    render.hashtags_path,
+    render.spoken_script_path,
+    render.posting_notes_path,
+    render.qa_checklist_path,
+    render.approval_path,
+    render.rendered_manifest_path,
+    ...render.slide_paths,
+  ];
 }
 
 function shellQuote(value: string): string {
@@ -2193,7 +2507,7 @@ function buildNextActions(
 
   const blockedProviders = providerDryRuns.filter((result) => result.status === 'blocked');
   if (blockedProviders.length) {
-    actions.push('Provider requests are still dry-run or blocked; enable only the needed capability env gates and request policies before any live adapter call.');
+    actions.push('Run npm run harness -- provider-preflight and prepare any missing local provider inputs before considering env gates or live adapters.');
   }
 
   if (capabilities.credentials.openai_api_key_available || capabilities.credentials.gemini_api_key_available) {
@@ -2334,6 +2648,12 @@ Commands:
   capability-plan
     Print local/provider/browser/publishing readiness with missing gates, credentials, and request-level next actions.
 
+  provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json]
+    Check provider request prompts, input assets, declared outputs, dry-runs, and local preparation commands.
+
+  prepare-provider-inputs --request .ops/provider_requests/<request>.json [--out .ops/creative_jobs/rendered/<job_id>]
+    Render the canonical local package for a provider request job so declared input assets exist.
+
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
     Print or write the source-of-truth boundary, generated artifact boundary, stage command, and verification commands.
 
@@ -2408,6 +2728,37 @@ async function main(): Promise<void> {
 
     case 'capability-plan':
       console.log(JSON.stringify(buildCapabilityPlan(), null, 2));
+      return;
+
+    case 'provider-preflight': {
+      const requestPath = stringOpt(options, 'request');
+      const report = requestPath
+        ? (() => {
+          const preflight = buildProviderPreflight(requestPath, process.env, process.cwd());
+          return {
+            created_at: new Date().toISOString(),
+            root_dir: process.cwd(),
+            request_count: 1,
+            prepared_request_count: preflight.ready_for_provider_handoff ? 1 : 0,
+            preflights: [preflight],
+          } satisfies HarnessProviderPreflightReport;
+        })()
+        : preflightProviderRequests();
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
+        console.log(JSON.stringify({ ok: true, path: outPath, request_count: report.request_count }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+
+    case 'prepare-provider-inputs':
+      console.log(JSON.stringify(await prepareProviderInputs(requiredStringOpt(options, 'request'), {
+        outDir: stringOpt(options, 'out'),
+      }), null, 2));
       return;
 
     case 'reproducibility-manifest': {

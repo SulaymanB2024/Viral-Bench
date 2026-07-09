@@ -49,6 +49,11 @@ npm run harness -- repo-status
 
 npm run harness -- capability-plan
 
+npm run harness -- provider-preflight
+
+npm run harness -- prepare-provider-inputs \
+  --request .ops/provider_requests/sample_openai_image_request.json
+
 npm run harness -- reproducibility-manifest
 
 npm run harness -- stage-source --dry-run
@@ -99,6 +104,16 @@ availability flags; provider request dry-run status; and request-level next
 actions. It never prints secret values and still reports live external calls as
 disabled unless the scaffold grows a reviewed live adapter.
 
+`provider-preflight` checks every provider request prompt, declared input asset,
+declared output target, dry-run result, and local preparation command. It is the
+Codex handoff surface for provider work: missing local inputs are reported
+before any browser, paid API, or external adapter boundary is considered.
+
+`prepare-provider-inputs` renders the canonical local package for a request's
+job, usually under `.ops/creative_jobs/rendered/<job_id>/`, so declared provider
+input assets such as `source/bike_001.jpg` and `manifest.json` exist before a
+dry run or future approved live adapter.
+
 `reproducibility-manifest` returns the source-of-truth boundary, generated
 artifact boundary, exact `git add` command for modified or untracked source
 files, and the verification commands that prove the checkout can be replayed.
@@ -127,6 +142,7 @@ surface size.
 - capability plan
 - available incoming creative jobs
 - provider request manifests
+- provider preflight with prompt/input/output readiness
 - credential availability flags, never secret values
 - ranked job choices with scoring reasons and blockers
 - a machine-readable primitive menu of commands Codex can call next
@@ -163,6 +179,7 @@ context_pack.json
 job_rankings.json
 reproducibility_manifest.json
 autonomy_audit.json
+provider_preflight.json
 artifact_inventory.json
 blocker_ledger.json
 next_actions.json
@@ -382,6 +399,12 @@ Provider request manifests live under `.ops/provider_requests/` and follow
 Validate and dry-run a sample request:
 
 ```bash
+npm run harness -- provider-preflight \
+  --request .ops/provider_requests/sample_openai_image_request.json
+
+npm run harness -- prepare-provider-inputs \
+  --request .ops/provider_requests/sample_openai_image_request.json
+
 npm run trend -- provider:validate-request \
   --file .ops/provider_requests/sample_openai_image_request.json
 
