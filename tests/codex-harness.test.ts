@@ -109,6 +109,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.provider_handoff'));
   assert.ok(ids.includes('creative.render'));
   assert.ok(ids.includes('provider.dry_run'));
+  assert.ok(ids.includes('provider.live_run'));
   assert.ok(ids.includes('metrics.compare'));
   assert.ok(primitives.every((primitive) => primitive.command.length > 0));
 });

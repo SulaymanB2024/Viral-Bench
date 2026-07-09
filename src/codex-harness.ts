@@ -62,7 +62,7 @@ export interface HarnessProviderRequestPlan {
   required_env: string[];
   missing_gates: string[];
   policy_allows_requested_capability: boolean;
-  live_external_call_allowed: false;
+  live_external_call_allowed: boolean;
   next_action: string;
 }
 
@@ -113,7 +113,7 @@ export interface HarnessProviderPreflight {
   suggested_prepare_command: string | null;
   ready_for_dry_run: boolean;
   ready_for_provider_handoff: boolean;
-  ready_for_live_request: false;
+  ready_for_live_request: boolean;
   live_blockers: string[];
   next_action: string;
 }
@@ -157,7 +157,7 @@ export interface HarnessProviderHandoffPacket {
   declared_outputs: HarnessProviderPreflightAsset[];
   external_call_policy: {
     external_calls_made: 0;
-    live_external_call_allowed: false;
+    live_external_call_allowed: boolean;
     credential_policy: HarnessCapabilityProfile['credential_policy'];
     live_blockers: string[];
   };
@@ -742,12 +742,12 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       autonomy: 'safe_default',
     },
     {
-      id: 'provider.live_ready',
+      id: 'provider.live_run',
       kind: 'provider',
-      command: 'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/<request>.json',
-      purpose: 'Confirm whether a paid provider request is configured to move past the policy gate before a live adapter is implemented or called.',
-      writes: [],
-      required_gates: ['ALLOW_PAID_GENERATION=true', 'request.cost_policy.allow_paid_generation=true', 'provider API key available'],
+      command: 'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --file .ops/provider_requests/<request>.json --package-dir .ops/creative_jobs/rendered/<job_id>',
+      purpose: 'Run a reviewed live provider adapter for an explicit generation request; currently supports OpenAI image generation and writes only declared local outputs.',
+      writes: ['declared files under .ops/creative_jobs/rendered/<job_id>/provider_outputs/<provider>/'],
+      required_gates: ['ALLOW_PAID_GENERATION=true', 'OPENAI_API_KEY available for openai_image', 'request.provider_mode=generation', 'request.cost_policy.allow_paid_generation=true', 'request.cost_policy.external_calls_allowed=true', 'request.cost_policy.max_cost_usd>0'],
       autonomy: 'capability_gated',
     },
     {
@@ -944,6 +944,8 @@ export function exportProviderHandoffPacket(
   const prompt = providerHandoffAsset(preflight.prompt, maxTextChars);
   const inputAssets = preflight.input_assets.map((asset) => providerHandoffAsset(asset, maxTextChars));
   const requestDisplayPath = relativeToRoot(rootDir, resolvedRequestPath);
+  const packageDir = providerPackageDir(rootDir, request.job_id);
+  const packageDisplayPath = relativeToRoot(rootDir, packageDir);
 
   fs.writeFileSync(requestCopyPath, `${JSON.stringify(request, null, 2)}\n`);
   if (jobManifest && jobCopyPath) {
@@ -973,7 +975,7 @@ export function exportProviderHandoffPacket(
     declared_outputs: preflight.declared_outputs,
     external_call_policy: {
       external_calls_made: preflight.dry_run.external_calls_made,
-      live_external_call_allowed: false,
+      live_external_call_allowed: preflight.ready_for_live_request,
       credential_policy: capabilityProfile.credential_policy,
       live_blockers: preflight.live_blockers,
     },
@@ -988,6 +990,9 @@ export function exportProviderHandoffPacket(
       `npm run harness -- provider-preflight --request ${shellQuote(requestDisplayPath)}`,
       ...(preflight.suggested_prepare_command ? [preflight.suggested_prepare_command] : []),
       `npm run trend -- provider:run-dry --file ${shellQuote(requestDisplayPath)}`,
+      ...(preflight.ready_for_live_request
+        ? [`npm run trend -- provider:run-live --file ${shellQuote(requestDisplayPath)} --package-dir ${shellQuote(packageDisplayPath)}`]
+        : []),
       'npm run harness -- capability-plan',
     ],
   };
@@ -1275,11 +1280,14 @@ export function buildCapabilityPlan(
       required_env: requiredEnv,
       missing_gates: missingGates,
       policy_allows_requested_capability: providerRequestPolicyAllowsCapability(request),
-      live_external_call_allowed: false as const,
+      live_external_call_allowed: providerLiveCallAllowed(request, capabilityProfile, credentialAvailable),
       next_action: capabilityNextAction(request, missingGates, credentialAvailable),
     };
   });
-  const providerLaneStatus = providerRequests.some((request) => request.missing_gates.includes('provider credential'))
+  const anyLiveProviderReady = providerRequests.some((request) => request.live_external_call_allowed);
+  const providerLaneStatus = anyLiveProviderReady
+    ? 'ready'
+    : providerRequests.some((request) => request.missing_gates.includes('provider credential'))
     ? 'needs_credential'
     : capabilityProfile.gates.allow_paid_generation
       ? 'ready'
@@ -1321,7 +1329,7 @@ export function buildCapabilityPlan(
           `gemini_api_key_available=${capabilityProfile.credentials.gemini_api_key_available}`,
           `provider_request_count=${providerRequests.length}`,
           `prepared_provider_request_count=${preparedProviderRequestCount}`,
-          'live_external_call_allowed=false',
+          `live_external_call_allowed=${anyLiveProviderReady}`,
         ],
         next_commands: [
           'npm run harness -- capability-plan',
@@ -1329,6 +1337,7 @@ export function buildCapabilityPlan(
           'npm run harness -- prepare-provider-inputs --request .ops/provider_requests/sample_openai_image_request.json',
           'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
           'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json',
+          'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --file .ops/provider_requests/sample_openai_image_live_request.json --package-dir .ops/creative_jobs/rendered/scan_bike_001',
         ],
       },
       {
@@ -1549,6 +1558,7 @@ export function buildAutonomyAudit(
   const incomingJobs = listIncomingJobs(rootDir);
   const providerRequests = listProviderRequests(rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
+  const liveReadyProviderRequestCount = providerPreflight.preflights.filter((preflight) => preflight.ready_for_live_request).length;
   const informationSources = buildInformationIndex(rootDir);
   const secretFindings = scanRepositoryForSecrets(rootDir);
   const dirtySourceCount = reproducibility.source_of_truth.dirty_count;
@@ -1574,6 +1584,7 @@ export function buildAutonomyAudit(
     'harness.provider_preflight',
     'harness.prepare_provider_inputs',
     'harness.provider_handoff',
+    'provider.live_run',
   ];
   const missingInformationPrimitives = requiredInformationPrimitives.filter((id) => !primitiveIds.has(id));
   const criteria: HarnessAutonomyAuditCriterion[] = [
@@ -1615,16 +1626,17 @@ export function buildAutonomyAudit(
     },
     {
       id: 'codex.provider_autonomy',
-      status: capabilityProfile.gates.allow_paid_generation && hasProviderCredential ? 'passed' : 'open',
+      status: liveReadyProviderRequestCount > 0 ? 'passed' : 'open',
       evidence: [
         `ALLOW_PAID_GENERATION=${capabilityProfile.gates.allow_paid_generation}`,
         `provider_credential_available=${hasProviderCredential}`,
         `provider_request_count=${providerRequests.length}`,
         `prepared_provider_request_count=${providerPreflight.prepared_request_count}`,
+        `live_ready_provider_request_count=${liveReadyProviderRequestCount}`,
       ],
-      next_action: capabilityProfile.gates.allow_paid_generation && hasProviderCredential
-        ? 'Route live provider work through provider request manifests and keep secret values out of artifacts.'
-        : 'Use provider-preflight and prepare-provider-inputs locally, then stay in dry-run mode until a provider key and explicit ALLOW_PAID_GENERATION gate are present.',
+      next_action: liveReadyProviderRequestCount > 0
+        ? 'Route live provider work through provider:run-live and declared package outputs; keep secret values and b64 payloads out of artifacts.'
+        : 'Use provider-preflight and prepare-provider-inputs locally, then stay in dry-run mode until a live request, provider key, and explicit ALLOW_PAID_GENERATION gate are present.',
     },
     {
       id: 'codex.browser_autonomy',
@@ -1733,6 +1745,7 @@ export function buildHarnessDoctor(
     || capabilityProfile.credentials.lightreel_api_key_available
     || capabilityProfile.credentials.scrape_creators_api_key_available;
   const localAutonomy = incomingJobs.length > 0 && secretFindings.length === 0;
+  const providerAutonomy = localAutonomy && providerPreflight.preflights.some((preflight) => preflight.ready_for_live_request);
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
     'npm run harness -- capability-plan',
@@ -1778,7 +1791,7 @@ export function buildHarnessDoctor(
     readiness: {
       local_autonomy: localAutonomy,
       browser_autonomy: localAutonomy && capabilityProfile.gates.allow_browser_ui,
-      provider_autonomy: localAutonomy && capabilityProfile.gates.allow_paid_generation && hasProviderCredential,
+      provider_autonomy: providerAutonomy,
       publishing_autonomy: localAutonomy && capabilityProfile.gates.allow_social_publishing,
     },
     recommended_commands: recommendedCommands,
@@ -2126,11 +2139,12 @@ function buildProviderPreflight(
     ? `npm run harness -- prepare-provider-inputs --request ${shellQuote(requestDisplayPath)}`
     : null;
   const readyForProviderHandoff = !missingPrompt && missingInputPaths.length === 0 && dryRun.external_calls_made === 0;
+  const liveExternalCallAllowed = providerLiveCallAllowed(request, capabilityProfile, credentialAvailable);
+  const readyForLiveRequest = readyForProviderHandoff && liveExternalCallAllowed;
   const liveBlockers = Array.from(new Set([
     ...(missingPrompt ? [`missing prompt_path: ${missingPrompt}`] : []),
     ...(missingInputPaths.length ? [`missing input_assets: ${missingInputPaths.join(', ')}`] : []),
     ...capabilityMissingGates,
-    ...(request.cost_policy.external_calls_allowed ? [] : ['request.cost_policy.external_calls_allowed=false']),
   ]));
   const nextAction = missingPrompt
     ? `Restore or create the prompt file before provider handoff: ${missingPrompt}.`
@@ -2138,7 +2152,9 @@ function buildProviderPreflight(
       ? `Run ${suggestedPrepareCommand} to create the local provider input assets.`
       : missingInputPaths.length
         ? `Create or attach missing input asset(s): ${missingInputPaths.join(', ')}.`
-        : capabilityNextAction(request, capabilityMissingGates, credentialAvailable);
+        : readyForLiveRequest
+          ? `Live request is ready; run npm run trend -- provider:run-live --file ${shellQuote(requestDisplayPath)} --package-dir ${shellQuote(relativeToRoot(rootDir, packageDir))}.`
+          : capabilityNextAction(request, capabilityMissingGates, credentialAvailable);
 
   return {
     request_id: request.request_id,
@@ -2159,7 +2175,7 @@ function buildProviderPreflight(
     suggested_prepare_command: suggestedPrepareCommand,
     ready_for_dry_run: !missingPrompt && dryRun.external_calls_made === 0,
     ready_for_provider_handoff: readyForProviderHandoff,
-    ready_for_live_request: false,
+    ready_for_live_request: readyForLiveRequest,
     live_blockers: liveBlockers,
     next_action: nextAction,
   };
@@ -2510,8 +2526,29 @@ function missingGatesForProviderRequest(
     missing.push('ALLOW_PAID_GENERATION=true');
   }
   if (!credentialAvailable) missing.push('provider credential');
-  if (request.provider !== 'local_renderer') missing.push('live provider implementation');
+  if (request.provider === 'openai_image') {
+    if (request.provider_mode !== 'generation') missing.push('request.provider_mode=generation');
+    if (!request.cost_policy.external_calls_allowed) missing.push('request.cost_policy.external_calls_allowed=true');
+    if (request.cost_policy.max_cost_usd <= 0) missing.push('request.cost_policy.max_cost_usd>0');
+  } else if (request.provider !== 'local_renderer') {
+    missing.push('live provider implementation');
+  }
   return missing;
+}
+
+function providerLiveCallAllowed(
+  request: ProviderRequestManifest,
+  capabilityProfile: HarnessCapabilityProfile,
+  credentialAvailable: boolean,
+): boolean {
+  return request.provider === 'openai_image'
+    && request.status === 'draft'
+    && request.provider_mode === 'generation'
+    && request.cost_policy.allow_paid_generation
+    && request.cost_policy.external_calls_allowed
+    && request.cost_policy.max_cost_usd > 0
+    && capabilityProfile.gates.allow_paid_generation
+    && credentialAvailable;
 }
 
 function capabilityNextAction(
@@ -2519,7 +2556,10 @@ function capabilityNextAction(
   missingGates: string[],
   credentialAvailable: boolean,
 ): string {
-  if (!missingGates.length) return `Dry-run gate is clear for ${request.request_id}; live external calls remain disabled by scaffold policy.`;
+  if (!missingGates.length && request.provider === 'openai_image') {
+    return `OpenAI image live adapter is ready for ${request.request_id}; run provider:run-live with the rendered package directory.`;
+  }
+  if (!missingGates.length) return `Dry-run gate is clear for ${request.request_id}; live external calls remain disabled until a reviewed adapter exists.`;
   if (missingGates.includes('provider credential') && !credentialAvailable) {
     return `Provide ${providerDisplayName(request.provider)} credentials through environment or platform tooling, then rerun capability-plan.`;
   }
@@ -2702,7 +2742,7 @@ function buildNextActions(
   }
 
   if (capabilities.credentials.openai_api_key_available || capabilities.credentials.gemini_api_key_available) {
-    actions.push('A provider API key appears available by presence flag; keep values out of artifacts and route any future live call through provider manifests.');
+    actions.push('A provider API key appears available by presence flag; keep values out of artifacts and route live calls through provider manifests and provider:run-live only.');
   } else {
     actions.push('No paid provider API key was detected; continue with local renderer, browser captures, and stored trend evidence.');
   }
@@ -2855,7 +2895,7 @@ Commands:
     Render the canonical local package for a provider request job so declared input assets exist.
 
   provider-handoff --request .ops/provider_requests/<request>.json [--out .ops/harness/provider_handoffs/<packet_id>]
-    Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, and live blockers.
+    Write a bounded provider handoff packet with request, job, prompt, asset hashes, dry-run status, live-call eligibility, and blockers.
 
   reproducibility-manifest [--out .ops/harness/reproducibility_manifest.json]
     Print or write the source-of-truth boundary, generated artifact boundary, stage command, and verification commands.

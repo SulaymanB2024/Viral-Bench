@@ -111,8 +111,7 @@
           "type": "boolean"
         },
         "external_calls_allowed": {
-          "type": "boolean",
-          "const": false
+          "type": "boolean"
         },
         "max_cost_usd": {
           "type": "number",

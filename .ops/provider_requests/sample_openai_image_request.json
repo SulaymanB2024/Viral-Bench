@@ -30,7 +30,7 @@
     "currency": "USD",
     "notes": [
       "This sample is approved only for dry-run gate testing.",
-      "A live call still requires ALLOW_PAID_GENERATION=true and future provider implementation."
+      "A live OpenAI image call requires a generation-mode request such as sample_openai_image_live_request.json, ALLOW_PAID_GENERATION=true, and OPENAI_API_KEY."
     ]
   },
   "approval_required": true,

@@ -9,6 +9,7 @@ import {
   createProviderRequestManifest,
   loadProviderRequestManifest,
   runProviderDryRun,
+  runProviderLive,
   SUPPORTED_PROVIDER_NAMES,
   type ProviderName,
   type ProviderOutputKind,
@@ -154,6 +155,22 @@ async function main(): Promise<void> {
       return;
     }
 
+    case 'provider:run-live': {
+      const file = requiredStringOpt(options, 'file');
+      const request = loadProviderRequestManifest(file);
+      const result = await runProviderLive(request, {
+        packageDir: requiredStringOpt(options, 'package-dir'),
+        rootDir: stringOpt(options, 'root') || process.cwd(),
+        overwrite: booleanOpt(options, 'overwrite'),
+        model: stringOpt(options, 'model'),
+        size: stringOpt(options, 'size'),
+        quality: stringOpt(options, 'quality'),
+        outputFormat: imageOutputFormatOpt(stringOpt(options, 'output-format')),
+      });
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+
     case 'browser:validate-capture': {
       const file = requiredStringOpt(options, 'file');
       const capture = loadBrowserCapture(file);
@@ -259,6 +276,15 @@ function outputKindOpt(value: string): ProviderOutputKind {
   return value as ProviderOutputKind;
 }
 
+function imageOutputFormatOpt(value: string | undefined): 'png' | 'jpeg' | 'webp' | undefined {
+  if (!value) return undefined;
+  const allowed = ['png', 'jpeg', 'webp'] as const;
+  if (!allowed.includes(value as typeof allowed[number])) {
+    throw new Error(`--output-format must be one of: ${allowed.join(', ')}`);
+  }
+  return value as typeof allowed[number];
+}
+
 function printHelp(): void {
   console.log(`Viral-Bench trend research CLI
 
@@ -273,12 +299,13 @@ Commands:
   provider:create-request --provider openai_image --job-id scan_bike_001 --prompt-path .ops/prompts/openai/image_generation.md
   provider:validate-request --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json
+  provider:run-live --file .ops/provider_requests/<live_request>.json --package-dir .ops/creative_jobs/rendered/<job_id>
   schema
 
 Notes:
   - Intake is manual. Save Creative Center observations to JSON, then run add.
-  - Provider commands are dry-run or blocked by default.
-  - No Lightreel, OpenRouter, Gemini, OpenAI, ScrapeCreators, Apify, TikTok scraping, or posting is used.
+  - Provider live calls are blocked unless request policy, environment gates, and credentials are all present.
+  - No Lightreel, OpenRouter, Gemini, ScrapeCreators, Apify, TikTok scraping, or posting is used by default.
 `);
 }
 

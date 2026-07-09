@@ -115,14 +115,14 @@ before any browser, paid API, or external adapter boundary is considered.
 `prepare-provider-inputs` renders the canonical local package for a request's
 job, usually under `.ops/creative_jobs/rendered/<job_id>/`, so declared provider
 input assets such as `source/bike_001.jpg` and `manifest.json` exist before a
-dry run or future approved live adapter.
+dry run, handoff packet, or approved live adapter.
 
 `provider-handoff` writes an ignored packet under
 `.ops/harness/provider_handoffs/<packet_id>/` with the request manifest, job
 manifest, prompt copy, input-asset hashes/excerpts, declared output targets,
-dry-run result, capability flags, and live blockers. It is the bounded context
-bundle Codex should use before implementing or invoking any future reviewed
-provider adapter.
+dry-run result, capability flags, live-call eligibility, and blockers. It is the
+bounded context bundle Codex should use before invoking a reviewed provider
+adapter.
 
 `reproducibility-manifest` returns the source-of-truth boundary, generated
 artifact boundary, exact `git add` command for modified or untracked source
@@ -423,6 +423,10 @@ npm run trend -- provider:validate-request \
 
 npm run trend -- provider:run-dry \
   --file .ops/provider_requests/sample_openai_image_request.json
+
+ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live \
+  --file .ops/provider_requests/sample_openai_image_live_request.json \
+  --package-dir .ops/creative_jobs/rendered/scan_bike_001
 ```
 
 Create a new request without calling a provider:
@@ -440,6 +444,22 @@ Dry-run output is a local JSON result with `blocked` or `skipped` status,
 workflow can write approved provider-returned artifacts into an existing
 rendered package folder, but it refuses to overwrite existing package files
 unless the caller passes an explicit overwrite flag.
+
+`provider:run-live` is separate from dry-run evaluation. It currently supports
+OpenAI image generation only, and it remains blocked unless all of these are
+true:
+
+- The request uses `provider: "openai_image"`.
+- The request uses `provider_mode: "generation"`.
+- The request sets `cost_policy.allow_paid_generation: true`.
+- The request sets `cost_policy.external_calls_allowed: true`.
+- The request sets a positive `cost_policy.max_cost_usd`.
+- The environment has `ALLOW_PAID_GENERATION=true`.
+- The environment has `OPENAI_API_KEY`.
+
+The live adapter writes only declared local output files under the rendered
+package directory. Its run report redacts credential values and never serializes
+image `b64_json` payloads.
 
 ## Gemini and Nano Banana image requests
 
@@ -464,8 +484,9 @@ OpenAI ImageGen planning uses:
 - `.ops/provider_requests/sample_openai_image_request.json`
 
 The request process is the same as Gemini: validate the manifest, run a dry run,
-and require explicit gates before any future paid implementation can execute.
-Default tests and CLI commands do not call OpenAI.
+prepare provider inputs, and use `.ops/provider_requests/sample_openai_image_live_request.json`
+only when an explicit live call is intended. Default tests and CLI commands do
+not call OpenAI.
 
 ## Why provider calls are dry-run or blocked by default
 
@@ -479,6 +500,11 @@ Paid provider requests require both:
 
 - `cost_policy.allow_paid_generation` set to `true` in the request.
 - `ALLOW_PAID_GENERATION=true` in the environment.
+
+Live provider requests additionally require `provider_mode: "generation"`,
+`cost_policy.external_calls_allowed: true`, a positive
+`cost_policy.max_cost_usd`, a supported reviewed adapter, and the provider API
+key. OpenAI image generation reads `OPENAI_API_KEY` from the environment.
 
 Browser UI requests require both:
 

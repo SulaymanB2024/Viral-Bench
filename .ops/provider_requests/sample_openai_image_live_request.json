@@ -1,0 +1,43 @@
+{
+  "request_id": "sample-openai-image-live-request",
+  "provider": "openai_image",
+  "provider_mode": "generation",
+  "job_id": "scan_bike_001",
+  "input_assets": [
+    ".ops/creative_jobs/rendered/scan_bike_001/source/bike_001.jpg",
+    ".ops/creative_jobs/rendered/scan_bike_001/manifest.json"
+  ],
+  "prompt_path": ".ops/prompts/openai/image_generation.md",
+  "output_requirements": {
+    "package_subdir": "provider_outputs/openai_image",
+    "files": [
+      {
+        "path": "generated.png",
+        "kind": "image",
+        "description": "OpenAI image generation output written by the live adapter."
+      },
+      {
+        "path": "openai_image_run.json",
+        "kind": "manifest",
+        "description": "Redacted live provider run report without credentials or b64 payloads."
+      }
+    ],
+    "notes": [
+      "This request is a live-call template and remains blocked unless explicit gates and OPENAI_API_KEY are present.",
+      "Generated assets must remain human-review gated before any posting workflow."
+    ]
+  },
+  "cost_policy": {
+    "allow_paid_generation": true,
+    "allow_browser_ui": false,
+    "external_calls_allowed": true,
+    "max_cost_usd": 1,
+    "currency": "USD",
+    "notes": [
+      "Live execution requires ALLOW_PAID_GENERATION=true and OPENAI_API_KEY.",
+      "The adapter writes only declared local outputs and redacts credentials and image b64 payloads."
+    ]
+  },
+  "approval_required": true,
+  "status": "draft"
+}
