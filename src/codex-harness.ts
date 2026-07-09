@@ -125,6 +125,46 @@ export interface HarnessCapabilityPlan {
   };
 }
 
+export interface HarnessCapabilityUnlockRequest {
+  request_id: string;
+  provider: CreativeProviderName;
+  request_path: string;
+  ready_for_provider_handoff: boolean;
+  ready_for_live_request: boolean;
+  live_blockers: string[];
+}
+
+export interface HarnessCapabilityUnlockJob {
+  job_id: string;
+  manual_handoff_ready: boolean;
+  autonomous_publish_ready: boolean;
+  blockers: string[];
+}
+
+export interface HarnessCapabilityUnlockLane {
+  id: 'local' | 'paid_provider_generation' | 'browser_research' | 'social_publishing';
+  status: 'ready' | 'locked' | 'partially_ready' | 'human_boundary';
+  current_enabled: boolean;
+  required_env: string[];
+  required_credentials: string[];
+  policy_preconditions: string[];
+  related_requests: HarnessCapabilityUnlockRequest[];
+  related_jobs: HarnessCapabilityUnlockJob[];
+  safe_probe_commands: string[];
+  activation_commands: string[];
+  verification_commands: string[];
+  blockers: string[];
+}
+
+export interface HarnessCapabilityUnlockMap {
+  created_at: string;
+  root_dir: string;
+  capability_profile: HarnessCapabilityProfile;
+  credential_policy: HarnessCapabilityProfile['credential_policy'];
+  lanes: HarnessCapabilityUnlockLane[];
+  next_commands: string[];
+}
+
 export interface HarnessProviderPreflightAsset {
   role: 'prompt' | 'input_asset' | 'declared_output';
   path: string;
@@ -639,6 +679,7 @@ export interface HarnessDoctorReport {
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
   capability_plan: HarnessCapabilityPlan;
+  capability_unlock_map: HarnessCapabilityUnlockMap;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -749,6 +790,7 @@ export interface HarnessRunRecord {
   evidence_map_path: string;
   launch_map_path: string;
   verification_map_path: string;
+  capability_unlock_map_path: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   artifact_inventory_path: string;
@@ -880,6 +922,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- capability-plan',
       purpose: 'Explain what local, provider, browser, and publishing lanes can do now, which gates or credentials are missing, and which request manifests are ready only for dry-run.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.capability_unlock_map',
+      kind: 'doctor',
+      command: 'npm run harness -- capability-unlock-map',
+      purpose: 'Map each closed autonomy gate to required env flags, credential presence, policy preconditions, affected requests/jobs, safe probes, activation commands, verification commands, and blockers.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -1833,6 +1884,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.evidence_map_path,
     record.launch_map_path,
     record.verification_map_path,
+    record.capability_unlock_map_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -1859,6 +1911,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
       `npm run harness -- evidence-map`,
       `npm run harness -- launch-map`,
       `npm run harness -- verification-map`,
+      `npm run harness -- capability-unlock-map`,
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
       `npm run harness -- provider-preflight`,
@@ -2177,6 +2230,165 @@ export function buildCapabilityPlan(
   };
 }
 
+export function buildCapabilityUnlockMap(
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessCapabilityUnlockMap {
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const providerPreflight = preflightProviderRequests(env, rootDir);
+  const launchMap = buildLaunchMap(env, rootDir);
+  const paidRequests = providerPreflight.preflights.filter((request) => (
+    request.provider === 'openai_image'
+    || request.provider === 'gemini_image'
+    || request.provider === 'gemini_video_understanding'
+  ));
+  const browserRequests = providerPreflight.preflights.filter((request) => request.provider === 'browser_manual');
+  const providerCredentials = uniqueSorted(paidRequests.flatMap((request) => {
+    if (request.provider === 'openai_image') return ['OPENAI_API_KEY'];
+    if (request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding') {
+      return ['GEMINI_API_KEY or GOOGLE_API_KEY'];
+    }
+    return [];
+  }));
+  const providerLiveReady = paidRequests.some((request) => request.ready_for_live_request);
+  const providerHandoffReady = paidRequests.some((request) => request.ready_for_provider_handoff);
+  const browserEnabled = capabilityProfile.gates.allow_browser_ui;
+  const publishingEnabled = capabilityProfile.gates.allow_social_publishing;
+  const providerBlockers = uniqueSorted(paidRequests.flatMap((request) => request.live_blockers));
+  const browserBlockers = uniqueSorted(browserRequests.flatMap((request) => request.live_blockers));
+  const publishingBlockers = uniqueSorted(launchMap.jobs.flatMap((job) => job.blockers));
+  const lanes: HarnessCapabilityUnlockLane[] = [
+    {
+      id: 'local',
+      status: 'ready',
+      current_enabled: true,
+      required_env: [],
+      required_credentials: [],
+      policy_preconditions: [
+        'incoming creative job exists',
+        'secret scan clear',
+        'local renderer approved',
+      ],
+      related_requests: [],
+      related_jobs: [],
+      safe_probe_commands: [
+        'npm run harness -- rank-jobs',
+        'npm run harness -- evidence-map',
+        'npm run harness -- verification-map',
+      ],
+      activation_commands: ['npm run harness -- auto --goal "<goal>"'],
+      verification_commands: [
+        'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex"',
+        'npm run harness -- doctor',
+      ],
+      blockers: [],
+    },
+    {
+      id: 'paid_provider_generation',
+      status: providerLiveReady ? 'ready' : providerHandoffReady ? 'partially_ready' : 'locked',
+      current_enabled: capabilityProfile.gates.allow_paid_generation,
+      required_env: ['ALLOW_PAID_GENERATION=true'],
+      required_credentials: providerCredentials,
+      policy_preconditions: [
+        'provider request status is draft',
+        'provider request mode is generation for live OpenAI image calls',
+        'provider request cost policy allows paid generation and external calls',
+        'declared input assets exist',
+      ],
+      related_requests: paidRequests.map(capabilityUnlockRequest),
+      related_jobs: [],
+      safe_probe_commands: [
+        'npm run harness -- capability-env --env-file .env',
+        'npm run harness -- provider-preflight --env-file .env',
+        'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_live_request.json --env-file .env',
+      ],
+      activation_commands: [
+        'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-dry --env-file .env --file .ops/provider_requests/sample_openai_image_live_request.json',
+        'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --env-file .env --file .ops/provider_requests/sample_openai_image_live_request.json --package-dir .ops/creative_jobs/rendered/scan_bike_001',
+      ],
+      verification_commands: [
+        'npm run harness -- provider-preflight --env-file .env',
+        'npm run harness -- capability-plan --env-file .env',
+        'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      ],
+      blockers: providerBlockers,
+    },
+    {
+      id: 'browser_research',
+      status: browserEnabled && browserRequests.every((request) => request.ready_for_live_request) ? 'ready' : 'locked',
+      current_enabled: browserEnabled,
+      required_env: ['ALLOW_BROWSER_UI=true'],
+      required_credentials: [],
+      policy_preconditions: [
+        'browser task is listed as allowed',
+        'capture is reviewed before ingestion',
+        'no account automation or scraping beyond approved capture workflow',
+      ],
+      related_requests: browserRequests.map(capabilityUnlockRequest),
+      related_jobs: [],
+      safe_probe_commands: [
+        'npm run harness -- capability-plan --env-file .env',
+        'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
+      ],
+      activation_commands: [
+        'ALLOW_BROWSER_UI=true npm run harness -- capability-plan --env-file .env',
+      ],
+      verification_commands: [
+        'npm run harness -- capability-plan --env-file .env',
+        'npm exec tsx -- --test tests/browser-capture.test.ts --runInBand',
+      ],
+      blockers: browserBlockers,
+    },
+    {
+      id: 'social_publishing',
+      status: publishingEnabled && launchMap.autonomous_publish_ready_job_count > 0 ? 'ready' : 'human_boundary',
+      current_enabled: publishingEnabled,
+      required_env: ['ALLOW_SOCIAL_PUBLISHING=true'],
+      required_credentials: [],
+      policy_preconditions: [
+        'job policy allows social publishing',
+        'human reviewer approved the job',
+        'all generated assets are approved for posting',
+        'account owner confirms platform account ownership and final post',
+      ],
+      related_requests: [],
+      related_jobs: launchMap.jobs.map((job) => ({
+        job_id: job.job_id,
+        manual_handoff_ready: job.manual_handoff_ready,
+        autonomous_publish_ready: job.autonomous_publish_ready,
+        blockers: job.blockers,
+      })),
+      safe_probe_commands: [
+        'npm run harness -- launch-map',
+        'npm run harness -- blockers',
+      ],
+      activation_commands: [
+        'ALLOW_SOCIAL_PUBLISHING=true npm run harness -- capability-plan --env-file .env',
+      ],
+      verification_commands: [
+        'npm run harness -- launch-map',
+        'npm exec tsx -- --test tests/launch-kit.test.ts --runInBand',
+      ],
+      blockers: publishingBlockers,
+    },
+  ];
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    capability_profile: capabilityProfile,
+    credential_policy: capabilityProfile.credential_policy,
+    lanes,
+    next_commands: [
+      'npm run harness -- capability-env --env-file .env',
+      'npm run harness -- capability-plan --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      'npm run harness -- launch-map',
+      'npm run harness -- verification-map',
+    ],
+  };
+}
+
 export function stageSourceOfTruth(
   options: { apply?: boolean; rootDir?: string } = {},
 ): HarnessStageSourceReport {
@@ -2366,6 +2578,7 @@ export function buildAutonomyAudit(
     'harness.doctor',
     'harness.repo_status',
     'harness.capability_plan',
+    'harness.capability_unlock_map',
     'harness.capability_env',
     'harness.reproducibility_manifest',
     'harness.verification_map',
@@ -2491,6 +2704,7 @@ export function buildAutonomyAudit(
       'npm run harness -- provider-preflight',
       'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
       'npm run harness -- capability-plan',
+      'npm run harness -- capability-unlock-map',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
       ...reproducibility.commands.verify,
@@ -2527,6 +2741,7 @@ export function buildHarnessDoctor(
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir);
   const capabilityPlan = buildCapabilityPlan(env, rootDir);
+  const capabilityUnlockMap = buildCapabilityUnlockMap(env, rootDir);
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
@@ -2551,6 +2766,7 @@ export function buildHarnessDoctor(
     'npm run harness -- autonomy-audit --goal "<goal>"',
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
+    'npm run harness -- capability-unlock-map',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -2580,6 +2796,7 @@ export function buildHarnessDoctor(
     reproducibility_manifest: reproducibilityManifest,
     autonomy_audit: autonomyAudit,
     capability_plan: capabilityPlan,
+    capability_unlock_map: capabilityUnlockMap,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -2736,6 +2953,19 @@ export function buildAutonomyPlan(
     writes: [],
   });
 
+  addStep({
+    id: 'capability.unlock_map',
+    priority: 34,
+    lane: 'information',
+    status: providerLiveReadyCount ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: 'npm run harness -- capability-unlock-map',
+    reason: 'Inspect exact env, credential, policy, request, job, activation, and verification requirements before opening external gates.',
+    evidence: auditById.get('codex.provider_autonomy')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
   for (const preflight of doctor.provider_preflight.preflights) {
     const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
     if (preflight.ready_for_live_request) {
@@ -2861,6 +3091,7 @@ export function inspectHarness(
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
   capability_plan: HarnessCapabilityPlan;
+  capability_unlock_map: HarnessCapabilityUnlockMap;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
   information_sources: HarnessInformationSource[];
@@ -2879,6 +3110,7 @@ export function inspectHarness(
     reproducibility_manifest: buildReproducibilityManifest(rootDir),
     autonomy_audit: buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir),
     capability_plan: buildCapabilityPlan(env, rootDir),
+    capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
     information_sources: buildInformationIndex(rootDir),
@@ -2971,6 +3203,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const evidenceMapPath = path.join(runDir, 'evidence_map.json');
   const launchMapPath = path.join(runDir, 'launch_map.json');
   const verificationMapPath = path.join(runDir, 'verification_map.json');
+  const capabilityUnlockMapPath = path.join(runDir, 'capability_unlock_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
@@ -2988,6 +3221,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const evidenceMap = buildEvidenceMap(rootDir);
   const launchMap = buildLaunchMap(options.env ?? process.env, rootDir);
   const verificationMap = buildVerificationMap(rootDir);
+  const capabilityUnlockMap = buildCapabilityUnlockMap(options.env ?? process.env, rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -3001,6 +3235,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(evidenceMapPath, `${JSON.stringify(evidenceMap, null, 2)}\n`);
   fs.writeFileSync(launchMapPath, `${JSON.stringify(launchMap, null, 2)}\n`);
   fs.writeFileSync(verificationMapPath, `${JSON.stringify(verificationMap, null, 2)}\n`);
+  fs.writeFileSync(capabilityUnlockMapPath, `${JSON.stringify(capabilityUnlockMap, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -3029,6 +3264,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     evidence_map_path: evidenceMapPath,
     launch_map_path: launchMapPath,
     verification_map_path: verificationMapPath,
+    capability_unlock_map_path: capabilityUnlockMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     provider_preflight_path: providerPreflightPath,
@@ -3072,6 +3308,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
     'npm run harness -- provider-preflight',
+    'npm run harness -- capability-unlock-map',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
     ...resume.next_commands,
@@ -3745,6 +3982,21 @@ function providerCredentialAvailable(
   return true;
 }
 
+function capabilityUnlockRequest(preflight: HarnessProviderPreflight): HarnessCapabilityUnlockRequest {
+  return {
+    request_id: preflight.request_id,
+    provider: preflight.provider,
+    request_path: preflight.request_path,
+    ready_for_provider_handoff: preflight.ready_for_provider_handoff,
+    ready_for_live_request: preflight.ready_for_live_request,
+    live_blockers: preflight.live_blockers,
+  };
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort();
+}
+
 function requiredEnvForProvider(provider: CreativeProviderName): string[] {
   if (provider === 'browser_manual') return ['ALLOW_BROWSER_UI=true'];
   if (provider === 'openai_image' || provider === 'gemini_image' || provider === 'gemini_video_understanding') {
@@ -4360,6 +4612,9 @@ Commands:
   capability-plan
     Print local/provider/browser/publishing readiness with missing gates, credentials, and request-level next actions.
 
+  capability-unlock-map [--env-file .env]
+    Print required env, credential, policy, request/job, activation, and verification steps for each closed autonomy gate.
+
   capability-env [--env-file .env]
     Print redacted key-presence and source information for capability gates and provider credentials.
 
@@ -4464,6 +4719,10 @@ async function main(): Promise<void> {
 
     case 'capability-plan':
       console.log(JSON.stringify(buildCapabilityPlan(effectiveEnv), null, 2));
+      return;
+
+    case 'capability-unlock-map':
+      console.log(JSON.stringify(buildCapabilityUnlockMap(effectiveEnv), null, 2));
       return;
 
     case 'capability-env':

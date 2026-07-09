@@ -49,6 +49,8 @@ npm run harness -- repo-status
 
 npm run harness -- capability-plan
 
+npm run harness -- capability-unlock-map
+
 npm run harness -- capability-env --env-file .env
 
 npm run harness -- autonomy-plan \
@@ -125,6 +127,12 @@ actions. It never prints secret values and reports live-call eligibility only
 when request policy, local inputs, env gates, and credential presence all line
 up.
 
+`capability-unlock-map` turns closed autonomy gates into an activation checklist:
+required env flags, credential presence, policy preconditions, related provider
+requests or launch jobs, safe probe commands, activation commands, verification
+commands, and current blockers. It is the Codex surface to inspect before using
+an API key or opening browser/publishing gates.
+
 `capability-env` reads process env plus an optional ignored env file such as
 `.env`, then reports only key names, presence, source, warnings, and capability
 flags. It never prints secret values. Pass the same `--env-file .env` option to
@@ -195,6 +203,7 @@ surface size.
 - repo status and latest usable harness run
 - reproducibility manifest and autonomy audit
 - capability plan
+- capability unlock map for env, credential, policy, activation, and verification gates
 - available incoming creative jobs
 - provider request manifests
 - provider preflight with prompt/input/output readiness
