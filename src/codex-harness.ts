@@ -366,6 +366,65 @@ export interface HarnessEvidenceMap {
   next_commands: string[];
 }
 
+export interface HarnessLaunchDocStatus {
+  path: string;
+  exists: boolean;
+}
+
+export interface HarnessLaunchMapRequiredFile {
+  role: 'manifest' | 'caption' | 'hashtags' | 'posting_notes' | 'qa_checklist' | 'approval' | 'slides';
+  path: string;
+  exists: boolean;
+  count?: number;
+  required_count?: number;
+}
+
+export interface HarnessLaunchMapCopyStatus {
+  section_present: boolean;
+  tiktok_caption: boolean;
+  instagram_caption: boolean;
+  youtube_title: boolean;
+  youtube_description: boolean;
+  hashtags: boolean;
+  first_comment: boolean;
+  posting_checklist: boolean;
+  metric_schedule: boolean;
+}
+
+export interface HarnessLaunchMapJob {
+  job_id: string;
+  order: number | null;
+  job_path: string;
+  package_path: string;
+  launch_section_present: boolean;
+  approval_state: CreativeJobManifest['approval_status']['state'];
+  job_allows_social_publishing: boolean;
+  generated_asset_count: number;
+  approved_generated_asset_count: number;
+  required_files: HarnessLaunchMapRequiredFile[];
+  launch_copy: HarnessLaunchMapCopyStatus;
+  metrics: {
+    record_count: number;
+    latest_snapshot_at: string | null;
+  };
+  manual_handoff_ready: boolean;
+  autonomous_publish_ready: boolean;
+  blockers: string[];
+  next_commands: string[];
+}
+
+export interface HarnessLaunchMap {
+  created_at: string;
+  root_dir: string;
+  launch_docs: HarnessLaunchDocStatus[];
+  queued_job_count: number;
+  manual_handoff_ready_job_count: number;
+  autonomous_publish_ready_job_count: number;
+  metrics_job_count: number;
+  jobs: HarnessLaunchMapJob[];
+  next_commands: string[];
+}
+
 export interface HarnessContextPackSource {
   id: string;
   kind: HarnessInformationSource['kind'];
@@ -660,6 +719,7 @@ export interface HarnessRunRecord {
   context_pack_path: string;
   job_rankings_path: string;
   evidence_map_path: string;
+  launch_map_path: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   artifact_inventory_path: string;
@@ -899,6 +959,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'context',
       command: 'npm run harness -- evidence-map',
       purpose: 'Return per-job source inputs, trend references, rendered evidence files, valuation claim-safety flags, blockers, and next commands.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.launch_map',
+      kind: 'publish',
+      command: 'npm run harness -- launch-map',
+      purpose: 'Return launch docs, queued jobs, rendered posting files, platform copy coverage, human approval gates, metrics follow-up, and autonomous publishing blockers.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -1312,6 +1381,133 @@ export function buildEvidenceMap(rootDir = process.cwd()): HarnessEvidenceMap {
   };
 }
 
+export function buildLaunchMap(
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessLaunchMap {
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const launchQueue = readLaunchQueue(rootDir);
+  const evidenceByJob = new Map(buildEvidenceMap(rootDir).jobs.map((row) => [row.job_id, row]));
+  const metricsStore = loadPostMetricsStore(path.join(rootDir, '.ops', 'metrics', 'post_metrics.json'));
+  const metricsByJob = new Map<string, ReturnType<typeof loadPostMetricsStore>['records']>();
+  for (const record of metricsStore.records) {
+    const existing = metricsByJob.get(record.job_id) ?? [];
+    existing.push(record);
+    metricsByJob.set(record.job_id, existing);
+  }
+
+  const launchDocs = launchDocPaths().map((docPath): HarnessLaunchDocStatus => ({
+    path: docPath,
+    exists: fs.existsSync(path.join(rootDir, docPath)),
+  }));
+
+  const jobs = Array.from(launchQueue.orders.entries())
+    .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
+    .map(([jobId, order]): HarnessLaunchMapJob => {
+      const jobPath = incomingJobPath(rootDir, jobId);
+      const packageDir = providerPackageDir(rootDir, jobId);
+      const renderedManifestPath = path.join(packageDir, 'manifest.json');
+      const job = fs.existsSync(renderedManifestPath)
+        ? loadCreativeJobManifest(renderedManifestPath)
+        : loadCreativeJobManifest(jobPath);
+      const outputDir = path.join(packageDir, 'output');
+      const qaDir = path.join(packageDir, 'qa');
+      const slideCount = fs.existsSync(outputDir)
+        ? fs.readdirSync(outputDir).filter((file) => /^slide_\d+\.png$/.test(file)).length
+        : 0;
+      const section = launchQueueSection(launchQueue.text, jobId);
+      const launchCopy = launchCopyStatus(section);
+      const metrics = metricsByJob.get(jobId) ?? [];
+      const latestSnapshotAt = metrics
+        .map((record) => latestMetricSnapshot(record)?.captured_at ?? null)
+        .filter((value): value is string => Boolean(value))
+        .sort()
+        .at(-1) ?? null;
+      const requiredFiles: HarnessLaunchMapRequiredFile[] = [
+        launchRequiredFile(rootDir, 'manifest', path.join(packageDir, 'manifest.json')),
+        launchRequiredFile(rootDir, 'caption', path.join(outputDir, 'caption.txt')),
+        launchRequiredFile(rootDir, 'hashtags', path.join(outputDir, 'hashtags.txt')),
+        launchRequiredFile(rootDir, 'posting_notes', path.join(outputDir, 'posting_notes.md')),
+        launchRequiredFile(rootDir, 'qa_checklist', path.join(qaDir, 'checklist.md')),
+        launchRequiredFile(rootDir, 'approval', path.join(qaDir, 'approval.md')),
+        {
+          role: 'slides',
+          path: relativeToRoot(rootDir, outputDir),
+          exists: slideCount >= job.output_requirements.slide_count,
+          count: slideCount,
+          required_count: job.output_requirements.slide_count,
+        },
+      ];
+      const missingRequiredFiles = requiredFiles.filter((file) => !file.exists);
+      const missingCopy = launchCopyMissingFields(launchCopy);
+      const evidence = evidenceByJob.get(jobId);
+      const evidenceBlockers = evidence?.claim_safety.blockers ?? [];
+      const humanApprovalBlockers = [
+        ...(job.approval_status.state === 'approved' && job.approval_status.human_reviewer
+          ? []
+          : ['human approval missing']),
+        ...(job.generated_assets.length && job.generated_assets.every((asset) => asset.approved_for_posting)
+          ? []
+          : ['generated assets are not approved for posting']),
+      ];
+      const autonomousBlockers = [
+        ...(capabilityProfile.gates.allow_social_publishing ? [] : ['ALLOW_SOCIAL_PUBLISHING=false']),
+        ...(job.provider_policy.allow_social_publishing ? [] : ['job policy disallows social publishing']),
+        ...humanApprovalBlockers,
+      ];
+      const blockers = Array.from(new Set([
+        ...missingRequiredFiles.map((file) => `${file.role} missing`),
+        ...missingCopy.map((field) => `launch copy missing ${field}`),
+        ...evidenceBlockers,
+        ...autonomousBlockers,
+      ])).sort();
+      const manualHandoffReady = missingRequiredFiles.length === 0
+        && missingCopy.length === 0
+        && evidenceBlockers.length === 0
+        && launchDocs.every((doc) => doc.exists);
+      const autonomousPublishReady = manualHandoffReady && autonomousBlockers.length === 0;
+
+      return {
+        job_id: jobId,
+        order,
+        job_path: relativeToRoot(rootDir, jobPath),
+        package_path: relativeToRoot(rootDir, packageDir),
+        launch_section_present: section.length > 0,
+        approval_state: job.approval_status.state,
+        job_allows_social_publishing: job.provider_policy.allow_social_publishing,
+        generated_asset_count: job.generated_assets.length,
+        approved_generated_asset_count: job.generated_assets.filter((asset) => asset.approved_for_posting).length,
+        required_files: requiredFiles,
+        launch_copy: launchCopy,
+        metrics: {
+          record_count: metrics.length,
+          latest_snapshot_at: latestSnapshotAt,
+        },
+        manual_handoff_ready: manualHandoffReady,
+        autonomous_publish_ready: autonomousPublishReady,
+        blockers,
+        next_commands: launchNextCommands(rootDir, job, metrics.length, manualHandoffReady),
+      };
+    });
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    launch_docs: launchDocs,
+    queued_job_count: jobs.length,
+    manual_handoff_ready_job_count: jobs.filter((job) => job.manual_handoff_ready).length,
+    autonomous_publish_ready_job_count: jobs.filter((job) => job.autonomous_publish_ready).length,
+    metrics_job_count: jobs.filter((job) => job.metrics.record_count > 0).length,
+    jobs,
+    next_commands: [
+      'npm run harness -- evidence-map',
+      'npm run harness -- job-matrix',
+      'npm run harness -- blockers',
+      'npm run metrics:list',
+    ],
+  };
+}
+
 export function buildContextPack(
   rootDir = process.cwd(),
   options: { maxFiles?: number; maxCharsPerFile?: number } = {},
@@ -1597,6 +1793,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.context_pack_path,
     record.job_rankings_path,
     record.evidence_map_path,
+    record.launch_map_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -1621,6 +1818,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     next_commands: [
       `npm run harness -- inventory --run ${resolvedRunDir}`,
       `npm run harness -- evidence-map`,
+      `npm run harness -- launch-map`,
       `npm run harness -- autonomy-audit --goal "${record.goal.replace(/"/g, '\\"')}"`,
       `npm run harness -- reproducibility-manifest`,
       `npm run harness -- provider-preflight`,
@@ -2079,6 +2277,7 @@ export function buildAutonomyAudit(
     'harness.rank_jobs',
     'harness.job_matrix',
     'harness.evidence_map',
+    'harness.launch_map',
     'harness.resume',
     'harness.inventory',
     'harness.blockers',
@@ -2259,6 +2458,7 @@ export function buildHarnessDoctor(
     'npm run harness -- rank-jobs',
     'npm run harness -- job-matrix',
     'npm run harness -- evidence-map',
+    'npm run harness -- launch-map',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
   ];
@@ -2389,6 +2589,19 @@ export function buildAutonomyPlan(
     command: 'npm run harness -- evidence-map',
     reason: 'Inspect job source inputs, trend references, rendered evidence files, and valuation claim-safety blockers before provider handoff or posting.',
     evidence: auditById.get('codex.information_surface')?.evidence ?? [],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
+    id: 'information.launch_map',
+    priority: 41,
+    lane: 'information',
+    status: 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- launch-map',
+    reason: 'Inspect queued launch jobs, rendered posting files, platform copy coverage, human approval gates, publishing blockers, and metrics follow-up commands.',
+    evidence: auditById.get('codex.publishing_autonomy')?.evidence ?? [],
     required_gates: [],
     writes: [],
   });
@@ -2536,6 +2749,7 @@ export function inspectHarness(
   information_sources: HarnessInformationSource[];
   job_rankings: HarnessJobRanking[];
   evidence_map: HarnessEvidenceMap;
+  launch_map: HarnessLaunchMap;
   blocker_ledger: HarnessBlockerLedger;
   provider_preflight: HarnessProviderPreflightReport;
   latest_run: HarnessResumeReport | null;
@@ -2552,6 +2766,7 @@ export function inspectHarness(
     information_sources: buildInformationIndex(rootDir),
     job_rankings: rankIncomingJobs(env, rootDir),
     evidence_map: buildEvidenceMap(rootDir),
+    launch_map: buildLaunchMap(env, rootDir),
     blocker_ledger: buildBlockerLedger(env, rootDir),
     provider_preflight: preflightProviderRequests(env, rootDir),
     latest_run: findLatestHarnessRun(rootDir),
@@ -2635,6 +2850,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const contextPackPath = path.join(runDir, 'context_pack.json');
   const jobRankingsPath = path.join(runDir, 'job_rankings.json');
   const evidenceMapPath = path.join(runDir, 'evidence_map.json');
+  const launchMapPath = path.join(runDir, 'launch_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
@@ -2650,6 +2866,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   });
   const jobRankings = rankIncomingJobs(options.env ?? process.env, rootDir);
   const evidenceMap = buildEvidenceMap(rootDir);
+  const launchMap = buildLaunchMap(options.env ?? process.env, rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -2661,6 +2878,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(contextPackPath, `${JSON.stringify(contextPack, null, 2)}\n`);
   fs.writeFileSync(jobRankingsPath, `${JSON.stringify(jobRankings, null, 2)}\n`);
   fs.writeFileSync(evidenceMapPath, `${JSON.stringify(evidenceMap, null, 2)}\n`);
+  fs.writeFileSync(launchMapPath, `${JSON.stringify(launchMap, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -2687,6 +2905,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     context_pack_path: contextPackPath,
     job_rankings_path: jobRankingsPath,
     evidence_map_path: evidenceMapPath,
+    launch_map_path: launchMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     provider_preflight_path: providerPreflightPath,
@@ -3468,6 +3687,91 @@ function readLaunchQueue(rootDir: string): { path: string; text: string; orders:
   return { path: launchQueuePath, text, orders };
 }
 
+function launchDocPaths(): string[] {
+  return [
+    '.ops/accounts/account_setup_checklist.md',
+    '.ops/accounts/socials.md',
+    '.ops/accounts/handle_ideas.md',
+    '.ops/accounts/profile_copy.md',
+    '.ops/accounts/launch_checklist.md',
+    '.ops/launch/launch_queue.md',
+    '.ops/launch/manual_launch_packet.md',
+    '.ops/launch/posting_qa_checklist.md',
+    '.ops/launch/metrics_tracking_template.md',
+  ];
+}
+
+function launchRequiredFile(
+  rootDir: string,
+  role: Exclude<HarnessLaunchMapRequiredFile['role'], 'slides'>,
+  filePath: string,
+): HarnessLaunchMapRequiredFile {
+  return {
+    role,
+    path: relativeToRoot(rootDir, filePath),
+    exists: fs.existsSync(filePath),
+  };
+}
+
+function launchQueueSection(queueText: string, jobId: string): string {
+  const heading = new RegExp(`^## \\d+\\. \`${escapeRegExp(jobId)}\`$`, 'm');
+  const match = heading.exec(queueText);
+  if (!match) return '';
+
+  const start = match.index;
+  const afterHeading = start + match[0].length;
+  const next = /\n## \d+\. `/.exec(queueText.slice(afterHeading));
+  return queueText.slice(start, next ? afterHeading + next.index : queueText.length);
+}
+
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function launchCopyStatus(section: string): HarnessLaunchMapCopyStatus {
+  return {
+    section_present: section.length > 0,
+    tiktok_caption: section.includes('TikTok caption:'),
+    instagram_caption: section.includes('Instagram caption:'),
+    youtube_title: section.includes('YouTube Shorts title:'),
+    youtube_description: section.includes('YouTube Shorts description:'),
+    hashtags: section.includes('Hashtags:'),
+    first_comment: section.includes('First comment:'),
+    posting_checklist: section.includes('Posting checklist:'),
+    metric_schedule: ['1-hour:', '24-hour:', '72-hour:', '7-day:'].every((marker) => section.includes(marker)),
+  };
+}
+
+function launchCopyMissingFields(status: HarnessLaunchMapCopyStatus): string[] {
+  const missing: string[] = [];
+  if (!status.section_present) missing.push('section');
+  if (!status.tiktok_caption) missing.push('TikTok caption');
+  if (!status.instagram_caption) missing.push('Instagram caption');
+  if (!status.youtube_title) missing.push('YouTube Shorts title');
+  if (!status.youtube_description) missing.push('YouTube Shorts description');
+  if (!status.hashtags) missing.push('hashtags');
+  if (!status.first_comment) missing.push('first comment');
+  if (!status.posting_checklist) missing.push('posting checklist');
+  if (!status.metric_schedule) missing.push('metric schedule');
+  return missing;
+}
+
+function launchNextCommands(
+  rootDir: string,
+  job: CreativeJobManifest,
+  metricsRecordCount: number,
+  manualHandoffReady: boolean,
+): string[] {
+  return Array.from(new Set([
+    `npm run creative -- validate --job ${shellQuote(relativeToRoot(rootDir, incomingJobPath(rootDir, job.job_id)))}`,
+    `npm run harness -- evidence-map`,
+    ...(manualHandoffReady && metricsRecordCount === 0
+      ? [`npm run metrics:create-post -- --job-id ${shellQuote(job.job_id)} --platform <platform> --account-handle <handle> --posted-url <url> --content-type ${shellQuote(job.content_type)} --hook ${shellQuote(job.output_requirements.slides[0]?.on_screen_text ?? job.content_type)} --format slideshow --cta scan`]
+      : []),
+    ...(metricsRecordCount > 0 ? ['npm run metrics:add-snapshot -- --post-id <post-id> --views 0 --likes 0 --comments 0 --shares 0 --saves 0 --follows 0 --profile-visits 0 --dms 0 --notes "<snapshot note>"'] : []),
+  ]));
+}
+
 function evaluateClaimSafety(job: CreativeJobManifest): HarnessClaimSafety {
   const text = jobTextCorpus(job);
   const disclaimerPresent = /estimate|range|not a guarantee|not guaranteed|not an appraisal|not official/i.test(text);
@@ -3798,6 +4102,9 @@ Commands:
   evidence-map
     Print per-job source inputs, trend references, rendered evidence files, claim-safety flags, blockers, and next commands.
 
+  launch-map
+    Print launch docs, queued jobs, rendered posting files, platform copy coverage, approval gates, metrics follow-up, and publishing blockers.
+
   context-pack [--out .ops/harness/context_pack.json] [--max-files 80] [--max-chars-per-file 2400]
     Write a bounded context pack with hashed file excerpts for Codex.
 
@@ -3982,6 +4289,10 @@ async function main(): Promise<void> {
 
     case 'evidence-map':
       console.log(JSON.stringify(buildEvidenceMap(), null, 2));
+      return;
+
+    case 'launch-map':
+      console.log(JSON.stringify(buildLaunchMap(effectiveEnv), null, 2));
       return;
 
     case 'inventory':

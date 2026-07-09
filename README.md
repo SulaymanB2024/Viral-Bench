@@ -84,6 +84,8 @@ npm run harness -- job-matrix
 
 npm run harness -- evidence-map
 
+npm run harness -- launch-map
+
 npm run harness -- context-pack --out .ops/harness/context_pack.json
 
 npm run harness -- blockers
@@ -138,6 +140,11 @@ blockers, and next commands.
 trend references, rendered research/QA files, manual-boundary declarations,
 range/disclaimer/comparison/risk language, unsafe claim blockers, and next
 commands before provider handoff or posting.
+
+`launch-map` gives Codex a launch handoff surface covering required launch docs,
+queued jobs, rendered posting files, platform copy coverage, manual approval
+gates, social-publishing blockers, existing metrics records, and next commands.
+It separates manual handoff readiness from autonomous publishing readiness.
 
 `provider-preflight` checks every provider request prompt, declared input asset,
 declared output target, dry-run result, and local preparation command. It is the
