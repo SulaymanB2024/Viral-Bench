@@ -96,6 +96,8 @@ npm run harness -- blockers
 
 npm run harness -- resume --run .ops/harness/runs/<run_id>
 
+npm run harness -- run-history
+
 npm run harness -- inventory --run .ops/harness/runs/<run_id>
 
 npm run harness -- latest-run
@@ -177,6 +179,12 @@ dry-run result, capability flags, live-call eligibility, and blockers. It is the
 bounded context bundle Codex should use before invoking a reviewed provider
 adapter.
 
+`run-history` summarizes recent durable harness run folders without recreating
+work: run id, goal, selected job, status, artifact count, missing artifacts,
+provider dry-run counts, external calls made, next actions, and resume commands.
+Use it before rerunning local autonomous passes so Codex can continue from
+existing evidence when a prior run is still usable.
+
 `reproducibility-manifest` returns the source-of-truth boundary, generated
 artifact boundary, exact `git add` command for modified or untracked source
 files, and the verification commands that prove the checkout can be replayed.
@@ -207,6 +215,7 @@ surface size.
 - available incoming creative jobs
 - provider request manifests
 - provider preflight with prompt/input/output readiness
+- run history across recent durable harness runs
 - credential availability flags, never secret values
 - ranked job choices with scoring reasons and blockers
 - a machine-readable primitive menu of commands Codex can call next

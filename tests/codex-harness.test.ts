@@ -16,6 +16,7 @@ import {
   buildContextPack,
   buildEvidenceMap,
   buildHarnessDoctor,
+  buildHarnessRunHistory,
   buildInformationIndex,
   buildCapabilityProfile,
   buildJobReadinessMatrix,
@@ -116,6 +117,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.information_index'));
   assert.ok(ids.includes('harness.inventory'));
   assert.ok(ids.includes('harness.resume'));
+  assert.ok(ids.includes('harness.run_history'));
   assert.ok(ids.includes('harness.latest_run'));
   assert.ok(ids.includes('harness.blockers'));
   assert.ok(ids.includes('harness.provider_preflight'));
@@ -144,6 +146,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
+  assert.ok(Array.isArray(inspected.run_history.runs));
   assert.equal(inspected.repo_status.is_git_repo, true);
   assert.equal(inspected.capability_profile.autonomy_level, 'local_only');
 });
@@ -386,6 +389,7 @@ test('autonomy plan returns an ordered Codex execution queue without leaking cre
   assert.ok(plan.steps.some((step) => step.id === 'information.job_matrix'));
   assert.ok(plan.steps.some((step) => step.id === 'information.evidence_map'));
   assert.ok(plan.steps.some((step) => step.id === 'information.launch_map'));
+  assert.ok(plan.steps.some((step) => step.id === 'information.run_history'));
   assert.ok(plan.steps.some((step) => step.id === 'verification.map'));
   assert.ok(plan.steps.some((step) => step.id === 'capability.unlock_map'));
   assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
@@ -536,6 +540,7 @@ test('autonomy audit reports objective-level gates with evidence', () => {
   assert.ok(ids.includes('codex.provider_autonomy'));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- capability-plan')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- reproducibility-manifest')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- source-package')));
@@ -547,6 +552,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.equal(doctor.repo_status.is_git_repo, true);
   assert.ok(doctor.capability_plan.provider_requests.length >= 1);
   assert.ok(doctor.provider_preflight.preflights.length >= 1);
+  assert.ok(Array.isArray(doctor.run_history.runs));
   assert.ok(doctor.reproducibility_manifest.source_of_truth.file_count > 0);
   assert.ok(doctor.autonomy_audit.criteria.some((criterion) => criterion.id === 'codex.reproducibility'));
   assert.ok(doctor.incoming_job_count >= 10);
@@ -556,6 +562,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run-history')));
 });
 
 test('harness run writes durable Codex artifacts and renders selected job', async () => {
@@ -627,8 +634,87 @@ test('resume reports missing artifacts and next commands for an existing run', a
   assert.equal(resume.autonomy_audit_path, record.autonomy_audit_path);
   assert.ok(record.provider_preflight_path);
   assert.ok(resume.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(resume.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(resume.next_commands.some((command) => command.includes('npm run creative -- validate')));
   assert.ok(inventory.artifacts.some((artifact) => artifact.relative_path === 'run.json'));
+});
+
+test('run history summarizes usable and unreadable durable runs', () => {
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-run-history-'));
+  const runsDir = path.join(rootDir, '.ops', 'harness', 'runs');
+  const goodRunDir = path.join(runsDir, 'good-run');
+  const badRunDir = path.join(runsDir, 'bad-run');
+  const sharedArtifact = path.join(goodRunDir, 'artifact.json');
+  const renderDir = path.join(goodRunDir, 'rendered', 'job_001');
+  fs.mkdirSync(renderDir, { recursive: true });
+  fs.mkdirSync(badRunDir, { recursive: true });
+  fs.writeFileSync(sharedArtifact, '{}\n');
+  fs.writeFileSync(path.join(renderDir, 'manifest.json'), '{}\n');
+  fs.writeFileSync(path.join(badRunDir, 'run.json'), '{not-json');
+  fs.writeFileSync(path.join(goodRunDir, 'run.json'), `${JSON.stringify({
+    run_id: 'good-run',
+    goal: 'Exercise run history',
+    created_at: '2026-07-09T00:00:00.000Z',
+    status: 'needs_capability',
+    selected_job: {
+      path: '.ops/creative_jobs/incoming/job_001.json',
+      job_id: 'job_001',
+      reason: 'test fixture',
+    },
+    capability_profile: buildCapabilityProfile({}, rootDir),
+    primitives_path: sharedArtifact,
+    capabilities_path: sharedArtifact,
+    information_index_path: sharedArtifact,
+    context_pack_path: sharedArtifact,
+    job_rankings_path: sharedArtifact,
+    evidence_map_path: sharedArtifact,
+    launch_map_path: sharedArtifact,
+    verification_map_path: sharedArtifact,
+    capability_unlock_map_path: path.join(goodRunDir, 'missing_capability_unlock_map.json'),
+    reproducibility_manifest_path: sharedArtifact,
+    autonomy_audit_path: sharedArtifact,
+    artifact_inventory_path: sharedArtifact,
+    blocker_ledger_path: sharedArtifact,
+    provider_preflight_path: sharedArtifact,
+    next_actions_path: sharedArtifact,
+    prompt_packet_path: sharedArtifact,
+    render_output_dir: renderDir,
+    provider_dry_runs: [{
+      request_id: 'sample-openai-image-live-request',
+      provider: 'openai_image',
+      status: 'blocked',
+      external_calls_made: 0,
+      output_paths: [],
+      log: ['blocked for test'],
+    }],
+    stages: [{
+      name: 'provider_gate_evaluation',
+      status: 'blocked',
+      evidence: ['blocked for test'],
+      artifacts: [],
+    }],
+    next_actions: ['inspect capability gates'],
+  }, null, 2)}\n`);
+
+  const history = buildHarnessRunHistory({ rootDir, limit: 10 });
+  const goodRun = history.runs.find((run) => run.run_id === 'good-run');
+  const badRun = history.runs.find((run) => run.run_id === 'bad-run');
+
+  assert.equal(history.exists, true);
+  assert.equal(history.run_count, 2);
+  assert.ok(goodRun);
+  assert.equal(goodRun.status, 'needs_capability');
+  assert.equal(goodRun.selected_job?.job_id, 'job_001');
+  assert.equal(goodRun.missing_artifact_count, 1);
+  assert.equal(goodRun.provider_dry_run_count, 1);
+  assert.equal(goodRun.provider_blocked_count, 1);
+  assert.equal(goodRun.external_calls_made, 0);
+  assert.equal(goodRun.stage_status_counts.blocked, 1);
+  assert.ok(goodRun.resume_commands.some((command) => command.includes('npm run harness -- resume') || command.includes('npm run harness -- inventory')));
+  assert.ok(badRun);
+  assert.equal(badRun.status, 'unreadable');
+  assert.match(badRun.error ?? '', /JSON|Unexpected|property/i);
+  assert.ok(history.next_commands.some((command) => command.includes('npm run harness -- run-history')));
 });
 
 test('auto loop writes a durable auto result and keeps external gates explicit', async () => {
@@ -653,6 +739,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- source-package')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- run-history')));
   assert.ok(result.decision.stop_reason.includes('provider.paid_generation') || result.status === 'advanced');
   assert.ok(inventory.artifacts.some((artifact) => artifact.relative_path === 'auto_result.json'));
 });
