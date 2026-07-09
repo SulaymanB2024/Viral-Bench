@@ -121,6 +121,9 @@ export interface HarnessProviderRoute {
   score: number;
   ready_for_provider_handoff: boolean;
   ready_for_live_request: boolean;
+  existing_handoff_count: number;
+  latest_handoff_path: string | null;
+  latest_handoff_created_at: string | null;
   would_api_key_help: boolean;
   credential_available: boolean;
   recommended_credentials: string[];
@@ -141,6 +144,8 @@ export interface HarnessProviderRouteMap {
     request_count: number;
     live_ready_count: number;
     handoff_ready_count: number;
+    existing_handoff_count: number;
+    handoff_missing_count: number;
     api_key_would_help_count: number;
     recommended_route_id: string | null;
     recommended_credential: string | null;
@@ -319,6 +324,16 @@ export interface HarnessProviderHandoffPacket {
     asset_manifest_path: string;
   };
   next_commands: string[];
+}
+
+interface HarnessProviderHandoffHistoryEntry {
+  created_at: string | null;
+  packet_dir: string;
+  manifest_path: string;
+  request_id: string;
+  provider: CreativeProviderName | null;
+  job_id: string | null;
+  request_path: string | null;
 }
 
 export interface CodexPrimitive {
@@ -1182,8 +1197,9 @@ export function buildProviderRouteMap(
   const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
   const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
   const providerPreflight = preflightProviderRequests(merged.effective_env, rootDir);
+  const handoffHistory = listProviderHandoffHistory(rootDir);
   const routes = providerPreflight.preflights
-    .map((preflight) => providerRouteForPreflight(preflight, capabilityProfile))
+    .map((preflight) => providerRouteForPreflight(preflight, capabilityProfile, handoffHistory))
     .sort((a, b) => b.score - a.score || a.request_id.localeCompare(b.request_id));
   const recommendedRoute = routes.find((route) => route.would_api_key_help)
     ?? routes.find((route) => route.ready_for_live_request)
@@ -1200,6 +1216,12 @@ export function buildProviderRouteMap(
       request_count: routes.length,
       live_ready_count: routes.filter((route) => route.ready_for_live_request).length,
       handoff_ready_count: routes.filter((route) => route.ready_for_provider_handoff).length,
+      existing_handoff_count: routes.reduce((count, route) => count + route.existing_handoff_count, 0),
+      handoff_missing_count: routes.filter((route) => (
+        route.ready_for_provider_handoff
+        && route.existing_handoff_count === 0
+        && route.status !== 'needs_adapter'
+      )).length,
       api_key_would_help_count: routes.filter((route) => route.would_api_key_help).length,
       recommended_route_id: recommendedRoute?.request_id ?? null,
       recommended_credential: recommendedRoute?.recommended_credentials[0] ?? null,
@@ -2171,6 +2193,52 @@ export function exportProviderHandoffPacket(
 
   fs.writeFileSync(manifestPath, `${JSON.stringify(packet, null, 2)}\n`);
   return packet;
+}
+
+function listProviderHandoffHistory(rootDir: string): HarnessProviderHandoffHistoryEntry[] {
+  const handoffRoot = path.join(path.resolve(rootDir), '.ops', 'harness', 'provider_handoffs');
+  if (!fs.existsSync(handoffRoot)) return [];
+
+  return fs.readdirSync(handoffRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(handoffRoot, entry.name, 'provider_handoff.json'))
+    .flatMap((manifestPath) => {
+      const historyEntry = readProviderHandoffHistoryEntry(rootDir, manifestPath);
+      return historyEntry ? [historyEntry] : [];
+    })
+    .sort((a, b) => (
+      (b.created_at ?? '').localeCompare(a.created_at ?? '')
+      || b.manifest_path.localeCompare(a.manifest_path)
+    ));
+}
+
+function readProviderHandoffHistoryEntry(
+  rootDir: string,
+  manifestPath: string,
+): HarnessProviderHandoffHistoryEntry | null {
+  if (!fs.existsSync(manifestPath)) return null;
+
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+    const requestId = typeof manifest.request_id === 'string' ? manifest.request_id : null;
+    if (!requestId) return null;
+
+    const packetDir = typeof manifest.packet_dir === 'string'
+      ? resolveFromRoot(rootDir, manifest.packet_dir)
+      : path.dirname(manifestPath);
+
+    return {
+      created_at: typeof manifest.created_at === 'string' ? manifest.created_at : null,
+      packet_dir: relativeToRoot(rootDir, packetDir),
+      manifest_path: relativeToRoot(rootDir, manifestPath),
+      request_id: requestId,
+      provider: typeof manifest.provider === 'string' ? manifest.provider as CreativeProviderName : null,
+      job_id: typeof manifest.job_id === 'string' ? manifest.job_id : null,
+      request_path: typeof manifest.request_path === 'string' ? manifest.request_path : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function buildArtifactInventory(rootDir: string): HarnessArtifactInventory {
@@ -3719,6 +3787,7 @@ export function buildAutonomyPlan(
   const providerLiveReadyCount = doctor.provider_preflight.preflights.filter((preflight) => preflight.ready_for_live_request).length;
   const auditById = new Map(doctor.autonomy_audit.criteria.map((criterion) => [criterion.id, criterion]));
   const openBlockers = doctor.blocker_ledger.blockers.filter((blocker) => blocker.status === 'open');
+  const providerRouteByRequestId = new Map(doctor.provider_route_map.routes.map((route) => [route.request_id, route]));
   const steps: HarnessAutonomyPlanStep[] = [];
   const goalArg = shellQuote(goal);
 
@@ -3913,6 +3982,8 @@ export function buildAutonomyPlan(
     evidence: [
       `request_count=${doctor.provider_route_map.summary.request_count}`,
       `live_ready_count=${doctor.provider_route_map.summary.live_ready_count}`,
+      `existing_handoff_count=${doctor.provider_route_map.summary.existing_handoff_count}`,
+      `handoff_missing_count=${doctor.provider_route_map.summary.handoff_missing_count}`,
       `api_key_would_help_count=${doctor.provider_route_map.summary.api_key_would_help_count}`,
       `recommended_route_id=${doctor.provider_route_map.summary.recommended_route_id ?? 'none'}`,
       `recommended_credential=${doctor.provider_route_map.summary.recommended_credential ?? 'none'}`,
@@ -3923,6 +3994,8 @@ export function buildAutonomyPlan(
 
   for (const preflight of doctor.provider_preflight.preflights) {
     const packageDir = `.ops/creative_jobs/rendered/${preflight.job_id}`;
+    const providerRoute = providerRouteByRequestId.get(preflight.request_id);
+    const handoffAlreadyExists = Boolean(providerRoute?.latest_handoff_path);
     if (preflight.ready_for_live_request) {
       addStep({
         id: `provider.live_run.${preflight.request_id}`,
@@ -3965,19 +4038,29 @@ export function buildAutonomyPlan(
 
     addStep({
       id: `provider.handoff.${preflight.request_id}`,
-      priority: preflight.ready_for_provider_handoff ? 32 : 70,
+      priority: handoffAlreadyExists ? 68 : preflight.ready_for_provider_handoff ? 32 : 70,
       lane: 'provider',
       status: preflight.ready_for_provider_handoff ? 'ready' : 'needs_capability',
       safe_to_run_now: preflight.ready_for_provider_handoff,
-      command: preflight.ready_for_provider_handoff
+      command: handoffAlreadyExists
+        ? 'npm run harness -- provider-route-map --env-file .env'
+        : preflight.ready_for_provider_handoff
         ? `npm run harness -- provider-handoff --request ${shellQuote(preflight.request_path)}`
         : 'npm run harness -- provider-preflight',
-      reason: preflight.ready_for_provider_handoff
+      reason: handoffAlreadyExists
+        ? `Provider handoff packet already exists at ${providerRoute?.latest_handoff_path}; inspect route history before regenerating it.`
+        : preflight.ready_for_provider_handoff
         ? 'Write a bounded provider handoff packet before external provider execution.'
         : preflight.next_action,
-      evidence: preflight.live_blockers.length ? preflight.live_blockers : [`ready_for_provider_handoff=${preflight.ready_for_provider_handoff}`],
+      evidence: uniqueSorted([
+        ...(preflight.live_blockers.length ? preflight.live_blockers : [`ready_for_provider_handoff=${preflight.ready_for_provider_handoff}`]),
+        ...(providerRoute ? [
+          `existing_handoff_count=${providerRoute.existing_handoff_count}`,
+          ...(providerRoute.latest_handoff_path ? [`latest_handoff_path=${providerRoute.latest_handoff_path}`] : []),
+        ] : []),
+      ]),
       required_gates: requiredEnvForProvider(preflight.provider),
-      writes: preflight.ready_for_provider_handoff ? ['.ops/harness/provider_handoffs/<packet_id>/'] : [],
+      writes: preflight.ready_for_provider_handoff && !handoffAlreadyExists ? ['.ops/harness/provider_handoffs/<packet_id>/'] : [],
     });
   }
 
@@ -4117,6 +4200,13 @@ export function buildNextActionReport(
   const providerRouteMap = buildProviderRouteMap({ env, rootDir });
   const safeActions = surface.queues.safe_now.filter((action) => action.command);
   const readOnlyActions = safeActions.filter((action) => action.writes.length === 0);
+  const routeByHandoffActionId = new Map(providerRouteMap.routes.map((route) => [`provider.handoff.${route.request_id}`, route]));
+  const routeNeedsFreshHandoff = (route: HarnessProviderRoute): boolean => (
+    route.ready_for_provider_handoff
+    && route.existing_handoff_count === 0
+    && route.status !== 'needs_adapter'
+    && (route.route_type === 'live_provider' || route.route_type === 'provider_handoff')
+  );
   const latestRunIsUsable = Boolean(surface.current_state.latest_run_id)
     && surface.summary.dirty_source_of_truth_count === 0;
   const orientationAction = safeActions.find((action) => action.id === 'run.brief_latest')
@@ -4124,24 +4214,34 @@ export function buildNextActionReport(
     ?? readOnlyActions.find((action) => action.id === 'goal.completion_audit')
     ?? readOnlyActions[0]
     ?? surface.selected_safe_action;
-  const preferredProviderHandoffAction = providerRouteMap.summary.recommended_route_id
-    ? safeActions.find((action) => action.id === `provider.handoff.${providerRouteMap.summary.recommended_route_id}`)
+  const recommendedProviderRoute = providerRouteMap.routes.find((route) => (
+    route.request_id === providerRouteMap.summary.recommended_route_id
+  )) ?? null;
+  const providerRouteNeedingHandoff = recommendedProviderRoute && routeNeedsFreshHandoff(recommendedProviderRoute)
+    ? recommendedProviderRoute
+    : providerRouteMap.routes.find(routeNeedsFreshHandoff) ?? null;
+  const preferredProviderHandoffAction = providerRouteNeedingHandoff
+    ? safeActions.find((action) => action.id === `provider.handoff.${providerRouteNeedingHandoff.request_id}`)
     : null;
   const progressCandidates = safeActions.filter((action) => (
     action.id !== orientationAction?.id
     && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
     && (!latestRunIsUsable || action.id !== 'local.auto')
+    && (!routeByHandoffActionId.has(action.id) || routeNeedsFreshHandoff(routeByHandoffActionId.get(action.id)!))
   ));
-  const progressAction = preferredProviderHandoffAction
-    ?? progressCandidates.find((action) => action.writes.length > 0)
-    ?? progressCandidates[0]
-    ?? (!latestRunIsUsable ? safeActions.find((action) => action.id === 'local.auto') ?? null : null);
   const capabilityUnlockAction = safeActions.find((action) => action.id === 'provider.route_map')
     ?? safeActions.find((action) => action.id === 'capability.unlock_map')
     ?? safeActions.find((action) => action.id === 'capability.credential_coverage')
     ?? safeActions.find((action) => action.id === 'provider.preflight_all')
     ?? surface.queues.capability_gated.find((action) => action.command)
     ?? null;
+  const providerWriteProgressAction = progressCandidates.find((action) => action.lane === 'provider' && action.writes.length > 0);
+  const progressAction = preferredProviderHandoffAction
+    ?? providerWriteProgressAction
+    ?? (latestRunIsUsable ? capabilityUnlockAction : null)
+    ?? progressCandidates.find((action) => action.writes.length > 0)
+    ?? progressCandidates[0]
+    ?? (!latestRunIsUsable ? safeActions.find((action) => action.id === 'local.auto') ?? null : null);
   const humanBoundaryAction = surface.queues.human_boundary.find((action) => action.command || action.required_gates.length)
     ?? null;
 
@@ -5173,6 +5273,7 @@ function providerCredentialAvailable(
 function providerRouteForPreflight(
   preflight: HarnessProviderPreflight,
   capabilityProfile: HarnessCapabilityProfile,
+  handoffHistory: HarnessProviderHandoffHistoryEntry[] = [],
 ): HarnessProviderRoute {
   const credentialAvailable = providerCredentialAvailable(preflight.provider, capabilityProfile);
   const recommendedCredentials = recommendedCredentialsForProvider(preflight.provider);
@@ -5183,6 +5284,8 @@ function providerRouteForPreflight(
   const hasMissingAdapter = blockers.includes('live provider implementation');
   const routeType = providerRouteType(preflight);
   const isHandoffOnlyRoute = routeType === 'provider_handoff';
+  const existingHandoffs = handoffHistory.filter((entry) => entry.request_id === preflight.request_id);
+  const latestHandoff = existingHandoffs[0] ?? null;
   const wouldApiKeyHelp = hasMissingCredential
     && preflight.ready_for_provider_handoff
     && routeType === 'live_provider'
@@ -5220,23 +5323,27 @@ function providerRouteForPreflight(
     }),
     ready_for_provider_handoff: preflight.ready_for_provider_handoff,
     ready_for_live_request: preflight.ready_for_live_request,
+    existing_handoff_count: existingHandoffs.length,
+    latest_handoff_path: latestHandoff?.manifest_path ?? null,
+    latest_handoff_created_at: latestHandoff?.created_at ?? null,
     would_api_key_help: wouldApiKeyHelp,
     credential_available: credentialAvailable,
     recommended_credentials: recommendedCredentials,
     required_env: requiredEnv,
     blockers,
-    next_action: providerRouteNextAction(preflight, status, routeType, recommendedCredentials, requiredEnv),
+    next_action: providerRouteNextAction(preflight, status, routeType, recommendedCredentials, requiredEnv, latestHandoff),
     safe_probe_commands: uniqueSorted([
       `npm run harness -- provider-preflight --request ${shellQuote(preflight.request_path)}`,
+      'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
-      ...(preflight.ready_for_provider_handoff
+      ...(preflight.ready_for_provider_handoff && !latestHandoff
         ? [`npm run harness -- provider-handoff --request ${shellQuote(preflight.request_path)} --env-file .env`]
         : preflight.suggested_prepare_command ? [preflight.suggested_prepare_command] : []),
     ]),
     activation_commands: providerRouteActivationCommands(preflight, status, requiredEnv, packageDir),
     writes: preflight.ready_for_live_request
       ? preflight.declared_outputs.map((output) => output.path)
-      : preflight.ready_for_provider_handoff
+      : preflight.ready_for_provider_handoff && !latestHandoff
         ? ['.ops/harness/provider_handoffs/<packet_id>/']
         : preflight.suggested_prepare_command
           ? [packageDir]
@@ -5282,9 +5389,16 @@ function providerRouteNextAction(
   routeType: HarnessProviderRoute['route_type'],
   recommendedCredentials: string[],
   requiredEnv: string[],
+  latestHandoff: HarnessProviderHandoffHistoryEntry | null = null,
 ): string {
   if (status === 'ready_for_live') {
     return `Run provider:run-live for ${preflight.request_id} only through its reviewed request manifest and declared package output paths.`;
+  }
+  if (latestHandoff && preflight.ready_for_provider_handoff) {
+    if (routeType === 'live_provider') {
+      return `Latest provider handoff already exists at ${latestHandoff.manifest_path}; resolve ${requiredEnv.join(' and ')}${recommendedCredentials.length ? ` plus ${recommendedCredentials.join(' or ')}` : ''} before live execution, and do not write another handoff unless the request or inputs change.`;
+    }
+    return `Latest provider handoff already exists at ${latestHandoff.manifest_path}; inspect provider-route-map or update request inputs before regenerating it.`;
   }
   if (status === 'ready_for_handoff') {
     return `Write a provider handoff packet for ${preflight.request_id} before considering any external provider execution.`;

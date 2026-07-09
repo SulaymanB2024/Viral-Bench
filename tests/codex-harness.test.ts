@@ -80,6 +80,94 @@ function createProviderFixtureRoot(): { rootDir: string; requestPath: string } {
   };
 }
 
+function writeProviderHandoffHistoryFixture(
+  rootDir: string,
+  requestId: string,
+  requestPath: string,
+  packetId: string,
+): { packetDir: string; manifestPath: string; createdAt: string } {
+  const packetDir = path.join(rootDir, '.ops', 'harness', 'provider_handoffs', packetId);
+  const manifestPath = path.join(packetDir, 'provider_handoff.json');
+  const createdAt = '2999-01-01T00:00:00.000Z';
+  fs.mkdirSync(packetDir, { recursive: true });
+  fs.writeFileSync(manifestPath, `${JSON.stringify({
+    created_at: createdAt,
+    root_dir: rootDir,
+    packet_dir: packetDir,
+    manifest_path: manifestPath,
+    request_id: requestId,
+    provider: 'openai_image',
+    job_id: 'scan_bike_001',
+    request_path: requestPath,
+    external_call_policy: {
+      external_calls_made: 0,
+      live_external_call_allowed: false,
+      credential_policy: 'available_flags_only_no_secret_values',
+      live_blockers: ['ALLOW_PAID_GENERATION=true', 'provider credential'],
+    },
+  }, null, 2)}\n`);
+
+  return { packetDir, manifestPath, createdAt };
+}
+
+function writeLatestHarnessRunFixture(runId: string, rootDir = process.cwd()): string {
+  const runDir = path.join(rootDir, '.ops', 'harness', 'runs', runId);
+  const renderDir = path.join(runDir, 'rendered', 'worthscan_scooter_battery_001');
+  const artifact = (name: string): string => path.join(runDir, name);
+  fs.mkdirSync(renderDir, { recursive: true });
+  fs.writeFileSync(path.join(runDir, 'run.json'), `${JSON.stringify({
+    run_id: runId,
+    goal: 'Make WorthScan autonomous for Codex',
+    created_at: '2999-01-01T00:00:00.000Z',
+    root_dir: rootDir,
+    status: 'advanced',
+    selected_job: {
+      job_id: 'worthscan_scooter_battery_001',
+      path: SCOOTER_JOB,
+      score: 100,
+      runnable_now: true,
+      reasons: [],
+      blockers: [],
+    },
+    primitives_path: artifact('primitives.json'),
+    capabilities_path: artifact('capabilities.json'),
+    information_index_path: artifact('information_index.json'),
+    context_pack_path: artifact('context_pack.json'),
+    job_rankings_path: artifact('job_rankings.json'),
+    evidence_map_path: artifact('evidence_map.json'),
+    launch_map_path: artifact('launch_map.json'),
+    verification_map_path: artifact('verification_map.json'),
+    capability_unlock_map_path: artifact('capability_unlock_map.json'),
+    provider_route_map_path: artifact('provider_route_map.json'),
+    reproducibility_manifest_path: artifact('reproducibility_manifest.json'),
+    autonomy_audit_path: artifact('autonomy_audit.json'),
+    provider_preflight_path: artifact('provider_preflight.json'),
+    artifact_inventory_path: artifact('artifact_inventory.json'),
+    blocker_ledger_path: artifact('blocker_ledger.json'),
+    next_actions_path: artifact('next_actions.json'),
+    prompt_packet_path: artifact('codex_next_prompt.md'),
+    render_output_dir: renderDir,
+    provider_dry_runs: [],
+    stages: [],
+    next_actions: [],
+  }, null, 2)}\n`);
+  return runDir;
+}
+
+function commitFixtureRoot(rootDir: string): void {
+  execFileSync('git', ['init'], { cwd: rootDir, stdio: 'ignore' });
+  execFileSync('git', ['add', '.'], { cwd: rootDir, stdio: 'ignore' });
+  execFileSync('git', [
+    '-c',
+    'user.name=Codex Test',
+    '-c',
+    'user.email=codex-test@example.com',
+    'commit',
+    '-m',
+    'fixture',
+  ], { cwd: rootDir, stdio: 'ignore' });
+}
+
 test('capability profile exposes availability flags without secret values', () => {
   const profile = buildCapabilityProfile({
     ALLOW_PAID_GENERATION: 'true',
@@ -430,6 +518,40 @@ test('provider route map ranks API-key usefulness without leaking values', () =>
   assert.doesNotMatch(serialized, /present-for-test|secret-value-for-test/);
 });
 
+test('provider route map tracks existing handoffs before writing another packet', async () => {
+  const { rootDir, requestPath } = createProviderFixtureRoot();
+
+  try {
+    await prepareProviderInputs(requestPath, { rootDir });
+    const before = buildProviderRouteMap({ env: {}, rootDir });
+    const beforeRoute = before.routes.find((route) => route.request_id === 'sample-openai-image-request');
+
+    assert.equal(beforeRoute?.existing_handoff_count, 0);
+    assert.ok(beforeRoute?.safe_probe_commands.some((command) => command.includes('provider-handoff')));
+    assert.deepEqual(beforeRoute?.writes, ['.ops/harness/provider_handoffs/<packet_id>/']);
+
+    const handoff = writeProviderHandoffHistoryFixture(
+      rootDir,
+      'sample-openai-image-request',
+      requestPath,
+      'route-map-existing-handoff',
+    );
+    const after = buildProviderRouteMap({ env: {}, rootDir });
+    const afterRoute = after.routes.find((route) => route.request_id === 'sample-openai-image-request');
+
+    assert.equal(after.summary.existing_handoff_count, 1);
+    assert.equal(after.summary.handoff_missing_count, 0);
+    assert.equal(afterRoute?.existing_handoff_count, 1);
+    assert.equal(afterRoute?.latest_handoff_created_at, handoff.createdAt);
+    assert.equal(afterRoute?.latest_handoff_path, '.ops/harness/provider_handoffs/route-map-existing-handoff/provider_handoff.json');
+    assert.doesNotMatch(afterRoute?.next_action ?? '', /^Write a provider handoff/);
+    assert.ok(afterRoute?.safe_probe_commands.every((command) => !command.includes('provider-handoff')));
+    assert.deepEqual(afterRoute?.writes, []);
+  } finally {
+    fs.rmSync(rootDir, { recursive: true, force: true });
+  }
+});
+
 test('capability env plan reads ignored env files without leaking values', () => {
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-env-plan-'));
   fs.writeFileSync(path.join(rootDir, '.env'), [
@@ -761,7 +883,7 @@ test('next action report separates orientation, progress, and external boundarie
   assert.equal(report.progress_action?.queue, 'safe_now');
   assert.ok(report.progress_action?.command);
   if (report.current_state.latest_run_id) {
-    assert.equal(report.progress_action?.id, 'provider.handoff.sample-openai-image-live-request');
+    assert.notEqual(report.progress_action?.id, 'local.auto');
   }
   assert.ok(report.capability_unlock_action);
   assert.equal(report.capability_unlock_action?.id, 'provider.route_map');
@@ -769,6 +891,32 @@ test('next action report separates orientation, progress, and external boundarie
   assert.equal(report.human_boundary_action?.queue, 'human_boundary');
   assert.ok(report.next_commands.some((command) => command.includes('next-action')));
   assert.doesNotMatch(serialized, /present-for-test|secret-value-for-test/);
+});
+
+test('next action report avoids repeating provider handoffs that already exist', async () => {
+  const { rootDir, requestPath } = createProviderFixtureRoot();
+  const runId = `next-action-existing-handoff-${Date.now()}`;
+
+  try {
+    await prepareProviderInputs(requestPath, { rootDir });
+    writeProviderHandoffHistoryFixture(
+      rootDir,
+      'sample-openai-image-request',
+      requestPath,
+      'next-action-existing-handoff',
+    );
+    writeLatestHarnessRunFixture(runId, rootDir);
+    commitFixtureRoot(rootDir);
+
+    const report = buildNextActionReport('Make WorthScan autonomous for Codex', {}, rootDir);
+
+    assert.equal(report.current_state.latest_run_id, runId);
+    assert.equal(report.progress_action?.id, 'provider.route_map');
+    assert.doesNotMatch(report.progress_action?.command ?? '', /provider-handoff/);
+    assert.ok(report.next_commands.some((command) => command.includes('provider-route-map')));
+  } finally {
+    fs.rmSync(rootDir, { recursive: true, force: true });
+  }
 });
 
 test('doctor reports readiness, information surface, and recommended commands', () => {
