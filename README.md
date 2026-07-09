@@ -80,6 +80,9 @@ npm run harness -- verify-source-package \
 npm run harness -- autonomy-audit \
   --goal "Make WorthScan autonomous for Codex"
 
+npm run harness -- goal-completion-audit \
+  --goal "Make WorthScan autonomous for Codex"
+
 npm run harness -- inspect
 
 npm run harness -- information-index
@@ -214,10 +217,17 @@ evidence: information primitives, local execution, source reproducibility,
 provider capability, browser capability, publishing capability, and information
 surface size.
 
+`goal-completion-audit` is stricter: it breaks the active thread objective into
+requirements, evidence, proof commands, blockers, and a
+`can_mark_goal_complete` boolean. Use it before claiming the autonomy goal is
+done; today it should stay false while provider, browser, or publishing gates
+remain open.
+
 `inspect` returns:
 
 - repo status and latest usable harness run
 - reproducibility manifest and autonomy audit
+- goal completion audit with explicit blockers and proof commands
 - capability plan
 - capability unlock map for env, credential, policy, activation, and verification gates
 - credential coverage across live, gated, unimplemented, missing, and unbound keys

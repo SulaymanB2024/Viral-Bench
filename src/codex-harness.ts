@@ -734,12 +734,33 @@ export interface HarnessAutonomyAudit {
   next_commands: string[];
 }
 
+export interface HarnessGoalCompletionRequirement {
+  id: string;
+  requirement: string;
+  status: 'passed' | 'open' | 'blocked';
+  evidence: string[];
+  blockers: string[];
+  proof_commands: string[];
+  next_action: string;
+}
+
+export interface HarnessGoalCompletionAudit {
+  created_at: string;
+  goal: string;
+  root_dir: string;
+  summary_status: 'achieved' | 'incomplete' | 'blocked';
+  can_mark_goal_complete: boolean;
+  requirements: HarnessGoalCompletionRequirement[];
+  next_commands: string[];
+}
+
 export interface HarnessDoctorReport {
   created_at: string;
   root_dir: string;
   repo_status: HarnessRepoStatus;
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
+  goal_completion_audit: HarnessGoalCompletionAudit;
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
@@ -1114,6 +1135,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- autonomy-audit --goal "<goal>"',
       purpose: 'Audit the full autonomy objective against current evidence, including information primitives, local execution, reproducibility, provider, browser, and publishing gates.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.goal_completion_audit',
+      kind: 'doctor',
+      command: 'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
+      purpose: 'Audit the active autonomy goal requirement by requirement, with proof commands, blockers, and whether the thread goal can be marked complete.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2767,6 +2797,7 @@ export function buildAutonomyAudit(
     'harness.reproducibility_manifest',
     'harness.verification_map',
     'harness.autonomy_audit',
+    'harness.goal_completion_audit',
     'harness.autonomy_plan',
     'harness.source_package',
     'harness.verify_source_package',
@@ -2891,6 +2922,7 @@ export function buildAutonomyAudit(
       'npm run harness -- capability-plan',
       'npm run harness -- capability-unlock-map',
       'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- doctor',
       'npm run harness -- auto --goal "<goal>"',
@@ -2920,6 +2952,218 @@ export function findLatestHarnessRun(rootDir = process.cwd()): HarnessResumeRepo
   return null;
 }
 
+export function buildGoalCompletionAudit(
+  goal = 'Make WorthScan autonomous for Codex',
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessGoalCompletionAudit {
+  const repoStatus = buildRepoStatus(rootDir);
+  const reproducibility = buildReproducibilityManifest(rootDir);
+  const autonomyAudit = buildAutonomyAudit(goal, env, rootDir);
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const capabilityPlan = buildCapabilityPlan(env, rootDir);
+  const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
+  const providerPreflight = preflightProviderRequests(env, rootDir);
+  const launchMap = buildLaunchMap(env, rootDir);
+  const runHistory = buildHarnessRunHistory({ rootDir });
+  const primitives = listCodexPrimitives();
+  const primitiveIds = new Set(primitives.map((primitive) => primitive.id));
+  const secretFindings = scanRepositoryForSecrets(rootDir);
+  const providerLiveReadyCount = providerPreflight.preflights.filter((preflight) => preflight.ready_for_live_request).length;
+  const localLane = capabilityPlan.lanes.find((lane) => lane.id === 'local');
+  const providerLane = capabilityPlan.lanes.find((lane) => lane.id === 'provider');
+  const browserLane = capabilityPlan.lanes.find((lane) => lane.id === 'browser');
+  const publishingLane = capabilityPlan.lanes.find((lane) => lane.id === 'publishing');
+  const requiredGoalPrimitives = [
+    'harness.autonomy_audit',
+    'harness.goal_completion_audit',
+    'harness.autonomy_plan',
+    'harness.capability_plan',
+    'harness.capability_unlock_map',
+    'harness.credential_coverage',
+    'harness.provider_preflight',
+    'harness.run_history',
+    'harness.verification_map',
+    'harness.stage_source',
+  ];
+  const missingGoalPrimitives = requiredGoalPrimitives.filter((id) => !primitiveIds.has(id));
+  const requirements: HarnessGoalCompletionRequirement[] = [
+    {
+      id: 'goal.repo_reproducibility',
+      requirement: 'The current checkout is reproducible and has no dirty source-of-truth changes.',
+      status: reproducibility.source_of_truth.dirty_count === 0 && repoStatus.is_git_repo ? 'passed' : 'blocked',
+      evidence: [
+        `is_git_repo=${repoStatus.is_git_repo}`,
+        `dirty_source_of_truth_count=${reproducibility.source_of_truth.dirty_count}`,
+        `branch=${repoStatus.branch ?? 'unknown'}`,
+      ],
+      blockers: reproducibility.source_of_truth.dirty_count
+        ? [`stage_source_of_truth=${reproducibility.commands.stage_source_of_truth ?? 'unavailable'}`]
+        : [],
+      proof_commands: [
+        'git status --short --branch --untracked-files=all',
+        'npm run harness -- reproducibility-manifest',
+        'npm run harness -- stage-source --dry-run',
+      ],
+      next_action: reproducibility.source_of_truth.dirty_count
+        ? 'Stage and commit source-of-truth changes before claiming the goal is complete.'
+        : 'Keep generated artifacts ignored and rerun reproducibility checks after each edit.',
+    },
+    {
+      id: 'goal.codex_information_primitives',
+      requirement: 'Codex has callable, machine-readable primitives for repo state, plans, context, jobs, evidence, launches, credentials, providers, runs, and verification.',
+      status: missingGoalPrimitives.length ? 'open' : 'passed',
+      evidence: [
+        `primitive_count=${primitives.length}`,
+        `required_goal_primitive_count=${requiredGoalPrimitives.length}`,
+      ],
+      blockers: missingGoalPrimitives.map((id) => `missing primitive: ${id}`),
+      proof_commands: [
+        'npm run harness -- primitives',
+        'npm run harness -- inspect',
+        'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
+      ],
+      next_action: missingGoalPrimitives.length
+        ? 'Add any missing primitive before treating the harness as complete for Codex.'
+        : 'Use primitives, inspect, and context-pack as the standard Codex information entrypoints.',
+    },
+    {
+      id: 'goal.local_autonomous_loop',
+      requirement: 'Codex can safely run a bounded local autonomous loop that selects work, renders artifacts, persists context, and stops at explicit gates.',
+      status: localLane?.status === 'ready' && secretFindings.length === 0 ? 'passed' : 'blocked',
+      evidence: [
+        `local_lane_status=${localLane?.status ?? 'missing'}`,
+        `incoming_job_count=${listIncomingJobs(rootDir).length}`,
+        `secret_finding_count=${secretFindings.length}`,
+        `run_history_exists=${runHistory.exists}`,
+        `run_count=${runHistory.run_count}`,
+      ],
+      blockers: [
+        ...(localLane?.status === 'ready' ? [] : [`local_lane_status=${localLane?.status ?? 'missing'}`]),
+        ...(secretFindings.length ? [`secret_finding_count=${secretFindings.length}`] : []),
+      ],
+      proof_commands: [
+        'npm run harness -- auto --goal "<goal>"',
+        'npm run harness -- run-history',
+        'npm run harness -- latest-run',
+      ],
+      next_action: localLane?.status === 'ready' && secretFindings.length === 0
+        ? 'Run auto when a fresh durable local pass is useful; inspect run-history before rerunning work.'
+        : 'Restore local runnable jobs and clear secret findings before running auto.',
+    },
+    {
+      id: 'goal.api_key_provider_path',
+      requirement: 'If an API key is available, Codex can determine whether it is usable for current provider requests and can run only through reviewed, gated provider commands.',
+      status: providerLiveReadyCount > 0
+        ? 'passed'
+        : credentialCoverage.summary.missing_required_count || !capabilityProfile.gates.allow_paid_generation
+          ? 'open'
+          : 'blocked',
+      evidence: [
+        `provider_lane_status=${providerLane?.status ?? 'missing'}`,
+        `ALLOW_PAID_GENERATION=${capabilityProfile.gates.allow_paid_generation}`,
+        `provider_request_count=${providerPreflight.request_count}`,
+        `prepared_provider_request_count=${providerPreflight.prepared_request_count}`,
+        `live_ready_provider_request_count=${providerLiveReadyCount}`,
+        `usable_credential_count=${credentialCoverage.summary.usable_now_count}`,
+        `missing_required_credential_count=${credentialCoverage.summary.missing_required_count}`,
+      ],
+      blockers: uniqueSorted([
+        ...credentialCoverage.keys
+          .filter((key) => key.status === 'missing_required')
+          .map((key) => `${key.key} missing for ${key.required_by_request_ids.join(', ')}`),
+        ...providerPreflight.preflights.flatMap((preflight) => preflight.ready_for_live_request ? [] : preflight.live_blockers),
+      ]),
+      proof_commands: [
+        'npm run harness -- credential-coverage --env-file .env',
+        'npm run harness -- provider-preflight --env-file .env',
+        'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_live_request.json --env-file .env',
+        'ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live --env-file .env --file .ops/provider_requests/sample_openai_image_live_request.json --package-dir .ops/creative_jobs/rendered/scan_bike_001',
+      ],
+      next_action: providerLiveReadyCount > 0
+        ? 'Use provider:run-live only for ready requests and keep outputs in declared package paths.'
+        : 'Provide a required provider key and explicit ALLOW_PAID_GENERATION=true before live provider execution.',
+    },
+    {
+      id: 'goal.browser_research_boundary',
+      requirement: 'Browser-assisted research is explicit, reviewed, and gated before any browser capture becomes trend evidence.',
+      status: capabilityProfile.gates.allow_browser_ui ? 'passed' : 'open',
+      evidence: [
+        `browser_lane_status=${browserLane?.status ?? 'missing'}`,
+        `ALLOW_BROWSER_UI=${capabilityProfile.gates.allow_browser_ui}`,
+      ],
+      blockers: capabilityProfile.gates.allow_browser_ui ? [] : ['ALLOW_BROWSER_UI=true'],
+      proof_commands: [
+        'npm run harness -- capability-unlock-map --env-file .env',
+        'npm run trend -- browser:validate-capture --file .ops/browser/captures/reviewed/<capture>.json',
+      ],
+      next_action: capabilityProfile.gates.allow_browser_ui
+        ? 'Validate reviewed captures before ingestion.'
+        : 'Keep browser research to local/manual reviewed capture files until ALLOW_BROWSER_UI=true is explicit.',
+    },
+    {
+      id: 'goal.publishing_boundary',
+      requirement: 'Publishing remains bounded by explicit gates, job policy, human approval, approved assets, and account-owner confirmation.',
+      status: capabilityProfile.gates.allow_social_publishing && launchMap.autonomous_publish_ready_job_count > 0 ? 'passed' : 'open',
+      evidence: [
+        `publishing_lane_status=${publishingLane?.status ?? 'missing'}`,
+        `ALLOW_SOCIAL_PUBLISHING=${capabilityProfile.gates.allow_social_publishing}`,
+        `manual_handoff_ready_job_count=${launchMap.manual_handoff_ready_job_count}`,
+        `autonomous_publish_ready_job_count=${launchMap.autonomous_publish_ready_job_count}`,
+      ],
+      blockers: uniqueSorted(launchMap.jobs.flatMap((job) => job.blockers)),
+      proof_commands: [
+        'npm run harness -- launch-map',
+        'npm run harness -- blockers',
+      ],
+      next_action: launchMap.autonomous_publish_ready_job_count
+        ? 'Use manual account-owner confirmation before any external publishing action.'
+        : 'Keep launch work at manual handoff until social publishing policy, approvals, and assets are ready.',
+    },
+    {
+      id: 'goal.completion_claim',
+      requirement: 'The active thread goal can be marked complete only when every requirement is proven passed by current evidence.',
+      status: autonomyAudit.summary_status === 'local_autonomy_ready' && providerLiveReadyCount > 0 && capabilityProfile.gates.allow_browser_ui
+        ? 'passed'
+        : 'open',
+      evidence: [
+        `autonomy_audit_summary=${autonomyAudit.summary_status}`,
+        `provider_live_ready_request_count=${providerLiveReadyCount}`,
+        `browser_autonomy=${capabilityProfile.gates.allow_browser_ui}`,
+        `publishing_autonomy=${capabilityProfile.gates.allow_social_publishing}`,
+      ],
+      blockers: autonomyAudit.criteria
+        .filter((criterion) => criterion.status !== 'passed')
+        .map((criterion) => `${criterion.id}=${criterion.status}`),
+      proof_commands: [
+        'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+        'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+        'npm test -- --runInBand',
+      ],
+      next_action: 'Do not mark the thread goal complete until this audit returns can_mark_goal_complete=true.',
+    },
+  ];
+  const hasBlocked = requirements.some((requirement) => requirement.status === 'blocked');
+  const allPassed = requirements.every((requirement) => requirement.status === 'passed');
+
+  return {
+    created_at: new Date().toISOString(),
+    goal,
+    root_dir: rootDir,
+    summary_status: allPassed ? 'achieved' : hasBlocked ? 'blocked' : 'incomplete',
+    can_mark_goal_complete: allPassed,
+    requirements,
+    next_commands: [
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
+      'npm test -- --runInBand',
+    ],
+  };
+}
+
 export function buildHarnessDoctor(
   env: Record<string, string | undefined> = process.env,
   rootDir = process.cwd(),
@@ -2927,6 +3171,7 @@ export function buildHarnessDoctor(
   const repoStatus = buildRepoStatus(rootDir);
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir);
+  const goalCompletionAudit = buildGoalCompletionAudit('Make WorthScan autonomous for Codex', env, rootDir);
   const capabilityPlan = buildCapabilityPlan(env, rootDir);
   const capabilityUnlockMap = buildCapabilityUnlockMap(env, rootDir);
   const credentialCoverage = buildCredentialCoverageMap({ env, rootDir });
@@ -2953,6 +3198,7 @@ export function buildHarnessDoctor(
   const providerAutonomy = localAutonomy && providerPreflight.preflights.some((preflight) => preflight.ready_for_live_request);
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
+    'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
     'npm run harness -- capability-unlock-map',
@@ -2986,6 +3232,7 @@ export function buildHarnessDoctor(
     repo_status: repoStatus,
     reproducibility_manifest: reproducibilityManifest,
     autonomy_audit: autonomyAudit,
+    goal_completion_audit: goalCompletionAudit,
     capability_plan: capabilityPlan,
     capability_unlock_map: capabilityUnlockMap,
     credential_coverage: credentialCoverage,
@@ -3074,6 +3321,23 @@ export function buildAutonomyPlan(
     evidence: auditById.get('codex.information_surface')?.evidence ?? [],
     required_gates: [],
     writes: ['.ops/harness/context_pack.json'],
+  });
+
+  addStep({
+    id: 'goal.completion_audit',
+    priority: 37,
+    lane: 'information',
+    status: doctor.goal_completion_audit.can_mark_goal_complete ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: `npm run harness -- goal-completion-audit --goal ${goalArg} --env-file .env`,
+    reason: 'Audit the full thread objective requirement by requirement before deciding whether the goal can be marked complete.',
+    evidence: [
+      `summary_status=${doctor.goal_completion_audit.summary_status}`,
+      `can_mark_goal_complete=${doctor.goal_completion_audit.can_mark_goal_complete}`,
+      `open_requirement_count=${doctor.goal_completion_audit.requirements.filter((requirement) => requirement.status !== 'passed').length}`,
+    ],
+    required_gates: [],
+    writes: [],
   });
 
   addStep({
@@ -3316,6 +3580,7 @@ export function inspectHarness(
   repo_status: HarnessRepoStatus;
   reproducibility_manifest: HarnessReproducibilityManifest;
   autonomy_audit: HarnessAutonomyAudit;
+  goal_completion_audit: HarnessGoalCompletionAudit;
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
@@ -3337,6 +3602,7 @@ export function inspectHarness(
     repo_status: buildRepoStatus(rootDir),
     reproducibility_manifest: buildReproducibilityManifest(rootDir),
     autonomy_audit: buildAutonomyAudit('Make WorthScan autonomous for Codex', env, rootDir),
+    goal_completion_audit: buildGoalCompletionAudit('Make WorthScan autonomous for Codex', env, rootDir),
     capability_plan: buildCapabilityPlan(env, rootDir),
     capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
     credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
@@ -3535,6 +3801,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     `npm run harness -- inventory --run ${runDir}`,
     'npm run harness -- run-history',
     `npm run harness -- autonomy-audit --goal "${options.goal.replace(/"/g, '\\"')}"`,
+    `npm run harness -- goal-completion-audit --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
     'npm run harness -- source-package',
@@ -5120,6 +5387,9 @@ Commands:
   autonomy-audit --goal "<goal>" [--out .ops/harness/autonomy_audit.json] [--env-file .env]
     Audit the autonomy objective against current repo evidence and capability gates.
 
+  goal-completion-audit --goal "<goal>" [--out .ops/harness/goal_completion_audit.json] [--env-file .env]
+    Audit the full thread objective requirement by requirement and report whether it can be marked complete.
+
   autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json] [--env-file .env]
     Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
 
@@ -5315,6 +5585,24 @@ async function main(): Promise<void> {
         fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
         fs.writeFileSync(outPath, `${JSON.stringify(audit, null, 2)}\n`);
         console.log(JSON.stringify({ ok: true, path: outPath, summary_status: audit.summary_status }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(audit, null, 2));
+      return;
+    }
+
+    case 'goal-completion-audit': {
+      const audit = buildGoalCompletionAudit(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex', effectiveEnv);
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(audit, null, 2)}\n`);
+        console.log(JSON.stringify({
+          ok: true,
+          path: outPath,
+          summary_status: audit.summary_status,
+          can_mark_goal_complete: audit.can_mark_goal_complete,
+        }, null, 2));
         return;
       }
       console.log(JSON.stringify(audit, null, 2));

@@ -16,6 +16,7 @@ import {
   buildContextPack,
   buildCredentialCoverageMap,
   buildEvidenceMap,
+  buildGoalCompletionAudit,
   buildHarnessDoctor,
   buildHarnessRunHistory,
   buildInformationIndex,
@@ -108,6 +109,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.source_package'));
   assert.ok(ids.includes('harness.verify_source_package'));
   assert.ok(ids.includes('harness.autonomy_audit'));
+  assert.ok(ids.includes('harness.goal_completion_audit'));
   assert.ok(ids.includes('harness.autonomy_plan'));
   assert.ok(ids.includes('harness.inspect'));
   assert.ok(ids.includes('harness.run'));
@@ -146,6 +148,7 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.verification_map.recommended_commands.some((command) => command.includes('autonomy-audit')));
   assert.ok(inspected.blocker_ledger.blockers.some((blocker) => blocker.id === 'git.reproducibility'));
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
+  assert.equal(inspected.goal_completion_audit.can_mark_goal_complete, false);
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
   assert.ok(inspected.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
@@ -423,6 +426,7 @@ test('autonomy plan returns an ordered Codex execution queue without leaking cre
   assert.ok(plan.steps.some((step) => step.id === 'verification.map'));
   assert.ok(plan.steps.some((step) => step.id === 'capability.unlock_map'));
   assert.ok(plan.steps.some((step) => step.id === 'capability.credential_coverage'));
+  assert.ok(plan.steps.some((step) => step.id === 'goal.completion_audit'));
   assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
   assert.ok(plan.steps.some((step) => step.id.startsWith('provider.')));
   assert.ok(plan.command_policy.safe_default_commands.some((command) => command.includes('autonomy-plan')));
@@ -578,10 +582,31 @@ test('autonomy audit reports objective-level gates with evidence', () => {
   assert.ok(audit.next_commands.some((command) => command.includes('npm run harness -- source-package')));
 });
 
+test('goal completion audit keeps the active objective unclosed until all evidence passes', () => {
+  const audit = buildGoalCompletionAudit('Make WorthScan autonomous for Codex', {}, process.cwd());
+  const ids = audit.requirements.map((requirement) => requirement.id);
+  const provider = audit.requirements.find((requirement) => requirement.id === 'goal.api_key_provider_path');
+  const completion = audit.requirements.find((requirement) => requirement.id === 'goal.completion_claim');
+
+  assert.equal(audit.summary_status === 'achieved', false);
+  assert.equal(audit.can_mark_goal_complete, false);
+  assert.ok(ids.includes('goal.repo_reproducibility'));
+  assert.ok(ids.includes('goal.codex_information_primitives'));
+  assert.ok(ids.includes('goal.local_autonomous_loop'));
+  assert.ok(ids.includes('goal.api_key_provider_path'));
+  assert.ok(provider);
+  assert.notEqual(provider.status, 'passed');
+  assert.ok(provider.proof_commands.some((command) => command.includes('provider:run-live')));
+  assert.ok(completion);
+  assert.equal(completion.status, 'open');
+  assert.ok(audit.next_commands.some((command) => command.includes('goal-completion-audit')));
+});
+
 test('doctor reports readiness, information surface, and recommended commands', () => {
   const doctor = buildHarnessDoctor({}, process.cwd());
 
   assert.equal(doctor.repo_status.is_git_repo, true);
+  assert.equal(doctor.goal_completion_audit.can_mark_goal_complete, false);
   assert.ok(doctor.capability_plan.provider_requests.length >= 1);
   assert.ok(doctor.provider_preflight.preflights.length >= 1);
   assert.ok(doctor.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
@@ -596,6 +621,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- credential-coverage')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run-history')));
 });
 
@@ -769,6 +795,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(fs.existsSync(result.run.autonomy_audit_path));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- doctor')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- autonomy-audit')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- source-package')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
