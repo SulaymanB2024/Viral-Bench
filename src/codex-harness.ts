@@ -1043,6 +1043,58 @@ export interface HarnessGoalCompletionAudit {
   next_commands: string[];
 }
 
+export interface HarnessAutonomyUnblockLane {
+  id: 'provider_api_key' | 'browser_research' | 'publishing' | 'completion_claim';
+  requirement_id: HarnessGoalCompletionRequirement['id'];
+  title: string;
+  status: 'ready' | 'open' | 'blocked' | 'human_boundary';
+  queue: HarnessDecisionSurfaceAction['queue'];
+  blocker_classes: Array<'env_gate' | 'credential' | 'policy' | 'adapter' | 'human' | 'local_artifact' | 'completion_gate'>;
+  would_api_key_help: boolean;
+  missing_env: string[];
+  missing_credentials: string[];
+  policy_blockers: string[];
+  adapter_blockers: string[];
+  human_blockers: string[];
+  local_blockers: string[];
+  evidence: string[];
+  safe_now_commands: string[];
+  activation_commands: string[];
+  verification_commands: string[];
+  writes: string[];
+  external_call_boundary: {
+    external_calls_made: 0;
+    live_external_call_allowed_now: boolean;
+    requires_explicit_gate: boolean;
+    requires_human_confirmation: boolean;
+  };
+  next_action: string;
+}
+
+export interface HarnessAutonomyUnblockPlan {
+  created_at: string;
+  goal: string;
+  root_dir: string;
+  credential_policy: HarnessCapabilityProfile['credential_policy'];
+  summary: {
+    can_mark_goal_complete: boolean;
+    open_requirement_count: number;
+    blocked_requirement_count: number;
+    open_lane_count: number;
+    env_gate_count: number;
+    missing_credential_count: number;
+    policy_gap_count: number;
+    adapter_gap_count: number;
+    human_boundary_count: number;
+    api_key_would_help: boolean;
+    recommended_lane_id: HarnessAutonomyUnblockLane['id'] | null;
+    external_calls_made: 0;
+  };
+  lanes: HarnessAutonomyUnblockLane[];
+  next_commands: string[];
+  safety_notes: string[];
+}
+
 export interface HarnessDoctorReport {
   created_at: string;
   root_dir: string;
@@ -1057,6 +1109,7 @@ export interface HarnessDoctorReport {
   provider_activation_plan: HarnessProviderActivationPlan;
   browser_research_plan: HarnessBrowserResearchPlan;
   publishing_handoff_plan: HarnessPublishingHandoffPlan;
+  autonomy_unblock_plan: HarnessAutonomyUnblockPlan;
   capability_profile: HarnessCapabilityProfile;
   blocker_ledger: HarnessBlockerLedger;
   information_surface: {
@@ -1246,6 +1299,7 @@ export interface HarnessRunRecord {
   provider_activation_plan_path?: string;
   browser_research_plan_path?: string;
   publishing_handoff_plan_path?: string;
+  autonomy_unblock_plan_path?: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
   next_action_path?: string;
@@ -1665,6 +1719,270 @@ export function buildPublishingHandoffPlan(
   };
 }
 
+export function buildAutonomyUnblockPlan(
+  goal = 'Make WorthScan autonomous for Codex',
+  options: {
+    env?: EnvMap;
+    rootDir?: string;
+    envFile?: string;
+  } = {},
+): HarnessAutonomyUnblockPlan {
+  const rootDir = options.rootDir ?? process.cwd();
+  const baseEnv = options.env ?? process.env;
+  const merged = mergeEnvWithFile(baseEnv, { envFile: options.envFile, rootDir });
+  const env = merged.effective_env;
+  const capabilityProfile = buildCapabilityProfile(env, rootDir);
+  const goalAudit = buildGoalCompletionAudit(goal, env, rootDir);
+  const unlockMap = buildCapabilityUnlockMap(env, rootDir);
+  const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
+  const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
+  const publishingHandoffPlan = buildPublishingHandoffPlan({ env, rootDir });
+  const requirementById = new Map(goalAudit.requirements.map((requirement) => [requirement.id, requirement]));
+  const unlockLaneById = new Map(unlockMap.lanes.map((lane) => [lane.id, lane]));
+  const paidProviderRequests = providerActivationPlan.requests.filter((request) => request.provider !== 'browser_manual');
+  const recommendedProviderRequest = providerActivationPlan.requests.find((request) => (
+    request.request_id === providerActivationPlan.summary.recommended_request_id
+  )) ?? paidProviderRequests[0] ?? null;
+  const providerUnlockLane = unlockLaneById.get('paid_provider_generation');
+  const browserUnlockLane = unlockLaneById.get('browser_research');
+  const publishingUnlockLane = unlockLaneById.get('social_publishing');
+  const providerMissingEnv = uniqueSorted(paidProviderRequests.flatMap((request) => request.missing_env));
+  const providerMissingCredentials = uniqueSorted([
+    ...providerActivationPlan.credential_setup.required_missing_keys,
+    ...paidProviderRequests.flatMap((request) => request.missing_credentials),
+  ]);
+  const providerPolicyBlockers = uniqueSorted(paidProviderRequests.flatMap((request) => request.policy_blockers));
+  const providerAdapterBlockers = uniqueSorted(paidProviderRequests.flatMap((request) => request.adapter_blockers));
+  const providerLocalBlockers = uniqueSorted(paidProviderRequests.flatMap((request) => request.local_input_blockers));
+  const browserRequestBlockers = browserResearchPlan.browser_request.blockers;
+  const browserAdapterBlockers = uniqueSorted(browserRequestBlockers.filter((blocker) => /adapter|implementation/i.test(blocker)));
+  const browserPolicyBlockers = browserResearchPlan.browser_request.policy_allows_browser_ui
+    ? []
+    : ['browser task is not listed as policy-allowed'];
+  const browserLocalBlockers = uniqueSorted([
+    ...(browserResearchPlan.summary.invalid_capture_count ? ['invalid browser capture files present'] : []),
+    ...(browserResearchPlan.summary.ingest_ready_count ? [] : ['no approved ingest-ready capture']),
+  ]);
+  const publishingBlockers = uniqueSorted(publishingHandoffPlan.jobs.flatMap((job) => job.manual_post_boundary.blocked_by));
+  const publishingPolicyBlockers = uniqueSorted(publishingBlockers.filter((blocker) => /policy/i.test(blocker)));
+  const publishingHumanBlockers = uniqueSorted(publishingBlockers.filter((blocker) => (
+    /account-owner|human|approval|approved|generated assets/i.test(blocker)
+  )));
+  const publishingLocalBlockers = uniqueSorted(publishingBlockers.filter((blocker) => (
+    !/^ALLOW_/.test(blocker)
+    && !publishingPolicyBlockers.includes(blocker)
+    && !publishingHumanBlockers.includes(blocker)
+  )));
+  const providerRequirement = requirementById.get('goal.api_key_provider_path');
+  const browserRequirement = requirementById.get('goal.browser_research_boundary');
+  const publishingRequirement = requirementById.get('goal.publishing_boundary');
+  const completionRequirement = requirementById.get('goal.completion_claim');
+  const providerLane: HarnessAutonomyUnblockLane = {
+    id: 'provider_api_key',
+    requirement_id: 'goal.api_key_provider_path',
+    title: 'Provider API-key path',
+    status: providerActivationPlan.summary.ready_for_live_count ? 'ready' : providerRequirement?.status === 'blocked' ? 'blocked' : 'open',
+    queue: 'capability_gated',
+    blocker_classes: unblockClasses({
+      missingEnv: providerMissingEnv,
+      missingCredentials: providerMissingCredentials,
+      policyBlockers: providerPolicyBlockers,
+      adapterBlockers: providerAdapterBlockers,
+      humanBlockers: [],
+      localBlockers: providerLocalBlockers,
+      completionGate: false,
+    }),
+    would_api_key_help: providerActivationPlan.summary.api_key_unlockable_count > 0,
+    missing_env: providerMissingEnv,
+    missing_credentials: providerMissingCredentials,
+    policy_blockers: providerPolicyBlockers,
+    adapter_blockers: providerAdapterBlockers,
+    human_blockers: [],
+    local_blockers: providerLocalBlockers,
+    evidence: providerRequirement?.evidence ?? [],
+    safe_now_commands: uniqueSorted([
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- provider-activation-plan --env-file .env',
+      'npm run harness -- provider-route-map --env-file .env',
+      'npm run harness -- credential-coverage --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+      ...(recommendedProviderRequest?.handoff_command ? [recommendedProviderRequest.handoff_command] : []),
+    ]),
+    activation_commands: uniqueSorted([
+      ...(recommendedProviderRequest?.dry_run_command ? [recommendedProviderRequest.dry_run_command] : []),
+      ...(recommendedProviderRequest?.activation_command ? [recommendedProviderRequest.activation_command] : []),
+      ...(providerUnlockLane?.activation_commands ?? []),
+    ]),
+    verification_commands: uniqueSorted(providerUnlockLane?.verification_commands ?? [
+      'npm run harness -- provider-activation-plan --env-file .env',
+      'npm run harness -- provider-preflight --env-file .env',
+    ]),
+    writes: uniqueSorted(recommendedProviderRequest?.external_call_boundary.writes ?? []),
+    external_call_boundary: {
+      external_calls_made: 0,
+      live_external_call_allowed_now: Boolean(recommendedProviderRequest?.external_call_boundary.live_external_call_allowed),
+      requires_explicit_gate: providerMissingEnv.length > 0 || providerMissingCredentials.length > 0,
+      requires_human_confirmation: false,
+    },
+    next_action: providerRequirement?.next_action ?? recommendedProviderRequest?.next_action ?? 'Inspect provider activation before opening any live provider gate.',
+  };
+  const browserLane: HarnessAutonomyUnblockLane = {
+    id: 'browser_research',
+    requirement_id: 'goal.browser_research_boundary',
+    title: 'Browser research boundary',
+    status: browserResearchPlan.gates.allow_browser_ui ? 'ready' : browserRequirement?.status === 'blocked' ? 'blocked' : 'open',
+    queue: browserResearchPlan.gates.allow_browser_ui ? 'safe_now' : 'capability_gated',
+    blocker_classes: unblockClasses({
+      missingEnv: browserResearchPlan.gates.missing_env,
+      missingCredentials: [],
+      policyBlockers: browserPolicyBlockers,
+      adapterBlockers: browserAdapterBlockers,
+      humanBlockers: [],
+      localBlockers: browserLocalBlockers,
+      completionGate: false,
+    }),
+    would_api_key_help: false,
+    missing_env: browserResearchPlan.gates.missing_env,
+    missing_credentials: [],
+    policy_blockers: browserPolicyBlockers,
+    adapter_blockers: browserAdapterBlockers,
+    human_blockers: [],
+    local_blockers: browserLocalBlockers,
+    evidence: browserRequirement?.evidence ?? [],
+    safe_now_commands: uniqueSorted(browserResearchPlan.next_commands.filter((command) => (
+      !command.startsWith('ALLOW_BROWSER_UI=true')
+      && !command.includes('browser:ingest-capture')
+    ))),
+    activation_commands: uniqueSorted(browserResearchPlan.next_commands.filter((command) => (
+      command.startsWith('ALLOW_BROWSER_UI=true')
+      || command.includes('browser:ingest-capture')
+    ))),
+    verification_commands: uniqueSorted(browserUnlockLane?.verification_commands ?? [
+      'npm run harness -- browser-research-plan --env-file .env',
+      'npm exec tsx -- --test tests/browser-capture.test.ts --runInBand',
+    ]),
+    writes: browserResearchPlan.summary.ingest_ready_count ? ['trend_examples.sqlite'] : [],
+    external_call_boundary: {
+      external_calls_made: 0,
+      live_external_call_allowed_now: browserResearchPlan.gates.allow_browser_ui && browserAdapterBlockers.length === 0,
+      requires_explicit_gate: browserResearchPlan.gates.missing_env.length > 0,
+      requires_human_confirmation: false,
+    },
+    next_action: browserRequirement?.next_action ?? 'Use browser-research-plan before enabling browser UI.',
+  };
+  const publishingLane: HarnessAutonomyUnblockLane = {
+    id: 'publishing',
+    requirement_id: 'goal.publishing_boundary',
+    title: 'Manual publishing boundary',
+    status: publishingHandoffPlan.summary.autonomous_publish_ready_job_count ? 'ready' : 'human_boundary',
+    queue: 'human_boundary',
+    blocker_classes: unblockClasses({
+      missingEnv: publishingHandoffPlan.gates.missing_env,
+      missingCredentials: [],
+      policyBlockers: publishingPolicyBlockers,
+      adapterBlockers: [],
+      humanBlockers: publishingHumanBlockers,
+      localBlockers: publishingLocalBlockers,
+      completionGate: false,
+    }),
+    would_api_key_help: false,
+    missing_env: publishingHandoffPlan.gates.missing_env,
+    missing_credentials: [],
+    policy_blockers: publishingPolicyBlockers,
+    adapter_blockers: [],
+    human_blockers: publishingHumanBlockers,
+    local_blockers: publishingLocalBlockers,
+    evidence: publishingRequirement?.evidence ?? [],
+    safe_now_commands: uniqueSorted([
+      'npm run harness -- publishing-handoff-plan --env-file .env',
+      'npm run harness -- launch-map',
+      'npm run harness -- blockers',
+    ]),
+    activation_commands: uniqueSorted(publishingUnlockLane?.activation_commands ?? []),
+    verification_commands: uniqueSorted(publishingUnlockLane?.verification_commands ?? [
+      'npm run harness -- publishing-handoff-plan --env-file .env',
+      'npm exec tsx -- --test tests/launch-kit.test.ts --runInBand',
+    ]),
+    writes: [],
+    external_call_boundary: {
+      external_calls_made: 0,
+      live_external_call_allowed_now: false,
+      requires_explicit_gate: publishingHandoffPlan.gates.missing_env.length > 0,
+      requires_human_confirmation: true,
+    },
+    next_action: publishingRequirement?.next_action ?? 'Keep publishing at manual handoff until the account owner confirms the final post.',
+  };
+  const completionLane: HarnessAutonomyUnblockLane = {
+    id: 'completion_claim',
+    requirement_id: 'goal.completion_claim',
+    title: 'Goal completion claim',
+    status: goalAudit.can_mark_goal_complete ? 'ready' : completionRequirement?.status === 'blocked' ? 'blocked' : 'open',
+    queue: goalAudit.can_mark_goal_complete ? 'safe_now' : 'blocked',
+    blocker_classes: ['completion_gate'],
+    would_api_key_help: false,
+    missing_env: [],
+    missing_credentials: [],
+    policy_blockers: [],
+    adapter_blockers: [],
+    human_blockers: [],
+    local_blockers: completionRequirement?.blockers ?? [],
+    evidence: completionRequirement?.evidence ?? [],
+    safe_now_commands: [
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm test -- --runInBand',
+    ],
+    activation_commands: [],
+    verification_commands: completionRequirement?.proof_commands ?? [],
+    writes: [],
+    external_call_boundary: {
+      external_calls_made: 0,
+      live_external_call_allowed_now: false,
+      requires_explicit_gate: false,
+      requires_human_confirmation: false,
+    },
+    next_action: completionRequirement?.next_action ?? 'Keep the thread goal active until every requirement passes.',
+  };
+  const lanes = [providerLane, browserLane, publishingLane, completionLane];
+  const recommendedLane = lanes.find((lane) => lane.id === 'provider_api_key' && lane.would_api_key_help && lane.status !== 'ready')
+    ?? lanes.find((lane) => lane.status !== 'ready' && lane.safe_now_commands.length > 0)
+    ?? null;
+
+  return {
+    created_at: new Date().toISOString(),
+    goal,
+    root_dir: rootDir,
+    credential_policy: capabilityProfile.credential_policy,
+    summary: {
+      can_mark_goal_complete: goalAudit.can_mark_goal_complete,
+      open_requirement_count: goalAudit.requirements.filter((requirement) => requirement.status !== 'passed').length,
+      blocked_requirement_count: goalAudit.requirements.filter((requirement) => requirement.status === 'blocked').length,
+      open_lane_count: lanes.filter((lane) => lane.status !== 'ready').length,
+      env_gate_count: lanes.filter((lane) => lane.missing_env.length > 0).length,
+      missing_credential_count: uniqueSorted(lanes.flatMap((lane) => lane.missing_credentials)).length,
+      policy_gap_count: lanes.filter((lane) => lane.policy_blockers.length > 0).length,
+      adapter_gap_count: lanes.filter((lane) => lane.adapter_blockers.length > 0).length,
+      human_boundary_count: lanes.filter((lane) => lane.queue === 'human_boundary' || lane.human_blockers.length > 0).length,
+      api_key_would_help: lanes.some((lane) => lane.would_api_key_help),
+      recommended_lane_id: recommendedLane?.id ?? null,
+      external_calls_made: 0,
+    },
+    lanes,
+    next_commands: uniqueSorted([
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      ...(recommendedLane?.safe_now_commands ?? []),
+      'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+    ]),
+    safety_notes: [
+      'This report does not set env gates, create credentials, run browser UI, call providers, or publish posts.',
+      'Credential evidence is key-presence only; secret values must stay out of reports and commits.',
+      'Commands under activation_commands require their stated gates and should be rerun through the lane-specific plan before execution.',
+      'Human-boundary lanes require account-owner or reviewer confirmation even when local package files are complete.',
+    ],
+  };
+}
+
 export function listCodexPrimitives(): CodexPrimitive[] {
   return [
     {
@@ -1762,6 +2080,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'publish',
       command: 'npm run harness -- publishing-handoff-plan --env-file .env',
       purpose: 'Consolidate launch docs, manual handoff-ready jobs, account-owner confirmation, local metrics commands, and social-publishing blockers without posting.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.autonomy_unblock_plan',
+      kind: 'doctor',
+      command: 'npm run harness -- autonomy-unblock-plan --goal "<goal>" --env-file .env',
+      purpose: 'Classify remaining goal blockers by env gate, credential, policy, adapter, human boundary, and local artifact so Codex can choose the next safe unblock step.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2802,6 +3129,7 @@ export function resumeHarnessRun(runDir: string): HarnessResumeReport {
     record.provider_activation_plan_path,
     record.browser_research_plan_path,
     record.publishing_handoff_plan_path,
+    record.autonomy_unblock_plan_path,
     record.reproducibility_manifest_path,
     record.autonomy_audit_path,
     record.provider_preflight_path,
@@ -2918,6 +3246,7 @@ export function buildRunBrief(
         'npm run harness -- provider-activation-plan --env-file .env',
         'npm run harness -- browser-research-plan --env-file .env',
         'npm run harness -- publishing-handoff-plan --env-file .env',
+        'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
         'npm run harness -- capability-unlock-map --env-file .env',
         ...resume.next_commands,
       ]),
@@ -2973,6 +3302,7 @@ function runBriefArtifacts(
     { role: 'provider_activation_plan', filePath: record.provider_activation_plan_path },
     { role: 'browser_research_plan', filePath: record.browser_research_plan_path },
     { role: 'publishing_handoff_plan', filePath: record.publishing_handoff_plan_path },
+    { role: 'autonomy_unblock_plan', filePath: record.autonomy_unblock_plan_path },
     { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
     { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
     { role: 'next_action', filePath: record.next_action_path },
@@ -3558,6 +3888,7 @@ export function buildCapabilityUnlockMap(
       'npm run harness -- provider-preflight --env-file .env',
       'npm run harness -- provider-activation-plan --env-file .env',
       'npm run harness -- publishing-handoff-plan --env-file .env',
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- launch-map',
       'npm run harness -- verification-map',
     ],
@@ -3962,6 +4293,7 @@ export function buildGoalCompletionAudit(
     'harness.provider_activation_plan',
     'harness.browser_research_plan',
     'harness.publishing_handoff_plan',
+    'harness.autonomy_unblock_plan',
     'harness.provider_preflight',
     'harness.run_history',
     'harness.run_brief',
@@ -4153,6 +4485,7 @@ export function buildGoalCompletionAudit(
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- provider-activation-plan --env-file .env',
@@ -4178,6 +4511,7 @@ export function buildHarnessDoctor(
   const providerActivationPlan = buildProviderActivationPlan({ env, rootDir });
   const browserResearchPlan = buildBrowserResearchPlan({ env, rootDir });
   const publishingHandoffPlan = buildPublishingHandoffPlan({ env, rootDir });
+  const autonomyUnblockPlan = buildAutonomyUnblockPlan('Make WorthScan autonomous for Codex', { env, rootDir });
   const capabilityProfile = buildCapabilityProfile(env, rootDir);
   const blockerLedger = buildBlockerLedger(env, rootDir);
   const providerPreflight = preflightProviderRequests(env, rootDir);
@@ -4212,6 +4546,7 @@ export function buildHarnessDoctor(
     'npm run harness -- provider-activation-plan --env-file .env',
     'npm run harness -- browser-research-plan --env-file .env',
     'npm run harness -- publishing-handoff-plan --env-file .env',
+    'npm run harness -- autonomy-unblock-plan --goal "<goal>" --env-file .env',
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- verification-map',
     'npm run harness -- stage-source --dry-run',
@@ -4251,6 +4586,7 @@ export function buildHarnessDoctor(
     provider_activation_plan: providerActivationPlan,
     browser_research_plan: browserResearchPlan,
     publishing_handoff_plan: publishingHandoffPlan,
+    autonomy_unblock_plan: autonomyUnblockPlan,
     capability_profile: capabilityProfile,
     blocker_ledger: blockerLedger,
     provider_preflight: providerPreflight,
@@ -4352,6 +4688,26 @@ export function buildAutonomyPlan(
       `summary_status=${doctor.goal_completion_audit.summary_status}`,
       `can_mark_goal_complete=${doctor.goal_completion_audit.can_mark_goal_complete}`,
       `open_requirement_count=${doctor.goal_completion_audit.requirements.filter((requirement) => requirement.status !== 'passed').length}`,
+    ],
+    required_gates: [],
+    writes: [],
+  });
+
+  addStep({
+    id: 'goal.unblock_plan',
+    priority: 31,
+    lane: 'information',
+    status: doctor.autonomy_unblock_plan.summary.can_mark_goal_complete ? 'ready' : 'needs_capability',
+    safe_to_run_now: true,
+    command: `npm run harness -- autonomy-unblock-plan --goal ${goalArg} --env-file .env`,
+    reason: 'Classify the remaining goal blockers by env gate, credential, policy, adapter, human boundary, and safe next command.',
+    evidence: [
+      `open_lane_count=${doctor.autonomy_unblock_plan.summary.open_lane_count}`,
+      `env_gate_count=${doctor.autonomy_unblock_plan.summary.env_gate_count}`,
+      `missing_credential_count=${doctor.autonomy_unblock_plan.summary.missing_credential_count}`,
+      `adapter_gap_count=${doctor.autonomy_unblock_plan.summary.adapter_gap_count}`,
+      `human_boundary_count=${doctor.autonomy_unblock_plan.summary.human_boundary_count}`,
+      `recommended_lane_id=${doctor.autonomy_unblock_plan.summary.recommended_lane_id ?? 'none'}`,
     ],
     required_gates: [],
     writes: [],
@@ -4741,6 +5097,7 @@ export function buildDecisionSurface(
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- provider-preflight --env-file .env',
       'npm run harness -- provider-route-map --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
@@ -4835,6 +5192,7 @@ export function buildNextActionReport(
       'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
     ]),
@@ -4921,6 +5279,7 @@ export function inspectHarness(
   provider_activation_plan: HarnessProviderActivationPlan;
   browser_research_plan: HarnessBrowserResearchPlan;
   publishing_handoff_plan: HarnessPublishingHandoffPlan;
+  autonomy_unblock_plan: HarnessAutonomyUnblockPlan;
   next_action: HarnessNextActionReport;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
@@ -4950,6 +5309,7 @@ export function inspectHarness(
     provider_activation_plan: buildProviderActivationPlan({ env, rootDir }),
     browser_research_plan: buildBrowserResearchPlan({ env, rootDir }),
     publishing_handoff_plan: buildPublishingHandoffPlan({ env, rootDir }),
+    autonomy_unblock_plan: buildAutonomyUnblockPlan('Make WorthScan autonomous for Codex', { env, rootDir }),
     next_action: buildNextActionReport('Make WorthScan autonomous for Codex', env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
@@ -5050,6 +5410,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const providerActivationPlanPath = path.join(runDir, 'provider_activation_plan.json');
   const browserResearchPlanPath = path.join(runDir, 'browser_research_plan.json');
   const publishingHandoffPlanPath = path.join(runDir, 'publishing_handoff_plan.json');
+  const autonomyUnblockPlanPath = path.join(runDir, 'autonomy_unblock_plan.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
   const nextActionPath = path.join(runDir, 'next_action.json');
@@ -5073,6 +5434,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const providerActivationPlan = buildProviderActivationPlan({ env: options.env ?? process.env, rootDir });
   const browserResearchPlan = buildBrowserResearchPlan({ env: options.env ?? process.env, rootDir });
   const publishingHandoffPlan = buildPublishingHandoffPlan({ env: options.env ?? process.env, rootDir });
+  const autonomyUnblockPlan = buildAutonomyUnblockPlan(options.goal, { env: options.env ?? process.env, rootDir });
   const reproducibilityManifest = buildReproducibilityManifest(rootDir);
   const autonomyAudit = buildAutonomyAudit(options.goal, options.env ?? process.env, rootDir);
   const providerPreflight = preflightProviderRequests(options.env ?? process.env, rootDir);
@@ -5091,6 +5453,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   fs.writeFileSync(providerActivationPlanPath, `${JSON.stringify(providerActivationPlan, null, 2)}\n`);
   fs.writeFileSync(browserResearchPlanPath, `${JSON.stringify(browserResearchPlan, null, 2)}\n`);
   fs.writeFileSync(publishingHandoffPlanPath, `${JSON.stringify(publishingHandoffPlan, null, 2)}\n`);
+  fs.writeFileSync(autonomyUnblockPlanPath, `${JSON.stringify(autonomyUnblockPlan, null, 2)}\n`);
   fs.writeFileSync(reproducibilityManifestPath, `${JSON.stringify(reproducibilityManifest, null, 2)}\n`);
   fs.writeFileSync(autonomyAuditPath, `${JSON.stringify(autonomyAudit, null, 2)}\n`);
   fs.writeFileSync(providerPreflightPath, `${JSON.stringify(providerPreflight, null, 2)}\n`);
@@ -5124,6 +5487,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     provider_activation_plan_path: providerActivationPlanPath,
     browser_research_plan_path: browserResearchPlanPath,
     publishing_handoff_plan_path: publishingHandoffPlanPath,
+    autonomy_unblock_plan_path: autonomyUnblockPlanPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
     next_action_path: nextActionPath,
@@ -5170,6 +5534,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- run-history',
     `npm run harness -- autonomy-audit --goal "${options.goal.replace(/"/g, '\\"')}"`,
     `npm run harness -- goal-completion-audit --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
+    `npm run harness -- autonomy-unblock-plan --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     `npm run harness -- next-action --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     `npm run harness -- decision-surface --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     'npm run harness -- reproducibility-manifest',
@@ -5180,6 +5545,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- provider-activation-plan --env-file .env',
     'npm run harness -- browser-research-plan --env-file .env',
     'npm run harness -- publishing-handoff-plan --env-file .env',
+    'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
     'npm run harness -- capability-unlock-map',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- doctor',
@@ -6285,6 +6651,26 @@ function uniqueSorted(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort();
 }
 
+function unblockClasses(input: {
+  missingEnv: string[];
+  missingCredentials: string[];
+  policyBlockers: string[];
+  adapterBlockers: string[];
+  humanBlockers: string[];
+  localBlockers: string[];
+  completionGate: boolean;
+}): HarnessAutonomyUnblockLane['blocker_classes'] {
+  const classes: HarnessAutonomyUnblockLane['blocker_classes'] = [];
+  if (input.missingEnv.length) classes.push('env_gate');
+  if (input.missingCredentials.length) classes.push('credential');
+  if (input.policyBlockers.length) classes.push('policy');
+  if (input.adapterBlockers.length) classes.push('adapter');
+  if (input.humanBlockers.length) classes.push('human');
+  if (input.localBlockers.length) classes.push('local_artifact');
+  if (input.completionGate) classes.push('completion_gate');
+  return classes;
+}
+
 function runHistoryEntry(runDir: string, rootDir: string): HarnessRunHistoryEntry {
   const runPath = path.join(runDir, 'run.json');
   const fallbackCounts = emptyStageStatusCounts();
@@ -7247,6 +7633,9 @@ Commands:
   goal-completion-audit --goal "<goal>" [--out .ops/harness/goal_completion_audit.json] [--env-file .env]
     Audit the full thread objective requirement by requirement and report whether it can be marked complete.
 
+  autonomy-unblock-plan --goal "<goal>" [--env-file .env]
+    Classify remaining goal blockers by env gate, credential, policy, adapter, human boundary, and safe next command.
+
   autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json] [--env-file .env]
     Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
 
@@ -7525,6 +7914,17 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(audit, null, 2));
       return;
     }
+
+    case 'autonomy-unblock-plan':
+      console.log(JSON.stringify(buildAutonomyUnblockPlan(
+        stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex',
+        {
+          env: process.env,
+          envFile: stringOpt(options, 'env-file'),
+          rootDir: process.cwd(),
+        },
+      ), null, 2));
+      return;
 
     case 'decision-surface': {
       const surface = buildDecisionSurface(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex', effectiveEnv);

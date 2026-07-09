@@ -63,6 +63,10 @@ npm run harness -- browser-research-plan --env-file .env
 
 npm run harness -- publishing-handoff-plan --env-file .env
 
+npm run harness -- autonomy-unblock-plan \
+  --goal "Make WorthScan autonomous for Codex" \
+  --env-file .env
+
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
@@ -192,6 +196,12 @@ into one Codex-readable report: launch/account docs, handoff-ready packages,
 account-owner confirmation, human approval and generated-asset blockers, local
 metrics commands, and social-publishing gate state. It does not post, log in,
 upload, comment, DM, or open browser UI.
+
+`autonomy-unblock-plan` consolidates the remaining open goal lanes into one
+Codex-readable report: each lane is classified by env gate, credential, policy
+gap, adapter gap, local artifact gap, human boundary, or completion gate. It
+separates safe-now inspection commands from activation commands and still makes
+zero external calls.
 
 `autonomy-plan` composes the audit, capability plan, blocker ledger, provider
 preflight, and job ranking into an ordered Codex execution queue. Each step
@@ -340,6 +350,7 @@ provider_route_map.json
 provider_activation_plan.json
 browser_research_plan.json
 publishing_handoff_plan.json
+autonomy_unblock_plan.json
 reproducibility_manifest.json
 autonomy_audit.json
 next_action.json
