@@ -229,7 +229,8 @@ remain open.
 `decision-surface` is the compact control panel for Codex. It merges the
 autonomy plan, goal audit, blocker ledger, provider readiness, credential
 coverage, launch state, and run history into safe-now, capability-gated,
-human-boundary, and blocked action queues.
+human-boundary, and blocked action queues. When a latest durable run exists, it
+prefers a resume action before creating another local auto run.
 
 `inspect` returns:
 

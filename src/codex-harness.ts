@@ -3648,7 +3648,10 @@ export function buildDecisionSurface(
   const providerPreflight = preflightProviderRequests(env, rootDir);
   const runHistory = buildHarnessRunHistory({ rootDir, limit: 5 });
   const latestRun = findLatestHarnessRun(rootDir);
-  const actions = plan.steps.map((step) => decisionSurfaceAction(step));
+  const actions = [
+    ...(latestRun ? [decisionSurfaceResumeAction(latestRun)] : []),
+    ...plan.steps.map((step) => decisionSurfaceAction(step)),
+  ];
   const safeNow = actions.filter((action) => action.queue === 'safe_now');
   const capabilityGated = actions.filter((action) => action.queue === 'capability_gated');
   const humanBoundary = actions.filter((action) => action.queue === 'human_boundary');
@@ -3713,6 +3716,26 @@ function decisionSurfaceAction(step: HarnessAutonomyPlanStep): HarnessDecisionSu
     required_gates: step.required_gates,
     writes: step.writes,
     source_ids: [`autonomy_plan.${step.id}`],
+  };
+}
+
+function decisionSurfaceResumeAction(latestRun: HarnessResumeReport): HarnessDecisionSurfaceAction {
+  return {
+    id: 'run.resume_latest',
+    queue: 'safe_now',
+    lane: 'local',
+    readiness_status: latestRun.missing_artifacts.length ? 'blocked' : 'ready',
+    command: `npm run harness -- resume --run ${shellQuote(latestRun.run_dir)}`,
+    reason: 'Inspect the latest durable harness run before creating another local auto run.',
+    evidence: [
+      `run_id=${latestRun.run_id}`,
+      `status=${latestRun.status}`,
+      `selected_job=${latestRun.selected_job.job_id}`,
+      `missing_artifact_count=${latestRun.missing_artifacts.length}`,
+    ],
+    required_gates: [],
+    writes: [],
+    source_ids: ['latest_run'],
   };
 }
 

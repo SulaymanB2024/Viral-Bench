@@ -628,6 +628,80 @@ test('decision surface queues safe Codex actions separately from external gates'
   assert.doesNotMatch(serialized, /present-for-test/);
 });
 
+test('decision surface resumes the latest run before creating another auto run', () => {
+  const runId = `decision-surface-test-${Date.now()}`;
+  const runDir = path.join(process.cwd(), '.ops', 'harness', 'runs', runId);
+  const renderDir = path.join(runDir, 'rendered', 'worthscan_scooter_battery_001');
+  const artifact = (name: string): string => path.join(runDir, name);
+  const artifactPaths = [
+    artifact('primitives.json'),
+    artifact('capabilities.json'),
+    artifact('information_index.json'),
+    artifact('context_pack.json'),
+    artifact('job_rankings.json'),
+    artifact('evidence_map.json'),
+    artifact('launch_map.json'),
+    artifact('verification_map.json'),
+    artifact('capability_unlock_map.json'),
+    artifact('reproducibility_manifest.json'),
+    artifact('autonomy_audit.json'),
+    artifact('provider_preflight.json'),
+    artifact('artifact_inventory.json'),
+    artifact('blocker_ledger.json'),
+    artifact('next_actions.json'),
+    artifact('codex_next_prompt.md'),
+    path.join(renderDir, 'manifest.json'),
+  ];
+
+  try {
+    fs.mkdirSync(renderDir, { recursive: true });
+    for (const artifactPath of artifactPaths) {
+      fs.mkdirSync(path.dirname(artifactPath), { recursive: true });
+      fs.writeFileSync(artifactPath, '{}\n');
+    }
+    fs.writeFileSync(path.join(runDir, 'run.json'), `${JSON.stringify({
+      run_id: runId,
+      goal: 'Make WorthScan autonomous for Codex',
+      created_at: new Date().toISOString(),
+      status: 'needs_capability',
+      selected_job: {
+        path: SCOOTER_JOB,
+        job_id: 'worthscan_scooter_battery_001',
+        reason: 'test latest-run decision surface fixture',
+      },
+      primitives_path: artifact('primitives.json'),
+      capabilities_path: artifact('capabilities.json'),
+      information_index_path: artifact('information_index.json'),
+      context_pack_path: artifact('context_pack.json'),
+      job_rankings_path: artifact('job_rankings.json'),
+      evidence_map_path: artifact('evidence_map.json'),
+      launch_map_path: artifact('launch_map.json'),
+      verification_map_path: artifact('verification_map.json'),
+      capability_unlock_map_path: artifact('capability_unlock_map.json'),
+      reproducibility_manifest_path: artifact('reproducibility_manifest.json'),
+      autonomy_audit_path: artifact('autonomy_audit.json'),
+      provider_preflight_path: artifact('provider_preflight.json'),
+      artifact_inventory_path: artifact('artifact_inventory.json'),
+      blocker_ledger_path: artifact('blocker_ledger.json'),
+      next_actions_path: artifact('next_actions.json'),
+      prompt_packet_path: artifact('codex_next_prompt.md'),
+      render_output_dir: renderDir,
+      provider_dry_runs: [],
+      stages: [],
+      next_actions: [],
+    }, null, 2)}\n`);
+
+    const surface = buildDecisionSurface('Make WorthScan autonomous for Codex', {}, process.cwd());
+
+    assert.equal(surface.current_state.latest_run_id, runId);
+    assert.equal(surface.selected_safe_action?.id, 'run.resume_latest');
+    assert.ok(surface.selected_safe_action?.command?.includes(runDir));
+    assert.ok(Object.values(surface.queues).some((queue) => queue.some((action) => action.id === 'local.auto')));
+  } finally {
+    fs.rmSync(runDir, { recursive: true, force: true });
+  }
+});
+
 test('doctor reports readiness, information surface, and recommended commands', () => {
   const doctor = buildHarnessDoctor({}, process.cwd());
 
