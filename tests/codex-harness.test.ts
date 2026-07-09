@@ -16,6 +16,7 @@ import {
   buildHarnessDoctor,
   buildInformationIndex,
   buildCapabilityProfile,
+  buildJobReadinessMatrix,
   buildReproducibilityManifest,
   buildRepoStatus,
   exportSourcePackage,
@@ -102,6 +103,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.inspect'));
   assert.ok(ids.includes('harness.run'));
   assert.ok(ids.includes('harness.rank_jobs'));
+  assert.ok(ids.includes('harness.job_matrix'));
   assert.ok(ids.includes('harness.context_pack'));
   assert.ok(ids.includes('harness.information_index'));
   assert.ok(ids.includes('harness.inventory'));
@@ -156,6 +158,24 @@ test('job ranking gives Codex scored runnable work choices', () => {
   assert.ok(rankings.every((ranking, index) => ranking.rank === index + 1));
   assert.ok(rankings.some((ranking) => ranking.job_id === 'worthscan_scooter_battery_001' && ranking.reasons.length > 0));
   assert.ok(rankings.every((ranking) => typeof ranking.score === 'number'));
+});
+
+test('job matrix links jobs to renders, providers, launch queue, metrics, and commands', () => {
+  const matrix = buildJobReadinessMatrix({}, process.cwd());
+  const scooter = matrix.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
+  const scanBike = matrix.jobs.find((row) => row.job_id === 'scan_bike_001');
+
+  assert.equal(matrix.job_count, 11);
+  assert.ok(matrix.rendered_job_count >= 3);
+  assert.ok(matrix.provider_linked_job_count >= 1);
+  assert.ok(matrix.launch_queue_job_count >= 3);
+  assert.ok(scooter);
+  assert.equal(scooter?.launch_queue.mentioned, true);
+  assert.equal(scooter?.render_package.manifest_exists, true);
+  assert.ok(scooter?.next_commands.some((command) => command.includes('creative -- validate')));
+  assert.ok(scanBike?.provider_requests.some((request) => request.provider === 'openai_image'));
+  assert.ok(scanBike?.provider_requests.some((request) => request.ready_for_provider_handoff));
+  assert.ok(matrix.next_commands.some((command) => command.includes('rank-jobs')));
 });
 
 test('information index maps source, schemas, jobs, provider requests, tests, and ops docs', () => {
@@ -261,6 +281,7 @@ test('autonomy plan returns an ordered Codex execution queue without leaking cre
   assert.ok(plan.selected_next_step);
   assert.ok(plan.selected_next_step?.safe_to_run_now);
   assert.ok(plan.steps.some((step) => step.id === 'local.auto'));
+  assert.ok(plan.steps.some((step) => step.id === 'information.job_matrix'));
   assert.ok(plan.steps.some((step) => step.id === 'provider.preflight_all'));
   assert.ok(plan.steps.some((step) => step.id.startsWith('provider.')));
   assert.ok(plan.command_policy.safe_default_commands.some((command) => command.includes('autonomy-plan')));

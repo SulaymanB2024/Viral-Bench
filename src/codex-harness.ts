@@ -18,6 +18,10 @@ import {
   type MergedEnvFileReport,
 } from './env-loader';
 import {
+  latestMetricSnapshot,
+  loadPostMetricsStore,
+} from './post-metrics';
+import {
   loadProviderRequestManifest,
   runProviderDryRun,
   type ProviderDryRunResult,
@@ -232,6 +236,63 @@ export interface HarnessJobRanking {
   runnable_now: boolean;
   reasons: string[];
   blockers: string[];
+}
+
+export interface HarnessJobMatrixProviderRequest {
+  request_id: string;
+  provider: CreativeProviderName;
+  path: string;
+  status: ProviderRequestManifest['status'];
+  ready_for_provider_handoff: boolean;
+  ready_for_live_request: boolean;
+  missing_input_assets: string[];
+  live_blockers: string[];
+}
+
+export interface HarnessJobMatrixRow {
+  job_id: string;
+  path: string;
+  rank: number | null;
+  score: number | null;
+  runnable_now: boolean;
+  approval_state: CreativeJobManifest['approval_status']['state'];
+  provider_policy: {
+    approved_providers: CreativeProviderName[];
+    allow_paid_generation: boolean;
+    allow_browser_ui: boolean;
+    allow_social_publishing: boolean;
+  };
+  render_package: {
+    path: string;
+    exists: boolean;
+    manifest_exists: boolean;
+    caption_exists: boolean;
+    slide_count: number;
+  };
+  provider_requests: HarnessJobMatrixProviderRequest[];
+  launch_queue: {
+    mentioned: boolean;
+    order: number | null;
+  };
+  metrics: {
+    record_count: number;
+    latest_snapshot_at: string | null;
+  };
+  blockers: string[];
+  reasons: string[];
+  next_commands: string[];
+}
+
+export interface HarnessJobMatrix {
+  created_at: string;
+  root_dir: string;
+  job_count: number;
+  rendered_job_count: number;
+  provider_linked_job_count: number;
+  launch_queue_job_count: number;
+  metrics_job_count: number;
+  jobs: HarnessJobMatrixRow[];
+  next_commands: string[];
 }
 
 export interface HarnessContextPackSource {
@@ -753,6 +814,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       autonomy: 'safe_default',
     },
     {
+      id: 'harness.job_matrix',
+      kind: 'rank',
+      command: 'npm run harness -- job-matrix',
+      purpose: 'Return per-job readiness across ranking, rendered package files, provider requests, launch queue presence, metrics records, blockers, and next commands.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
       id: 'harness.context_pack',
       kind: 'context',
       command: 'npm run harness -- context-pack --out .ops/harness/context_pack.json',
@@ -953,6 +1023,127 @@ export function rankIncomingJobs(
     .map((item) => scoreCreativeJob(loadCreativeJobManifest(item.path), item.path, capabilityProfile))
     .sort((a, b) => b.score - a.score || a.job_id.localeCompare(b.job_id))
     .map((ranking, index) => ({ ...ranking, rank: index + 1 }));
+}
+
+export function buildJobReadinessMatrix(
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessJobMatrix {
+  const jobs = listIncomingJobs(rootDir);
+  const rankings = new Map(rankIncomingJobs(env, rootDir).map((ranking) => [ranking.job_id, ranking]));
+  const providerPreflight = preflightProviderRequests(env, rootDir);
+  const providerByJob = new Map<string, HarnessProviderPreflight[]>();
+  for (const preflight of providerPreflight.preflights) {
+    const existing = providerByJob.get(preflight.job_id) ?? [];
+    existing.push(preflight);
+    providerByJob.set(preflight.job_id, existing);
+  }
+  const launchQueue = readLaunchQueue(rootDir);
+  const metricsStore = loadPostMetricsStore(path.join(rootDir, '.ops', 'metrics', 'post_metrics.json'));
+  const metricsByJob = new Map<string, ReturnType<typeof loadPostMetricsStore>['records']>();
+  for (const record of metricsStore.records) {
+    const existing = metricsByJob.get(record.job_id) ?? [];
+    existing.push(record);
+    metricsByJob.set(record.job_id, existing);
+  }
+
+  const rows = jobs.map(({ job_id: jobId, path: jobPath }): HarnessJobMatrixRow => {
+    const job = loadCreativeJobManifest(jobPath);
+    const ranking = rankings.get(jobId);
+    const packageDir = providerPackageDir(rootDir, jobId);
+    const outputDir = path.join(packageDir, 'output');
+    const slideCount = fs.existsSync(outputDir)
+      ? fs.readdirSync(outputDir).filter((file) => /^slide_\d+\.png$/.test(file)).length
+      : 0;
+    const jobProviderRequests = (providerByJob.get(jobId) ?? []).sort((a, b) => a.request_id.localeCompare(b.request_id));
+    const metrics = metricsByJob.get(jobId) ?? [];
+    const latestSnapshotAt = metrics
+      .map((record) => latestMetricSnapshot(record)?.captured_at ?? null)
+      .filter((value): value is string => Boolean(value))
+      .sort()
+      .at(-1) ?? null;
+    const launchOrder = launchQueue.orders.get(jobId) ?? null;
+    const launchMentioned = launchOrder !== null || launchQueue.text.includes(jobId);
+    const manifestExists = fs.existsSync(path.join(packageDir, 'manifest.json'));
+    const captionExists = fs.existsSync(path.join(outputDir, 'caption.txt'));
+    const blockers = Array.from(new Set([
+      ...(ranking?.blockers ?? []),
+      ...(manifestExists ? [] : ['rendered package missing']),
+      ...(captionExists ? [] : ['rendered caption missing']),
+      ...(slideCount >= job.output_requirements.slide_count ? [] : [`rendered slide count ${slideCount}/${job.output_requirements.slide_count}`]),
+      ...jobProviderRequests.flatMap((request) => request.ready_for_provider_handoff ? [] : request.live_blockers),
+    ])).sort();
+    const nextCommands = Array.from(new Set([
+      `npm run creative -- validate --job ${shellQuote(relativeToRoot(rootDir, jobPath))}`,
+      ...(manifestExists ? [] : [`npm run creative -- render --job ${shellQuote(relativeToRoot(rootDir, jobPath))}`]),
+      ...(jobProviderRequests.length
+        ? jobProviderRequests.map((request) => `npm run harness -- provider-preflight --request ${shellQuote(request.request_path)}`)
+        : []),
+      ...(launchMentioned && metrics.length === 0
+        ? [`npm run metrics:create-post -- --job-id ${shellQuote(jobId)} --platform <platform> --account-handle <handle> --posted-url <url> --content-type ${shellQuote(job.content_type)} --hook ${shellQuote(job.output_requirements.slides[0]?.on_screen_text ?? job.content_type)} --format slideshow --cta scan`]
+        : []),
+    ]));
+
+    return {
+      job_id: jobId,
+      path: relativeToRoot(rootDir, jobPath),
+      rank: ranking?.rank ?? null,
+      score: ranking?.score ?? null,
+      runnable_now: ranking?.runnable_now ?? false,
+      approval_state: job.approval_status.state,
+      provider_policy: {
+        approved_providers: job.provider_policy.approved_providers,
+        allow_paid_generation: job.provider_policy.allow_paid_generation,
+        allow_browser_ui: job.provider_policy.allow_browser_ui,
+        allow_social_publishing: job.provider_policy.allow_social_publishing,
+      },
+      render_package: {
+        path: relativeToRoot(rootDir, packageDir),
+        exists: fs.existsSync(packageDir),
+        manifest_exists: manifestExists,
+        caption_exists: captionExists,
+        slide_count: slideCount,
+      },
+      provider_requests: jobProviderRequests.map((request) => ({
+        request_id: request.request_id,
+        provider: request.provider,
+        path: request.request_path,
+        status: request.status,
+        ready_for_provider_handoff: request.ready_for_provider_handoff,
+        ready_for_live_request: request.ready_for_live_request,
+        missing_input_assets: request.missing_input_assets,
+        live_blockers: request.live_blockers,
+      })),
+      launch_queue: {
+        mentioned: launchMentioned,
+        order: launchOrder,
+      },
+      metrics: {
+        record_count: metrics.length,
+        latest_snapshot_at: latestSnapshotAt,
+      },
+      blockers,
+      reasons: ranking?.reasons ?? [],
+      next_commands: nextCommands,
+    };
+  }).sort((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER) || a.job_id.localeCompare(b.job_id));
+
+  return {
+    created_at: new Date().toISOString(),
+    root_dir: rootDir,
+    job_count: rows.length,
+    rendered_job_count: rows.filter((row) => row.render_package.manifest_exists).length,
+    provider_linked_job_count: rows.filter((row) => row.provider_requests.length > 0).length,
+    launch_queue_job_count: rows.filter((row) => row.launch_queue.mentioned).length,
+    metrics_job_count: rows.filter((row) => row.metrics.record_count > 0).length,
+    jobs: rows,
+    next_commands: [
+      'npm run harness -- rank-jobs',
+      'npm run harness -- auto --goal "<goal>"',
+      'npm run harness -- provider-preflight',
+      'npm run metrics:list',
+    ],
+  };
 }
 
 export function buildContextPack(
@@ -1718,6 +1909,7 @@ export function buildAutonomyAudit(
     'harness.information_index',
     'harness.context_pack',
     'harness.rank_jobs',
+    'harness.job_matrix',
     'harness.resume',
     'harness.inventory',
     'harness.blockers',
@@ -1896,6 +2088,7 @@ export function buildHarnessDoctor(
     'npm run harness -- provider-preflight',
     'npm run harness -- provider-handoff --request .ops/provider_requests/sample_openai_image_request.json',
     'npm run harness -- rank-jobs',
+    'npm run harness -- job-matrix',
     'npm run harness -- run --goal "<goal>"',
     'npm run harness -- blockers',
   ];
@@ -1999,6 +2192,22 @@ export function buildAutonomyPlan(
     evidence: auditById.get('codex.information_surface')?.evidence ?? [],
     required_gates: [],
     writes: ['.ops/harness/context_pack.json'],
+  });
+
+  addStep({
+    id: 'information.job_matrix',
+    priority: 38,
+    lane: 'information',
+    status: 'ready',
+    safe_to_run_now: true,
+    command: 'npm run harness -- job-matrix',
+    reason: 'Inspect every incoming job across rank, rendered package, provider requests, launch queue, metrics, blockers, and next commands.',
+    evidence: [
+      `job_count=${doctor.incoming_job_count}`,
+      `provider_request_count=${doctor.provider_request_count}`,
+    ],
+    required_gates: [],
+    writes: [],
   });
 
   addStep({
@@ -3056,6 +3265,20 @@ function countMatches(value: string, pattern: RegExp): number {
   return Array.from(value.matchAll(pattern)).length;
 }
 
+function readLaunchQueue(rootDir: string): { path: string; text: string; orders: Map<string, number> } {
+  const launchQueuePath = path.join(rootDir, '.ops', 'launch', 'launch_queue.md');
+  if (!fs.existsSync(launchQueuePath)) {
+    return { path: launchQueuePath, text: '', orders: new Map() };
+  }
+
+  const text = fs.readFileSync(launchQueuePath, 'utf8');
+  const orders = new Map<string, number>();
+  for (const match of text.matchAll(/\|\s*(\d+)\s*\|\s*`([^`]+)`/g)) {
+    orders.set(match[2], Number(match[1]));
+  }
+  return { path: launchQueuePath, text, orders };
+}
+
 function buildNextActions(
   job: CreativeJobManifest,
   capabilities: HarnessCapabilityProfile,
@@ -3312,6 +3535,9 @@ Commands:
   rank-jobs
     Rank incoming creative jobs for autonomous selection.
 
+  job-matrix
+    Print per-job readiness across rank, rendered package, providers, launch queue, metrics, blockers, and next commands.
+
   context-pack [--out .ops/harness/context_pack.json] [--max-files 80] [--max-chars-per-file 2400]
     Write a bounded context pack with hashed file excerpts for Codex.
 
@@ -3488,6 +3714,10 @@ async function main(): Promise<void> {
 
     case 'rank-jobs':
       console.log(JSON.stringify(rankIncomingJobs(effectiveEnv), null, 2));
+      return;
+
+    case 'job-matrix':
+      console.log(JSON.stringify(buildJobReadinessMatrix(effectiveEnv), null, 2));
       return;
 
     case 'inventory':

@@ -80,6 +80,8 @@ npm run harness -- information-index
 
 npm run harness -- rank-jobs
 
+npm run harness -- job-matrix
+
 npm run harness -- context-pack --out .ops/harness/context_pack.json
 
 npm run harness -- blockers
@@ -124,6 +126,11 @@ preflight, and job ranking into an ordered Codex execution queue. Each step
 declares whether it is safe to run now, the command to run, evidence, required
 gates, expected writes, and the selected next step. It is the quickest
 machine-readable surface for a Codex agent deciding what to do next.
+
+`job-matrix` gives Codex a per-job readiness table covering harness rank,
+runnability, approval state, rendered package files, linked provider requests,
+provider handoff/live readiness, launch queue presence, metrics records,
+blockers, and next commands.
 
 `provider-preflight` checks every provider request prompt, declared input asset,
 declared output target, dry-run result, and local preparation command. It is the
