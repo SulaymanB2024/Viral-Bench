@@ -58,6 +58,9 @@ npm run harness -- credential-coverage --env-file .env
 npm run harness -- autonomy-plan \
   --goal "Make WorthScan autonomous for Codex"
 
+npm run harness -- next-action \
+  --goal "Make WorthScan autonomous for Codex"
+
 npm run harness -- provider-preflight
 
 npm run harness -- prepare-provider-inputs \
@@ -163,6 +166,12 @@ declares whether it is safe to run now, the command to run, evidence, required
 gates, expected writes, and the selected next step. It is the quickest
 machine-readable surface for a Codex agent deciding what to do next.
 
+`next-action` is the compact control report for a Codex agent that already has
+the broad harness context. It separates the next orientation action, the next
+safe progress action, the next capability-unlock inspection, and the current
+human-boundary action so Codex can keep moving without confusing a read-only
+handoff with the next goal-advancing command.
+
 `job-matrix` gives Codex a per-job readiness table covering harness rank,
 runnability, approval state, rendered package files, linked provider requests,
 provider handoff/live readiness, launch queue presence, metrics records,
@@ -245,6 +254,7 @@ excerpts for the latest or specified run.
 - reproducibility manifest and autonomy audit
 - goal completion audit with explicit blockers and proof commands
 - decision surface with safe-now, gated, human-boundary, and blocked queues
+- next-action report separating orientation, progress, capability unlocks, and human boundaries
 - capability plan
 - capability unlock map for env, credential, policy, activation, and verification gates
 - credential coverage across live, gated, unimplemented, missing, and unbound keys
@@ -288,6 +298,7 @@ context_pack.json
 job_rankings.json
 reproducibility_manifest.json
 autonomy_audit.json
+next_action.json
 provider_preflight.json
 artifact_inventory.json
 blocker_ledger.json

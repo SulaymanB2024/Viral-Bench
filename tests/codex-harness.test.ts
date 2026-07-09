@@ -25,6 +25,7 @@ import {
   buildCapabilityProfile,
   buildJobReadinessMatrix,
   buildLaunchMap,
+  buildNextActionReport,
   buildReproducibilityManifest,
   buildRepoStatus,
   buildVerificationMap,
@@ -113,6 +114,7 @@ test('primitive menu gives Codex callable autonomous harness commands', () => {
   assert.ok(ids.includes('harness.autonomy_audit'));
   assert.ok(ids.includes('harness.goal_completion_audit'));
   assert.ok(ids.includes('harness.autonomy_plan'));
+  assert.ok(ids.includes('harness.next_action'));
   assert.ok(ids.includes('harness.decision_surface'));
   assert.ok(ids.includes('harness.inspect'));
   assert.ok(ids.includes('harness.run'));
@@ -154,6 +156,8 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.provider_preflight.preflights.some((preflight) => preflight.request_id === 'sample-openai-image-request'));
   assert.equal(inspected.goal_completion_audit.can_mark_goal_complete, false);
   assert.equal(inspected.decision_surface.summary.can_mark_goal_complete, false);
+  assert.equal(inspected.next_action.summary.can_mark_goal_complete, false);
+  assert.ok(inspected.next_action.orientation_action ?? inspected.next_action.progress_action);
   assert.ok(['no_run', 'advanced', 'needs_capability', 'blocked', 'unreadable'].includes(inspected.latest_run_brief.status));
   assert.ok(inspected.capability_plan.lanes.some((lane) => lane.id === 'provider'));
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
@@ -707,6 +711,28 @@ test('decision surface briefs the latest run before creating another auto run', 
   }
 });
 
+test('next action report separates orientation, progress, and external boundaries', () => {
+  const report = buildNextActionReport('Make WorthScan autonomous for Codex', {}, process.cwd());
+  const serialized = JSON.stringify(report);
+
+  assert.equal(report.summary.can_mark_goal_complete, false);
+  assert.ok(report.orientation_action);
+  assert.ok(report.progress_action);
+  assert.notEqual(report.orientation_action?.id, report.progress_action?.id);
+  assert.equal(report.progress_action?.queue, 'safe_now');
+  assert.ok(report.progress_action?.command);
+  assert.ok(report.capability_unlock_action);
+  assert.ok(
+    report.capability_unlock_action?.id.startsWith('capability.')
+      || report.capability_unlock_action?.id === 'provider.preflight_all'
+      || report.capability_unlock_action?.queue === 'capability_gated',
+  );
+  assert.ok(report.human_boundary_action);
+  assert.equal(report.human_boundary_action?.queue, 'human_boundary');
+  assert.ok(report.next_commands.some((command) => command.includes('next-action')));
+  assert.doesNotMatch(serialized, /present-for-test|secret-value-for-test/);
+});
+
 test('doctor reports readiness, information surface, and recommended commands', () => {
   const doctor = buildHarnessDoctor({}, process.cwd());
 
@@ -726,6 +752,7 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- provider-preflight')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- capability-unlock-map')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- credential-coverage')));
+  assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- next-action')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- decision-surface')));
   assert.ok(doctor.recommended_commands.some((command) => command.includes('npm run harness -- run-history')));
@@ -756,6 +783,8 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.ok(fs.existsSync(record.capability_unlock_map_path));
   assert.ok(fs.existsSync(record.reproducibility_manifest_path));
   assert.ok(fs.existsSync(record.autonomy_audit_path));
+  assert.ok(record.next_action_path);
+  assert.ok(fs.existsSync(record.next_action_path));
   assert.ok(record.provider_preflight_path);
   assert.ok(fs.existsSync(record.provider_preflight_path));
   assert.ok(fs.existsSync(record.artifact_inventory_path));
@@ -775,6 +804,7 @@ test('harness run writes durable Codex artifacts and renders selected job', asyn
   assert.match(fs.readFileSync(record.capability_unlock_map_path, 'utf8'), /paid_provider_generation/);
   assert.match(fs.readFileSync(record.reproducibility_manifest_path, 'utf8'), /source_of_truth/);
   assert.match(fs.readFileSync(record.autonomy_audit_path, 'utf8'), /codex\.reproducibility/);
+  assert.match(fs.readFileSync(record.next_action_path, 'utf8'), /progress_action/);
   assert.match(fs.readFileSync(record.provider_preflight_path, 'utf8'), /provider_preflight|preflights/);
   assert.match(fs.readFileSync(record.artifact_inventory_path, 'utf8'), /artifact_count/);
   assert.match(fs.readFileSync(record.blocker_ledger_path, 'utf8'), /git\.reproducibility/);
@@ -929,6 +959,7 @@ test('auto loop writes a durable auto result and keeps external gates explicit',
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- doctor')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- autonomy-audit')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- goal-completion-audit')));
+  assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- next-action')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- decision-surface')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- run-brief')));
   assert.ok(result.next_commands.some((command) => command.includes('npm run harness -- stage-source --dry-run')));

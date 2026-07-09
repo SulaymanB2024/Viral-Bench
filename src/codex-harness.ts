@@ -907,6 +907,30 @@ export interface HarnessDecisionSurface {
   next_commands: string[];
 }
 
+export interface HarnessNextActionReport {
+  created_at: string;
+  goal: string;
+  root_dir: string;
+  summary: {
+    orientation_action_id: string | null;
+    progress_action_id: string | null;
+    capability_unlock_action_id: string | null;
+    human_boundary_action_id: string | null;
+    blocked_action_count: number;
+    can_mark_goal_complete: boolean;
+    goal_summary_status: HarnessGoalCompletionAudit['summary_status'];
+    autonomy_summary_status: HarnessAutonomyAudit['summary_status'];
+    dirty_source_of_truth_count: number;
+  };
+  current_state: HarnessDecisionSurface['current_state'];
+  orientation_action: HarnessDecisionSurfaceAction | null;
+  progress_action: HarnessDecisionSurfaceAction | null;
+  capability_unlock_action: HarnessDecisionSurfaceAction | null;
+  human_boundary_action: HarnessDecisionSurfaceAction | null;
+  blocked_actions: HarnessDecisionSurfaceAction[];
+  next_commands: string[];
+}
+
 export interface HarnessAutoResult {
   created_at: string;
   goal: string;
@@ -962,6 +986,7 @@ export interface HarnessRunRecord {
   capability_unlock_map_path: string;
   reproducibility_manifest_path: string;
   autonomy_audit_path: string;
+  next_action_path?: string;
   artifact_inventory_path: string;
   blocker_ledger_path: string;
   provider_preflight_path?: string;
@@ -1237,6 +1262,15 @@ export function listCodexPrimitives(): CodexPrimitive[] {
       kind: 'doctor',
       command: 'npm run harness -- autonomy-plan --goal "<goal>"',
       purpose: 'Return an ordered Codex execution queue with safe-to-run commands, capability-gated commands, evidence, writes, and selected next step.',
+      writes: [],
+      required_gates: [],
+      autonomy: 'safe_default',
+    },
+    {
+      id: 'harness.next_action',
+      kind: 'doctor',
+      command: 'npm run harness -- next-action --goal "<goal>" --env-file .env',
+      purpose: 'Return the next orientation, progress, capability-unlock, and human-boundary actions as a compact Codex control report.',
       writes: [],
       required_gates: [],
       autonomy: 'safe_default',
@@ -2312,6 +2346,7 @@ function runBriefArtifacts(
     { role: 'capability_unlock_map', filePath: record.capability_unlock_map_path },
     { role: 'reproducibility_manifest', filePath: record.reproducibility_manifest_path },
     { role: 'autonomy_audit', filePath: record.autonomy_audit_path },
+    { role: 'next_action', filePath: record.next_action_path },
     { role: 'provider_preflight', filePath: record.provider_preflight_path },
     { role: 'artifact_inventory', filePath: record.artifact_inventory_path },
     { role: 'blocker_ledger', filePath: record.blocker_ledger_path },
@@ -3088,6 +3123,7 @@ export function buildAutonomyAudit(
     'harness.autonomy_audit',
     'harness.goal_completion_audit',
     'harness.autonomy_plan',
+    'harness.next_action',
     'harness.decision_surface',
     'harness.source_package',
     'harness.verify_source_package',
@@ -3214,6 +3250,7 @@ export function buildAutonomyAudit(
       'npm run harness -- capability-unlock-map',
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- run-brief',
@@ -3271,6 +3308,7 @@ export function buildGoalCompletionAudit(
     'harness.autonomy_audit',
     'harness.goal_completion_audit',
     'harness.autonomy_plan',
+    'harness.next_action',
     'harness.decision_surface',
     'harness.capability_plan',
     'harness.capability_unlock_map',
@@ -3451,6 +3489,7 @@ export function buildGoalCompletionAudit(
     requirements,
     next_commands: [
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
@@ -3496,6 +3535,7 @@ export function buildHarnessDoctor(
   const recommendedCommands = [
     'npm run harness -- autonomy-audit --goal "<goal>"',
     'npm run harness -- goal-completion-audit --goal "<goal>" --env-file .env',
+    'npm run harness -- next-action --goal "<goal>" --env-file .env',
     'npm run harness -- decision-surface --goal "<goal>" --env-file .env',
     'npm run harness -- autonomy-plan --goal "<goal>"',
     'npm run harness -- capability-plan',
@@ -3930,6 +3970,7 @@ export function buildDecisionSurface(
     active_blockers: plan.open_blockers,
     next_commands: uniqueSorted([
       ...(selectedSafeAction?.command ? [selectedSafeAction.command] : []),
+      'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
       'npm run harness -- autonomy-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
@@ -3938,6 +3979,68 @@ export function buildDecisionSurface(
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- run-history',
       'npm run harness -- run-brief',
+    ]),
+  };
+}
+
+export function buildNextActionReport(
+  goal = 'Make WorthScan autonomous for Codex',
+  env: Record<string, string | undefined> = process.env,
+  rootDir = process.cwd(),
+): HarnessNextActionReport {
+  const surface = buildDecisionSurface(goal, env, rootDir);
+  const safeActions = surface.queues.safe_now.filter((action) => action.command);
+  const readOnlyActions = safeActions.filter((action) => action.writes.length === 0);
+  const orientationAction = safeActions.find((action) => action.id === 'run.brief_latest')
+    ?? readOnlyActions.find((action) => action.id === 'provider.preflight_all')
+    ?? readOnlyActions.find((action) => action.id === 'goal.completion_audit')
+    ?? readOnlyActions[0]
+    ?? surface.selected_safe_action;
+  const progressAction = safeActions.find((action) => (
+    action.id !== orientationAction?.id
+    && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
+    && action.writes.length > 0
+  )) ?? safeActions.find((action) => (
+    action.id !== orientationAction?.id
+    && !['run.brief_latest', 'run.resume_latest'].includes(action.id)
+  )) ?? null;
+  const capabilityUnlockAction = safeActions.find((action) => action.id === 'capability.unlock_map')
+    ?? safeActions.find((action) => action.id === 'capability.credential_coverage')
+    ?? safeActions.find((action) => action.id === 'provider.preflight_all')
+    ?? surface.queues.capability_gated.find((action) => action.command)
+    ?? null;
+  const humanBoundaryAction = surface.queues.human_boundary.find((action) => action.command || action.required_gates.length)
+    ?? null;
+
+  return {
+    created_at: new Date().toISOString(),
+    goal,
+    root_dir: rootDir,
+    summary: {
+      orientation_action_id: orientationAction?.id ?? null,
+      progress_action_id: progressAction?.id ?? null,
+      capability_unlock_action_id: capabilityUnlockAction?.id ?? null,
+      human_boundary_action_id: humanBoundaryAction?.id ?? null,
+      blocked_action_count: surface.queues.blocked.length,
+      can_mark_goal_complete: surface.summary.can_mark_goal_complete,
+      goal_summary_status: surface.summary.goal_summary_status,
+      autonomy_summary_status: surface.summary.autonomy_summary_status,
+      dirty_source_of_truth_count: surface.summary.dirty_source_of_truth_count,
+    },
+    current_state: surface.current_state,
+    orientation_action: orientationAction,
+    progress_action: progressAction,
+    capability_unlock_action: capabilityUnlockAction,
+    human_boundary_action: humanBoundaryAction,
+    blocked_actions: surface.queues.blocked,
+    next_commands: uniqueSorted([
+      ...(orientationAction?.command ? [orientationAction.command] : []),
+      ...(progressAction?.command ? [progressAction.command] : []),
+      ...(capabilityUnlockAction?.command ? [capabilityUnlockAction.command] : []),
+      'npm run harness -- next-action --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- decision-surface --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- goal-completion-audit --goal "Make WorthScan autonomous for Codex" --env-file .env',
+      'npm run harness -- capability-unlock-map --env-file .env',
     ]),
   };
 }
@@ -4018,6 +4121,7 @@ export function inspectHarness(
   capability_plan: HarnessCapabilityPlan;
   capability_unlock_map: HarnessCapabilityUnlockMap;
   credential_coverage: HarnessCredentialCoverageMap;
+  next_action: HarnessNextActionReport;
   capability_profile: HarnessCapabilityProfile;
   primitives: CodexPrimitive[];
   information_sources: HarnessInformationSource[];
@@ -4042,6 +4146,7 @@ export function inspectHarness(
     capability_plan: buildCapabilityPlan(env, rootDir),
     capability_unlock_map: buildCapabilityUnlockMap(env, rootDir),
     credential_coverage: buildCredentialCoverageMap({ env, rootDir }),
+    next_action: buildNextActionReport('Make WorthScan autonomous for Codex', env, rootDir),
     capability_profile: buildCapabilityProfile(env, rootDir),
     primitives: listCodexPrimitives(),
     information_sources: buildInformationIndex(rootDir),
@@ -4139,6 +4244,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
   const capabilityUnlockMapPath = path.join(runDir, 'capability_unlock_map.json');
   const reproducibilityManifestPath = path.join(runDir, 'reproducibility_manifest.json');
   const autonomyAuditPath = path.join(runDir, 'autonomy_audit.json');
+  const nextActionPath = path.join(runDir, 'next_action.json');
   const providerPreflightPath = path.join(runDir, 'provider_preflight.json');
   const artifactInventoryPath = path.join(runDir, 'artifact_inventory.json');
   const blockerLedgerPath = path.join(runDir, 'blocker_ledger.json');
@@ -4200,6 +4306,7 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
     capability_unlock_map_path: capabilityUnlockMapPath,
     reproducibility_manifest_path: reproducibilityManifestPath,
     autonomy_audit_path: autonomyAuditPath,
+    next_action_path: nextActionPath,
     provider_preflight_path: providerPreflightPath,
     artifact_inventory_path: artifactInventoryPath,
     blocker_ledger_path: blockerLedgerPath,
@@ -4213,6 +4320,9 @@ export async function runCodexHarness(options: HarnessRunOptions): Promise<Harne
 
   const runPath = path.join(runDir, 'run.json');
   fs.writeFileSync(runPath, `${JSON.stringify(record, null, 2)}\n`);
+  const nextAction = buildNextActionReport(options.goal, options.env ?? process.env, rootDir);
+  fs.writeFileSync(nextActionPath, `${JSON.stringify(nextAction, null, 2)}\n`);
+  fs.writeFileSync(record.artifact_inventory_path, `${JSON.stringify(buildArtifactInventory(runDir), null, 2)}\n`);
   return record;
 }
 
@@ -4240,6 +4350,7 @@ export async function runCodexAutonomy(options: HarnessRunOptions): Promise<Harn
     'npm run harness -- run-history',
     `npm run harness -- autonomy-audit --goal "${options.goal.replace(/"/g, '\\"')}"`,
     `npm run harness -- goal-completion-audit --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
+    `npm run harness -- next-action --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     `npm run harness -- decision-surface --goal "${options.goal.replace(/"/g, '\\"')}" --env-file .env`,
     'npm run harness -- reproducibility-manifest',
     'npm run harness -- stage-source --dry-run',
@@ -5832,6 +5943,9 @@ Commands:
   autonomy-plan --goal "<goal>" [--out .ops/harness/autonomy_plan.json] [--env-file .env]
     Print or write an ordered Codex execution queue with selected next step, evidence, gates, and writes.
 
+  next-action --goal "<goal>" [--out .ops/harness/next_action.json] [--env-file .env]
+    Print or write the next orientation, progress, capability-unlock, and human-boundary actions for Codex.
+
   decision-surface --goal "<goal>" [--out .ops/harness/decision_surface.json] [--env-file .env]
     Merge plan, goal audit, blockers, providers, credentials, launch state, and run history into action queues.
 
@@ -5949,6 +6063,25 @@ async function main(): Promise<void> {
         return;
       }
       console.log(JSON.stringify(plan, null, 2));
+      return;
+    }
+
+    case 'next-action': {
+      const report = buildNextActionReport(stringOpt(options, 'goal') ?? 'Make WorthScan autonomous for Codex', effectiveEnv);
+      const outPath = stringOpt(options, 'out');
+      if (outPath) {
+        fs.mkdirSync(path.dirname(path.resolve(outPath)), { recursive: true });
+        fs.writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`);
+        console.log(JSON.stringify({
+          ok: true,
+          path: outPath,
+          orientation_action_id: report.summary.orientation_action_id,
+          progress_action_id: report.summary.progress_action_id,
+          capability_unlock_action_id: report.summary.capability_unlock_action_id,
+        }, null, 2));
+        return;
+      }
+      console.log(JSON.stringify(report, null, 2));
       return;
     }
 
