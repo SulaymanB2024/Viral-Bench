@@ -55,7 +55,7 @@ Public positioning:
 
 ### TikTok
 
-- Status: Official email-signup form prepared with a non-secret contact field;
+- Status: Official TikTok birthday gate is retained in the Codex in-app browser;
   account is not created.
 - Prepared profile asset: `.ops/accounts/assets/worthscan-profile-v1.png`.
 - Next action: Human owner enters their actual birth date, chooses and retains a
@@ -66,9 +66,9 @@ Public positioning:
 
 ### Instagram
 
-- Status: Official email-signup form prepared with the approved public name,
-  candidate handle, and non-secret contact field; account is not created. The
-  public candidate handle `@tryworthscan` was valid at the last live check.
+- Status: Public signup preparation is recorded, but no official Instagram tab
+  is currently retained in the Codex in-app browser; account is not created.
+  The public candidate handle `@tryworthscan` was valid at the last live check.
 - Prepared profile asset: `.ops/accounts/assets/worthscan-profile-v1.png`.
 - Next action: Human owner enters their actual birth date, chooses and retains a
   password outside this repository, then completes the official verification,

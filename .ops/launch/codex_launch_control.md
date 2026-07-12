@@ -18,14 +18,13 @@ WorthScan launch loop.
 
 ## Live Account Handoff Checkpoint (2026-07-12)
 
-- TikTok's official email-signup form has its non-secret contact field prepared;
-  it still requires the account owner's birthday, password, and email code. The
-  observed Google option did not surface a consent or account-selection page in
-  the Codex in-app browser. Do not retry a missing popup or infer an OAuth
-  result.
-- Instagram's official email form is prepared with the approved public name,
-  candidate handle `@tryworthscan`, and non-secret contact field; no account has
-  been submitted.
+- TikTok is at its official birthday gate in the Codex in-app browser; no date
+  is filled and Next is disabled. It still requires the account owner's real
+  birthday, password, and email code. The observed Google option did not surface
+  a consent or account-selection page. Do not retry a missing popup or infer an
+  OAuth result.
+- No official Instagram tab is currently retained. Public signup preparation is
+  recorded with candidate handle `@tryworthscan`; no account has been submitted.
 - No verified birth date is available from the approved non-secret context. Do
   not infer a legal age, date of birth, password, code, or recovery detail.
 - Public-safe profile and banner assets are prepared in `.ops/accounts/assets/`;
