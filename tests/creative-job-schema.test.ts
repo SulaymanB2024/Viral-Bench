@@ -11,6 +11,7 @@ import {
   scanRepositoryForSecrets,
   validateCreativeJobManifest,
 } from '../packages/creative/job_schema';
+import { renderSlideSvg } from '../packages/creative/local_renderer';
 import { runCreativeProvider } from '../packages/creative/provider_router';
 
 const SAMPLE_JOB_PATH = path.join(
@@ -117,6 +118,8 @@ test('local renderer creates a review package without paid providers', async () 
   assert.equal(result.render.slide_paths.length, 5);
   assert.equal(path.relative(outDir, result.render.rendered_manifest_path), 'manifest.json');
   assert.equal(path.relative(outDir, result.render.source_image_path), path.join('source', 'bike_001.jpg'));
+  assert.equal(result.render.source_image_input_path, null);
+  assert.equal(result.render.source_image_is_placeholder, true);
   assert.equal(path.relative(outDir, result.render.listing_path), path.join('source', 'listing.txt'));
   assert.equal(path.relative(outDir, result.render.trend_examples_path), path.join('research', 'trend_examples.json'));
   assert.equal(path.relative(outDir, result.render.research_notes_path), path.join('research', 'notes.md'));
@@ -145,6 +148,39 @@ test('local renderer creates a review package without paid providers', async () 
   assert.ok(fs.existsSync(result.render.posting_notes_path));
   assert.match(fs.readFileSync(result.render.posting_notes_path, 'utf8'), /Do not auto-post/);
   assert.match(fs.readFileSync(result.render.approval_path, 'utf8'), /Nothing moves to posted/);
+});
+
+test('local renderer uses a safe in-repo visual source when the job supplies one', async () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-creative-visual-'));
+  const job = cloneJob(sampleJob());
+  job.source_inputs.push({
+    kind: 'local_file',
+    label: 'Illustrative launch visual',
+    path: 'tests/fixtures/approved-visual.svg',
+    notes: 'Public-safe illustration fixture.',
+  });
+
+  const result = await runCreativeProvider('local_renderer', job, { outDir });
+
+  assert.equal(result.status, 'rendered');
+  assert.equal(result.render.source_image_input_path, 'tests/fixtures/approved-visual.svg');
+  assert.equal(result.render.source_image_is_placeholder, false);
+  assert.ok(fs.existsSync(result.render.source_image_path));
+});
+
+test('public-facing local slides keep review language out of approved-source visuals', () => {
+  const job = sampleJob();
+  const slide = job.output_requirements.slides[0];
+  const sourceDataUri = 'data:image/jpeg;base64,AA==';
+  const publicSvg = renderSlideSvg(job, slide, sourceDataUri, false);
+  const placeholderSvg = renderSlideSvg(job, slide, sourceDataUri, true);
+
+  assert.doesNotMatch(publicSvg, /Operator review required/);
+  assert.doesNotMatch(publicSvg, /Confirm the visual is approved for public posting/);
+  assert.doesNotMatch(publicSvg, /Job:/);
+  assert.match(publicSvg, /Illustrative visual/);
+  assert.match(publicSvg, /Check: model/);
+  assert.match(placeholderSvg, /Operator review required/);
 });
 
 test('no secrets are present in tracked files', () => {

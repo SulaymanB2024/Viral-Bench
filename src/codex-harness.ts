@@ -713,6 +713,35 @@ export interface HarnessPublishingHandoffJob {
   next_action: string;
 }
 
+export type HarnessAccountPlatform = 'TikTok' | 'Instagram' | 'YouTube Shorts';
+export type HarnessAccountReadinessState = 'signup_prepared' | 'created_profile_pending' | 'ready' | 'missing' | 'invalid';
+
+export interface HarnessAccountReadinessItem {
+  platform: HarnessAccountPlatform;
+  state: HarnessAccountReadinessState;
+  account_created: boolean;
+  profile_configured: boolean;
+  two_factor_enabled: boolean;
+  analytics_confirmed: boolean;
+  candidate_handle: string | null;
+  public_handle: string | null;
+  public_url: string | null;
+  ready_for_manual_posting: boolean;
+  blockers: string[];
+  next_action: string;
+}
+
+export interface HarnessAccountReadiness {
+  registry_path: string | null;
+  registry_valid: boolean;
+  required_platforms: HarnessAccountPlatform[];
+  ready_platform_count: number;
+  pending_platform_count: number;
+  all_required_platforms_ready: boolean;
+  accounts: HarnessAccountReadinessItem[];
+  blockers: string[];
+}
+
 export interface HarnessPublishingHandoffPlan {
   created_at: string;
   root_dir: string;
@@ -725,6 +754,7 @@ export interface HarnessPublishingHandoffPlan {
   operating_docs: {
     account_setup_checklist_path: string | null;
     socials_path: string | null;
+    account_readiness_path: string | null;
     launch_checklist_path: string | null;
     launch_queue_path: string | null;
     manual_launch_packet_path: string | null;
@@ -734,7 +764,9 @@ export interface HarnessPublishingHandoffPlan {
     launch_calendar_path: string | null;
     dm_response_templates_path: string | null;
     pinned_comment_templates_path: string | null;
+    codex_launch_control_path: string | null;
   };
+  account_readiness: HarnessAccountReadiness;
   summary: {
     job_count: number;
     queued_job_count: number;
@@ -742,6 +774,8 @@ export interface HarnessPublishingHandoffPlan {
     autonomous_publish_ready_job_count: number;
     blocked_job_count: number;
     metrics_job_count: number;
+    ready_account_platform_count: number;
+    pending_account_platform_count: number;
     recommended_job_id: string | null;
     external_calls_made: 0;
   };
@@ -1663,7 +1697,8 @@ export function buildPublishingHandoffPlan(
   const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
   const launchMap = buildLaunchMap(merged.effective_env, rootDir);
   const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
-  const jobs = launchMap.jobs.map((job) => publishingHandoffJob(job));
+  const accountReadiness = buildAccountReadiness(rootDir);
+  const jobs = launchMap.jobs.map((job) => publishingHandoffJob(job, accountReadiness));
   const recommendedJob = jobs.find((job) => job.manual_handoff_ready && !job.autonomous_publish_ready)
     ?? jobs.find((job) => job.manual_handoff_ready)
     ?? jobs[0]
@@ -1681,6 +1716,7 @@ export function buildPublishingHandoffPlan(
     operating_docs: {
       account_setup_checklist_path: filePathIfExists(rootDir, '.ops/accounts/account_setup_checklist.md'),
       socials_path: filePathIfExists(rootDir, '.ops/accounts/socials.md'),
+      account_readiness_path: filePathIfExists(rootDir, '.ops/accounts/account_readiness.json'),
       launch_checklist_path: filePathIfExists(rootDir, '.ops/accounts/launch_checklist.md'),
       launch_queue_path: filePathIfExists(rootDir, '.ops/launch/launch_queue.md'),
       manual_launch_packet_path: filePathIfExists(rootDir, '.ops/launch/manual_launch_packet.md'),
@@ -1690,7 +1726,9 @@ export function buildPublishingHandoffPlan(
       launch_calendar_path: filePathIfExists(rootDir, '.ops/launch/launch_calendar.md'),
       dm_response_templates_path: filePathIfExists(rootDir, '.ops/launch/dm_response_templates.md'),
       pinned_comment_templates_path: filePathIfExists(rootDir, '.ops/launch/pinned_comment_templates.md'),
+      codex_launch_control_path: filePathIfExists(rootDir, '.ops/launch/codex_launch_control.md'),
     },
+    account_readiness: accountReadiness,
     summary: {
       job_count: jobs.length,
       queued_job_count: launchMap.queued_job_count,
@@ -1698,13 +1736,15 @@ export function buildPublishingHandoffPlan(
       autonomous_publish_ready_job_count: launchMap.autonomous_publish_ready_job_count,
       blocked_job_count: jobs.filter((job) => job.blockers.length > 0).length,
       metrics_job_count: launchMap.metrics_job_count,
+      ready_account_platform_count: accountReadiness.ready_platform_count,
+      pending_account_platform_count: accountReadiness.pending_platform_count,
       recommended_job_id: recommendedJob?.job_id ?? null,
       external_calls_made: 0,
     },
     jobs,
     next_commands: uniqueSorted([
       'npm run harness -- publishing-handoff-plan --env-file .env',
-      'npm run harness -- launch-map',
+      'npm run harness -- launch-map --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- blockers',
       ...(recommendedJob?.manual_review_commands ?? []),
@@ -1895,7 +1935,7 @@ export function buildAutonomyUnblockPlan(
     evidence: publishingRequirement?.evidence ?? [],
     safe_now_commands: uniqueSorted([
       'npm run harness -- publishing-handoff-plan --env-file .env',
-      'npm run harness -- launch-map',
+      'npm run harness -- launch-map --env-file .env',
       'npm run harness -- blockers',
     ]),
     activation_commands: uniqueSorted(publishingUnlockLane?.activation_commands ?? []),
@@ -3861,7 +3901,7 @@ export function buildCapabilityUnlockMap(
       })),
       safe_probe_commands: [
         'npm run harness -- publishing-handoff-plan --env-file .env',
-        'npm run harness -- launch-map',
+        'npm run harness -- launch-map --env-file .env',
         'npm run harness -- blockers',
       ],
       activation_commands: [
@@ -3869,7 +3909,7 @@ export function buildCapabilityUnlockMap(
       ],
       verification_commands: [
         'npm run harness -- publishing-handoff-plan --env-file .env',
-        'npm run harness -- launch-map',
+        'npm run harness -- launch-map --env-file .env',
         'npm exec tsx -- --test tests/launch-kit.test.ts --runInBand',
       ],
       blockers: publishingBlockers,
@@ -3889,7 +3929,7 @@ export function buildCapabilityUnlockMap(
       'npm run harness -- provider-activation-plan --env-file .env',
       'npm run harness -- publishing-handoff-plan --env-file .env',
       'npm run harness -- autonomy-unblock-plan --goal "Make WorthScan autonomous for Codex" --env-file .env',
-      'npm run harness -- launch-map',
+      'npm run harness -- launch-map --env-file .env',
       'npm run harness -- verification-map',
     ],
   };
@@ -4439,7 +4479,7 @@ export function buildGoalCompletionAudit(
       blockers: uniqueSorted(launchMap.jobs.flatMap((job) => job.blockers)),
       proof_commands: [
         'npm run harness -- publishing-handoff-plan --env-file .env',
-        'npm run harness -- launch-map',
+        'npm run harness -- launch-map --env-file .env',
         'npm run harness -- blockers',
       ],
       next_action: launchMap.autonomous_publish_ready_job_count
@@ -7162,6 +7202,7 @@ function launchDocPaths(): string[] {
   return [
     '.ops/accounts/account_setup_checklist.md',
     '.ops/accounts/socials.md',
+    '.ops/accounts/account_readiness.json',
     '.ops/accounts/handle_ideas.md',
     '.ops/accounts/profile_copy.md',
     '.ops/accounts/launch_checklist.md',
@@ -7169,10 +7210,163 @@ function launchDocPaths(): string[] {
     '.ops/launch/manual_launch_packet.md',
     '.ops/launch/posting_qa_checklist.md',
     '.ops/launch/metrics_tracking_template.md',
+    '.ops/launch/codex_launch_control.md',
   ];
 }
 
-function publishingHandoffJob(job: HarnessLaunchMapJob): HarnessPublishingHandoffJob {
+function buildAccountReadiness(rootDir: string): HarnessAccountReadiness {
+  const relativePath = '.ops/accounts/account_readiness.json';
+  const registryPath = path.join(rootDir, relativePath);
+  const requiredPlatforms: HarnessAccountPlatform[] = ['TikTok', 'Instagram', 'YouTube Shorts'];
+  if (!fs.existsSync(registryPath)) {
+    return {
+      registry_path: null,
+      registry_valid: false,
+      required_platforms: requiredPlatforms,
+      ready_platform_count: 0,
+      pending_platform_count: requiredPlatforms.length,
+      all_required_platforms_ready: false,
+      accounts: requiredPlatforms.map((platform) => missingAccountReadiness(platform, 'Account readiness registry is missing.')),
+      blockers: ['account readiness registry is missing'],
+    };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  } catch {
+    return {
+      registry_path: relativePath,
+      registry_valid: false,
+      required_platforms: requiredPlatforms,
+      ready_platform_count: 0,
+      pending_platform_count: requiredPlatforms.length,
+      all_required_platforms_ready: false,
+      accounts: requiredPlatforms.map((platform) => missingAccountReadiness(platform, 'Account readiness registry is invalid JSON.')),
+      blockers: ['account readiness registry is invalid JSON'],
+    };
+  }
+
+  const rawAccounts = isRecord(parsed) && Array.isArray(parsed.accounts) ? parsed.accounts : null;
+  if (!rawAccounts) {
+    return {
+      registry_path: relativePath,
+      registry_valid: false,
+      required_platforms: requiredPlatforms,
+      ready_platform_count: 0,
+      pending_platform_count: requiredPlatforms.length,
+      all_required_platforms_ready: false,
+      accounts: requiredPlatforms.map((platform) => missingAccountReadiness(platform, 'Account readiness registry is missing an accounts array.')),
+      blockers: ['account readiness registry is missing an accounts array'],
+    };
+  }
+
+  const accounts = requiredPlatforms.map((platform) => {
+    const record = rawAccounts.find((candidate) => isRecord(candidate) && candidate.platform === platform);
+    return record && isRecord(record)
+      ? accountReadinessFromRecord(platform, record)
+      : missingAccountReadiness(platform, `${platform} account readiness record is missing.`);
+  });
+  const blockers = uniqueSorted(accounts.flatMap((account) => account.blockers));
+
+  return {
+    registry_path: relativePath,
+    registry_valid: accounts.every((account) => account.state !== 'missing' && account.state !== 'invalid'),
+    required_platforms: requiredPlatforms,
+    ready_platform_count: accounts.filter((account) => account.ready_for_manual_posting).length,
+    pending_platform_count: accounts.filter((account) => !account.ready_for_manual_posting).length,
+    all_required_platforms_ready: accounts.every((account) => account.ready_for_manual_posting),
+    accounts,
+    blockers,
+  };
+}
+
+function accountReadinessFromRecord(
+  platform: HarnessAccountPlatform,
+  record: Record<string, unknown>,
+): HarnessAccountReadinessItem {
+  const rawState = record.state;
+  const state: HarnessAccountReadinessState = rawState === 'signup_prepared'
+    || rawState === 'created_profile_pending'
+    || rawState === 'ready'
+    ? rawState
+    : 'invalid';
+  const accountCreated = record.account_created === true;
+  const profileConfigured = record.profile_configured === true;
+  const twoFactorEnabled = record.two_factor_enabled === true;
+  const analyticsConfirmed = record.analytics_confirmed === true;
+  const candidateHandle = optionalRegistryString(record.candidate_handle);
+  const publicHandle = optionalRegistryString(record.public_handle);
+  const publicUrl = optionalRegistryString(record.public_url);
+  const nextAction = optionalRegistryString(record.next_action)
+    ?? `Complete the official ${platform} account setup and record only public status evidence.`;
+  const readyForManualPosting = state === 'ready'
+    && accountCreated
+    && profileConfigured
+    && twoFactorEnabled
+    && analyticsConfirmed
+    && Boolean(publicHandle)
+    && Boolean(publicUrl);
+  const blockers = state === 'invalid'
+    ? [`${platform} account readiness state is invalid`]
+    : !accountCreated
+      ? [`${platform} account is not created`]
+      : uniqueSorted([
+        ...(profileConfigured ? [] : [`${platform} profile is not configured`]),
+        ...(twoFactorEnabled ? [] : [`${platform} 2FA is not confirmed`]),
+        ...(analyticsConfirmed ? [] : [`${platform} analytics access is not confirmed`]),
+        ...(publicHandle ? [] : [`${platform} public handle is not recorded`]),
+        ...(publicUrl ? [] : [`${platform} public URL is not recorded`]),
+      ]);
+
+  return {
+    platform,
+    state,
+    account_created: accountCreated,
+    profile_configured: profileConfigured,
+    two_factor_enabled: twoFactorEnabled,
+    analytics_confirmed: analyticsConfirmed,
+    candidate_handle: candidateHandle,
+    public_handle: publicHandle,
+    public_url: publicUrl,
+    ready_for_manual_posting: readyForManualPosting,
+    blockers,
+    next_action: nextAction,
+  };
+}
+
+function missingAccountReadiness(
+  platform: HarnessAccountPlatform,
+  nextAction: string,
+): HarnessAccountReadinessItem {
+  return {
+    platform,
+    state: 'missing',
+    account_created: false,
+    profile_configured: false,
+    two_factor_enabled: false,
+    analytics_confirmed: false,
+    candidate_handle: null,
+    public_handle: null,
+    public_url: null,
+    ready_for_manual_posting: false,
+    blockers: [`${platform} account readiness record is missing`],
+    next_action: nextAction,
+  };
+}
+
+function optionalRegistryString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function publishingHandoffJob(
+  job: HarnessLaunchMapJob,
+  accountReadiness: HarnessAccountReadiness,
+): HarnessPublishingHandoffJob {
   const requiredPath = (role: HarnessLaunchMapRequiredFile['role']): string | null => (
     job.required_files.find((file) => file.role === role)?.path ?? null
   );
@@ -7180,12 +7374,13 @@ function publishingHandoffJob(job: HarnessLaunchMapJob): HarnessPublishingHandof
   const manualReviewCommands = uniqueSorted([
     `npm run creative -- validate --job ${shellQuote(job.job_path)}`,
     'npm run harness -- evidence-map',
-    'npm run harness -- launch-map',
+    'npm run harness -- launch-map --env-file .env',
     'npm run harness -- publishing-handoff-plan --env-file .env',
     ...job.next_commands.filter((command) => !command.includes('npm run metrics:')),
   ]);
   const postingBlockers = uniqueSorted([
     ...job.blockers,
+    ...accountReadiness.blockers,
     ...(!job.manual_handoff_ready ? ['manual launch handoff files are incomplete'] : []),
     'account-owner confirmation required',
   ]);
@@ -7208,12 +7403,12 @@ function publishingHandoffJob(job: HarnessLaunchMapJob): HarnessPublishingHandof
     approved_generated_asset_count: job.approved_generated_asset_count,
     manual_handoff_ready: job.manual_handoff_ready,
     autonomous_publish_ready: job.autonomous_publish_ready,
-    blockers: job.blockers,
+    blockers: uniqueSorted([...job.blockers, ...accountReadiness.blockers]),
     manual_review_commands: manualReviewCommands,
     manual_post_boundary: {
       external_calls_made: 0,
       auto_post_allowed: false,
-      manual_post_allowed_after_confirmation: job.manual_handoff_ready,
+      manual_post_allowed_after_confirmation: job.manual_handoff_ready && accountReadiness.all_required_platforms_ready,
       requires_account_owner_confirmation: true,
       requires_human_approval: true,
       requires_approved_generated_assets: true,
@@ -7221,8 +7416,11 @@ function publishingHandoffJob(job: HarnessLaunchMapJob): HarnessPublishingHandof
       blocked_by: postingBlockers,
     },
     metrics_commands: metricsCommands,
-    next_action: job.manual_handoff_ready
-      ? 'Have the account owner review the package, post manually if approved, then record the posted URL with the metrics command.'
+    next_action: !accountReadiness.all_required_platforms_ready
+      ? accountReadiness.accounts.find((account) => !account.ready_for_manual_posting)?.next_action
+        ?? 'Complete official account setup before manual package review.'
+      : job.manual_handoff_ready
+        ? 'Have the account owner review the package, post manually if approved, then record the posted URL with the metrics command.'
       : 'Complete the missing launch package files and copy before manual account-owner review.',
   };
 }

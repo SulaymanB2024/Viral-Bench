@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-12T19:05:00.000Z",
+  "accounts": [
+    {
+      "platform": "TikTok",
+      "state": "signup_prepared",
+      "account_created": false,
+      "profile_configured": false,
+      "two_factor_enabled": false,
+      "analytics_confirmed": false,
+      "candidate_handle": "@worthscan",
+      "public_handle": null,
+      "public_url": null,
+      "next_action": "Account owner completes the official birthday, password, and email-verification steps in the Codex in-app browser."
+    },
+    {
+      "platform": "Instagram",
+      "state": "signup_prepared",
+      "account_created": false,
+      "profile_configured": false,
+      "two_factor_enabled": false,
+      "analytics_confirmed": false,
+      "candidate_handle": "@tryworthscan",
+      "public_handle": null,
+      "public_url": null,
+      "next_action": "Account owner completes the official birthday, password, and verification steps in the Codex in-app browser."
+    },
+    {
+      "platform": "YouTube Shorts",
+      "state": "created_profile_pending",
+      "account_created": true,
+      "profile_configured": false,
+      "two_factor_enabled": false,
+      "analytics_confirmed": false,
+      "candidate_handle": "@worthscan",
+      "public_handle": "@worthscan",
+      "public_url": "https://www.youtube.com/@worthscan",
+      "next_action": "Complete Google's live security verification, then apply the approved profile, banner, description, 2FA, and analytics settings."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrative student mini fridge</title>
+  <desc id="desc">A clean generic mini fridge in a dorm-like room. It is not a marketplace listing photo.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eff8f5"/>
+      <stop offset="1" stop-color="#d4ebe2"/>
+    </linearGradient>
+    <linearGradient id="fridge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeae5"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="30" stdDeviation="26" flood-color="#12372c" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1440" fill="url(#wall)"/>
+  <rect y="1010" width="1080" height="430" fill="#b9dfd2"/>
+  <path d="M0 1100c240-80 356 54 578-10s314-12 502-79v429H0Z" fill="#98cdbd" opacity=".65"/>
+  <g opacity=".55">
+    <rect x="78" y="210" width="264" height="418" rx="26" fill="#9bcdbd"/>
+    <rect x="118" y="250" width="184" height="104" rx="14" fill="#f8fcfa"/>
+    <rect x="118" y="392" width="184" height="104" rx="14" fill="#f8fcfa"/>
+  </g>
+  <g transform="translate(224 238)" filter="url(#shadow)">
+    <rect x="0" y="0" width="632" height="938" rx="60" fill="url(#fridge)" stroke="#17352b" stroke-width="24"/>
+    <rect x="42" y="48" width="548" height="264" rx="32" fill="#cdeee4"/>
+    <path d="M42 368h548" stroke="#17352b" stroke-width="22"/>
+    <path d="M524 92v152M524 430v268" stroke="#13a486" stroke-width="26" stroke-linecap="round"/>
+    <rect x="90" y="102" width="180" height="54" rx="20" fill="#ffffff" opacity=".72"/>
+    <rect x="90" y="186" width="310" height="34" rx="17" fill="#ffffff" opacity=".55"/>
+    <rect x="90" y="448" width="378" height="24" rx="12" fill="#bfded4"/>
+    <rect x="90" y="524" width="338" height="24" rx="12" fill="#bfded4"/>
+    <rect x="90" y="600" width="278" height="24" rx="12" fill="#bfded4"/>
+    <rect x="90" y="720" width="172" height="112" rx="18" fill="#e9f5f0"/>
+    <circle cx="498" cy="808" r="34" fill="#13a486"/>
+  </g>
+  <g transform="translate(120 1015)">
+    <rect width="208" height="136" rx="28" fill="#ffffff" opacity=".9"/>
+    <path d="M44 44h120v18H44zM44 78h88v18H44z" fill="#1b3b30" opacity=".7"/>
+    <circle cx="160" cy="98" r="16" fill="#f3b642"/>
+  </g>
+  <g transform="translate(820 1060)">
+    <path d="M0 130C22 40 112 0 176 0c-6 88-52 154-132 164Z" fill="#1f8a70"/>
+    <path d="M45 150C77 83 116 42 176 0" fill="none" stroke="#e3f5ee" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

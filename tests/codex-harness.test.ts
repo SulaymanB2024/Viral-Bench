@@ -308,7 +308,10 @@ test('verification map turns changed files into targeted validation commands', (
 });
 
 test('job ranking gives Codex scored runnable work choices', () => {
-  const rankings = rankIncomingJobs({}, process.cwd());
+  const rankings = rankIncomingJobs({
+    ALLOW_BROWSER_UI: 'true',
+    ALLOW_SOCIAL_PUBLISHING: 'true',
+  }, process.cwd());
 
   assert.ok(rankings.length >= 10);
   assert.equal(rankings[0].rank, 1);
@@ -367,14 +370,14 @@ test('launch map separates manual handoff readiness from autonomous publishing g
   assert.equal(map.metrics_job_count, 0);
   assert.ok(map.launch_docs.every((doc) => doc.exists));
   assert.ok(scooter);
-  assert.equal(scooter?.order, 2);
+  assert.equal(scooter?.order, 1);
   assert.equal(scooter?.manual_handoff_ready, true);
   assert.equal(scooter?.autonomous_publish_ready, false);
   assert.equal(scooter?.launch_copy.tiktok_caption, true);
   assert.equal(scooter?.launch_copy.metric_schedule, true);
   assert.ok(scooter?.required_files.every((file) => file.exists));
   assert.ok(scooter?.blockers.includes('ALLOW_SOCIAL_PUBLISHING=false'));
-  assert.ok(scooter?.blockers.includes('job policy disallows social publishing'));
+  assert.equal(scooter?.blockers.includes('job policy disallows social publishing'), false);
   assert.ok(scooter?.next_commands.some((command) => command.includes('metrics:create-post')));
   assert.ok(map.next_commands.some((command) => command.includes('evidence-map')));
 });
@@ -393,22 +396,31 @@ test('publishing handoff plan keeps social publishing manual and maps launch blo
   assert.equal(locked.summary.job_count, 3);
   assert.equal(locked.summary.manual_handoff_ready_job_count, 3);
   assert.equal(locked.summary.autonomous_publish_ready_job_count, 0);
-  assert.equal(locked.summary.recommended_job_id, 'worthscan_bike_commuter_001');
+  assert.equal(locked.summary.recommended_job_id, 'worthscan_scooter_battery_001');
   assert.ok(locked.operating_docs.launch_queue_path?.endsWith('.ops/launch/launch_queue.md'));
   assert.ok(locked.operating_docs.manual_launch_packet_path?.endsWith('.ops/launch/manual_launch_packet.md'));
   assert.ok(locked.operating_docs.posting_qa_checklist_path?.endsWith('.ops/launch/posting_qa_checklist.md'));
   assert.ok(locked.operating_docs.first_10_posts_path?.endsWith('.ops/launch/first_10_posts.md'));
+  assert.ok(locked.operating_docs.codex_launch_control_path?.endsWith('.ops/launch/codex_launch_control.md'));
+  assert.ok(locked.operating_docs.account_readiness_path?.endsWith('.ops/accounts/account_readiness.json'));
+  assert.equal(locked.account_readiness.registry_valid, true);
+  assert.equal(locked.account_readiness.all_required_platforms_ready, false);
+  assert.equal(locked.summary.ready_account_platform_count, 0);
+  assert.equal(locked.summary.pending_account_platform_count, 3);
+  assert.ok(locked.account_readiness.blockers.includes('TikTok account is not created'));
   assert.ok(bike);
   assert.equal(bike?.manual_handoff_ready, true);
   assert.equal(bike?.autonomous_publish_ready, false);
   assert.equal(bike?.manual_post_boundary.external_calls_made, 0);
   assert.equal(bike?.manual_post_boundary.auto_post_allowed, false);
   assert.equal(bike?.manual_post_boundary.requires_account_owner_confirmation, true);
-  assert.equal(bike?.manual_post_boundary.manual_post_allowed_after_confirmation, true);
+  assert.equal(bike?.manual_post_boundary.manual_post_allowed_after_confirmation, false);
   assert.deepEqual(bike?.manual_post_boundary.writes, []);
   assert.ok(bike?.manual_post_boundary.blocked_by.includes('account-owner confirmation required'));
+  assert.ok(bike?.manual_post_boundary.blocked_by.includes('TikTok account is not created'));
   assert.ok(bike?.blockers.includes('human approval missing'));
-  assert.ok(bike?.blockers.includes('job policy disallows social publishing'));
+  assert.ok(bike?.blockers.includes('Instagram account is not created'));
+  assert.equal(bike?.blockers.includes('job policy disallows social publishing'), false);
   assert.ok(bike?.manual_review_commands.some((command) => command.includes('creative -- validate')));
   assert.ok(bike?.metrics_commands.some((command) => command.includes('metrics:create-post')));
   assert.ok(locked.next_commands.some((command) => command.includes('publishing-handoff-plan')));
@@ -456,7 +468,7 @@ test('autonomy unblock plan classifies remaining goal gates without crossing the
   assert.equal(publishing?.queue, 'human_boundary');
   assert.ok(publishing?.human_blockers.includes('human approval missing'));
   assert.ok(publishing?.human_blockers.includes('generated assets are not approved for posting'));
-  assert.ok(publishing?.policy_blockers.includes('job policy disallows social publishing'));
+  assert.equal(publishing?.policy_blockers.includes('job policy disallows social publishing'), false);
   assert.ok(publishing?.safe_now_commands.some((command) => command.includes('publishing-handoff-plan')));
   assert.ok(completion);
   assert.ok(completion?.blocker_classes.includes('completion_gate'));

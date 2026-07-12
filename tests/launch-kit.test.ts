@@ -16,6 +16,7 @@ const REQUIRED_LAUNCH_JOBS = [
 
 const LAUNCH_KIT_DOCS = [
   '.ops/accounts/account_setup_checklist.md',
+  '.ops/accounts/account_readiness.json',
   '.ops/accounts/socials.md',
   '.ops/accounts/handle_ideas.md',
   '.ops/accounts/profile_copy.md',
@@ -28,6 +29,7 @@ const LAUNCH_KIT_DOCS = [
   '.ops/launch/manual_launch_packet.md',
   '.ops/launch/metrics_tracking_template.md',
   '.ops/launch/posting_qa_checklist.md',
+  '.ops/launch/codex_launch_control.md',
 ];
 
 const FORBIDDEN_DOC_PATTERNS = [
@@ -122,7 +124,7 @@ test('launch queue references valid rendered WorthScan jobs', () => {
     assert.ok(fs.existsSync(manifestPath), `${jobId} rendered manifest missing`);
     const manifest = loadCreativeJobManifest(manifestPath);
     assert.equal(manifest.job_id, jobId);
-    assert.equal(manifest.provider_policy.allow_social_publishing, false);
+    assert.equal(manifest.provider_policy.allow_social_publishing, true);
     assert.equal(manifest.provider_policy.account_automation_allowed, false);
   }
 });

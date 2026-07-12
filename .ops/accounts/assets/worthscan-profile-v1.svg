@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080" role="img" aria-labelledby="title desc">
+  <title id="title">WorthScan profile image</title>
+  <desc id="desc">A clean scanner frame around a price-tag symbol with a WorthScan wordmark.</desc>
+  <rect width="1080" height="1080" rx="120" fill="#F7FAF8"/>
+  <rect x="70" y="70" width="940" height="940" rx="96" fill="#FFFFFF" stroke="#DDE8E3" stroke-width="12"/>
+
+  <g fill="none" stroke="#0F9F83" stroke-linecap="round" stroke-width="38">
+    <path d="M280 400V310a70 70 0 0 1 70-70h90"/>
+    <path d="M640 240h90a70 70 0 0 1 70 70v90"/>
+    <path d="M800 620v90a70 70 0 0 1-70 70h-90"/>
+    <path d="M440 780h-90a70 70 0 0 1-70-70v-90"/>
+  </g>
+
+  <g transform="translate(367 332)">
+    <path d="M48 18h210l88 88v210a48 48 0 0 1-48 48H48a48 48 0 0 1-48-48V66A48 48 0 0 1 48 18Z" fill="#162C25"/>
+    <path d="M258 18v88h88" fill="#CDEFE6"/>
+    <circle cx="82" cy="98" r="22" fill="#0F9F83"/>
+    <path d="M104 230h150" stroke="#FFFFFF" stroke-linecap="round" stroke-width="24"/>
+    <path d="M104 286h100" stroke="#CDEFE6" stroke-linecap="round" stroke-width="20"/>
+  </g>
+
+  <text x="540" y="875" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="700" letter-spacing="-5">
+    <tspan fill="#162C25">Worth</tspan><tspan fill="#0F9F83">Scan</tspan>
+  </text>
+  <text x="540" y="942" text-anchor="middle" fill="#557066" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="5">USED VALUE CHECKS</text>
+</svg>

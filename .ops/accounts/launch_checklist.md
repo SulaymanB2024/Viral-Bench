@@ -1,7 +1,9 @@
 # WorthScan Launch Checklist
 
 This checklist is the account-readiness gate before the launch queue is used.
-Posting remains manual in the official platform UI.
+Codex may assist in the configured in-app browser, but account verification and
+the final public submission stay live-confirmation steps in the official
+platform UI.
 
 ## Content Readiness
 

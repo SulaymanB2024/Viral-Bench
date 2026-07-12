@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrative commuter bike</title>
+  <desc id="desc">A clean, generic commuter bicycle in a daylight urban setting. It is not a marketplace listing photo.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eff7f3"/>
+      <stop offset="1" stop-color="#d3ece2"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#19362d"/>
+      <stop offset="1" stop-color="#071b16"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#102c23" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1440" fill="url(#sky)"/>
+  <path d="M0 790C180 710 350 810 520 755s330-92 560-12v697H0Z" fill="#c7e6da"/>
+  <path d="M0 960c190-115 370 6 575-75s330-35 505-100v655H0Z" fill="#abdbcb" opacity=".75"/>
+  <g opacity=".55" fill="#b2d8ca">
+    <rect x="52" y="170" width="174" height="430" rx="16"/>
+    <rect x="258" y="258" width="108" height="342" rx="16"/>
+    <rect x="780" y="136" width="220" height="464" rx="16"/>
+  </g>
+  <g fill="#f7faf8" opacity=".62">
+    <rect x="84" y="214" width="110" height="94" rx="8"/>
+    <rect x="84" y="338" width="110" height="94" rx="8"/>
+    <rect x="812" y="190" width="156" height="120" rx="8"/>
+    <rect x="812" y="346" width="156" height="120" rx="8"/>
+  </g>
+  <ellipse cx="540" cy="1162" rx="398" ry="78" fill="#183d31" opacity=".18"/>
+  <g transform="translate(86 330)" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <g stroke="#122b23" stroke-width="34">
+      <circle cx="222" cy="678" r="192"/>
+      <circle cx="690" cy="678" r="192"/>
+    </g>
+    <g stroke="url(#frame)" stroke-width="38">
+      <path d="M222 678 390 316l192 362H222l252-362 216 362"/>
+      <path d="M390 316h170l92 160M390 316l105-124M470 192h164"/>
+      <path d="M582 678 496 486l216-18M390 316l-62 0"/>
+    </g>
+    <g stroke="#17a786" stroke-width="22">
+      <path d="M390 316l192 362"/>
+      <path d="M222 678h360"/>
+    </g>
+    <g stroke="#e5f6ef" stroke-width="18">
+      <path d="M490 192h130"/>
+      <path d="M298 315h-88"/>
+    </g>
+    <g fill="#17a786" stroke="none">
+      <circle cx="222" cy="678" r="20"/>
+      <circle cx="690" cy="678" r="20"/>
+      <circle cx="390" cy="316" r="18"/>
+    </g>
+  </g>
+  <g transform="translate(786 790)" fill="#f9fcfa" opacity=".94">
+    <rect width="176" height="170" rx="28"/>
+    <path d="M38 51h100v20H38zM38 91h66v18H38zM38 123h84v18H38z" fill="#1b3b30" opacity=".72"/>
+    <circle cx="136" cy="132" r="16" fill="#17a786"/>
+  </g>
+</svg>

@@ -6,8 +6,8 @@ account owner approves posting windows.
 | Day | Action | Jobs | Owner Gate |
 | --- | --- | --- | --- |
 | Day 1 | Review and render first batch | `worthscan_bike_commuter_001`, `worthscan_scooter_battery_001`, `worthscan_minifridge_001` | Human approves visuals, captions, and comps |
-| Day 2 | Manual post 1, record post, capture 1-hour snapshot | `worthscan_bike_commuter_001` | Human confirms post URL |
-| Day 3 | Manual post 2, record post, capture 1-hour snapshot | `worthscan_scooter_battery_001` | Human confirms post URL |
+| Day 2 | Manual post 1, record post, capture 1-hour snapshot | `worthscan_scooter_battery_001` | Human confirms post URL |
+| Day 3 | Manual post 2, record post, capture 1-hour snapshot | `worthscan_bike_commuter_001` | Human confirms post URL |
 | Day 4 | Manual post 3, record post, capture 1-hour snapshot | `worthscan_minifridge_001` | Human confirms post URL |
 | Day 5 | Review first metric snapshots and render next batch | Jobs 4-6 | Human keeps or revises hooks |
 | Day 6 | Manual posts 4-5 if approved | `worthscan_laptop_001`, `worthscan_headphones_001` | Human confirms post URLs |

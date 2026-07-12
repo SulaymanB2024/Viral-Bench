@@ -54,6 +54,18 @@ in the center for channel text. Style should be crisp, useful, and operator-led,
 with no platform logos, no real seller information, and no promise of guaranteed
 appraisals.
 
+## Prepared Upload Assets
+
+- Profile source: `.ops/accounts/assets/worthscan-profile-v1.svg`
+- Profile upload: `.ops/accounts/assets/worthscan-profile-v1.png` (1080 × 1080)
+- YouTube banner source: `.ops/accounts/assets/worthscan-youtube-banner-v1.svg`
+- YouTube banner upload: `.ops/accounts/assets/worthscan-youtube-banner-v1.png`
+  (2560 × 1440)
+
+Use the square profile image for Instagram, TikTok, and YouTube. Review the
+rendered PNG in each official platform UI before uploading; these assets provide
+brand presentation only and make no valuation claim.
+
 ## Link-In-Bio Copy
 
 Primary:

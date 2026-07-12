@@ -32,6 +32,12 @@ const WORTHSCAN_JOB_PATHS = fs.readdirSync(INCOMING_DIR)
   .sort()
   .map((file) => path.join(INCOMING_DIR, file));
 
+const LIVE_LAUNCH_JOB_IDS = new Set([
+  'worthscan_bike_commuter_001',
+  'worthscan_scooter_battery_001',
+  'worthscan_minifridge_001',
+]);
+
 const REQUIRED_PACKAGE_FILES = [
   'manifest.json',
   path.join('source', 'bike_001.jpg'),
@@ -94,16 +100,20 @@ function sampleValuationCard(overrides: Partial<ValuationCard> = {}): ValuationC
   };
 }
 
-test('all 10 WorthScan creative jobs validate and stay draft-local', () => {
+test('all 10 WorthScan creative jobs validate with scoped launch policies', () => {
   const jobs = worthscanJobs();
 
   assert.equal(jobs.length, 10);
   for (const job of jobs) {
     assert.equal(job.approval_status.state, 'draft');
-    assert.deepEqual(job.provider_policy.approved_providers, ['local_renderer']);
+    const isLiveLaunchJob = LIVE_LAUNCH_JOB_IDS.has(job.job_id);
+    assert.deepEqual(
+      job.provider_policy.approved_providers,
+      isLiveLaunchJob ? ['local_renderer', 'browser_manual'] : ['local_renderer'],
+    );
     assert.equal(job.provider_policy.allow_paid_generation, false);
-    assert.equal(job.provider_policy.allow_browser_ui, false);
-    assert.equal(job.provider_policy.allow_social_publishing, false);
+    assert.equal(job.provider_policy.allow_browser_ui, isLiveLaunchJob);
+    assert.equal(job.provider_policy.allow_social_publishing, isLiveLaunchJob);
     assert.equal(job.provider_policy.account_automation_allowed, false);
     assert.equal(job.output_requirements.slide_count, 5);
     assert.equal(job.output_requirements.slides.length, 5);
@@ -114,6 +124,19 @@ test('all 10 WorthScan creative jobs validate and stay draft-local', () => {
       'spoken_script',
       'posting_notes',
     ]);
+  }
+});
+
+test('live launch jobs include reproducible local review visuals', () => {
+  for (const job of worthscanJobs().filter((candidate) => LIVE_LAUNCH_JOB_IDS.has(candidate.job_id))) {
+    const visual = job.source_inputs.find((input) => input.kind === 'local_file' && input.path);
+
+    assert.ok(visual, `${job.job_id} is missing a local review visual`);
+    assert.ok(
+      fs.existsSync(path.join(process.cwd(), visual.path ?? '')),
+      `${job.job_id} local review visual is missing from the checkout`,
+    );
+    assert.match(visual.notes ?? '', /not a listing photo/i);
   }
 });
 
@@ -149,6 +172,9 @@ test('rendered WorthScan packages contain required folders and files', async () 
     const outDir = path.join(baseDir, job.job_id);
     const result = await runCreativeProvider('local_renderer', job, { outDir, env: {} });
     assert.equal(result.status, 'rendered');
+    if (LIVE_LAUNCH_JOB_IDS.has(job.job_id)) {
+      assert.equal(result.render.source_image_is_placeholder, false, `${job.job_id} rendered a visual placeholder`);
+    }
     for (const relativeFile of REQUIRED_PACKAGE_FILES) {
       assert.ok(fs.existsSync(path.join(outDir, relativeFile)), `${job.job_id} missing ${relativeFile}`);
     }
@@ -295,11 +321,18 @@ test('no provider credentials are required for local WorthScan rendering', async
   await assert.doesNotReject(() => runCreativeProvider('local_renderer', job, { outDir, env: {} }));
 });
 
-test('social publishing is not allowed by default for WorthScan jobs', () => {
+test('social publishing remains env-gated and requires human approval for launch jobs', () => {
   for (const job of worthscanJobs()) {
     assert.throws(
+      () => assertCanMoveCreativeJobStatus(job, 'posted', {}),
+      /social publishing is (disabled|blocked)/i,
+    );
+  }
+
+  for (const job of worthscanJobs().filter((candidate) => LIVE_LAUNCH_JOB_IDS.has(candidate.job_id))) {
+    assert.throws(
       () => assertCanMoveCreativeJobStatus(job, 'posted', { ALLOW_SOCIAL_PUBLISHING: 'true' }),
-      /Social publishing is disabled/,
+      /Human approval is required/,
     );
   }
 });

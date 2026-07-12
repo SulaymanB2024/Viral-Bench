@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440" role="img" aria-labelledby="title desc">
+  <title id="title">WorthScan YouTube banner</title>
+  <desc id="desc">A clean resale-check workspace with generic bike, scooter, and mini-fridge illustrations framing the WorthScan wordmark.</desc>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7FAF8"/>
+      <stop offset="1" stop-color="#E7F6F1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#16372C" flood-opacity=".14"/>
+    </filter>
+  </defs>
+  <rect width="2560" height="1440" fill="url(#canvas)"/>
+  <path d="M0 1120C420 990 610 1240 970 1115s610-40 980-175 430 0 610-70v570H0Z" fill="#D2EEE5"/>
+  <path d="M0 1220C470 1080 750 1350 1150 1190s660 50 1050-110 280-20 360-55v415H0Z" fill="#B6E2D5" opacity=".65"/>
+
+  <!-- Generic commuter bike crop -->
+  <g transform="translate(145 530)" fill="none" stroke="#162C25" stroke-linecap="round" stroke-linejoin="round" stroke-width="34">
+    <circle cx="230" cy="430" r="165"/>
+    <circle cx="630" cy="430" r="165"/>
+    <path d="M230 430 370 150l130 280-270 0 230-280 170 280M370 150l95-105M433 45h145M630 430 510 212l160-18M370 150h175"/>
+  </g>
+  <g transform="translate(145 530)" fill="#0F9F83">
+    <circle cx="230" cy="430" r="20"/><circle cx="630" cy="430" r="20"/>
+  </g>
+
+  <!-- Generic scooter handlebar crop -->
+  <g transform="translate(1930 350)" fill="none" stroke="#162C25" stroke-linecap="round" stroke-linejoin="round" stroke-width="38">
+    <path d="M245 770V350M245 350 105 198M245 350 405 192M65 184h110M390 178h110M245 770 170 985M245 770l92 215"/>
+    <path d="M175 985h-100M337 985h110"/>
+  </g>
+  <circle cx="2175" cy="700" r="34" fill="#0F9F83"/>
+
+  <!-- Generic mini fridge -->
+  <g transform="translate(1710 710)" filter="url(#shadow)">
+    <rect x="0" y="0" width="310" height="440" rx="34" fill="#FFFFFF" stroke="#162C25" stroke-width="22"/>
+    <rect x="38" y="54" width="234" height="190" rx="20" fill="#D9F3EC"/>
+    <path d="M38 282h234" stroke="#162C25" stroke-width="18"/>
+    <path d="M244 83v110M244 310v80" stroke="#0F9F83" stroke-linecap="round" stroke-width="20"/>
+  </g>
+
+  <!-- Center safe area: keeps the channel identity readable on cropped devices -->
+  <g transform="translate(1280 690)">
+    <rect x="-505" y="-170" width="1010" height="340" rx="70" fill="#FFFFFF" opacity=".92" filter="url(#shadow)"/>
+    <g transform="translate(-422 -61)">
+      <path d="M22 0h96l46 46v116a22 22 0 0 1-22 22H22a22 22 0 0 1-22-22V22A22 22 0 0 1 22 0Z" fill="#162C25"/>
+      <path d="M118 0v46h46" fill="#CDEFE6"/>
+      <circle cx="41" cy="46" r="10" fill="#0F9F83"/>
+      <path d="M48 116h73" stroke="#FFFFFF" stroke-linecap="round" stroke-width="13"/>
+    </g>
+    <text x="-220" y="-5" fill="#162C25" font-family="Arial, Helvetica, sans-serif" font-size="125" font-weight="700" letter-spacing="-5">Worth<tspan fill="#0F9F83">Scan</tspan></text>
+    <text x="0" y="78" text-anchor="middle" fill="#557066" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" letter-spacing="1.4">USED ITEM VALUE CHECKS • COMPS • REPAIR RISK</text>
+  </g>
+
+  <text x="1280" y="1324" text-anchor="middle" fill="#557066" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="3">ESTIMATES, NOT GUARANTEED APPRAISALS</text>
+</svg>

@@ -15,6 +15,12 @@
       "value": "Check size, brand, freezer compartment, smell/cleanliness risk, pickup timing, and three local student resale comps."
     },
     {
+      "kind": "local_file",
+      "label": "Illustrative launch visual",
+      "path": ".ops/creative_jobs/assets/worthscan_minifridge_001/minifridge-illustrative-v1.svg",
+      "notes": "Generic illustrative student mini fridge for resale education; it is not a listing photo and makes no size, condition, or price claim."
+    },
+    {
       "kind": "creative_center_manual_observation",
       "label": "Research boundary",
       "value": "Use only manually reviewed trend examples. No social scraping or automated account actions."
@@ -53,16 +59,17 @@
     }
   ],
   "provider_policy": {
-    "approved_providers": ["local_renderer"],
+    "approved_providers": ["local_renderer", "browser_manual"],
     "allow_paid_generation": false,
-    "allow_browser_ui": false,
-    "allow_social_publishing": false,
+    "allow_browser_ui": true,
+    "allow_social_publishing": true,
     "account_automation_allowed": false,
     "credentials_policy": "no_credentials_in_repo",
     "notes": [
-      "Local-only creative package.",
-      "External calls and browser UI are disabled.",
-      "Posting and metrics remain manual."
+      "Local renderer is the default production path.",
+      "Codex browser research and social publishing are user-authorized when their environment gates are enabled.",
+      "Account automation remains disabled; platform verification and final public submission require live confirmation.",
+      "Create metrics after the public post URL is verified."
     ]
   },
   "output_requirements": {
@@ -77,7 +84,7 @@
       {
         "slide_number": 1,
         "on_screen_text": "Scan this mini fridge before move-in week",
-        "visual_direction": "Show the listing photo, asking price, and size claim."
+        "visual_direction": "Show an illustrative mini fridge with a clear educational label; add a human-reviewed listing screenshot only for listing-specific claims."
       },
       {
         "slide_number": 2,
@@ -104,7 +111,7 @@
     "hashtags": ["worthscan", "studentdeals", "minifridge", "resale", "campusmovein"],
     "spoken_script": "Mini fridges spike around move-in week, so do not judge by the first listing. Check size, brand, freezer compartment, smell and shelf risk, compare three local student listings, then subtract pickup hassle before naming the range.",
     "posting_notes": [
-      "Confirm the listing date and pickup location manually.",
+      "Keep the illustrative visual clearly labeled, or replace it with an approved listing image before any listing-specific claim.",
       "Do not include seller contact details in visuals.",
       "Use a value range and a disclaimer.",
       "Manual posting only after approval."

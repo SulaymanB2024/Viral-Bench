@@ -7,8 +7,8 @@ guide only; it does not authorize account automation, scraping, or auto-posting.
 
 | Order | Job ID | Rendered Package | Primary Angle | Manual Gate |
 | --- | --- | --- | --- | --- |
-| 1 | `worthscan_bike_commuter_001` | `.ops/creative_jobs/rendered/worthscan_bike_commuter_001/` | Repair-adjusted commuter bike range | Human verifies photos, comps, caption, and QA |
-| 2 | `worthscan_scooter_battery_001` | `.ops/creative_jobs/rendered/worthscan_scooter_battery_001/` | Battery and charger risk | Human verifies battery claims, comps, caption, and QA |
+| 1 | `worthscan_scooter_battery_001` | `.ops/creative_jobs/rendered/worthscan_scooter_battery_001/` | Battery and charger risk | Human verifies battery claims, comps, caption, and QA |
+| 2 | `worthscan_bike_commuter_001` | `.ops/creative_jobs/rendered/worthscan_bike_commuter_001/` | Repair-adjusted commuter bike range | Human verifies photos, comps, caption, and QA |
 | 3 | `worthscan_minifridge_001` | `.ops/creative_jobs/rendered/worthscan_minifridge_001/` | Dorm tax versus fair deal | Human verifies size, condition, comps, caption, and QA |
 
 ## Shared Posting Rules
@@ -22,7 +22,7 @@ guide only; it does not authorize account automation, scraping, or auto-posting.
 - Post manually in the official platform app or website.
 - Create the metrics record only after the post is live.
 
-## 1. `worthscan_bike_commuter_001`
+## 2. `worthscan_bike_commuter_001`
 
 Rendered package:
 - `.ops/creative_jobs/rendered/worthscan_bike_commuter_001/`
@@ -80,7 +80,7 @@ Metric snapshot schedule:
 - 7-day: final pilot read, CTA quality, DM quality, and whether bike scans
   should stay in the next batch.
 
-## 2. `worthscan_scooter_battery_001`
+## 1. `worthscan_scooter_battery_001`
 
 Rendered package:
 - `.ops/creative_jobs/rendered/worthscan_scooter_battery_001/`

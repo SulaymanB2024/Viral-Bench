@@ -8,7 +8,7 @@ Metrics are entered manually after a human posts. Use the local CLI store under
 ```bash
 npm run metrics:create-post -- \
   --post-id worthscan-post-001 \
-  --job-id worthscan_bike_commuter_001 \
+  --job-id worthscan_scooter_battery_001 \
   --platform TikTok \
   --account-handle @worthscan \
   --posted-url https://example.com/manual-post-url \

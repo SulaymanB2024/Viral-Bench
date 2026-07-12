@@ -1,7 +1,8 @@
 # WorthScan Manual Launch Packet
 
-This is the step-by-step human checklist from account creation to the first
-metric entry. It is intentionally manual-only.
+This is the step-by-step Codex-assisted checklist from account creation to the
+first metric entry. Account verification and each final public submission stay
+live-confirmation steps.
 
 ## 1. Confirm Launch Boundary
 
@@ -47,7 +48,7 @@ metric entry. It is intentionally manual-only.
 ## 5. Review First Launch Item
 
 - [ ] Open `.ops/launch/launch_queue.md`.
-- [ ] Start with `worthscan_bike_commuter_001`.
+- [ ] Start with `worthscan_scooter_battery_001`.
 - [ ] Review the TikTok caption, Instagram caption, YouTube Shorts
   title/description, hashtags, first comment, posting checklist, and metric
   snapshot schedule.
@@ -74,12 +75,12 @@ After the first manual post is live, run:
 ```bash
 npm run metrics:create-post -- \
   --post-id worthscan-post-001 \
-  --job-id worthscan_bike_commuter_001 \
+  --job-id worthscan_scooter_battery_001 \
   --platform TikTok \
   --account-handle @worthscan \
   --posted-url https://example.com/manual-post-url \
   --content-type slideshow \
-  --hook "Scan this commuter bike before you pay" \
+  --hook "Scan this scooter before battery risk eats the deal" \
   --format slideshow \
   --cta "Comment scan with the next listing" \
   --notes "manual post"
@@ -119,7 +120,7 @@ Replace the zero values with the visible metrics at capture time.
 ## 10. Move To Next Launch Item
 
 - [ ] Repeat the review, manual posting, and metrics steps for
-  `worthscan_scooter_battery_001`.
+  `worthscan_bike_commuter_001`.
 - [ ] Repeat the review, manual posting, and metrics steps for
   `worthscan_minifridge_001`.
 - [ ] Do not move any job to `posted/` until the human operator confirms the

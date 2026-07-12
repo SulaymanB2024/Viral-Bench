@@ -13,6 +13,8 @@ are human actions.
 - [ ] Store account access material only in the account owner's approved
   password manager.
 - [ ] Record only public, non-secret metadata in `.ops/accounts/socials.md`.
+- [ ] Update `.ops/accounts/account_readiness.json` with the real public setup
+  state after each completed platform step.
 - [ ] Keep final posting approval separate from account setup approval.
 
 ## Preflight

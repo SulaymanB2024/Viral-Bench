@@ -5,8 +5,8 @@ reviewed listing.
 
 | Order | Job ID | Item | Primary Angle | Required Before Posting |
 | --- | --- | --- | --- | --- |
-| 1 | `worthscan_bike_commuter_001` | Used commuter bike | Repair-adjusted campus bike value | Approved item photos, three current local bike comps |
-| 2 | `worthscan_scooter_battery_001` | Used electric scooter | Battery and charger risk | Approved listing photos, battery/charger evidence, three comps |
+| 1 | `worthscan_scooter_battery_001` | Used electric scooter | Battery and charger risk | Approved listing photos, battery/charger evidence, three comps |
+| 2 | `worthscan_bike_commuter_001` | Used commuter bike | Repair-adjusted campus bike value | Approved item photos, three current local bike comps |
 | 3 | `worthscan_minifridge_001` | Mini fridge | Move-in week dorm tax | Size/condition notes, three student resale comps |
 | 4 | `worthscan_laptop_001` | Student laptop | Specs and battery proof | Model/spec evidence, lock-status caution, three comps |
 | 5 | `worthscan_headphones_001` | Premium headphones | Pads, case, authenticity risk | Accessory photos, condition notes, three comps |

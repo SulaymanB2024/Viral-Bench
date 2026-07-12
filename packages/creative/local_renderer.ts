@@ -14,6 +14,8 @@ export interface LocalRenderResult {
   output_dir: string;
   slide_paths: string[];
   source_image_path: string;
+  source_image_input_path: string | null;
+  source_image_is_placeholder: boolean;
   listing_path: string;
   trend_examples_path: string;
   research_notes_path: string;
@@ -50,7 +52,18 @@ export async function renderLocalPostPackage(
   const slidePaths: string[] = [];
 
   const sourceImagePath = path.join(sourceDir, 'bike_001.jpg');
-  await sharp(Buffer.from(renderSourcePlaceholderSvg(job))).jpeg({ quality: 88 }).toFile(sourceImagePath);
+  const localSourceVisual = findLocalSourceVisual(job);
+  const sourceImageIsPlaceholder = localSourceVisual === null;
+  if (localSourceVisual) {
+    await sharp(localSourceVisual.absolute_path)
+      .rotate()
+      .resize({ width: 1080, height: 1440, fit: 'cover', position: 'centre' })
+      .jpeg({ quality: 88 })
+      .toFile(sourceImagePath);
+  } else {
+    await sharp(Buffer.from(renderSourcePlaceholderSvg(job))).jpeg({ quality: 88 }).toFile(sourceImagePath);
+  }
+  const sourceImageDataUri = `data:image/jpeg;base64,${fs.readFileSync(sourceImagePath).toString('base64')}`;
 
   const listingPath = path.join(sourceDir, 'listing.txt');
   fs.writeFileSync(listingPath, renderListingSource(job));
@@ -72,7 +85,7 @@ export async function renderLocalPostPackage(
 
   for (const slide of job.output_requirements.slides) {
     const slidePath = path.join(outputDir, `slide_${String(slide.slide_number).padStart(2, '0')}.png`);
-    await sharp(Buffer.from(renderSlideSvg(job, slide))).png().toFile(slidePath);
+    await sharp(Buffer.from(renderSlideSvg(job, slide, sourceImageDataUri, sourceImageIsPlaceholder))).png().toFile(slidePath);
     slidePaths.push(slidePath);
     generatedAssets.push(assetFor(job, 'slide', slidePath, createdAt, `Slide ${slide.slide_number}`));
   }
@@ -120,6 +133,8 @@ export async function renderLocalPostPackage(
     output_dir: packageDir,
     slide_paths: slidePaths,
     source_image_path: sourceImagePath,
+    source_image_input_path: localSourceVisual?.manifest_path ?? null,
+    source_image_is_placeholder: sourceImageIsPlaceholder,
     listing_path: listingPath,
     trend_examples_path: trendExamplesPath,
     research_notes_path: researchNotesPath,
@@ -154,36 +169,73 @@ function assetFor(
   };
 }
 
-function renderSlideSvg(
+export function renderSlideSvg(
   job: CreativeJobManifest,
   slide: CreativeJobManifest['output_requirements']['slides'][number],
+  sourceImageDataUri: string,
+  sourceImageIsPlaceholder: boolean,
 ): string {
   const { width, height } = job.output_requirements.dimensions;
   const colors = ['#16a085', '#f4c430', '#ef476f', '#118ab2', '#4f46e5'];
   const accent = colors[(slide.slide_number - 1) % colors.length];
+  const nicheLines = wrapLines(job.niche.toUpperCase(), 52, 2);
   const titleLines = wrapLines(slide.on_screen_text, 24, 4);
   const directionLines = wrapLines(slide.visual_direction, 36, 7);
+  const visualLabel = sourceImageIsPlaceholder ? 'Visual placeholder' : 'Illustrative visual';
+  const visualNote = sourceImageIsPlaceholder
+    ? directionLines
+    : ['Verify the actual listing before you buy.'];
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="${width}" height="${height}" fill="#15171c"/>
   <rect x="54" y="66" width="${width - 108}" height="${height - 132}" fill="#f7f3e9"/>
   <rect x="54" y="66" width="${width - 108}" height="22" fill="${accent}"/>
-  <text x="94" y="154" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#15171c">${escapeXml(job.niche.toUpperCase())}</text>
+  ${nicheLines.map((line, index) => (
+    `<text x="94" y="${148 + index * 30}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#15171c">${escapeXml(line)}</text>`
+  )).join('\n  ')}
   ${titleLines.map((line, index) => (
     `<text x="94" y="${275 + index * 86}" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800" fill="#15171c">${escapeXml(line)}</text>`
   )).join('\n  ')}
-  <rect x="94" y="640" width="${width - 188}" height="640" fill="#ffffff" stroke="#d8d2c3" stroke-width="4"/>
-  <text x="132" y="728" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#15171c">Visual placeholder</text>
-  ${directionLines.map((line, index) => (
-    `<text x="132" y="${806 + index * 56}" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#272a31">${escapeXml(line)}</text>`
+  <clipPath id="visual-${slide.slide_number}"><rect x="94" y="640" width="${width - 188}" height="640" rx="0"/></clipPath>
+  <image x="94" y="640" width="${width - 188}" height="640" preserveAspectRatio="xMidYMid slice" clip-path="url(#visual-${slide.slide_number})" href="${sourceImageDataUri}"/>
+  <rect x="94" y="640" width="${width - 188}" height="640" fill="#15171c" opacity="${sourceImageIsPlaceholder ? '0' : '0.16'}" stroke="#d8d2c3" stroke-width="4"/>
+  <rect x="94" y="${sourceImageIsPlaceholder ? 640 : 1104}" width="${width - 188}" height="${sourceImageIsPlaceholder ? 640 : 176}" fill="${sourceImageIsPlaceholder ? '#ffffff' : '#15171c'}" opacity="${sourceImageIsPlaceholder ? '0.94' : '0.82'}"/>
+  <text x="132" y="${sourceImageIsPlaceholder ? 728 : 1162}" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="${sourceImageIsPlaceholder ? '#15171c' : '#ffffff'}">${escapeXml(visualLabel)}</text>
+  ${visualNote.map((line, index) => (
+    `<text x="132" y="${sourceImageIsPlaceholder ? 806 + index * 56 : 1222 + index * 42}" font-family="Arial, Helvetica, sans-serif" font-size="${sourceImageIsPlaceholder ? 40 : 30}" fill="${sourceImageIsPlaceholder ? '#272a31' : '#ffffff'}">${escapeXml(line)}</text>`
   )).join('\n  ')}
+  ${sourceImageIsPlaceholder ? `
   <rect x="94" y="1390" width="${width - 188}" height="240" fill="${accent}" opacity="0.18"/>
   <text x="132" y="1472" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#15171c">Operator review required</text>
-  <text x="132" y="1534" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#15171c">Replace placeholder visuals with approved item photos.</text>
-  <text x="94" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#4b505a">Job: ${escapeXml(job.job_id)}</text>
+  <text x="132" y="1534" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#15171c">Replace placeholder visuals with approved item photos.</text>` : `
+  <rect x="94" y="1390" width="${width - 188}" height="160" fill="${accent}" opacity="0.15"/>
+  <text x="132" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#15171c">Check: model • condition • comps • repair risk</text>
+  <text x="132" y="1520" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#15171c">Estimates guide a decision, not a guaranteed appraisal.</text>`}
+  <text x="94" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#4b505a">WorthScan</text>
   <text x="${width - 180}" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" fill="#15171c">${slide.slide_number}/${job.output_requirements.slide_count}</text>
 </svg>`;
+}
+
+function findLocalSourceVisual(job: CreativeJobManifest): { absolute_path: string; manifest_path: string } | null {
+  const rootDir = path.resolve(process.cwd());
+  const imageExtensions = new Set(['.avif', '.jpeg', '.jpg', '.png', '.svg', '.webp']);
+
+  for (const input of job.source_inputs) {
+    if (input.kind !== 'local_file' || !input.path || !imageExtensions.has(path.extname(input.path).toLowerCase())) {
+      continue;
+    }
+    const absolutePath = path.resolve(rootDir, input.path);
+    const relativePath = path.relative(rootDir, absolutePath);
+    if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+      continue;
+    }
+    if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile()) {
+      return { absolute_path: absolutePath, manifest_path: input.path };
+    }
+  }
+
+  return null;
 }
 
 function renderPostingNotes(job: CreativeJobManifest): string {

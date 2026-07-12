@@ -15,6 +15,12 @@
       "value": "Compare model, mileage, battery health clues, charger inclusion, tire/brake condition, folding mechanism, and three local scooter comps."
     },
     {
+      "kind": "local_file",
+      "label": "Illustrative launch visual",
+      "path": ".ops/creative_jobs/assets/worthscan_scooter_battery_001/scooter-illustrative-v1.png",
+      "notes": "Generic illustrative scooter visual for resale education; it is not a listing photo and makes no condition or price claim."
+    },
+    {
       "kind": "creative_center_manual_observation",
       "label": "Research boundary",
       "value": "Use reviewed manual examples only. No TikTok, Instagram, YouTube, or Creative Center scraping."
@@ -53,16 +59,17 @@
     }
   ],
   "provider_policy": {
-    "approved_providers": ["local_renderer"],
+    "approved_providers": ["local_renderer", "browser_manual"],
     "allow_paid_generation": false,
-    "allow_browser_ui": false,
-    "allow_social_publishing": false,
+    "allow_browser_ui": true,
+    "allow_social_publishing": true,
     "account_automation_allowed": false,
     "credentials_policy": "no_credentials_in_repo",
     "notes": [
-      "Local renderer only.",
-      "No browser actions, provider calls, scraping, or social publishing.",
-      "Manual metrics are recorded after manual posts."
+      "Local renderer is the default production path.",
+      "Codex browser research and social publishing are user-authorized when their environment gates are enabled.",
+      "Account automation remains disabled; platform verification and final public submission require live confirmation.",
+      "Create metrics after the public post URL is verified."
     ]
   },
   "output_requirements": {
@@ -120,6 +127,6 @@
   "qa_notes": [
     "Manual examples only.",
     "Battery and range claims require source evidence.",
-    "No social publishing is allowed by default."
+    "Social publishing is enabled for this launch job after asset approval and live confirmation."
   ]
 }

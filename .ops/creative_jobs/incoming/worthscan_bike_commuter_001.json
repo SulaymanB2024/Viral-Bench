@@ -15,6 +15,12 @@
       "value": "Compare frame brand, wheel size, drivetrain condition, tire/brake wear, accessories, and three local bicycle listings before giving a range."
     },
     {
+      "kind": "local_file",
+      "label": "Illustrative launch visual",
+      "path": ".ops/creative_jobs/assets/worthscan_bike_commuter_001/bike-illustrative-v1.svg",
+      "notes": "Generic illustrative commuter bike for resale education; it is not a listing photo and makes no condition or price claim."
+    },
+    {
       "kind": "creative_center_manual_observation",
       "label": "Research boundary",
       "value": "Use only manually reviewed Creative Center examples and local operator notes. Do not scrape or automate any platform."
@@ -53,16 +59,17 @@
     }
   ],
   "provider_policy": {
-    "approved_providers": ["local_renderer"],
+    "approved_providers": ["local_renderer", "browser_manual"],
     "allow_paid_generation": false,
-    "allow_browser_ui": false,
-    "allow_social_publishing": false,
+    "allow_browser_ui": true,
+    "allow_social_publishing": true,
     "account_automation_allowed": false,
     "credentials_policy": "no_credentials_in_repo",
     "notes": [
-      "Local rendering only.",
-      "Paid generation, browser UI, scraping, and social publishing are disabled.",
-      "Manual posting records are created only after human posting."
+      "Local rendering is the default production path.",
+      "Codex browser research and social publishing are user-authorized when their environment gates are enabled.",
+      "Account automation remains disabled; platform verification and final public submission require live confirmation.",
+      "Create the metrics record after the public post URL is verified."
     ]
   },
   "output_requirements": {
@@ -77,7 +84,7 @@
       {
         "slide_number": 1,
         "on_screen_text": "Scan this commuter bike before you pay",
-        "visual_direction": "Show the full bike and asking price from an approved listing screenshot."
+        "visual_direction": "Show an illustrative commuter bike with a clear educational label; add a human-reviewed listing screenshot only for listing-specific claims."
       },
       {
         "slide_number": 2,
@@ -104,7 +111,7 @@
     "hashtags": ["worthscan", "usedbikes", "campusdeals", "resale", "whatisitworth"],
     "spoken_script": "Before you pay for this commuter bike, scan the listing like a reseller. Confirm the exact model and size, compare three local bike listings, subtract tires, brakes, rust, and tuneup risk, then call the answer a range: buy, negotiate, or pass.",
     "posting_notes": [
-      "Replace placeholders with approved listing images before posting.",
+      "Keep the illustrative visual clearly labeled, or replace it with an approved listing image before any listing-specific claim.",
       "Verify local bike comps on the posting day.",
       "Do not claim a guaranteed appraisal or exact value.",
       "Post manually only after human approval."
@@ -119,7 +126,7 @@
   "generated_assets": [],
   "qa_notes": [
     "Manual trend references only.",
-    "Provider policy disables paid, browser, social, and account actions.",
+    "Paid generation remains disabled; browser research and social publishing are enabled for the launch workflow.",
     "Valuation language must remain range-based."
   ]
 }
