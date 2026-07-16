@@ -14,6 +14,13 @@ const JOB_PATH = path.join(
   'incoming',
   'internships_com_signal_stack_001.json',
 );
+const VIDEO_JOB_PATH = path.join(
+  ROOT,
+  '.ops',
+  'creative_jobs',
+  'incoming',
+  'internships_com_proof_gap_002.json',
+);
 
 test('Internships.com TikTok job stays brand-isolated and review-gated', () => {
   const job = loadCreativeJobManifest(JOB_PATH);
@@ -62,4 +69,22 @@ test('Internships.com account registry cannot identify or authorize a posting ac
   assert.match(launchQueue, /never use a personal account/i);
   assert.match(launchQueue, /Approve the exact caption, video hash, destination handle, and visibility/i);
   assert.match(launchQueue, /Publish manually/i);
+});
+
+test('research-derived Internships.com video stays original and review-gated', () => {
+  const job = loadCreativeJobManifest(VIDEO_JOB_PATH);
+
+  assert.equal(job.brand?.id, 'internships_com');
+  assert.equal(job.output_mode, 'video');
+  assert.equal(job.video_requirements?.target_duration_sec, 16);
+  assert.deepEqual(job.platform_targets, ['TikTok']);
+  assert.equal(job.provider_policy.allow_paid_generation, true);
+  assert.equal(job.provider_policy.allow_browser_ui, true);
+  assert.equal(job.provider_policy.allow_social_publishing, false);
+  assert.equal(job.provider_policy.account_automation_allowed, false);
+  assert.equal(job.approval_status.state, 'draft');
+  assert.deepEqual(job.generated_assets, []);
+  assert.match(job.output_requirements.spoken_script, /don't invent it/i);
+  assert.match(job.output_requirements.posting_notes.join(' '), /not approved for posting/i);
+  assert.doesNotMatch(JSON.stringify(job), /guaranteed referral|100% WIN RATE|WorthScan/i);
 });

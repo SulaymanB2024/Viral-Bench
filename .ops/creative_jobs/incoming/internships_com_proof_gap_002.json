@@ -1,0 +1,241 @@
+{
+  "job_id": "internships_com_proof_gap_002",
+  "brand": {
+    "id": "internships_com",
+    "display_name": "Internships.com",
+    "website_url": "https://www.internships.com/",
+    "account_handle": null
+  },
+  "niche": "Internships.com truthful experience translation",
+  "platform_targets": ["TikTok"],
+  "content_type": "career guidance generated video",
+  "output_mode": "video",
+  "source_inputs": [
+    {
+      "kind": "semantic_bundle",
+      "label": "Bounded TikTok search discovery",
+      "path": ".semantic-artifacts/seo/internships-com-tiktok-20260715-discovery.json",
+      "notes": "120 public metadata records across recent and popular search cohorts; no competitor media was downloaded."
+    },
+    {
+      "kind": "semantic_bundle",
+      "label": "Bounded creator profile follow-up",
+      "path": ".semantic-artifacts/seo/internships-com-creator-profiles-20260716.json",
+      "notes": "360 public metadata records from 15 profiles, deduplicated to 326 unique posts during analysis; no competitor media was downloaded."
+    },
+    {
+      "kind": "local_file",
+      "label": "Gemini generation prompt",
+      "path": ".ops/prompts/gemini/internships_com_proof_gap_002.md",
+      "notes": "Purpose-created prompt based on cross-source structures, not source expression."
+    },
+    {
+      "kind": "local_file",
+      "label": "Reviewed creator research report",
+      "path": "docs/INTERNSHIPS_COM_CREATOR_RESEARCH_20260716.md",
+      "notes": "Separates observed public metadata from inferred creative recommendations."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "joinhandshake-career-education",
+      "source_name": "@joinhandshake",
+      "source_url": "https://www.tiktok.com/@joinhandshake",
+      "captured_at": "2026-07-16T17:19:02.442Z",
+      "platform": "TikTok",
+      "format": "branded career education and relatable job-search content",
+      "hook": "Help a student recognize qualifications they already earned.",
+      "notes": "Adapt the useful-before-promotional structure only; do not reuse brand copy, graphics, UI, footage, or campaign expression."
+    },
+    {
+      "id": "kopportunity-serial-coaching",
+      "source_name": "@kopportunity",
+      "source_url": "https://www.tiktok.com/@kopportunity",
+      "captured_at": "2026-07-16T17:19:02.442Z",
+      "platform": "TikTok",
+      "format": "numbered career-coach series",
+      "hook": "Diagnose the application problem, then provide specific reflection questions.",
+      "notes": "Use serial clarity and specificity without copying scripts, statistics, wording, or personal identity."
+    },
+    {
+      "id": "imellagonzales-student-proof",
+      "source_name": "@imellagonzales",
+      "source_url": "https://www.tiktok.com/@imellagonzales",
+      "captured_at": "2026-07-16T17:19:02.442Z",
+      "platform": "TikTok",
+      "format": "student career advice with humor and resource lists",
+      "hook": "Use a direct warning to replace unfocused application volume with a concrete action.",
+      "notes": "Treat personal outcome claims as unverified and do not copy wording, footage, identity, or shot structure."
+    },
+    {
+      "id": "rootaccess-opportunity-alert",
+      "source_name": "@rootaccessbymusa",
+      "source_url": "https://www.tiktok.com/@rootaccessbymusa",
+      "captured_at": "2026-07-16T17:19:02.442Z",
+      "platform": "TikTok",
+      "format": "niche opportunity and preparation alert",
+      "hook": "Tie a current student opportunity to a specific preparation checklist.",
+      "notes": "Every deadline, event, and employer detail requires current first-party verification."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["browser_manual", "veo_video", "local_renderer", "twelvelabs_analysis"],
+    "allow_paid_generation": true,
+    "allow_browser_ui": true,
+    "allow_social_publishing": false,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "The operator explicitly requested Gemini video generation through the already-authenticated browser.",
+      "The generated video remains an unapproved local review asset.",
+      "No social upload, posting, account creation, or account automation is authorized by this manifest.",
+      "Provider credentials must remain ephemeral and outside the repository."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": { "width": 1080, "height": 1920 },
+    "slide_count": 4,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "house_style": {
+      "system": "internships_signal_stack_v1",
+      "promise": "Turn earned experience into specific proof",
+      "recurring_devices": [
+        "student problem in the first clause",
+        "proof gap visual metaphor",
+        "truthful evidence before tailoring",
+        "student review remains visible",
+        "useful action before product CTA"
+      ],
+      "originality_rules": [
+        "Adapt cross-source structures, never a source's expression.",
+        "Do not copy creator wording, footage, identity, voice, setting, or shot order.",
+        "Do not invent student experience or employer facts.",
+        "Do not repeat unsupported outcome counts, multipliers, or guarantees.",
+        "Use only generated or purpose-created media."
+      ],
+      "overlay_labels": {
+        "hero": "STOP MASS APPLYING?",
+        "checklist": "CLOSE THE PROOF GAP",
+        "comparison": "EARNED → SPECIFIC",
+        "uncertainty": "NO INVENTED EXPERIENCE",
+        "decision": "TAILOR • REVIEW • APPLY",
+        "uncertainty_badge": "TRUTH CHECK"
+      },
+      "footer_note": "No internship, referral, interview, response, or offer is guaranteed."
+    },
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "No experience? Don't invent it.",
+        "visual_direction": "Application cards pile up while one role requirement falls through a visual gap.",
+        "visual_mode": "hero",
+        "proof_cues": ["generic volume", "blank claim", "proof gap"]
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "Close the gap with experience you actually earned",
+        "visual_direction": "Coursework, project, and club evidence cards enter the gap.",
+        "visual_mode": "checklist",
+        "proof_cues": ["coursework", "project", "club work"]
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "Turn one real example into one specific proof point",
+        "visual_direction": "The evidence cards become a bridge supporting one focused application.",
+        "visual_mode": "comparison",
+        "proof_cues": ["earned", "specific"]
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "Tailor. Review. Apply.",
+        "visual_direction": "The student corrects one detail and approves the final application manually.",
+        "visual_mode": "decision",
+        "proof_cues": ["tailor", "review", "apply"]
+      }
+    ],
+    "caption": "No formal experience does not mean no proof. Start with work you actually earned through coursework, projects, clubs, volunteering, or a job. Translate one relevant example into a specific, accurate proof point, tailor it to the role, then review every detail before you apply. Internships.com can help organize the search and tailoring—you stay in control.",
+    "hashtags": ["internshiptips", "internshipsearch", "resumetips", "collegestudents", "careerprep"],
+    "spoken_script": "No experience? Don't invent it. Close the proof gap with coursework, projects, or club work. Turn one real example into one specific proof point. Then tailor, review, and apply. You stay in control.",
+    "posting_notes": [
+      "The generated scene must contain no competitor logo, creator likeness, or recognizable application UI.",
+      "Add text overlays locally only after reviewing the generated footage.",
+      "Do not imply auto-submission or a guaranteed outcome.",
+      "Recheck the caption and destination account immediately before any later posting decision.",
+      "The generated draft is not approved for posting."
+    ]
+  },
+  "video_requirements": {
+    "aspect_ratio": "9:16",
+    "resolution": "720p",
+    "target_duration_sec": 16,
+    "storyboard": [
+      {
+        "beat_number": 1,
+        "start_sec": 0,
+        "end_sec": 3,
+        "visual_direction": "Warm student desk; generic application cards pile up and a requirement card falls through a visual gap.",
+        "action": "The student opens too many generic applications, then notices the gap.",
+        "dialogue_or_voiceover": "No experience? Don't invent it.",
+        "on_screen_text": "STOP MASS APPLYING?",
+        "audio_direction": "Fast soft clicks that stop on the word invent."
+      },
+      {
+        "beat_number": 2,
+        "start_sec": 3,
+        "end_sec": 9,
+        "visual_direction": "Coursework, project, and club evidence cards close the gap with simple object icons.",
+        "action": "The student selects three truthful evidence sources.",
+        "dialogue_or_voiceover": "Close the proof gap with coursework, projects, or club work.",
+        "on_screen_text": "CLOSE THE PROOF GAP",
+        "audio_direction": "Three tactile placement sounds over an understated beat."
+      },
+      {
+        "beat_number": 3,
+        "start_sec": 9,
+        "end_sec": 13,
+        "visual_direction": "The evidence becomes a bridge carrying one focused application into a review tray.",
+        "action": "One application crosses the proof bridge.",
+        "dialogue_or_voiceover": "Turn one real example into one specific proof point.",
+        "on_screen_text": "EARNED → SPECIFIC",
+        "audio_direction": "A subtle resolved tone as the bridge locks."
+      },
+      {
+        "beat_number": 4,
+        "start_sec": 13,
+        "end_sec": 16,
+        "visual_direction": "The student corrects a detail, reviews the application, and remains visibly in control.",
+        "action": "The student reviews and approves the final draft manually.",
+        "dialogue_or_voiceover": "Then tailor, review, and apply.",
+        "on_screen_text": "TAILOR • REVIEW • APPLY",
+        "audio_direction": "One calm confirmation click; music ends without a triumphal guarantee."
+      }
+    ],
+    "action_sequence": [
+      "open generic applications",
+      "notice proof gap",
+      "select earned evidence",
+      "build proof bridge",
+      "focus one application",
+      "review manually"
+    ],
+    "max_extensions_per_candidate": 1
+  },
+  "generation_trace": [],
+  "video_qa_artifacts": [],
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["Prepared for one browser-based Gemini/Veo draft; not approved for posting."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "The creative direction is derived from multiple public metadata records and current first-party brand positioning.",
+    "No competitor media was downloaded, uploaded, or reused.",
+    "Observed public metrics remain separate from creative recommendations.",
+    "The prompt prohibits creator likenesses, competitor UI, unsupported claims, and automatic submission.",
+    "Gemini output requires local technical and human review before any posting decision."
+  ]
+}
+

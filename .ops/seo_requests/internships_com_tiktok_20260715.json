@@ -4,19 +4,23 @@
   "strategy_mode": "career_guidance",
   "platforms": ["tiktok"],
   "search_queries": [
+    "Handshake internship tips",
+    "career coach internship tips",
     "internship resume tips",
     "how to get an internship with no experience",
-    "internship application tips"
+    "internship application tips",
+    "internship application mistakes",
+    "college career advice"
   ],
   "cohorts": ["recent", "popular"],
-  "max_results_per_query": 5,
+  "max_results_per_query": 10,
   "approval": {
     "state": "approved",
     "approved_by": "User instruction in the current Codex task",
     "approved_at": "2026-07-15T19:45:00.000Z"
   },
   "cost_policy": {
-    "max_apify_usd": 0.2
+    "max_apify_usd": 100
   },
   "house_style": {
     "name": "Internships.com signal stack",

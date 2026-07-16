@@ -50,10 +50,14 @@ npm run seo -- seo:preflight \
 
 Live discovery remains fail-closed until `ALLOW_PUBLIC_SEO_RESEARCH=true`,
 `ALLOW_PAID_GENERATION=true`, `APIFY_TOKEN`, and the reviewed TikTok Actor are
-present. The Actor currently rejects a per-run charge ceiling below `$0.50`, so
-the two-cohort request also stays blocked until its total ceiling is explicitly
-raised from `$0.20` to at least `$1.00`. This is a ceiling, not an expected or
-observed charge. Missing research stays a measurement gap; it does not become
+present. On 2026-07-16, the approved pipeline collected 120 search records and
+360 profile-follow-up records for `$2.092` in total Apify usage. The profile
+records deduplicated to 326 unique posts. The operator-approved `$100` limit
+remains a hard ceiling, not a spending target or expected charge.
+
+Media downloads stayed disabled. The resulting creator map is documented in
+[`INTERNSHIPS_COM_CREATOR_RESEARCH_20260716.md`](./INTERNSHIPS_COM_CREATOR_RESEARCH_20260716.md).
+Missing or filtered research remains a measurement gap; it does not become
 evidence that a content pattern failed.
 
 ## First package
@@ -74,3 +78,17 @@ The renderer creates review artifacts only. Upload and public submission require
 the verified Internships.com TikTok handle, approved non-personal brand access,
 human asset/copy approval, and exact confirmation of the final video hash and
 destination account.
+
+## First research-derived generated-video package
+
+```bash
+npm run creative -- validate \
+  --job .ops/creative_jobs/incoming/internships_com_proof_gap_002.json
+```
+
+The corresponding browser-generation prompt is
+`.ops/prompts/gemini/internships_com_proof_gap_002.md`. It requests one
+purpose-created 9:16 draft with no competitor branding, creator likeness,
+recognizable application UI, or baked-in captions. Any generated video remains
+unapproved until its local file, prompt, technical QA, and human-review record
+are attached to the rendered package.
