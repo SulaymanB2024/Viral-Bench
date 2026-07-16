@@ -1,0 +1,38 @@
+{
+  "research_id": "worthscan-scooter-youtube-20260715",
+  "niche": "used electric scooter inspection and resale valuation",
+  "platforms": ["youtube_shorts"],
+  "search_queries": [
+    "used electric scooter battery test",
+    "used scooter buying guide",
+    "electric scooter resale value"
+  ],
+  "cohorts": ["recent", "popular"],
+  "max_results_per_query": 5,
+  "approval": {
+    "state": "approved",
+    "approved_by": "user goal in Codex task",
+    "approved_at": "2026-07-15T12:00:00.000Z"
+  },
+  "cost_policy": {
+    "max_apify_usd": 0.2
+  },
+  "house_style": {
+    "name": "WorthScan proof-first valuation",
+    "voice": [
+      "plainspoken",
+      "skeptical but useful",
+      "specific about uncertainty"
+    ],
+    "recurring_devices": [
+      "scan this before you buy",
+      "three comparable listings",
+      "price the missing proof into the range"
+    ],
+    "differentiators": [
+      "visible checks before valuation",
+      "range plus confidence instead of a single magic number",
+      "explicit evidence limits and buyer-risk adjustments"
+    ]
+  }
+}

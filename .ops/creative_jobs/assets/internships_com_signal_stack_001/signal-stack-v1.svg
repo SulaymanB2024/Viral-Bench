@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+  <rect width="1080" height="1440" fill="#302C41"/>
+  <circle cx="940" cy="170" r="260" fill="#7665F3" opacity="0.72"/>
+  <circle cx="110" cy="1320" r="290" fill="#F58025" opacity="0.74"/>
+  <path d="M0 330 H1080 M0 690 H1080 M0 1050 H1080" stroke="#FAFAFC" stroke-opacity="0.08" stroke-width="3"/>
+  <path d="M270 0 V1440 M540 0 V1440 M810 0 V1440" stroke="#FAFAFC" stroke-opacity="0.08" stroke-width="3"/>
+  <rect x="94" y="108" width="892" height="1224" rx="54" fill="#FAFAFC"/>
+  <text x="150" y="205" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#F58025" letter-spacing="3">INTERNSHIPS.COM</text>
+  <text x="150" y="302" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="900" fill="#302C41">THE SIGNAL</text>
+  <text x="150" y="385" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="900" fill="#302C41">STACK</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="800">
+    <rect x="150" y="486" width="360" height="128" rx="28" fill="#FBF1DD" stroke="#F58025" stroke-width="5"/>
+    <text x="190" y="565" font-size="38" fill="#302C41">01  MATCH</text>
+    <rect x="570" y="486" width="360" height="128" rx="28" fill="#EAE9EF" stroke="#7665F3" stroke-width="5"/>
+    <text x="610" y="565" font-size="38" fill="#302C41">02  PROVE</text>
+    <rect x="150" y="674" width="360" height="128" rx="28" fill="#EAE9EF" stroke="#7665F3" stroke-width="5"/>
+    <text x="190" y="753" font-size="38" fill="#302C41">03  PEOPLE</text>
+    <rect x="570" y="674" width="360" height="128" rx="28" fill="#FBF1DD" stroke="#F58025" stroke-width="5"/>
+    <text x="610" y="753" font-size="38" fill="#302C41">04  REVIEW</text>
+  </g>
+  <rect x="150" y="900" width="780" height="242" rx="34" fill="#302C41"/>
+  <text x="196" y="980" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#F58025" letter-spacing="2">USEFUL BEFORE PROMOTIONAL</text>
+  <text x="196" y="1049" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#FAFAFC">Truthful fit. Visible proof.</text>
+  <text x="196" y="1104" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="#FAFAFC">Human review before send.</text>
+  <text x="150" y="1248" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#5D5870">Purpose-created operating artwork • 2026-07-15</text>
+</svg>

@@ -80,9 +80,13 @@ Public positioning:
 
 - Status: Brand Channel created as `WorthScan` / `@worthscan` on 2026-07-10.
   The public channel URL is https://www.youtube.com/@worthscan.
+- Live account check on 2026-07-15: the retained Chrome Studio selector exposed
+  only a personal channel. Approved work-account access and ownership of the
+  target channel remain unverified, so no upload was attempted.
 - Next action: Complete Google's live `Verify it's you` security check in the
-  official browser, then apply the channel description, profile image, and
-  banner. Do not attempt to bypass the security check.
+  official browser from an approved non-personal work account, visibly select
+  `@worthscan`, then apply the channel description, profile image, and banner.
+  Do not attempt to bypass the security check.
 - Prepared profile and banner assets:
   `.ops/accounts/assets/worthscan-profile-v1.png` and
   `.ops/accounts/assets/worthscan-youtube-banner-v1.png`.

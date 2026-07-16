@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/normalized-social-post.schema.json",
+  "title": "Normalized Social Post",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evidence_id", "request_id", "platform", "platform_post_id", "canonical_url", "content_type", "caption", "posted_at", "collected_at", "account", "hashtags", "comments", "metric_snapshot", "media", "provenance", "partial_text_only", "evidence_limitations"],
+  "properties": {
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "request_id": { "type": "string", "minLength": 1 },
+    "platform": { "$ref": "#/$defs/platform" },
+    "platform_post_id": { "type": "string", "minLength": 1 },
+    "canonical_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "content_type": { "const": "short_video" },
+    "caption": { "type": "string" },
+    "posted_at": { "type": ["string", "null"], "format": "date-time" },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "account": { "$ref": "#/$defs/account" },
+    "hashtags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "comments": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/comment" } },
+    "metric_snapshot": { "$ref": "#/$defs/metrics" },
+    "media": { "$ref": "#/$defs/media" },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "partial_text_only": { "type": "boolean" },
+    "evidence_limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "platform": { "type": "string", "enum": ["tiktok", "instagram", "youtube_shorts"] },
+    "nullableMetric": { "type": ["number", "null"], "minimum": 0 },
+    "account": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evidence_id", "platform", "platform_account_id", "handle", "display_name", "bio", "canonical_url"],
+      "properties": {
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "platform": { "$ref": "#/$defs/platform" },
+        "platform_account_id": { "type": ["string", "null"] },
+        "handle": { "type": "string", "minLength": 1 },
+        "display_name": { "type": "string" },
+        "bio": { "type": "string" },
+        "canonical_url": { "type": ["string", "null"], "format": "uri" }
+      }
+    },
+    "comment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evidence_id", "platform_comment_id", "parent_comment_id", "thread_root_id", "author_handle", "text", "like_count", "reply_count", "created_at", "selection_reason"],
+      "properties": {
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "platform_comment_id": { "type": "string", "minLength": 1 },
+        "parent_comment_id": { "type": ["string", "null"] },
+        "thread_root_id": { "type": "string", "minLength": 1 },
+        "author_handle": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "like_count": { "type": "integer", "minimum": 0 },
+        "reply_count": { "type": "integer", "minimum": 0 },
+        "created_at": { "type": ["string", "null"], "format": "date-time" },
+        "selection_reason": { "type": "string", "enum": ["high_engagement", "recent", "both"] }
+      }
+    },
+    "metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["captured_at", "views", "likes", "comments", "shares", "saves", "follows", "profile_visits", "dms", "view_velocity", "checkpoint", "source_kind"],
+      "properties": {
+        "captured_at": { "type": "string", "format": "date-time" },
+        "views": { "$ref": "#/$defs/nullableMetric" },
+        "likes": { "$ref": "#/$defs/nullableMetric" },
+        "comments": { "$ref": "#/$defs/nullableMetric" },
+        "shares": { "$ref": "#/$defs/nullableMetric" },
+        "saves": { "$ref": "#/$defs/nullableMetric" },
+        "follows": { "$ref": "#/$defs/nullableMetric" },
+        "profile_visits": { "$ref": "#/$defs/nullableMetric" },
+        "dms": { "$ref": "#/$defs/nullableMetric" },
+        "view_velocity": { "$ref": "#/$defs/nullableMetric" },
+        "checkpoint": { "type": "string", "enum": ["public_one_time", "24h", "72h", "7d"] },
+        "source_kind": { "type": "string", "enum": ["public_snapshot", "owned_analytics"] }
+      }
+    },
+    "media": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_url", "local_path", "sha256", "bytes", "mime_type"],
+      "properties": {
+        "source_url": { "type": ["string", "null"], "format": "uri" },
+        "local_path": { "type": ["string", "null"] },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "bytes": { "type": ["integer", "null"], "minimum": 0 },
+        "mime_type": { "type": ["string", "null"] }
+      }
+    },
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["apify_actor_id", "apify_actor_build_id", "apify_actor_build_number", "apify_actor_input_sha256", "apify_actor_input_mode", "apify_run_id", "apify_dataset_id", "apify_dataset_item_offset", "raw_item_sha256", "raw_artifact_path"],
+      "properties": {
+        "apify_actor_id": { "type": "string", "minLength": 1 },
+        "apify_actor_build_id": { "type": ["string", "null"], "minLength": 1 },
+        "apify_actor_build_number": { "type": ["string", "null"], "minLength": 1 },
+        "apify_actor_input_sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "apify_actor_input_mode": { "type": "string", "enum": ["explicit_url", "search", "profile", "channel", "hashtag"] },
+        "apify_run_id": { "type": "string", "minLength": 1 },
+        "apify_dataset_id": { "type": "string", "minLength": 1 },
+        "apify_dataset_item_offset": { "type": "integer", "minimum": 0 },
+        "raw_item_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "raw_artifact_path": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -25,6 +25,14 @@ import {
   type TrendExampleInput,
 } from './trend-research';
 import { mergeEnvWithFile } from './env-loader';
+import {
+  buildSeoResearchPreflight,
+  buildSeoStrategyReport,
+  runSeoDiscovery,
+  validateSeoResearchRequest,
+  writeSeoStrategyReport,
+  type SeoDiscoveryReport,
+} from './seo-research';
 
 interface CliArgs {
   command: string;
@@ -192,6 +200,41 @@ async function main(): Promise<void> {
       return;
     }
 
+    case 'seo:validate': {
+      const file = requiredStringOpt(options, 'file');
+      const request = validateSeoResearchRequest(JSON.parse(fs.readFileSync(file, 'utf8')));
+      console.log(JSON.stringify({ ok: true, research_id: request.research_id, external_calls_made: 0 }, null, 2));
+      return;
+    }
+
+    case 'seo:preflight': {
+      const file = requiredStringOpt(options, 'file');
+      const request = JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
+      console.log(JSON.stringify(buildSeoResearchPreflight(request, effectiveEnv), null, 2));
+      return;
+    }
+
+    case 'seo:discover': {
+      const file = requiredStringOpt(options, 'file');
+      const request = JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
+      const out = stringOpt(options, 'out') || '.semantic-artifacts/seo';
+      const report = await runSeoDiscovery(request, { outputDir: out, env: effectiveEnv });
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+
+    case 'seo:strategy': {
+      const requestFile = requiredStringOpt(options, 'request');
+      const discoveryFile = requiredStringOpt(options, 'discovery');
+      const outputFile = requiredStringOpt(options, 'out');
+      const request = JSON.parse(fs.readFileSync(requestFile, 'utf8')) as unknown;
+      const discovery = JSON.parse(fs.readFileSync(discoveryFile, 'utf8')) as SeoDiscoveryReport;
+      const report = buildSeoStrategyReport(request, discovery);
+      const target = writeSeoStrategyReport(outputFile, report);
+      console.log(JSON.stringify({ ok: true, strategy_id: report.strategy_id, path: target, external_calls_made: 0 }, null, 2));
+      return;
+    }
+
     case 'help':
     default:
       printHelp();
@@ -306,12 +349,18 @@ Commands:
   provider:validate-request --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-live --file .ops/provider_requests/<live_request>.json --package-dir .ops/creative_jobs/rendered/<job_id> [--env-file .env]
+  seo:validate --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json
+  seo:preflight --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json [--env-file .env]
+  seo:discover --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json --out .semantic-artifacts/seo [--env-file .env]
+  seo:strategy --request .ops/seo_requests/worthscan_scooter_youtube_20260715.json --discovery .semantic-artifacts/seo/<report>.json --out .semantic-artifacts/seo/<strategy>.json
   schema
 
 Notes:
   - Intake is manual. Save Creative Center observations to JSON, then run add.
   - Provider live calls are blocked unless request policy, environment gates, and credentials are all present.
-  - No Lightreel, OpenRouter, Gemini, ScrapeCreators, Apify, TikTok scraping, or posting is used by default.
+  - SEO discovery is disabled by default and requires an approved bounded request, an allowlisted Apify Actor, a dollar ceiling, and both public-research and paid-call gates.
+  - TwelveLabs accepts owned/licensed local media or direct raw-media URLs, never social-platform page URLs.
+  - No posting is performed by these commands.
 `);
 }
 

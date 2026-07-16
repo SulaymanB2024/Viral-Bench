@@ -21,6 +21,13 @@ const SAMPLE_JOB_PATH = path.join(
   'incoming',
   'scan_bike_001.json',
 );
+const SCOOTER_JOB_PATH = path.join(
+  process.cwd(),
+  '.ops',
+  'creative_jobs',
+  'incoming',
+  'worthscan_scooter_battery_001.json',
+);
 
 function sampleJob(): CreativeJobManifest {
   return loadCreativeJobManifest(SAMPLE_JOB_PATH);
@@ -39,6 +46,28 @@ test('creative job manifest validates', () => {
   assert.equal(job.output_requirements.slide_count, 5);
   assert.equal(job.output_requirements.slides.length, 5);
   assert.equal(job.provider_policy.account_automation_allowed, false);
+});
+
+test('proof-first house style is explicit and data-driven across every slide', () => {
+  const job = loadCreativeJobManifest(SCOOTER_JOB_PATH);
+
+  assert.equal(job.output_requirements.house_style?.system, 'worthscan_proof_first_v1');
+  assert.match(job.output_requirements.house_style?.promise ?? '', /Proof first/);
+  assert.deepEqual(
+    job.output_requirements.slides.map((slide) => slide.visual_mode),
+    ['hero', 'checklist', 'comparison', 'uncertainty', 'decision'],
+  );
+  assert.ok(job.output_requirements.slides.every((slide) => (slide.proof_cues?.length ?? 0) >= 2));
+});
+
+test('house-style manifests reject slides without matching proof cues', () => {
+  const job = cloneJob(loadCreativeJobManifest(SCOOTER_JOB_PATH));
+  delete job.output_requirements.slides[2].proof_cues;
+
+  assert.throws(
+    () => validateCreativeJobManifest(job),
+    /visual_mode and proof_cues must be provided together/,
+  );
 });
 
 test('paid generation blocks by default', async () => {
@@ -181,6 +210,28 @@ test('public-facing local slides keep review language out of approved-source vis
   assert.match(publicSvg, /Illustrative visual/);
   assert.match(publicSvg, /Check: model/);
   assert.match(placeholderSvg, /Operator review required/);
+});
+
+test('proof-first renderer adds evidence devices only to approved-source visuals', () => {
+  const job = loadCreativeJobManifest(SCOOTER_JOB_PATH);
+  const sourceDataUri = 'data:image/jpeg;base64,AA==';
+
+  for (const slide of job.output_requirements.slides) {
+    const publicSvg = renderSlideSvg(job, slide, sourceDataUri, false);
+    const placeholderSvg = renderSlideSvg(job, slide, sourceDataUri, true);
+    assert.match(publicSvg, new RegExp(`data-proof-mode="${slide.visual_mode}"`));
+    assert.doesNotMatch(placeholderSvg, /data-proof-mode=/);
+    for (const cue of slide.proof_cues ?? []) assert.match(publicSvg, new RegExp(cue.toUpperCase()));
+  }
+
+  const decisionSlide = job.output_requirements.slides.find((slide) => slide.visual_mode === 'decision');
+  assert.ok(decisionSlide);
+  const decisionSvg = renderSlideSvg(job, decisionSlide, sourceDataUri, false);
+  assert.equal(
+    decisionSvg.match(/<rect[^>]+height="102"[^>]+rx="51"[^>]+fill="#ffffff"[^>]+stroke="#4f46e5"/g)?.length,
+    3,
+  );
+  assert.doesNotMatch(decisionSvg, /height="102" rx="51" fill="#4f46e5"/);
 });
 
 test('no secrets are present in tracked files', () => {

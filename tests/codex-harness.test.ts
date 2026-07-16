@@ -315,9 +315,13 @@ test('job ranking gives Codex scored runnable work choices', () => {
 
   assert.ok(rankings.length >= 10);
   assert.equal(rankings[0].rank, 1);
-  assert.equal(rankings[0].job_id, 'worthscan_scooter_battery_001');
   assert.ok(rankings.every((ranking, index) => ranking.rank === index + 1));
-  assert.ok(rankings.some((ranking) => ranking.job_id === 'worthscan_scooter_battery_001' && ranking.reasons.length > 0));
+  assert.ok(rankings.every((ranking, index) => index === 0 || rankings[index - 1].score >= ranking.score));
+  const scooter = rankings.find((ranking) => ranking.job_id === 'worthscan_scooter_battery_001');
+  assert.ok(scooter);
+  assert.ok((scooter?.reasons.length ?? 0) > 0);
+  assert.equal(scooter?.runnable_now, false);
+  assert.ok(scooter?.blockers.includes('paid generation policy needs ALLOW_PAID_GENERATION=true'));
   assert.ok(rankings.every((ranking) => typeof ranking.score === 'number'));
 });
 
@@ -326,7 +330,7 @@ test('job matrix links jobs to renders, providers, launch queue, metrics, and co
   const scooter = matrix.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
   const scanBike = matrix.jobs.find((row) => row.job_id === 'scan_bike_001');
 
-  assert.equal(matrix.job_count, 11);
+  assert.equal(matrix.job_count, 12);
   assert.ok(matrix.rendered_job_count >= 3);
   assert.ok(matrix.provider_linked_job_count >= 1);
   assert.ok(matrix.launch_queue_job_count >= 3);
@@ -342,14 +346,16 @@ test('job matrix links jobs to renders, providers, launch queue, metrics, and co
 test('evidence map exposes job sources, rendered evidence, claim safety, and commands', () => {
   const map = buildEvidenceMap(process.cwd());
   const scooter = map.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
+  const internships = map.jobs.find((row) => row.job_id === 'internships_com_signal_stack_001');
 
-  assert.equal(map.job_count, 11);
+  assert.equal(map.job_count, 12);
   assert.ok(map.jobs_with_trend_examples >= 10);
   assert.ok(map.jobs_with_manual_boundary >= 10);
   assert.ok(map.jobs_with_rendered_evidence >= 3);
   assert.equal(map.jobs_with_claim_blockers, 0);
   assert.ok(scooter);
-  assert.equal(scooter?.evidence_counts.trend_example_count, 3);
+  assert.equal(scooter?.evidence_counts.trend_example_count, 6);
+  assert.equal(scooter?.evidence_counts.source_input_count, 5);
   assert.equal(scooter?.manual_boundary_declared, true);
   assert.equal(scooter?.claim_safety.disclaimer_present, true);
   assert.equal(scooter?.claim_safety.range_language_present, true);
@@ -357,6 +363,11 @@ test('evidence map exposes job sources, rendered evidence, claim safety, and com
   assert.equal(scooter?.claim_safety.guarantee_claim_present, false);
   assert.equal(scooter?.rendered_evidence.manifest_exists, true);
   assert.ok(scooter?.next_commands.some((command) => command.includes('creative -- validate')));
+  assert.ok(internships);
+  assert.equal(internships?.claim_safety.disclaimer_present, true);
+  assert.equal(internships?.claim_safety.range_language_present, false);
+  assert.equal(internships?.claim_safety.guarantee_claim_present, false);
+  assert.deepEqual(internships?.claim_safety.blockers, []);
   assert.ok(map.next_commands.some((command) => command.includes('job-matrix')));
 });
 
@@ -389,6 +400,7 @@ test('publishing handoff plan keeps social publishing manual and maps launch blo
     rootDir: process.cwd(),
   });
   const bike = locked.jobs.find((job) => job.job_id === 'worthscan_bike_commuter_001');
+  const youtube = locked.account_readiness.accounts.find((account) => account.platform === 'YouTube Shorts');
 
   assert.equal(locked.summary.external_calls_made, 0);
   assert.equal(locked.gates.allow_social_publishing, false);
@@ -408,6 +420,9 @@ test('publishing handoff plan keeps social publishing manual and maps launch blo
   assert.equal(locked.summary.ready_account_platform_count, 0);
   assert.equal(locked.summary.pending_account_platform_count, 3);
   assert.ok(locked.account_readiness.blockers.includes('TikTok account is not created'));
+  assert.ok(youtube);
+  assert.equal(youtube?.authorized_work_account_confirmed, false);
+  assert.ok(youtube?.blockers.includes('YouTube Shorts approved work-account session is not confirmed'));
   assert.ok(bike);
   assert.equal(bike?.manual_handoff_ready, true);
   assert.equal(bike?.autonomous_publish_ready, false);
@@ -427,6 +442,29 @@ test('publishing handoff plan keeps social publishing manual and maps launch blo
   assert.equal(enabled.gates.allow_social_publishing, true);
   assert.deepEqual(enabled.gates.missing_env, []);
   assert.equal(enabled.summary.external_calls_made, 0);
+});
+
+test('publishing handoff plan scopes account blockers to the selected platform', () => {
+  const youtubeOnly = buildPublishingHandoffPlan({
+    env: { ALLOW_SOCIAL_PUBLISHING: 'true' },
+    rootDir: process.cwd(),
+    platform: 'YouTube Shorts',
+  });
+  const scooter = youtubeOnly.jobs.find((job) => job.job_id === 'worthscan_scooter_battery_001');
+
+  assert.equal(youtubeOnly.target_platform, 'YouTube Shorts');
+  assert.deepEqual(youtubeOnly.account_readiness.required_platforms, ['YouTube Shorts']);
+  assert.deepEqual(youtubeOnly.account_readiness.accounts.map((account) => account.platform), ['YouTube Shorts']);
+  assert.equal(youtubeOnly.summary.ready_account_platform_count, 0);
+  assert.equal(youtubeOnly.summary.pending_account_platform_count, 1);
+  assert.ok(youtubeOnly.account_readiness.blockers.includes('YouTube Shorts approved work-account session is not confirmed'));
+  assert.equal(youtubeOnly.account_readiness.blockers.some((blocker) => blocker.startsWith('TikTok')), false);
+  assert.equal(youtubeOnly.account_readiness.blockers.some((blocker) => blocker.startsWith('Instagram')), false);
+  assert.ok(scooter?.blockers.includes('YouTube Shorts approved work-account session is not confirmed'));
+  assert.equal(scooter?.blockers.some((blocker) => blocker.startsWith('TikTok')), false);
+  assert.equal(scooter?.blockers.some((blocker) => blocker.startsWith('Instagram')), false);
+  assert.match(scooter?.next_action ?? '', /approved non-personal work account/i);
+  assert.ok(youtubeOnly.next_commands.some((command) => command.includes("--platform 'YouTube Shorts'")));
 });
 
 test('autonomy unblock plan classifies remaining goal gates without crossing them', () => {
@@ -604,10 +642,11 @@ test('provider route map ranks API-key usefulness without leaking values', () =>
   const lockedOpenAi = locked.routes.find((route) => route.request_id === 'sample-openai-image-live-request');
   const planningOpenAi = locked.routes.find((route) => route.request_id === 'sample-openai-image-request');
   const enabledOpenAi = enabled.routes.find((route) => route.request_id === 'sample-openai-image-live-request');
+  const twelveLabs = locked.routes.find((route) => route.request_id === 'worthscan-scooter-twelvelabs-analysis-20260715');
   const gemini = locked.routes.find((route) => route.provider === 'gemini_image');
 
   assert.equal(locked.summary.external_calls_made, 0);
-  assert.equal(locked.summary.api_key_would_help_count, 1);
+  assert.equal(locked.summary.api_key_would_help_count, 2);
   assert.ok(lockedOpenAi);
   assert.equal(lockedOpenAi?.route_type, 'live_provider');
   assert.equal(lockedOpenAi?.would_api_key_help, true);
@@ -616,6 +655,10 @@ test('provider route map ranks API-key usefulness without leaking values', () =>
   assert.equal(planningOpenAi?.status, 'ready_for_handoff');
   assert.equal(planningOpenAi?.would_api_key_help, false);
   assert.doesNotMatch(planningOpenAi?.next_action ?? '', /presence flag/);
+  assert.ok(twelveLabs);
+  assert.equal(twelveLabs?.provider, 'twelvelabs_analysis');
+  assert.equal(twelveLabs?.status, 'needs_credential');
+  assert.deepEqual(twelveLabs?.recommended_credentials, ['TWELVELABS_API_KEY']);
   assert.ok(locked.summary.recommended_route_id);
   assert.ok(gemini);
   assert.equal(gemini?.status, 'needs_adapter');
@@ -673,11 +716,12 @@ test('provider activation plan consolidates API-key live-run boundaries without 
   const serialized = JSON.stringify(enabled);
   const lockedOpenAi = locked.requests.find((request) => request.request_id === 'sample-openai-image-live-request');
   const enabledOpenAi = enabled.requests.find((request) => request.request_id === 'sample-openai-image-live-request');
+  const twelveLabs = locked.requests.find((request) => request.request_id === 'worthscan-scooter-twelvelabs-analysis-20260715');
   const gemini = locked.requests.find((request) => request.provider === 'gemini_image');
 
   assert.equal(locked.summary.external_calls_made, 0);
   assert.equal(locked.summary.recommended_request_id, 'sample-openai-image-live-request');
-  assert.equal(locked.summary.api_key_unlockable_count, 1);
+  assert.equal(locked.summary.api_key_unlockable_count, 2);
   assert.ok(locked.credential_setup.required_missing_keys.includes('OPENAI_API_KEY'));
   assert.ok(locked.credential_setup.required_env_flags.includes('ALLOW_PAID_GENERATION=true'));
   assert.ok(lockedOpenAi);
@@ -688,6 +732,10 @@ test('provider activation plan consolidates API-key live-run boundaries without 
   assert.equal(lockedOpenAi?.external_call_boundary.external_calls_made, 0);
   assert.equal(lockedOpenAi?.external_call_boundary.live_external_call_allowed, false);
   assert.ok(lockedOpenAi?.activation_command?.includes('provider:run-live'));
+  assert.ok(twelveLabs);
+  assert.equal(twelveLabs?.provider, 'twelvelabs_analysis');
+  assert.equal(twelveLabs?.activation_status, 'needs_api_key');
+  assert.deepEqual(twelveLabs?.missing_credentials, ['TWELVELABS_API_KEY']);
   assert.ok(gemini);
   assert.equal(gemini?.activation_status, 'needs_adapter');
   assert.equal(gemini?.missing_credentials.length, 0);

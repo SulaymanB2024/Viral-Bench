@@ -1,0 +1,160 @@
+{
+  "job_id": "internships_com_signal_stack_001",
+  "brand": {
+    "id": "internships_com",
+    "display_name": "Internships.com",
+    "website_url": "https://www.internships.com/",
+    "account_handle": null
+  },
+  "niche": "Internships.com student application signal stack",
+  "platform_targets": ["TikTok"],
+  "content_type": "career guidance slideshow",
+  "output_mode": "slideshow",
+  "source_inputs": [
+    {
+      "kind": "reference_url",
+      "label": "Current Internships.com public product positioning",
+      "url": "https://www.internships.com/",
+      "captured_at": "2026-07-15T19:50:00.000Z",
+      "notes": "Public claims used here: personalized openings, truthful role-specific drafts, alumni-path research, and student review before send. No private student data was collected."
+    },
+    {
+      "kind": "local_file",
+      "label": "Purpose-created Internships.com signal-stack artwork",
+      "path": ".ops/creative_jobs/assets/internships_com_signal_stack_001/signal-stack-v1.svg",
+      "notes": "Locally created operating artwork using colors observed in the current public site CSS; it does not contain student data or competitor media."
+    },
+    {
+      "kind": "manual_note",
+      "label": "Operator brief",
+      "value": "Launch a useful-before-promotional TikTok series for Internships.com. The recurring stack is match, prove, people, review."
+    },
+    {
+      "kind": "creative_center_manual_observation",
+      "label": "Current research boundary",
+      "value": "The TikTok account and live Creative Center surface are not yet verified because the Chrome bridge is unavailable. Do not claim a winning TikTok pattern until bounded Apify or reviewed Creative Center evidence is captured."
+    }
+  ],
+  "trend_examples": [
+    {
+      "id": "internships-com-homepage-20260715",
+      "source_name": "Internships.com public homepage",
+      "source_url": "https://www.internships.com/",
+      "captured_at": "2026-07-15T19:50:00.000Z",
+      "platform": "Web",
+      "format": "product landing page",
+      "hook": "Stop searching for internships like a boomer.",
+      "notes": "Brand-owned directness is preserved as a voice cue. The TikTok draft uses original wording and avoids unsupported outcome promises."
+    }
+  ],
+  "provider_policy": {
+    "approved_providers": ["local_renderer", "browser_manual"],
+    "allow_paid_generation": false,
+    "allow_browser_ui": true,
+    "allow_social_publishing": true,
+    "account_automation_allowed": false,
+    "credentials_policy": "no_credentials_in_repo",
+    "notes": [
+      "Local rendering is the initial production path.",
+      "Browser research is limited to visible official surfaces and requires the repository gate.",
+      "Publishing requires a verified Internships.com TikTok account, approved assets and copy, and exact confirmation.",
+      "No account creation, login automation, or private student-data intake is allowed."
+    ]
+  },
+  "output_requirements": {
+    "aspect_ratio": "9:16",
+    "dimensions": { "width": 1080, "height": 1920 },
+    "slide_count": 5,
+    "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "house_style": {
+      "system": "internships_signal_stack_v1",
+      "promise": "Match • prove • people • review",
+      "recurring_devices": [
+        "student problem first",
+        "four-part signal stack",
+        "truthful before-and-after",
+        "no-guarantee boundary",
+        "human review before send"
+      ],
+      "originality_rules": [
+        "Use public research for cross-source structure, never creator wording, footage, or identity.",
+        "Never invent student experience or suggest copying a job description.",
+        "Frame alumni discovery as research, not a guaranteed referral.",
+        "Place the product CTA after useful standalone guidance."
+      ],
+      "overlay_labels": {
+        "hero": "THE FOUR-SIGNAL CHECK",
+        "checklist": "MATCH WHAT YOU CAN PROVE",
+        "comparison": "VAGUE → EARNED → SPECIFIC",
+        "uncertainty": "A CONNECTION IS NOT A PROMISE",
+        "decision": "TAILOR + REVIEW + SEND",
+        "uncertainty_badge": "CHECK"
+      },
+      "footer_note": "No internship, referral, interview, or response is guaranteed."
+    },
+    "slides": [
+      {
+        "slide_number": 1,
+        "on_screen_text": "Before you apply, check these 4 signals",
+        "visual_direction": "Open on the purpose-created signal-stack board with four equally weighted steps.",
+        "visual_mode": "hero",
+        "proof_cues": ["match", "prove", "people", "review"]
+      },
+      {
+        "slide_number": 2,
+        "on_screen_text": "MATCH: use role language only when your experience supports it",
+        "visual_direction": "Show four evidence sources a student can truthfully map to a role.",
+        "visual_mode": "checklist",
+        "proof_cues": ["role words", "real skill", "coursework", "project"]
+      },
+      {
+        "slide_number": 3,
+        "on_screen_text": "PROVE: turn coursework or a project into one specific example",
+        "visual_direction": "Show a three-step progression from vague claim to earned evidence to a specific accurate example.",
+        "visual_mode": "comparison",
+        "proof_cues": ["vague", "earned", "specific"]
+      },
+      {
+        "slide_number": 4,
+        "on_screen_text": "PEOPLE: research one alumni path—never assume a referral",
+        "visual_direction": "Keep connection checks explicit and do not imply access, endorsement, or a guaranteed reply.",
+        "visual_mode": "uncertainty",
+        "proof_cues": ["relevance", "context", "specific ask"]
+      },
+      {
+        "slide_number": 5,
+        "on_screen_text": "REVIEW: nothing gets sent without your approval",
+        "visual_direction": "End on three equal actions with student review visibly between tailoring and submission.",
+        "visual_mode": "decision",
+        "proof_cues": ["tailor", "review", "send"]
+      }
+    ],
+    "caption": "Before you send another internship application, check four signals: match the role with experience you actually have, prove it with coursework or projects, research one relevant alumni path, then review every tailored draft before you send. Internships.com helps surface openings, tailor application materials, and find possible connections—but you stay in control. Start at Internships.com.",
+    "hashtags": ["internshiptips", "internshipsearch", "collegestudents", "resumetips", "careerprep"],
+    "spoken_script": "Before you send another internship application, check four signals. Match the role's language only when your real experience supports it. Prove the skill with coursework or a project. Find one relevant alumni path, but never assume a referral. Then review every tailored draft before you send. Internships.com can help with the search, the tailoring, and the connection research. You stay in control.",
+    "posting_notes": [
+      "The artwork is purpose-created and contains no student data or competitor media.",
+      "Do not imply guaranteed internships, interviews, referrals, responses, or offers.",
+      "Do not imply auto-submission; the student reviews and sends.",
+      "The public TikTok handle and authorized brand access must be verified before upload.",
+      "Post only after exact approval of this video, caption, and destination account."
+    ]
+  },
+  "video_requirements": null,
+  "generation_trace": [],
+  "video_qa_artifacts": [],
+  "approval_status": {
+    "state": "draft",
+    "human_reviewer": null,
+    "reviewed_at": null,
+    "notes": ["Initial Internships.com TikTok operating draft; not approved for posting."]
+  },
+  "generated_assets": [],
+  "qa_notes": [
+    "The content is grounded in current public Internships.com product positioning, not private student data.",
+    "The first draft does not claim to be based on winning TikTok posts because live TikTok research is not yet complete.",
+    "The bounded TikTok Apify request is prepared separately and remains blocked until the public-research gate and ephemeral credential are available.",
+    "The Internships.com signal stack is original to this pipeline: match, prove, people, review.",
+    "Every outcome claim and destination account must be rechecked immediately before publishing."
+  ]
+}

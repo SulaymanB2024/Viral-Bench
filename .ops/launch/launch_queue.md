@@ -13,7 +13,8 @@ guide only; it does not authorize account automation, scraping, or auto-posting.
 
 ## Shared Posting Rules
 
-- Use only approved local item visuals.
+- Use only approved local visuals. Generic illustrations must be labeled and
+  must not be presented as a real listing, inspection, or condition record.
 - Remove seller names, addresses, payment info, private messages, and private
   account identifiers.
 - Verify comps manually on the posting day.
@@ -101,32 +102,38 @@ Instagram caption:
   review.
 
 YouTube Shorts title:
-- Used Scooter Battery Risk Check
+- Used Scooter Deal or Battery Trap? 5 Checks Before You Buy
 
 YouTube Shorts description:
-- WorthScan reviews a used electric scooter listing for model, charger proof,
-  battery clues, repair risk, and local comps. Manual estimate only.
+- Buying a used electric scooter? Check the model, mileage, charger, battery
+  proof, and three local comps before you trust the asking price. Comment
+  `scan` with the next listing. This episode uses an illustrative scooter;
+  WorthScan is an estimate, not a battery test, safety inspection, or guarantee.
 
 Hashtags:
 - `#worthscan`
-- `#usedscooter`
+- `#usedelectricscooter`
+- `#scooterbuyingguide`
+- `#resalevalue`
 - `#scootercheck`
-- `#campusdeals`
-- `#resale`
-- `#batterycheck`
 
 First comment:
-- Before buying a used scooter, ask for charger proof and battery details.
-  Comment `scan` with the next listing.
+- What should WorthScan check next? Comment `scan` with a public listing after
+  removing seller details. Estimates guide a decision; they do not replace a
+  battery test or safety inspection.
 
 Posting checklist:
 - [ ] Open `output/caption.txt`, `output/hashtags.txt`, and
   `output/posting_notes.md`.
-- [ ] Confirm approved scooter images replace any placeholders.
-- [ ] Verify three current local scooter comps manually.
+- [ ] Confirm the generic scooter illustration is approved and visibly labeled
+  `Illustrative visual`.
+- [ ] Confirm the comparison cards contain no fabricated prices or condition
+  claims; verify current comps only if listing-specific prices are added.
 - [ ] Check model, mileage, charger inclusion, tires, brakes, folding mechanism,
   battery claims, and pickup area.
 - [ ] Remove or soften any battery claim that lacks visible evidence.
+- [ ] Confirm the five proof-first devices remain visible: hook, evidence chips,
+  three-comparison board, uncertainty checks, and buy/bargain/pass decision.
 - [ ] Post manually and record the public URL.
 
 Metric snapshot schedule:

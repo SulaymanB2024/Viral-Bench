@@ -60,6 +60,20 @@ export async function runCreativeProvider(
         message: 'Gemini video understanding is an approved-provider stub. Use only operator-approved media and keep outputs review-gated.',
       };
 
+    case 'twelvelabs_analysis':
+      return {
+        provider,
+        status: 'stubbed',
+        message: 'TwelveLabs analysis is available only through the guarded provider workflow with operator-approved video evidence.',
+      };
+
+    case 'veo_video':
+      return {
+        provider,
+        status: 'stubbed',
+        message: 'Veo video generation is available only through the guarded provider workflow and always returns an unapproved draft.',
+      };
+
     case 'openai_image':
       return {
         provider,

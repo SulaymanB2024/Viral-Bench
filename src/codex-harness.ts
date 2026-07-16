@@ -38,6 +38,8 @@ export const DEFAULT_SOURCE_PACKAGES_DIR = path.join(process.cwd(), '.ops', 'har
 export interface HarnessCredentialProfile {
   openai_api_key_available: boolean;
   gemini_api_key_available: boolean;
+  apify_token_available: boolean;
+  twelvelabs_api_key_available: boolean;
   lightreel_api_key_available: boolean;
   scrape_creators_api_key_available: boolean;
   doublespeed_tokens_available: boolean;
@@ -49,6 +51,7 @@ export interface HarnessCapabilityProfile {
     allow_paid_generation: boolean;
     allow_browser_ui: boolean;
     allow_social_publishing: boolean;
+    allow_public_seo_research: boolean;
   };
   credentials: HarnessCredentialProfile;
   credential_policy: 'available_flags_only_no_secret_values';
@@ -723,6 +726,7 @@ export interface HarnessAccountReadinessItem {
   profile_configured: boolean;
   two_factor_enabled: boolean;
   analytics_confirmed: boolean;
+  authorized_work_account_confirmed: boolean;
   candidate_handle: string | null;
   public_handle: string | null;
   public_url: string | null;
@@ -745,6 +749,7 @@ export interface HarnessAccountReadiness {
 export interface HarnessPublishingHandoffPlan {
   created_at: string;
   root_dir: string;
+  target_platform: HarnessAccountPlatform | null;
   env_file: HarnessEnvFileSummary | null;
   gates: {
     allow_social_publishing: boolean;
@@ -1361,10 +1366,13 @@ export function buildCapabilityProfile(
     allow_paid_generation: envEnabled(env, 'ALLOW_PAID_GENERATION'),
     allow_browser_ui: envEnabled(env, 'ALLOW_BROWSER_UI'),
     allow_social_publishing: envEnabled(env, 'ALLOW_SOCIAL_PUBLISHING'),
+    allow_public_seo_research: envEnabled(env, 'ALLOW_PUBLIC_SEO_RESEARCH'),
   };
   const credentials: HarnessCredentialProfile = {
     openai_api_key_available: Boolean(nonEmpty(env.OPENAI_API_KEY)),
     gemini_api_key_available: Boolean(nonEmpty(env.GEMINI_API_KEY) || nonEmpty(env.GOOGLE_API_KEY)),
+    apify_token_available: Boolean(nonEmpty(env.APIFY_TOKEN)),
+    twelvelabs_api_key_available: Boolean(nonEmpty(env.TWELVELABS_API_KEY)),
     lightreel_api_key_available: Boolean(nonEmpty(env.LIGHTREEL_API_KEY)),
     scrape_creators_api_key_available: Boolean(nonEmpty(env.SCRAPE_CREATORS_API_KEY)),
     doublespeed_tokens_available: fs.existsSync(path.join(rootDir, '.doublespeed-tokens.json')),
@@ -1530,6 +1538,9 @@ export function buildProviderRouteMap(
       'npm run harness -- provider-preflight --env-file .env',
       'npm run harness -- credential-coverage --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
+      ...routes
+        .filter((route) => route.ready_for_live_request)
+        .flatMap((route) => route.activation_commands),
       ...(recommendedRoute?.safe_probe_commands ?? []),
       ...(recommendedRoute?.activation_commands ?? []),
     ]),
@@ -1689,6 +1700,7 @@ export function buildPublishingHandoffPlan(
     env?: EnvMap;
     rootDir?: string;
     envFile?: string;
+    platform?: HarnessAccountPlatform;
   } = {},
 ): HarnessPublishingHandoffPlan {
   const rootDir = options.rootDir ?? process.cwd();
@@ -1697,8 +1709,11 @@ export function buildPublishingHandoffPlan(
   const capabilityProfile = buildCapabilityProfile(merged.effective_env, rootDir);
   const launchMap = buildLaunchMap(merged.effective_env, rootDir);
   const envFileSummary = merged.env_file ? redactEnvFile(merged.env_file) : null;
-  const accountReadiness = buildAccountReadiness(rootDir);
-  const jobs = launchMap.jobs.map((job) => publishingHandoffJob(job, accountReadiness));
+  const accountReadiness = buildAccountReadiness(
+    rootDir,
+    options.platform ? [options.platform] : undefined,
+  );
+  const jobs = launchMap.jobs.map((job) => publishingHandoffJob(job, accountReadiness, options.platform));
   const recommendedJob = jobs.find((job) => job.manual_handoff_ready && !job.autonomous_publish_ready)
     ?? jobs.find((job) => job.manual_handoff_ready)
     ?? jobs[0]
@@ -1707,6 +1722,7 @@ export function buildPublishingHandoffPlan(
   return {
     created_at: new Date().toISOString(),
     root_dir: rootDir,
+    target_platform: options.platform ?? null,
     env_file: envFileSummary,
     gates: {
       allow_social_publishing: capabilityProfile.gates.allow_social_publishing,
@@ -1743,7 +1759,7 @@ export function buildPublishingHandoffPlan(
     },
     jobs,
     next_commands: uniqueSorted([
-      'npm run harness -- publishing-handoff-plan --env-file .env',
+      publishingHandoffCommand(options.platform),
       'npm run harness -- launch-map --env-file .env',
       'npm run harness -- capability-unlock-map --env-file .env',
       'npm run harness -- blockers',
@@ -4117,6 +4133,8 @@ export function buildAutonomyAudit(
   const dirtySourceCount = reproducibility.source_of_truth.dirty_count;
   const hasProviderCredential = capabilityProfile.credentials.openai_api_key_available
     || capabilityProfile.credentials.gemini_api_key_available
+    || capabilityProfile.credentials.apify_token_available
+    || capabilityProfile.credentials.twelvelabs_api_key_available
     || capabilityProfile.credentials.lightreel_api_key_available
     || capabilityProfile.credentials.scrape_creators_api_key_available;
   const requiredInformationPrimitives = [
@@ -4569,6 +4587,8 @@ export function buildHarnessDoctor(
   );
   const hasProviderCredential = capabilityProfile.credentials.openai_api_key_available
     || capabilityProfile.credentials.gemini_api_key_available
+    || capabilityProfile.credentials.apify_token_available
+    || capabilityProfile.credentials.twelvelabs_api_key_available
     || capabilityProfile.credentials.lightreel_api_key_available
     || capabilityProfile.credentials.scrape_creators_api_key_available;
   const localAutonomy = incomingJobs.length > 0 && secretFindings.length === 0;
@@ -5635,6 +5655,7 @@ function selectCreativeJob(
     ALLOW_PAID_GENERATION: String(capabilityProfile.gates.allow_paid_generation),
     ALLOW_BROWSER_UI: String(capabilityProfile.gates.allow_browser_ui),
     ALLOW_SOCIAL_PUBLISHING: String(capabilityProfile.gates.allow_social_publishing),
+    ALLOW_PUBLIC_SEO_RESEARCH: String(capabilityProfile.gates.allow_public_seo_research),
   }, rootDir);
   const best = rankings[0];
   if (best) {
@@ -6257,6 +6278,8 @@ function providerCredentialAvailable(
   if (provider === 'gemini_image' || provider === 'gemini_video_understanding') {
     return capabilityProfile.credentials.gemini_api_key_available;
   }
+  if (provider === 'veo_video') return capabilityProfile.credentials.gemini_api_key_available;
+  if (provider === 'twelvelabs_analysis') return capabilityProfile.credentials.twelvelabs_api_key_available;
   return true;
 }
 
@@ -6344,6 +6367,8 @@ function providerRouteForPreflight(
 function providerRouteType(preflight: HarnessProviderPreflight): HarnessProviderRoute['route_type'] {
   if (preflight.provider === 'browser_manual') return 'browser_manual';
   if (preflight.provider === 'openai_image' && preflight.provider_mode === 'generation') return 'live_provider';
+  if (preflight.provider === 'veo_video' && preflight.provider_mode === 'generation') return 'live_provider';
+  if (preflight.provider === 'twelvelabs_analysis' && preflight.provider_mode === 'analysis') return 'live_provider';
   if (preflight.provider === 'gemini_image' || preflight.provider === 'gemini_video_understanding') return 'unsupported_live_provider';
   return 'provider_handoff';
 }
@@ -6351,6 +6376,8 @@ function providerRouteType(preflight: HarnessProviderPreflight): HarnessProvider
 function recommendedCredentialsForProvider(provider: CreativeProviderName): string[] {
   if (provider === 'openai_image') return ['OPENAI_API_KEY'];
   if (provider === 'gemini_image' || provider === 'gemini_video_understanding') return ['GEMINI_API_KEY or GOOGLE_API_KEY'];
+  if (provider === 'veo_video') return ['GEMINI_API_KEY'];
+  if (provider === 'twelvelabs_analysis') return ['TWELVELABS_API_KEY'];
   return [];
 }
 
@@ -6823,13 +6850,25 @@ function credentialCoverageDefinitions(): CredentialCoverageDefinition[] {
       key: 'GEMINI_API_KEY',
       provider_or_surface: 'Gemini image or video provider requests',
       current_binding: 'provider_handoff',
-      requestProviders: ['gemini_image', 'gemini_video_understanding'],
+      requestProviders: ['gemini_image', 'gemini_video_understanding', 'veo_video'],
     },
     {
       key: 'GOOGLE_API_KEY',
       provider_or_surface: 'Gemini image or video provider requests',
       current_binding: 'provider_handoff',
-      requestProviders: ['gemini_image', 'gemini_video_understanding'],
+      requestProviders: ['gemini_image', 'gemini_video_understanding', 'veo_video'],
+    },
+    {
+      key: 'TWELVELABS_API_KEY',
+      provider_or_surface: 'TwelveLabs owned-video analysis',
+      current_binding: 'live_provider',
+      requestProviders: ['twelvelabs_analysis'],
+    },
+    {
+      key: 'APIFY_TOKEN',
+      provider_or_surface: 'Apify bounded public SEO research',
+      current_binding: 'research_or_legacy',
+      requestProviders: [],
     },
     {
       key: 'LIGHTREEL_API_KEY',
@@ -6952,7 +6991,8 @@ function localFileCredentialPresence(
 
 function requiredEnvForProvider(provider: CreativeProviderName): string[] {
   if (provider === 'browser_manual') return ['ALLOW_BROWSER_UI=true'];
-  if (provider === 'openai_image' || provider === 'gemini_image' || provider === 'gemini_video_understanding') {
+  if (provider === 'openai_image' || provider === 'gemini_image' || provider === 'gemini_video_understanding'
+    || provider === 'veo_video' || provider === 'twelvelabs_analysis') {
     return ['ALLOW_PAID_GENERATION=true'];
   }
   return [];
@@ -6962,13 +7002,16 @@ function providerDisplayName(provider: CreativeProviderName): string {
   if (provider === 'openai_image') return 'OpenAI image';
   if (provider === 'gemini_image') return 'Gemini image';
   if (provider === 'gemini_video_understanding') return 'Gemini video-understanding';
+  if (provider === 'veo_video') return 'Veo video';
+  if (provider === 'twelvelabs_analysis') return 'TwelveLabs analysis';
   if (provider === 'browser_manual') return 'browser manual';
   return 'local renderer';
 }
 
 function providerRequestPolicyAllowsCapability(request: ProviderRequestManifest): boolean {
   if (request.provider === 'browser_manual') return request.cost_policy.allow_browser_ui;
-  if (request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding') {
+  if (request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding'
+    || request.provider === 'veo_video' || request.provider === 'twelvelabs_analysis') {
     return request.cost_policy.allow_paid_generation;
   }
   return true;
@@ -6983,13 +7026,15 @@ function missingGatesForProviderRequest(
   if (request.status !== 'draft') missing.push(`request.status=${request.status}`);
   if (!providerRequestPolicyAllowsCapability(request)) missing.push('request cost policy');
   if (request.provider === 'browser_manual' && !capabilityProfile.gates.allow_browser_ui) missing.push('ALLOW_BROWSER_UI=true');
-  if ((request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding')
+  if ((request.provider === 'openai_image' || request.provider === 'gemini_image' || request.provider === 'gemini_video_understanding'
+    || request.provider === 'veo_video' || request.provider === 'twelvelabs_analysis')
     && !capabilityProfile.gates.allow_paid_generation) {
     missing.push('ALLOW_PAID_GENERATION=true');
   }
   if (!credentialAvailable) missing.push('provider credential');
-  if (request.provider === 'openai_image') {
-    if (request.provider_mode !== 'generation') missing.push('request.provider_mode=generation');
+  if (request.provider === 'openai_image' || request.provider === 'veo_video' || request.provider === 'twelvelabs_analysis') {
+    const expectedMode = request.provider === 'twelvelabs_analysis' ? 'analysis' : 'generation';
+    if (request.provider_mode !== expectedMode) missing.push(`request.provider_mode=${expectedMode}`);
     if (!request.cost_policy.external_calls_allowed) missing.push('request.cost_policy.external_calls_allowed=true');
     if (request.cost_policy.max_cost_usd <= 0) missing.push('request.cost_policy.max_cost_usd>0');
   } else if (request.provider !== 'local_renderer') {
@@ -7003,9 +7048,9 @@ function providerLiveCallAllowed(
   capabilityProfile: HarnessCapabilityProfile,
   credentialAvailable: boolean,
 ): boolean {
-  return request.provider === 'openai_image'
+  return (request.provider === 'openai_image' || request.provider === 'veo_video' || request.provider === 'twelvelabs_analysis')
     && request.status === 'draft'
-    && request.provider_mode === 'generation'
+    && request.provider_mode === (request.provider === 'twelvelabs_analysis' ? 'analysis' : 'generation')
     && request.cost_policy.allow_paid_generation
     && request.cost_policy.external_calls_allowed
     && request.cost_policy.max_cost_usd > 0
@@ -7214,10 +7259,12 @@ function launchDocPaths(): string[] {
   ];
 }
 
-function buildAccountReadiness(rootDir: string): HarnessAccountReadiness {
+function buildAccountReadiness(
+  rootDir: string,
+  requiredPlatforms: HarnessAccountPlatform[] = ['TikTok', 'Instagram', 'YouTube Shorts'],
+): HarnessAccountReadiness {
   const relativePath = '.ops/accounts/account_readiness.json';
   const registryPath = path.join(rootDir, relativePath);
-  const requiredPlatforms: HarnessAccountPlatform[] = ['TikTok', 'Instagram', 'YouTube Shorts'];
   if (!fs.existsSync(registryPath)) {
     return {
       registry_path: null,
@@ -7295,6 +7342,7 @@ function accountReadinessFromRecord(
   const profileConfigured = record.profile_configured === true;
   const twoFactorEnabled = record.two_factor_enabled === true;
   const analyticsConfirmed = record.analytics_confirmed === true;
+  const authorizedWorkAccountConfirmed = record.authorized_work_account_confirmed === true;
   const candidateHandle = optionalRegistryString(record.candidate_handle);
   const publicHandle = optionalRegistryString(record.public_handle);
   const publicUrl = optionalRegistryString(record.public_url);
@@ -7305,6 +7353,7 @@ function accountReadinessFromRecord(
     && profileConfigured
     && twoFactorEnabled
     && analyticsConfirmed
+    && authorizedWorkAccountConfirmed
     && Boolean(publicHandle)
     && Boolean(publicUrl);
   const blockers = state === 'invalid'
@@ -7315,6 +7364,7 @@ function accountReadinessFromRecord(
         ...(profileConfigured ? [] : [`${platform} profile is not configured`]),
         ...(twoFactorEnabled ? [] : [`${platform} 2FA is not confirmed`]),
         ...(analyticsConfirmed ? [] : [`${platform} analytics access is not confirmed`]),
+        ...(authorizedWorkAccountConfirmed ? [] : [`${platform} approved work-account session is not confirmed`]),
         ...(publicHandle ? [] : [`${platform} public handle is not recorded`]),
         ...(publicUrl ? [] : [`${platform} public URL is not recorded`]),
       ]);
@@ -7326,6 +7376,7 @@ function accountReadinessFromRecord(
     profile_configured: profileConfigured,
     two_factor_enabled: twoFactorEnabled,
     analytics_confirmed: analyticsConfirmed,
+    authorized_work_account_confirmed: authorizedWorkAccountConfirmed,
     candidate_handle: candidateHandle,
     public_handle: publicHandle,
     public_url: publicUrl,
@@ -7346,6 +7397,7 @@ function missingAccountReadiness(
     profile_configured: false,
     two_factor_enabled: false,
     analytics_confirmed: false,
+    authorized_work_account_confirmed: false,
     candidate_handle: null,
     public_handle: null,
     public_url: null,
@@ -7366,6 +7418,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function publishingHandoffJob(
   job: HarnessLaunchMapJob,
   accountReadiness: HarnessAccountReadiness,
+  targetPlatform?: HarnessAccountPlatform,
 ): HarnessPublishingHandoffJob {
   const requiredPath = (role: HarnessLaunchMapRequiredFile['role']): string | null => (
     job.required_files.find((file) => file.role === role)?.path ?? null
@@ -7375,7 +7428,7 @@ function publishingHandoffJob(
     `npm run creative -- validate --job ${shellQuote(job.job_path)}`,
     'npm run harness -- evidence-map',
     'npm run harness -- launch-map --env-file .env',
-    'npm run harness -- publishing-handoff-plan --env-file .env',
+    publishingHandoffCommand(targetPlatform),
     ...job.next_commands.filter((command) => !command.includes('npm run metrics:')),
   ]);
   const postingBlockers = uniqueSorted([
@@ -7423,6 +7476,11 @@ function publishingHandoffJob(
         ? 'Have the account owner review the package, post manually if approved, then record the posted URL with the metrics command.'
       : 'Complete the missing launch package files and copy before manual account-owner review.',
   };
+}
+
+function publishingHandoffCommand(platform?: HarnessAccountPlatform): string {
+  const platformOption = platform ? ` --platform ${shellQuote(platform)}` : '';
+  return `npm run harness -- publishing-handoff-plan${platformOption} --env-file .env`;
 }
 
 function launchRequiredFile(
@@ -7498,13 +7556,19 @@ function launchNextCommands(
 
 function evaluateClaimSafety(job: CreativeJobManifest): HarnessClaimSafety {
   const text = jobTextCorpus(job);
-  const disclaimerPresent = /estimate|range|not a guarantee|not guaranteed|not an appraisal|not official/i.test(text);
+  const valuationPolicyRequired = job.output_requirements.house_style?.system === 'worthscan_proof_first_v1'
+    || /\b(?:valuation|resale|worthscan)\b/i.test(`${job.job_id} ${job.niche} ${job.content_type}`);
+  const disclaimerPresent = /estimate|range|not a guarantee|not guaranteed|not an appraisal|not official|\b(?:no|not|never|do not|don't|avoid)\b[^.!?\n]{0,120}\bguarantee(?:d|s)?\b/i.test(text);
   const rangeLanguagePresent = /\brange\b|\blow(?:er)? half\b|\bhigh(?:er)? half\b|\bbuy, bargain, or pass\b/i.test(text);
   const exactValueLanguagePresent = /\bexact(?:ly)?\s+(?:value|worth|price)\b|\bappraised at\b|\bworth\s+\$?\d[\d,]*(?:\.\d{2})?\b/i.test(text);
   const exactValueClaimPresent = exactValueLanguagePresent
     && !/\b(?:do not|don't|never|avoid)\s+claim(?:ing)?\b[^.\n]*(?:exact(?:ly)?\s+(?:value|worth|price)|appraised at|worth\s+\$?\d)/i.test(text);
-  const guaranteeClaimPresent = /guaranteed value|certified appraisal|official appraisal/i.test(text)
-    && !/not (?:a )?(?:guarantee|guaranteed|an appraisal|official appraisal)/i.test(text);
+  const guaranteeClaimPresent = text
+    .split(/[.!?\n]+/)
+    .some((statement) => (
+      /\bguarantee(?:d|s)?\b|certified appraisal|official appraisal/i.test(statement)
+      && !/\b(?:no|not|never|without|cannot|can't|do not|don't|avoid)\b/i.test(statement)
+    ));
   const comparisonLanguagePresent = /\bcomp(?:s|arable|are)?\b|\bcompare\b|\blisting(?:s)?\b/i.test(text);
   const riskLanguagePresent = /\brisk\b|\brepair\b|\bmissing\b|\bcondition\b|\bsubtract\b|\bbattery\b|\btuneup\b/i.test(text);
   const manualReviewRequired = job.approval_status.state !== 'approved'
@@ -7513,8 +7577,10 @@ function evaluateClaimSafety(job: CreativeJobManifest): HarnessClaimSafety {
   const blockers = [
     ...(job.source_inputs.length ? [] : ['no source inputs recorded']),
     ...(job.trend_examples.length ? [] : ['no trend examples recorded']),
-    ...(disclaimerPresent ? [] : ['valuation disclaimer language missing']),
-    ...(rangeLanguagePresent ? [] : ['range-based valuation language missing']),
+    ...(disclaimerPresent
+      ? []
+      : [valuationPolicyRequired ? 'valuation disclaimer language missing' : 'outcome disclaimer language missing']),
+    ...(valuationPolicyRequired && !rangeLanguagePresent ? ['range-based valuation language missing'] : []),
     ...(exactValueClaimPresent ? ['exact value claim requires high-confidence valuation evidence'] : []),
     ...(guaranteeClaimPresent ? ['guaranteed or official appraisal language is not allowed'] : []),
   ];
@@ -7583,7 +7649,8 @@ function buildNextActions(
     actions.push('Run npm run harness -- provider-preflight and prepare any missing local provider inputs before considering env gates or live adapters.');
   }
 
-  if (capabilities.credentials.openai_api_key_available || capabilities.credentials.gemini_api_key_available) {
+  if (capabilities.credentials.openai_api_key_available || capabilities.credentials.gemini_api_key_available
+    || capabilities.credentials.apify_token_available || capabilities.credentials.twelvelabs_api_key_available) {
     actions.push('A provider API key appears available by presence flag; keep values out of artifacts and route live calls through provider manifests and provider:run-live only.');
   } else {
     actions.push('No paid provider API key was detected; continue with local renderer, browser captures, and stored trend evidence.');
@@ -7619,8 +7686,11 @@ function renderPromptPacket(
     `- allow_paid_generation: ${capabilities.gates.allow_paid_generation}`,
     `- allow_browser_ui: ${capabilities.gates.allow_browser_ui}`,
     `- allow_social_publishing: ${capabilities.gates.allow_social_publishing}`,
+    `- allow_public_seo_research: ${capabilities.gates.allow_public_seo_research}`,
     `- openai_api_key_available: ${capabilities.credentials.openai_api_key_available}`,
     `- gemini_api_key_available: ${capabilities.credentials.gemini_api_key_available}`,
+    `- apify_token_available: ${capabilities.credentials.apify_token_available}`,
+    `- twelvelabs_api_key_available: ${capabilities.credentials.twelvelabs_api_key_available}`,
     '',
     '## Next Actions',
     ...nextActions.map((action) => `- ${action}`),
@@ -7667,6 +7737,7 @@ function capabilityEnvKeys(): string[] {
     'ALLOW_PAID_GENERATION',
     'ALLOW_BROWSER_UI',
     'ALLOW_SOCIAL_PUBLISHING',
+    'ALLOW_PUBLIC_SEO_RESEARCH',
     'OPENAI_API_KEY',
     'OPENAI_IMAGE_MODEL',
     'OPENAI_IMAGE_SIZE',
@@ -7674,6 +7745,10 @@ function capabilityEnvKeys(): string[] {
     'OPENAI_IMAGE_OUTPUT_FORMAT',
     'GEMINI_API_KEY',
     'GOOGLE_API_KEY',
+    'APIFY_TOKEN',
+    'TWELVELABS_API_KEY',
+    'APIFY_ACTOR_YOUTUBE',
+    'APIFY_ACTOR_BUILD_YOUTUBE',
     'OPENROUTER_API_KEY',
     'LIGHTREEL_API_KEY',
     'SCRAPE_CREATORS_API_KEY',
@@ -7684,9 +7759,13 @@ function capabilityEnvKeyPurpose(key: string): string[] {
   if (key === 'ALLOW_PAID_GENERATION') return ['provider live generation gate'];
   if (key === 'ALLOW_BROWSER_UI') return ['browser research gate'];
   if (key === 'ALLOW_SOCIAL_PUBLISHING') return ['publishing gate'];
+  if (key === 'ALLOW_PUBLIC_SEO_RESEARCH') return ['bounded public SEO research gate'];
   if (key === 'OPENAI_API_KEY') return ['openai_image provider credential'];
   if (key.startsWith('OPENAI_IMAGE_')) return ['openai_image live generation option'];
   if (key === 'GEMINI_API_KEY' || key === 'GOOGLE_API_KEY') return ['gemini provider credential'];
+  if (key === 'APIFY_TOKEN') return ['Apify public SEO research credential'];
+  if (key === 'TWELVELABS_API_KEY') return ['twelvelabs_analysis provider credential'];
+  if (key === 'APIFY_ACTOR_YOUTUBE' || key === 'APIFY_ACTOR_BUILD_YOUTUBE') return ['allowlisted YouTube Shorts Actor configuration'];
   if (key === 'OPENROUTER_API_KEY') return ['unbound OpenRouter credential'];
   if (key === 'LIGHTREEL_API_KEY') return ['legacy Lightreel provider credential'];
   if (key === 'SCRAPE_CREATORS_API_KEY') return ['legacy ScrapeCreators provider credential'];
@@ -7744,6 +7823,21 @@ function requiredStringOpt(options: Record<string, string | boolean>, key: strin
   return value;
 }
 
+function harnessAccountPlatformOpt(
+  options: Record<string, string | boolean>,
+  key: string,
+): HarnessAccountPlatform | undefined {
+  const value = stringOpt(options, key);
+  if (!value) return undefined;
+
+  const normalized = value.toLowerCase().replace(/[\s_-]+/g, ' ').trim();
+  if (normalized === 'tiktok') return 'TikTok';
+  if (normalized === 'instagram') return 'Instagram';
+  if (normalized === 'youtube' || normalized === 'youtube shorts') return 'YouTube Shorts';
+
+  throw new Error(`--${key} must be TikTok, Instagram, or YouTube Shorts`);
+}
+
 function numberOpt(options: Record<string, string | boolean>, key: string): number | undefined {
   const value = stringOpt(options, key);
   if (!value) return undefined;
@@ -7798,7 +7892,7 @@ Commands:
   browser-research-plan [--env-file .env]
     Print browser research docs, capture inventory, review/ingestion readiness, and browser UI gate blockers.
 
-  publishing-handoff-plan [--env-file .env]
+  publishing-handoff-plan [--platform "TikTok|Instagram|YouTube Shorts"] [--env-file .env]
     Print manual launch docs, ready packages, account-owner confirmation, local metrics commands, and social-publishing blockers.
 
   provider-preflight [--request .ops/provider_requests/<request>.json] [--out .ops/harness/provider_preflight.json] [--env-file .env]
@@ -7970,6 +8064,7 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(buildPublishingHandoffPlan({
         env: process.env,
         envFile: stringOpt(options, 'env-file'),
+        platform: harnessAccountPlatformOpt(options, 'platform'),
         rootDir: process.cwd(),
       }), null, 2));
       return;

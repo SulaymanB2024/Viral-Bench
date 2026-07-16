@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/creative-evaluation.schema.json",
+  "title": "Creative Evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["evaluation_id", "candidate_id", "evaluated_at", "observed_coas", "predicted_coas", "calibrated", "confidence", "rubric_alignment", "qa_blockers", "evidence_ids", "status"],
+  "properties": {
+    "evaluation_id": { "type": "string", "minLength": 1 },
+    "candidate_id": { "type": "string", "minLength": 1 },
+    "evaluated_at": { "type": "string", "format": "date-time" },
+    "observed_coas": { "type": "null" },
+    "predicted_coas": { "type": "number", "minimum": 0, "maximum": 100 },
+    "calibrated": { "type": "boolean" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "rubric_alignment": { "type": "number", "minimum": 0, "maximum": 100 },
+    "qa_blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "evidence_ids": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "status": { "const": "draft_pending_human_review" }
+  }
+}

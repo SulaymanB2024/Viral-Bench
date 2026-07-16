@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-12T19:05:00.000Z",
+  "updated_at": "2026-07-15T17:46:42.000Z",
   "accounts": [
     {
       "platform": "TikTok",
@@ -9,10 +9,11 @@
       "profile_configured": false,
       "two_factor_enabled": false,
       "analytics_confirmed": false,
+      "authorized_work_account_confirmed": false,
       "candidate_handle": "@worthscan",
       "public_handle": null,
       "public_url": null,
-      "next_action": "Account owner enters their actual birthday at the retained official TikTok age gate, then completes password and email verification in the Codex in-app browser."
+      "next_action": "Account owner enters their actual birthday in the official TikTok UI, then completes password and email verification from an approved work account."
     },
     {
       "platform": "Instagram",
@@ -21,10 +22,11 @@
       "profile_configured": false,
       "two_factor_enabled": false,
       "analytics_confirmed": false,
+      "authorized_work_account_confirmed": false,
       "candidate_handle": "@tryworthscan",
       "public_handle": null,
       "public_url": null,
-      "next_action": "Reopen Instagram's official signup form, then the account owner completes the real birthday, password, and verification steps in the Codex in-app browser."
+      "next_action": "Reopen Instagram's official signup form, then the account owner completes the real birthday, password, and verification steps from an approved work account."
     },
     {
       "platform": "YouTube Shorts",
@@ -33,10 +35,13 @@
       "profile_configured": false,
       "two_factor_enabled": false,
       "analytics_confirmed": false,
+      "authorized_work_account_confirmed": false,
+      "last_live_account_check_at": "2026-07-15T17:57:45.000Z",
+      "last_live_account_check": "The live account selector exposed only a personal channel; no approved work-account access or WorthScan channel was available for upload.",
       "candidate_handle": "@worthscan",
       "public_handle": "@worthscan",
       "public_url": "https://www.youtube.com/@worthscan",
-      "next_action": "Complete Google's live security verification, then apply the approved profile, banner, description, 2FA, and analytics settings."
+      "next_action": "In the retained YouTube Studio account selector, add or switch to an operator-approved non-personal work account, select the WorthScan channel, then complete Google's live security verification, profile setup, 2FA, and Shorts upload check."
     }
   ]
 }

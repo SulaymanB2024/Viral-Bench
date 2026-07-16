@@ -1,0 +1,35 @@
+{
+  "request_id": "worthscan-scooter-twelvelabs-analysis-20260715",
+  "provider": "twelvelabs_analysis",
+  "provider_mode": "analysis",
+  "job_id": "worthscan_scooter_battery_001",
+  "input_assets": [
+    ".ops/creative_jobs/rendered/worthscan_scooter_battery_001/output/worthscan_short.mp4"
+  ],
+  "prompt_path": ".ops/prompts/twelvelabs/video_analysis.md",
+  "output_requirements": {
+    "package_subdir": "provider_outputs/twelvelabs",
+    "files": [
+      {
+        "path": "scooter_short_analysis.json",
+        "kind": "qa",
+        "description": "Pegasus 1.5 timestamp-grounded analysis of the owned local draft."
+      }
+    ],
+    "notes": [
+      "Asset-first TwelveLabs analysis only; the output remains unapproved evidence for human review."
+    ]
+  },
+  "cost_policy": {
+    "allow_paid_generation": true,
+    "allow_browser_ui": false,
+    "external_calls_allowed": true,
+    "max_cost_usd": 0.1,
+    "currency": "USD",
+    "notes": [
+      "Analyze one 20-second locally rendered draft under a pre-call estimate."
+    ]
+  },
+  "approval_required": true,
+  "status": "draft"
+}

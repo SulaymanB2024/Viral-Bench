@@ -178,9 +178,15 @@ test('openai live provider run writes declared files without serializing secrets
   const packageDir = path.join(rootDir, '.ops', 'creative_jobs', 'rendered', 'scan_bike_001');
   fs.mkdirSync(path.join(rootDir, '.ops', 'prompts', 'openai'), { recursive: true });
   fs.mkdirSync(path.join(rootDir, '.ops', 'creative_jobs', 'rendered', 'scan_bike_001'), { recursive: true });
+  fs.mkdirSync(path.join(rootDir, '.ops', 'creative_jobs', 'incoming'), { recursive: true });
   fs.mkdirSync(path.join(rootDir, 'inputs'), { recursive: true });
   fs.writeFileSync(path.join(rootDir, '.ops', 'prompts', 'openai', 'image_generation.md'), 'OpenAI live fixture prompt.\n');
   fs.writeFileSync(path.join(rootDir, 'inputs', 'manifest.json'), JSON.stringify({ job_id: 'scan_bike_001', slide: 'fixture' }));
+  const job = JSON.parse(fs.readFileSync(path.resolve('.ops/creative_jobs/incoming/scan_bike_001.json'), 'utf8')) as Record<string, unknown>;
+  const providerPolicy = job.provider_policy as Record<string, unknown>;
+  providerPolicy.approved_providers = ['local_renderer', 'openai_image'];
+  providerPolicy.allow_paid_generation = true;
+  fs.writeFileSync(path.join(rootDir, '.ops', 'creative_jobs', 'incoming', 'scan_bike_001.json'), `${JSON.stringify(job, null, 2)}\n`);
   const imageBytes = Buffer.from('fake image bytes');
   const b64 = imageBytes.toString('base64');
   const request = createProviderRequestManifest({

@@ -5,8 +5,11 @@ import * as crypto from 'node:crypto';
 import {
   CREATIVE_PROVIDER_NAMES,
   PAID_PROVIDER_NAMES,
+  assertProviderAllowed,
+  loadCreativeJobManifest,
   type CreativeProviderName,
 } from '../packages/creative/job_schema';
+import { TwelveLabsClient } from './semantic-pipeline';
 
 export const SUPPORTED_PROVIDER_NAMES = CREATIVE_PROVIDER_NAMES;
 
@@ -99,26 +102,11 @@ export interface ProviderLiveRunResult {
   request_id: string;
   provider: ProviderName;
   status: 'blocked' | 'failed' | 'completed';
-  external_calls_made: 0 | 1;
+  external_calls_made: number;
   output_paths: string[];
   files_written: string[];
   log: string[];
-  provider_response?: {
-    provider: 'openai';
-    endpoint: '/v1/images/generations';
-    model: string;
-    created: number | null;
-    image_count: number;
-    usage: unknown | null;
-    first_image: {
-      output_format: string | null;
-      quality: string | null;
-      size: string | null;
-      revised_prompt: string | null;
-      sha256: string | null;
-      bytes: number | null;
-    };
-  };
+  provider_response?: OpenAIProviderTrace | VeoProviderTrace | TwelveLabsProviderTrace;
   redactions: string[];
 }
 
@@ -138,6 +126,55 @@ export interface RunProviderLiveOptions {
   size?: string;
   quality?: string;
   outputFormat?: 'png' | 'jpeg' | 'webp';
+  targetDurationSec?: number;
+  maxExtensions?: number;
+  pollIntervalMs?: number;
+  maxPollAttempts?: number;
+}
+
+export interface OpenAIProviderTrace {
+  provider: 'openai';
+  endpoint: '/v1/images/generations';
+  model: string;
+  created: number | null;
+  image_count: number;
+  usage: unknown | null;
+  first_image: {
+    output_format: string | null;
+    quality: string | null;
+    size: string | null;
+    revised_prompt: string | null;
+    sha256: string | null;
+    bytes: number | null;
+  };
+}
+
+export interface VeoProviderTrace {
+  provider: 'google';
+  endpoint: ':predictLongRunning';
+  model: string;
+  operation_ids: string[];
+  extension_count: number;
+  target_duration_sec: number;
+  estimated_duration_sec: number;
+  resolution: '720p';
+  aspect_ratio: '9:16';
+  estimated_cost_usd: number;
+  video_sha256: string | null;
+  video_bytes: number | null;
+  approved_for_posting: false;
+}
+
+export interface TwelveLabsProviderTrace {
+  provider: 'twelvelabs';
+  endpoint: '/v1.3/analyze';
+  model: 'pegasus1.5';
+  model_version: string;
+  analysis_id: string;
+  asset_id: string | null;
+  generation_id: string | null;
+  model_revision: string | null;
+  approved_for_posting: false;
 }
 
 interface OpenAIImageGenerationResponse {
@@ -154,6 +191,17 @@ interface OpenAIImageGenerationResponse {
     message?: string;
     type?: string;
     code?: string;
+  };
+}
+
+interface VeoOperationResponse {
+  name?: string;
+  done?: boolean;
+  error?: { code?: number; message?: string; status?: string };
+  response?: {
+    generateVideoResponse?: {
+      generatedSamples?: Array<{ video?: { uri?: string } }>;
+    };
   };
 }
 
@@ -271,25 +319,38 @@ export async function runProviderLive(
   const liveGate = evaluateProviderLiveGate(request, env);
   if (!liveGate.allowed) return blocked(liveGate.reason);
 
-  if (request.provider !== 'openai_image') {
-    return blocked(`Live provider adapter is not implemented for ${request.provider}.`);
-  }
-
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const packageRoot = path.resolve(options.packageDir);
+  const jobPath = findCreativeJobManifestPath(rootDir, request.job_id);
+  if (!jobPath) return blocked(`Creative job manifest was not found for ${request.job_id}; job provider policy cannot be verified.`);
+  try {
+    assertProviderAllowed(loadCreativeJobManifest(jobPath), request.provider, env);
+  } catch (error) {
+    return blocked(`Creative job provider policy rejected the request: ${error instanceof Error ? error.message : String(error)}`);
+  }
   if (!fs.existsSync(packageRoot) || !fs.statSync(packageRoot).isDirectory()) {
     return blocked(`Rendered package folder does not exist: ${options.packageDir}`);
+  }
+
+  const promptPath = path.resolve(rootDir, request.prompt_path);
+  if (!fs.existsSync(promptPath)) {
+    return blocked(`Prompt file does not exist: ${request.prompt_path}`);
+  }
+
+  if (request.provider === 'veo_video') {
+    return runVeoVideoLive(request, { ...options, rootDir, packageDir: packageRoot });
+  }
+  if (request.provider === 'twelvelabs_analysis') {
+    return runTwelveLabsAnalysisLive(request, { ...options, rootDir, packageDir: packageRoot });
+  }
+  if (request.provider !== 'openai_image') {
+    return blocked(`Live provider adapter is not implemented for ${request.provider}.`);
   }
 
   const outputFormat = options.outputFormat ?? openAIImageOutputFormat(env) ?? 'png';
   const imageOutputPath = selectDeclaredImageOutput(request, outputFormat);
   if (!imageOutputPath) {
     return blocked(`OpenAI image live runs require a declared image output ending in .${outputFormat}.`);
-  }
-
-  const promptPath = path.resolve(rootDir, request.prompt_path);
-  if (!fs.existsSync(promptPath)) {
-    return blocked(`Prompt file does not exist: ${request.prompt_path}`);
   }
 
   const apiKey = nonEmpty(env.OPENAI_API_KEY);
@@ -437,6 +498,242 @@ export async function runProviderLive(
   };
 }
 
+function findCreativeJobManifestPath(rootDir: string, jobId: string): string | null {
+  const safeId = jobId.replace(/[^A-Za-z0-9._-]+/g, '-');
+  const candidates = [
+    path.join(rootDir, '.ops', 'creative_jobs', 'incoming', `${safeId}.json`),
+    path.join(rootDir, '.ops', 'creative_jobs', 'approved', `${safeId}.json`),
+    path.join(rootDir, '.ops', 'creative_jobs', 'posted', `${safeId}.json`),
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile()) ?? null;
+}
+
+async function runVeoVideoLive(
+  request: ProviderRequestManifest,
+  options: RunProviderLiveOptions & { rootDir: string; packageDir: string },
+): Promise<ProviderLiveRunResult> {
+  const env = options.env ?? process.env;
+  const outputPaths = declaredOutputPaths(request);
+  const blocked = (reason: string): ProviderLiveRunResult => ({
+    request_id: request.request_id,
+    provider: request.provider,
+    status: 'blocked',
+    external_calls_made: 0,
+    output_paths: outputPaths,
+    files_written: [],
+    log: [reason, 'No external calls were made.'],
+    redactions: ['credential values are never serialized'],
+  });
+  const apiKey = nonEmpty(env.GEMINI_API_KEY);
+  if (!apiKey) return blocked('GEMINI_API_KEY is required for veo_video live runs.');
+  const videoOutputPath = selectDeclaredVideoOutput(request);
+  if (!videoOutputPath) return blocked('Veo live runs require a declared .mp4 video output.');
+  const reportOutputPath = selectDeclaredReportOutput(request);
+  const conflict = firstOutputConflict(options.packageDir, [videoOutputPath, reportOutputPath], options.overwrite);
+  if (conflict) return blocked(`Refusing to spend provider budget because declared output already exists: ${conflict}`);
+
+  const targetDuration = options.targetDurationSec ?? parsePositiveInteger(env.VEO_TARGET_DURATION_SEC) ?? 22;
+  if (targetDuration < 16 || targetDuration > 24) return blocked('Veo target duration must be between 16 and 24 seconds.');
+  const requiredExtensions = targetDuration <= 16 ? 1 : 2;
+  const maxExtensions = options.maxExtensions ?? parseNonNegativeInteger(env.VEO_MAX_EXTENSIONS) ?? 2;
+  if (maxExtensions > 2) return blocked('Veo requests are capped at two extensions per candidate.');
+  if (requiredExtensions > maxExtensions) return blocked('Target duration requires more extensions than the request allows.');
+  const estimatedCostPerOperation = parsePositiveNumber(env.VEO_ESTIMATED_COST_PER_OPERATION_USD);
+  if (estimatedCostPerOperation === null) {
+    return blocked('VEO_ESTIMATED_COST_PER_OPERATION_USD is required for pre-call cost accounting.');
+  }
+  const estimatedCost = estimatedCostPerOperation * (1 + requiredExtensions);
+  if (estimatedCost > request.cost_policy.max_cost_usd) {
+    return blocked(`cost_exhausted: estimated Veo cost ${estimatedCost.toFixed(4)} exceeds request ceiling ${request.cost_policy.max_cost_usd.toFixed(4)} USD.`);
+  }
+
+  const prompt = fs.readFileSync(path.resolve(options.rootDir, request.prompt_path), 'utf8').trim();
+  if (!prompt) return blocked('Veo prompt file must not be empty.');
+  const model = options.model ?? nonEmpty(env.VEO_MODEL) ?? 'veo-3.1-generate-preview';
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const operationIds: string[] = [];
+  let externalCalls = 0;
+  let videoBuffer: Buffer | null = null;
+  let activeVideo: Buffer | null = null;
+
+  try {
+    for (let operationIndex = 0; operationIndex <= requiredExtensions; operationIndex += 1) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:predictLongRunning`;
+      const instance: Record<string, unknown> = {
+        prompt: operationIndex === 0
+          ? `${prompt}\n\nGenerate an unapproved draft short-form ad with native audio. Portrait 9:16. Do not include unsupported performance claims.`
+          : `${prompt}\n\nExtend the existing draft continuously. Preserve characters, product, visual logic, and native-audio continuity.`,
+      };
+      if (activeVideo) {
+        instance.video = { inlineData: { mimeType: 'video/mp4', data: activeVideo.toString('base64') } };
+      }
+      const start = await fetchImpl(endpoint, {
+        method: 'POST',
+        headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instances: [instance],
+          parameters: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' },
+        }),
+      });
+      externalCalls += 1;
+      const started = await parseProviderJson<VeoOperationResponse>(start, 'Veo generation');
+      if (!started.name) throw new Error('Veo generation did not return an operation name.');
+      operationIds.push(started.name);
+      const completed = await pollVeoOperation(started, {
+        apiKey,
+        fetchImpl,
+        intervalMs: options.pollIntervalMs ?? 2_000,
+        attempts: options.maxPollAttempts ?? 180,
+        onCall: () => { externalCalls += 1; },
+      });
+      const uri = completed.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+      if (!uri) throw new Error('Veo completed without a generated video URI.');
+      const download = await fetchImpl(uri, { headers: { 'x-goog-api-key': apiKey } });
+      externalCalls += 1;
+      if (!download.ok) throw new Error(`Veo video download returned HTTP ${download.status}.`);
+      videoBuffer = Buffer.from(await download.arrayBuffer());
+      if (!videoBuffer.length) throw new Error('Veo video download was empty.');
+      activeVideo = videoBuffer;
+    }
+  } catch (error) {
+    return {
+      request_id: request.request_id,
+      provider: request.provider,
+      status: 'failed',
+      external_calls_made: externalCalls,
+      output_paths: outputPaths,
+      files_written: [],
+      log: [`Veo provider request failed after ${externalCalls} external call(s).`, summarizeProviderError(error instanceof Error ? error.message : String(error))],
+      redactions: ['credential values are never serialized', 'provider error bodies are truncated', 'video payloads are never serialized'],
+    };
+  }
+
+  if (!videoBuffer) return blocked('Veo adapter completed without a video buffer.');
+  const sha256 = crypto.createHash('sha256').update(videoBuffer).digest('hex');
+  const trace: VeoProviderTrace = {
+    provider: 'google',
+    endpoint: ':predictLongRunning',
+    model,
+    operation_ids: operationIds,
+    extension_count: requiredExtensions,
+    target_duration_sec: targetDuration,
+    estimated_duration_sec: 8 + requiredExtensions * 7,
+    resolution: '720p',
+    aspect_ratio: '9:16',
+    estimated_cost_usd: estimatedCost,
+    video_sha256: sha256,
+    video_bytes: videoBuffer.byteLength,
+    approved_for_posting: false,
+  };
+  const written = [writeProviderOutput(request, options.packageDir, {
+    relativePath: videoOutputPath,
+    content: videoBuffer,
+    overwrite: options.overwrite,
+  })];
+  if (reportOutputPath) {
+    written.push(writeProviderOutput(request, options.packageDir, {
+      relativePath: reportOutputPath,
+      content: `${JSON.stringify({ request_id: request.request_id, status: 'completed', ...trace, redactions: ['GEMINI_API_KEY', 'video payloads'] }, null, 2)}\n`,
+      overwrite: options.overwrite,
+    }));
+  }
+  return {
+    request_id: request.request_id,
+    provider: request.provider,
+    status: 'completed',
+    external_calls_made: externalCalls,
+    output_paths: outputPaths,
+    files_written: written.map((file) => path.relative(options.packageDir, file).replace(/\\/g, '/')),
+    log: [`Generated one unapproved Veo draft with ${requiredExtensions} extension call(s).`, `Wrote ${videoOutputPath}.`, 'Human review remains required; no publishing action was taken.'],
+    provider_response: trace,
+    redactions: ['credential values are never serialized', 'video payloads are never serialized'],
+  };
+}
+
+async function runTwelveLabsAnalysisLive(
+  request: ProviderRequestManifest,
+  options: RunProviderLiveOptions & { rootDir: string; packageDir: string },
+): Promise<ProviderLiveRunResult> {
+  const env = options.env ?? process.env;
+  const outputPaths = declaredOutputPaths(request);
+  const blocked = (reason: string): ProviderLiveRunResult => ({
+    request_id: request.request_id,
+    provider: request.provider,
+    status: 'blocked',
+    external_calls_made: 0,
+    output_paths: outputPaths,
+    files_written: [],
+    log: [reason, 'No external calls were made.'],
+    redactions: ['credential values are never serialized'],
+  });
+  const apiKey = nonEmpty(env.TWELVELABS_API_KEY);
+  if (!apiKey) return blocked('TWELVELABS_API_KEY is required for twelvelabs_analysis live runs.');
+  const videoAsset = request.input_assets.find((asset) => ['.mp4', '.mov', '.webm'].includes(path.extname(asset).toLowerCase()));
+  if (!videoAsset) return blocked('TwelveLabs analysis requires a declared local video input asset.');
+  const videoPath = path.resolve(options.rootDir, videoAsset);
+  if (!fs.existsSync(videoPath)) return blocked(`Declared video input does not exist: ${videoAsset}`);
+  const analysisOutputPath = selectDeclaredAnalysisOutput(request);
+  if (!analysisOutputPath) return blocked('TwelveLabs analysis requires a declared JSON manifest, QA, research, or text output.');
+  const conflict = firstOutputConflict(options.packageDir, [analysisOutputPath], options.overwrite);
+  if (conflict) return blocked(`Refusing to spend provider budget because declared output already exists: ${conflict}`);
+  const estimatedCost = parsePositiveNumber(env.TWELVELABS_ESTIMATED_ANALYSIS_COST_USD);
+  if (estimatedCost === null) return blocked('TWELVELABS_ESTIMATED_ANALYSIS_COST_USD is required for pre-call cost accounting.');
+  if (estimatedCost > request.cost_policy.max_cost_usd) return blocked('cost_exhausted:twelvelabs_analysis');
+
+  const prompt = fs.readFileSync(path.resolve(options.rootDir, request.prompt_path), 'utf8');
+  const client = new TwelveLabsClient({ apiKey, fetchImpl: options.fetchImpl });
+  try {
+    const asset = await client.createAsset({
+      localPath: videoPath,
+      filename: path.basename(videoPath),
+      userMetadata: { job_id: request.job_id, request_id: request.request_id },
+    });
+    const analysis = await client.analyzeVideo({
+      videoAssetId: `${request.job_id}:${request.request_id}:video`,
+      assetId: asset._id,
+      prompt,
+    });
+    const trace: TwelveLabsProviderTrace = {
+      provider: 'twelvelabs',
+      endpoint: '/v1.3/analyze',
+      model: 'pegasus1.5',
+      model_version: analysis.model_version,
+      analysis_id: analysis.analysis_id,
+      asset_id: analysis.provider_asset_id ?? null,
+      generation_id: analysis.provider_generation_id ?? null,
+      model_revision: analysis.model_revision ?? null,
+      approved_for_posting: false,
+    };
+    const written = writeProviderOutput(request, options.packageDir, {
+      relativePath: analysisOutputPath,
+      content: `${JSON.stringify({ analysis, estimated_cost_usd: estimatedCost, approved_for_posting: false, redactions: ['TWELVELABS_API_KEY'] }, null, 2)}\n`,
+      overwrite: options.overwrite,
+    });
+    return {
+      request_id: request.request_id,
+      provider: request.provider,
+      status: 'completed',
+      external_calls_made: client.externalCallsMade,
+      output_paths: outputPaths,
+      files_written: [path.relative(options.packageDir, written).replace(/\\/g, '/')],
+      log: [`Wrote validated Pegasus analysis to ${analysisOutputPath}.`, 'The analysis remains evidence for an unapproved draft.'],
+      provider_response: trace,
+      redactions: ['credential values are never serialized', 'inline video payloads are never serialized'],
+    };
+  } catch (error) {
+    return {
+      request_id: request.request_id,
+      provider: request.provider,
+      status: 'failed',
+      external_calls_made: client.externalCallsMade,
+      output_paths: outputPaths,
+      files_written: [],
+      log: ['TwelveLabs analysis failed.', summarizeProviderError(error instanceof Error ? error.message : String(error))],
+      redactions: ['credential values are never serialized', 'provider error bodies are truncated'],
+    };
+  }
+}
+
 export function writeProviderOutput(
   input: ProviderRequestManifest | unknown,
   packageDir: string,
@@ -522,10 +819,11 @@ function evaluateProviderLiveGate(
       reason: `Request status is ${request.status}; only draft requests can run live.`,
     };
   }
-  if (request.provider_mode !== 'generation') {
+  const expectedMode: ProviderMode = request.provider === 'twelvelabs_analysis' ? 'analysis' : 'generation';
+  if (request.provider_mode !== expectedMode) {
     return {
       allowed: false,
-      reason: 'Live provider execution requires provider_mode=generation.',
+      reason: `Live ${request.provider} execution requires provider_mode=${expectedMode}.`,
     };
   }
   if (!request.cost_policy.external_calls_allowed) {
@@ -558,6 +856,18 @@ function evaluateProviderLiveGate(
     return {
       allowed: false,
       reason: 'OpenAI image generation requires OPENAI_API_KEY.',
+    };
+  }
+  if (request.provider === 'veo_video' && !nonEmpty(env.GEMINI_API_KEY)) {
+    return {
+      allowed: false,
+      reason: 'Veo video generation requires GEMINI_API_KEY.',
+    };
+  }
+  if (request.provider === 'twelvelabs_analysis' && !nonEmpty(env.TWELVELABS_API_KEY)) {
+    return {
+      allowed: false,
+      reason: 'TwelveLabs analysis requires TWELVELABS_API_KEY.',
     };
   }
   if (request.provider === 'browser_manual') {
@@ -627,11 +937,77 @@ function selectDeclaredImageOutput(request: ProviderRequestManifest, outputForma
   return output ? normalizeRelativePath(path.join(request.output_requirements.package_subdir, output.path)) : null;
 }
 
+function selectDeclaredVideoOutput(request: ProviderRequestManifest): string | null {
+  const output = request.output_requirements.files.find((file) => (
+    file.kind === 'video' && path.extname(file.path).toLowerCase() === '.mp4'
+  ));
+  return output ? normalizeRelativePath(path.join(request.output_requirements.package_subdir, output.path)) : null;
+}
+
+function selectDeclaredAnalysisOutput(request: ProviderRequestManifest): string | null {
+  const output = request.output_requirements.files.find((file) => (
+    ['manifest', 'qa', 'research', 'text'].includes(file.kind)
+    && path.extname(file.path).toLowerCase() === '.json'
+  )) ?? request.output_requirements.files.find((file) => ['manifest', 'qa', 'research', 'text'].includes(file.kind));
+  return output ? normalizeRelativePath(path.join(request.output_requirements.package_subdir, output.path)) : null;
+}
+
 function selectDeclaredReportOutput(request: ProviderRequestManifest): string | null {
   const output = request.output_requirements.files.find((file) => (
     file.kind === 'manifest' || file.kind === 'text' || file.kind === 'qa'
   ));
   return output ? normalizeRelativePath(path.join(request.output_requirements.package_subdir, output.path)) : null;
+}
+
+async function pollVeoOperation(
+  initial: VeoOperationResponse,
+  options: {
+    apiKey: string;
+    fetchImpl: typeof fetch;
+    intervalMs: number;
+    attempts: number;
+    onCall: () => void;
+  },
+): Promise<VeoOperationResponse> {
+  let current = initial;
+  for (let attempt = 0; attempt < options.attempts; attempt += 1) {
+    if (current.error) throw new Error(`Veo operation failed: ${current.error.status ?? current.error.code ?? 'unknown'} ${current.error.message ?? ''}`.trim());
+    if (current.done) return current;
+    if (!current.name) throw new Error('Veo operation is missing its name.');
+    if (attempt === options.attempts - 1) throw new Error('Veo operation polling timed out.');
+    await new Promise((resolve) => setTimeout(resolve, options.intervalMs));
+    const response = await options.fetchImpl(`https://generativelanguage.googleapis.com/v1beta/${current.name}`, {
+      headers: { 'x-goog-api-key': options.apiKey },
+    });
+    options.onCall();
+    current = await parseProviderJson<VeoOperationResponse>(response, 'Veo operation poll');
+  }
+  throw new Error('Veo operation polling timed out.');
+}
+
+async function parseProviderJson<T>(response: Response, label: string): Promise<T> {
+  const text = await response.text();
+  let payload: unknown;
+  try {
+    payload = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`${label} returned non-JSON HTTP ${response.status}.`);
+  }
+  if (!response.ok) {
+    const record = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {};
+    const error = record.error && typeof record.error === 'object' ? record.error as Record<string, unknown> : {};
+    throw new Error(`${label} returned HTTP ${response.status}: ${typeof error.message === 'string' ? error.message : 'provider error'}`);
+  }
+  return payload as T;
+}
+
+function firstOutputConflict(packageDir: string, paths: Array<string | null>, overwrite = false): string | null {
+  if (overwrite) return null;
+  const packageRoot = path.resolve(packageDir);
+  for (const relativePath of paths) {
+    if (relativePath && fs.existsSync(path.resolve(packageRoot, relativePath))) return relativePath;
+  }
+  return null;
 }
 
 function buildOpenAIImagePrompt(rootDir: string, request: ProviderRequestManifest, promptText: string): string {
@@ -664,14 +1040,17 @@ function buildOpenAIImagePrompt(rootDir: string, request: ProviderRequestManifes
 }
 
 function summarizeProviderError(errorText: string): string {
+  const redact = (value: string): string => value
+    .replace(/\b(?:sk-[A-Za-z0-9_-]+|AIza[0-9A-Za-z_-]+|apify_api_[A-Za-z0-9_-]+|tlk_[A-Za-z0-9_-]+)\b/g, '[REDACTED]')
+    .replace(/((?:api[_ -]?key|token|authorization)\s*[:=]\s*)[^\s,;]+/gi, '$1[REDACTED]');
   try {
     const parsed = JSON.parse(errorText) as OpenAIImageGenerationResponse;
     const message = parsed.error?.message ?? 'No provider error message returned.';
     const code = parsed.error?.code ? ` code=${parsed.error.code}` : '';
     const type = parsed.error?.type ? ` type=${parsed.error.type}` : '';
-    return `${message.slice(0, 500)}${type}${code}`;
+    return redact(`${message.slice(0, 500)}${type}${code}`);
   } catch {
-    return errorText.slice(0, 500) || 'No provider error body returned.';
+    return redact(errorText.slice(0, 500)) || 'No provider error body returned.';
   }
 }
 
@@ -698,6 +1077,23 @@ function envEnabled(env: GateEnv, key: string): boolean {
 
 function nonEmpty(value: string | undefined): string | null {
   return value && value.trim() ? value.trim() : null;
+}
+
+function parsePositiveNumber(value: string | undefined): number | null {
+  if (!value?.trim()) return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function parsePositiveInteger(value: string | undefined): number | null {
+  const number = parsePositiveNumber(value);
+  return number !== null && Number.isInteger(number) ? number : null;
+}
+
+function parseNonNegativeInteger(value: string | undefined): number | null {
+  if (!value?.trim()) return null;
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 0 ? number : null;
 }
 
 function expectRecord(value: unknown, field: string): Record<string, unknown> {

@@ -5,7 +5,9 @@ WorthScan launch loop.
 
 ## Current Launch Authority
 
-- Use the Codex in-app browser for live account and publishing work.
+- For login-dependent account and publishing work, use the user's existing
+  authenticated real-browser access when available; verify the visible account
+  and channel before any upload.
 - Read the ignored local environment with `--env-file .env`; do not print its
   values.
 - `ALLOW_BROWSER_UI=true` permits the approved browser-assisted research lane.
@@ -32,6 +34,16 @@ WorthScan launch loop.
 - The account owner must complete the remaining real-date and credential or
   platform-verified OAuth step in the official UI before profile setup can
   continue.
+
+## YouTube Work-Account Checkpoint (2026-07-15)
+
+- The retained Chrome YouTube Studio selector exposed only a personal channel.
+  No approved non-personal work-account access or WorthScan channel was
+  available for upload.
+- No file was uploaded and no account setting was changed.
+- Keep the account selector as a human handoff. Resume only after an approved
+  work account is visibly selected, then separately verify the `@worthscan`
+  channel before upload.
 
 ## Required Operating Loop
 

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/creative-revision-directive.schema.json",
+  "title": "Creative Revision Directive",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["directive_id", "candidate_id", "created_at", "objective", "preserve", "change", "target_predicted_coas_improvement", "constraints"],
+  "properties": {
+    "directive_id": { "type": "string", "minLength": 1 },
+    "candidate_id": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "objective": { "type": "string", "minLength": 1 },
+    "preserve": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "change": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "instruction", "evidence_ids"],
+        "properties": {
+          "field": { "type": "string", "enum": ["hook", "beat", "proof", "on_screen_text", "speech", "audio", "pacing", "cta", "claim", "style"] },
+          "instruction": { "type": "string", "minLength": 1 },
+          "evidence_ids": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "target_predicted_coas_improvement": { "type": "number", "minimum": 2 },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_duration_sec", "aspect_ratio", "unapproved_draft_only", "prohibited_claims"],
+      "properties": {
+        "target_duration_sec": { "type": "integer", "minimum": 16, "maximum": 24 },
+        "aspect_ratio": { "const": "9:16" },
+        "unapproved_draft_only": { "const": true },
+        "prohibited_claims": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

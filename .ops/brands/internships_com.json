@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "brand_id": "internships_com",
+  "display_name": "Internships.com",
+  "website_url": "https://www.internships.com/",
+  "positioning": "Help students find relevant internships, tailor truthful applications, and discover alumni paths while keeping review and submission in the student's hands.",
+  "source_observed_at": "2026-07-15T19:50:00.000Z",
+  "source_url": "https://www.internships.com/",
+  "public_product_claims": [
+    "Personalized internship openings based on the student's major, year, goals, and own words.",
+    "Role-specific resume and cover-letter drafts grounded in information the student provides.",
+    "Alumni paths and draft introductions that can help a student research a human connection.",
+    "The student reviews and sends; nothing is auto-submitted."
+  ],
+  "voice": [
+    "direct and internet-native",
+    "useful before promotional",
+    "specific about what a student can verify",
+    "never shame a student for limited experience"
+  ],
+  "safety_rules": [
+    "Never guarantee an internship, interview, response, referral, or offer.",
+    "Never invent student experience, coursework, projects, metrics, or connections.",
+    "Never expose private student data, resumes, contact details, or application materials.",
+    "Never imply that Internships.com auto-submits an application.",
+    "Every public post requires a verified brand account and exact asset approval."
+  ],
+  "visual_system": {
+    "source": "Public-site CSS observed on 2026-07-15; this is an operating palette, not a formal brand-guideline claim.",
+    "ink": "#302C41",
+    "orange": "#F58025",
+    "cream": "#FBF1DD",
+    "purple": "#7665F3",
+    "paper": "#FAFAFC"
+  }
+}

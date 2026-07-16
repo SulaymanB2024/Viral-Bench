@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "brand_id": "internships_com",
+  "platform": "TikTok",
+  "display_name": "Internships.com",
+  "public_handle": null,
+  "public_url": null,
+  "ownership_state": "unverified",
+  "authorized_work_account_confirmed": false,
+  "profile_configured": null,
+  "two_factor_enabled": null,
+  "analytics_confirmed": null,
+  "last_live_check_at": "2026-07-15T19:47:00.000Z",
+  "last_live_check": "The authenticated Chrome bridge was unavailable, so no TikTok identity or ownership state was observed and no account action was attempted.",
+  "blockers": [
+    "Internships.com TikTok public handle is not verified.",
+    "Approved brand-account access is not confirmed.",
+    "Profile, two-factor authentication, and analytics readiness are unverified."
+  ],
+  "next_action": "Reconnect the ChatGPT Chrome Extension, open the intended Internships.com TikTok account, and verify the visible public handle and brand ownership before any upload."
+}

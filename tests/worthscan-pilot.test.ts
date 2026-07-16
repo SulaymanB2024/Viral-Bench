@@ -107,11 +107,14 @@ test('all 10 WorthScan creative jobs validate with scoped launch policies', () =
   for (const job of jobs) {
     assert.equal(job.approval_status.state, 'draft');
     const isLiveLaunchJob = LIVE_LAUNCH_JOB_IDS.has(job.job_id);
+    const usesTwelveLabsDraftQa = job.job_id === 'worthscan_scooter_battery_001';
     assert.deepEqual(
       job.provider_policy.approved_providers,
-      isLiveLaunchJob ? ['local_renderer', 'browser_manual'] : ['local_renderer'],
+      isLiveLaunchJob
+        ? ['local_renderer', 'browser_manual', ...(usesTwelveLabsDraftQa ? ['twelvelabs_analysis' as const] : [])]
+        : ['local_renderer'],
     );
-    assert.equal(job.provider_policy.allow_paid_generation, false);
+    assert.equal(job.provider_policy.allow_paid_generation, usesTwelveLabsDraftQa);
     assert.equal(job.provider_policy.allow_browser_ui, isLiveLaunchJob);
     assert.equal(job.provider_policy.allow_social_publishing, isLiveLaunchJob);
     assert.equal(job.provider_policy.account_automation_allowed, false);

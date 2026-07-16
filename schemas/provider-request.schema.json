@@ -27,6 +27,8 @@
         "local_renderer",
         "gemini_image",
         "gemini_video_understanding",
+        "twelvelabs_analysis",
+        "veo_video",
         "openai_image",
         "browser_manual"
       ]

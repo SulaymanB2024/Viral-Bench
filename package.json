@@ -7,6 +7,8 @@
     "start": "tsx src/trend-cli.ts help",
     "harness": "tsx src/codex-harness.ts",
     "trend": "tsx src/trend-cli.ts",
+    "seo": "tsx src/trend-cli.ts",
+    "shorts": "tsx src/short-video-renderer.ts",
     "creative": "tsx packages/creative/cli.ts",
     "creative:sample": "tsx packages/creative/cli.ts render --job .ops/creative_jobs/incoming/scan_bike_001.json",
     "metrics:create-post": "tsx src/post-metrics.ts create-post",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "ffmpeg-static": "^5.3.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.0"
   },

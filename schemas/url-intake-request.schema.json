@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/url-intake-request.schema.json",
+  "title": "URL Intake Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "urls", "allowed_platforms", "comment_policy", "approval_state", "cost_limits"],
+  "properties": {
+    "request_id": { "type": "string", "minLength": 1 },
+    "urls": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+    },
+    "allowed_platforms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["tiktok", "instagram", "youtube_shorts"] }
+    },
+    "comment_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "max_high_engagement", "max_recent", "max_replies_per_thread"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "max_high_engagement": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "max_recent": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "max_replies_per_thread": { "type": "integer", "minimum": 0, "maximum": 5 }
+      }
+    },
+    "approval_state": { "type": "string", "enum": ["draft", "approved", "rejected"] },
+    "cost_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_total_usd", "max_apify_usd", "max_twelvelabs_usd", "max_gemini_usd"],
+      "properties": {
+        "max_total_usd": { "type": "number", "minimum": 0 },
+        "max_apify_usd": { "type": "number", "minimum": 0 },
+        "max_twelvelabs_usd": { "type": "number", "minimum": 0 },
+        "max_gemini_usd": { "type": "number", "minimum": 0 }
+      }
+    }
+  }
+}

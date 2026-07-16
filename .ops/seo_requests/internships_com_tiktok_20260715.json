@@ -1,0 +1,42 @@
+{
+  "research_id": "internships-com-tiktok-20260715",
+  "niche": "internship applications, resume tailoring, and student networking",
+  "strategy_mode": "career_guidance",
+  "platforms": ["tiktok"],
+  "search_queries": [
+    "internship resume tips",
+    "how to get an internship with no experience",
+    "internship application tips"
+  ],
+  "cohorts": ["recent", "popular"],
+  "max_results_per_query": 5,
+  "approval": {
+    "state": "approved",
+    "approved_by": "User instruction in the current Codex task",
+    "approved_at": "2026-07-15T19:45:00.000Z"
+  },
+  "cost_policy": {
+    "max_apify_usd": 0.2
+  },
+  "house_style": {
+    "name": "Internships.com signal stack",
+    "voice": [
+      "direct",
+      "student-respectful",
+      "specific",
+      "lightly irreverent without humiliation"
+    ],
+    "recurring_devices": [
+      "name the student problem in the first line",
+      "match, prove, connect, review signal stack",
+      "show one truthful before-and-after",
+      "student review remains visible"
+    ],
+    "differentiators": [
+      "no invented experience",
+      "no guaranteed outcomes",
+      "human connection framed as research rather than entitlement",
+      "product CTA follows useful advice"
+    ]
+  }
+}

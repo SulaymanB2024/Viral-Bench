@@ -3,5 +3,9 @@ node_modules/
 .marketing-agent-runs.json
 .env
 trend_examples.sqlite
+semantic_corpus.sqlite
+.semantic-artifacts/
+.ops/semantic_runs/
+.ops/creative_loops/
 trend_outputs/
 .ops/harness/

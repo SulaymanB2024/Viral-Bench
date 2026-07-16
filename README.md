@@ -25,6 +25,11 @@ browser, and publishing capabilities are exposed as explicit capability gates so
 Codex can see what is possible without leaking secrets or crossing account
 boundaries accidentally.
 
+An opt-in, cost-capped Apify discovery lane and asset-first TwelveLabs analysis
+lane are documented in [docs/APIFY_TWELVELABS_WORKFLOW.md](docs/APIFY_TWELVELABS_WORKFLOW.md).
+They keep observed public metrics, derived strategy, owned-media analysis, and
+publishing as separate evidence and approval boundaries.
+
 ## Setup
 
 Requires Node 22+ and the system `sqlite3` CLI with FTS5 support. macOS ships

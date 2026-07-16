@@ -23,7 +23,14 @@
     {
       "kind": "creative_center_manual_observation",
       "label": "Research boundary",
-      "value": "Use reviewed manual examples only. No TikTok, Instagram, YouTube, or Creative Center scraping."
+      "value": "Use reviewed manual Creative Center notes plus the approved, bounded Apify YouTube metadata report. Do not download competitor media, automate accounts, or treat public metrics as causal proof."
+    },
+    {
+      "kind": "semantic_bundle",
+      "label": "Bounded YouTube Shorts SEO strategy",
+      "path": ".semantic-artifacts/seo/worthscan-scooter-youtube-20260715-strategy.json",
+      "captured_at": "2026-07-15T17:07:44.052Z",
+      "notes": "Apify metadata-only research: 15 usable recent Shorts, three popular-cohort measurement gaps, $0.072 finalized usage. The strategy adapts patterns across sources and forbids copying wording, footage, or shot order."
     }
   ],
   "trend_examples": [
@@ -56,17 +63,48 @@
       "format": "slideshow",
       "hook": "Three comps changed the answer",
       "notes": "Comp reveal supports a range instead of a single price."
+    },
+    {
+      "id": "apify-youtube-8X9u9XUy8sM-20260715",
+      "source_name": "Apify bounded YouTube Shorts metadata snapshot",
+      "source_url": "https://www.youtube.com/shorts/8X9u9XUy8sM",
+      "captured_at": "2026-07-15T17:07:22.912Z",
+      "platform": "YouTube Shorts",
+      "format": "short video",
+      "hook": "KuKirin G4 power is out of control",
+      "notes": "Highest-view item in the bounded recent sample. It supports examining a compact risk/payoff first clause, not copying its wording or making a causal claim."
+    },
+    {
+      "id": "apify-youtube-IPoidzhnDH0-20260715",
+      "source_name": "Apify bounded YouTube Shorts metadata snapshot",
+      "source_url": "https://www.youtube.com/shorts/IPoidzhnDH0",
+      "captured_at": "2026-07-15T17:07:22.911Z",
+      "platform": "YouTube Shorts",
+      "format": "short video",
+      "hook": "Yamaha Aerox E Review 2026: ₹2.81 Lakh EV Worth It?",
+      "notes": "Observed price plus explicit worth-question structure. Adapt the structure to a sourced used-scooter range; do not reuse wording or footage."
+    },
+    {
+      "id": "apify-youtube-NmXdezWGkeE-20260715",
+      "source_name": "Apify bounded YouTube Shorts metadata snapshot",
+      "source_url": "https://www.youtube.com/shorts/NmXdezWGkeE",
+      "captured_at": "2026-07-15T17:07:22.912Z",
+      "platform": "YouTube Shorts",
+      "format": "short video",
+      "hook": "We Dropped This Electric Scooter 3 Times — Here's What Happened",
+      "notes": "Observed concrete-number plus proof structure. WorthScan should replace spectacle with visible inspection evidence and an uncertainty adjustment."
     }
   ],
   "provider_policy": {
-    "approved_providers": ["local_renderer", "browser_manual"],
-    "allow_paid_generation": false,
+    "approved_providers": ["local_renderer", "browser_manual", "twelvelabs_analysis"],
+    "allow_paid_generation": true,
     "allow_browser_ui": true,
     "allow_social_publishing": true,
     "account_automation_allowed": false,
     "credentials_policy": "no_credentials_in_repo",
     "notes": [
       "Local renderer is the default production path.",
+      "TwelveLabs is approved only to analyze owned or locally rendered draft video through the reviewed request manifest and dollar ceiling.",
       "Codex browser research and social publishing are user-authorized when their environment gates are enabled.",
       "Account automation remains disabled; platform verification and final public submission require live confirmation.",
       "Create metrics after the public post URL is verified."
@@ -80,38 +118,65 @@
     },
     "slide_count": 5,
     "required_outputs": ["slides", "caption", "hashtags", "spoken_script", "posting_notes"],
+    "house_style": {
+      "system": "worthscan_proof_first_v1",
+      "promise": "Proof first • uncertainty explicit • decision last",
+      "recurring_devices": [
+        "hidden-cost question hook",
+        "visible proof chips",
+        "three-comparison board",
+        "explicit uncertainty checks",
+        "buy-bargain-pass decision frame"
+      ],
+      "originality_rules": [
+        "Use source research only for cross-source structural patterns, never wording or shot order.",
+        "Show the evidence category before giving a recommendation.",
+        "Keep unknowns visibly unknown instead of inventing proof.",
+        "End with a range-based decision and a limitation, not a magic price."
+      ]
+    },
     "slides": [
       {
         "slide_number": 1,
-        "on_screen_text": "Scan this scooter before battery risk eats the deal",
-        "visual_direction": "Show scooter listing, price, and charger status if visible."
+        "on_screen_text": "Used scooter deal or battery trap? 5 checks before you buy",
+        "visual_direction": "Use the approved illustrative scooter with a five-part proof-first scan strip; do not imply this is a real listing.",
+        "visual_mode": "hero",
+        "proof_cues": ["model", "proof", "comps", "risk", "range"]
       },
       {
         "slide_number": 2,
-        "on_screen_text": "Find model, mileage, charger, and battery clues",
-        "visual_direction": "Crop model label, display, charger, and tire/brake closeups."
+        "on_screen_text": "1. Model  2. Mileage  3. Charger  4. Battery proof",
+        "visual_direction": "Present four equal verification chips so the viewer sees exactly what evidence to request.",
+        "visual_mode": "checklist",
+        "proof_cues": ["model", "mileage", "charger", "battery"]
       },
       {
         "slide_number": 3,
-        "on_screen_text": "Compare three local scooters",
-        "visual_direction": "Show comp cards with model, range claims, condition, and price."
+        "on_screen_text": "5. Compare three local used scooters",
+        "visual_direction": "Show three neutral comparison cards without fabricated prices; real comps belong to a later listing-specific episode.",
+        "visual_mode": "comparison",
+        "proof_cues": ["comp 1", "comp 2", "comp 3"]
       },
       {
         "slide_number": 4,
         "on_screen_text": "Subtract battery, tire, brake, and charger risk",
-        "visual_direction": "Use a red risk bar for missing charger or weak battery evidence."
+        "visual_direction": "Label every unknown as VERIFY; do not assign a severity or condition without listing evidence.",
+        "visual_mode": "uncertainty",
+        "proof_cues": ["battery", "tires", "brakes", "charger"]
       },
       {
         "slide_number": 5,
-        "on_screen_text": "Worth range: negotiate hard or pass",
-        "visual_direction": "Show range, confidence, and viewer comment prompt."
+        "on_screen_text": "Used scooter value range: buy, bargain, or pass",
+        "visual_direction": "Show buy, bargain, and pass as equal decision paths; no option is selected without real listing evidence.",
+        "visual_mode": "decision",
+        "proof_cues": ["buy", "bargain", "pass"]
       }
     ],
-    "caption": "Used scooter deal or battery trap? Comment \"scan\" with the next listing. WorthScan is an estimate, not a guarantee.",
-    "hashtags": ["worthscan", "scootercheck", "resale", "campusdeals", "usedscooter"],
-    "spoken_script": "A cheap used scooter can become expensive if the battery or charger is questionable. Start with the model, mileage, charger, tires, and brakes, compare three local scooters, then subtract the risk before calling it a buy or pass.",
+    "caption": "Buying a used electric scooter? Check the model, mileage, charger, battery proof, and three local comps before you trust the asking price. Comment \"scan\" with the next listing. WorthScan is an estimate, not a battery test, safety inspection, or guarantee.",
+    "hashtags": ["worthscan", "usedelectricscooter", "scooterbuyingguide", "resalevalue", "scootercheck"],
+    "spoken_script": "Used scooter deal or battery trap? Run five checks before you buy. Confirm the model, mileage, charger, and any battery evidence the seller can show. Compare three local scooters. Then subtract tire, brake, charger, and battery uncertainty. Give it a price range. Then buy, bargain, or pass. WorthScan is only an estimate, not a battery test or safety inspection.",
     "posting_notes": [
-      "Use only approved item photos or listing screenshots.",
+      "This educational launch version uses an approved generic illustration; do not present it as a real listing or inspected scooter.",
       "Do not imply battery testing unless a human performed it.",
       "Use a range and confidence level, not an exact appraisal.",
       "Post manually after approval."
@@ -125,7 +190,10 @@
   },
   "generated_assets": [],
   "qa_notes": [
-    "Manual examples only.",
+    "Manual Creative Center notes plus approved Apify metadata-only research; no competitor media is reused.",
+    "The July 15 Apify run added metadata-only YouTube Shorts evidence. The popular cohort returned NO_VIDEOS and remains a measurement gap, not negative content evidence.",
+    "Observed number, price, and question structures were adapted across sources; source wording, footage, thumbnails, and shot order are prohibited.",
+    "WorthScan proof-first v1 makes the house style explicit: evidence categories first, uncertainty visible, and a decision frame last.",
     "Battery and range claims require source evidence.",
     "Social publishing is enabled for this launch job after asset approval and live confirmation."
   ]

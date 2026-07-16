@@ -6,6 +6,8 @@ export const CREATIVE_PROVIDER_NAMES = [
   'local_renderer',
   'gemini_image',
   'gemini_video_understanding',
+  'twelvelabs_analysis',
+  'veo_video',
   'openai_image',
   'browser_manual',
 ] as const;
@@ -15,6 +17,8 @@ export type CreativeProviderName = typeof CREATIVE_PROVIDER_NAMES[number];
 export const PAID_PROVIDER_NAMES: CreativeProviderName[] = [
   'gemini_image',
   'gemini_video_understanding',
+  'twelvelabs_analysis',
+  'veo_video',
   'openai_image',
 ];
 
@@ -22,7 +26,7 @@ export type ApprovalState = 'draft' | 'pending_review' | 'approved' | 'rejected'
 export type GateEnv = Record<string, string | undefined>;
 
 export interface SourceInput {
-  kind: 'manual_note' | 'creative_center_manual_observation' | 'local_file' | 'reference_url' | 'item_pricing_note';
+  kind: 'manual_note' | 'creative_center_manual_observation' | 'local_file' | 'reference_url' | 'item_pricing_note' | 'semantic_bundle';
   label: string;
   value?: string;
   path?: string;
@@ -56,6 +60,72 @@ export interface CreativeSlideRequirement {
   slide_number: number;
   on_screen_text: string;
   visual_direction: string;
+  visual_mode?: 'hero' | 'checklist' | 'comparison' | 'uncertainty' | 'decision';
+  proof_cues?: string[];
+}
+
+export interface CreativeBrandIdentity {
+  id: string;
+  display_name: string;
+  website_url: string | null;
+  account_handle: string | null;
+}
+
+export interface CreativeHouseStyleLabels {
+  hero: string;
+  checklist: string;
+  comparison: string;
+  uncertainty: string;
+  decision: string;
+  uncertainty_badge: string;
+}
+
+export interface CreativeHouseStyle {
+  system: 'worthscan_proof_first_v1' | 'internships_signal_stack_v1';
+  promise: string;
+  recurring_devices: string[];
+  originality_rules: string[];
+  overlay_labels: CreativeHouseStyleLabels | null;
+  footer_note: string | null;
+}
+
+export interface VideoStoryboardBeat {
+  beat_number: number;
+  start_sec: number;
+  end_sec: number;
+  visual_direction: string;
+  action: string;
+  dialogue_or_voiceover: string;
+  on_screen_text: string;
+  audio_direction: string;
+}
+
+export interface VideoOutputRequirements {
+  aspect_ratio: '9:16';
+  resolution: '720p';
+  target_duration_sec: number;
+  storyboard: VideoStoryboardBeat[];
+  action_sequence: string[];
+  max_extensions_per_candidate: number;
+}
+
+export interface CreativeGenerationTrace {
+  candidate_id: string;
+  provider: 'veo_video';
+  model: string;
+  operation_ids: string[];
+  generated_at: string;
+  extension_count: number;
+  estimated_cost_usd: number;
+  actual_cost_usd: number | null;
+}
+
+export interface VideoQaArtifact {
+  candidate_id: string;
+  kind: 'pegasus_analysis' | 'predicted_coas' | 'technical_qa' | 'human_review';
+  path: string;
+  status: 'pending' | 'passed' | 'blocked';
+  notes: string[];
 }
 
 export interface OutputRequirements {
@@ -66,6 +136,7 @@ export interface OutputRequirements {
   };
   slide_count: number;
   required_outputs: Array<'slides' | 'caption' | 'hashtags' | 'spoken_script' | 'posting_notes'>;
+  house_style: CreativeHouseStyle | null;
   slides: CreativeSlideRequirement[];
   caption: string;
   hashtags: string[];
@@ -92,13 +163,18 @@ export interface GeneratedAsset {
 
 export interface CreativeJobManifest {
   job_id: string;
+  brand: CreativeBrandIdentity | null;
   niche: string;
   platform_targets: string[];
   content_type: string;
+  output_mode: 'slideshow' | 'video';
   source_inputs: SourceInput[];
   trend_examples: TrendExampleReference[];
   provider_policy: ProviderPolicy;
   output_requirements: OutputRequirements;
+  video_requirements: VideoOutputRequirements | null;
+  generation_trace: CreativeGenerationTrace[];
+  video_qa_artifacts: VideoQaArtifact[];
   approval_status: ApprovalStatus;
   generated_assets: GeneratedAsset[];
   qa_notes: string[];
@@ -117,9 +193,11 @@ const SOURCE_INPUT_KINDS = [
   'local_file',
   'reference_url',
   'item_pricing_note',
+  'semantic_bundle',
 ] as const;
 const REQUIRED_OUTPUTS = ['slides', 'caption', 'hashtags', 'spoken_script', 'posting_notes'] as const;
 const ASSET_KINDS = ['slide', 'caption', 'hashtags', 'spoken_script', 'posting_notes', 'image', 'video', 'qa'] as const;
+const VISUAL_MODES = ['hero', 'checklist', 'comparison', 'uncertainty', 'decision'] as const;
 const TEXT_FILE_EXTENSIONS = new Set([
   '.cjs',
   '.css',
@@ -139,6 +217,8 @@ const TEXT_FILE_EXTENSIONS = new Set([
 const SECRET_PATTERNS: Array<{ rule: string; pattern: RegExp }> = [
   { rule: 'openai_api_key', pattern: /\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b/g },
   { rule: 'google_api_key', pattern: /\bAIza[0-9A-Za-z_-]{35}\b/g },
+  { rule: 'apify_api_token', pattern: /\bapify_api_[A-Za-z0-9_-]{20,}\b/g },
+  { rule: 'twelvelabs_api_key', pattern: /\btlk_[A-Za-z0-9_-]{20,}\b/g },
   { rule: 'aws_access_key', pattern: /\bAKIA[0-9A-Z]{16}\b/g },
   { rule: 'github_token', pattern: /\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b/g },
   { rule: 'slack_token', pattern: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/g },
@@ -158,19 +238,43 @@ export function validateCreativeJobManifest(input: unknown): CreativeJobManifest
   const outputRequirements = normalizeOutputRequirements(expectRecord(record.output_requirements, 'output_requirements'));
   const job: CreativeJobManifest = {
     job_id: requiredText(record, 'job_id'),
+    brand: record.brand === undefined || record.brand === null
+      ? null
+      : normalizeBrandIdentity(expectRecord(record.brand, 'brand')),
     niche: requiredText(record, 'niche'),
     platform_targets: requiredTextArray(record, 'platform_targets'),
     content_type: requiredText(record, 'content_type'),
+    output_mode: record.output_mode === undefined
+      ? 'slideshow'
+      : oneOf(requiredText(record, 'output_mode'), ['slideshow', 'video'] as const, 'output_mode'),
     source_inputs: requiredRecordArray(record, 'source_inputs').map(normalizeSourceInput),
     trend_examples: requiredRecordArray(record, 'trend_examples').map(normalizeTrendExample),
     provider_policy: normalizeProviderPolicy(expectRecord(record.provider_policy, 'provider_policy')),
     output_requirements: outputRequirements,
+    video_requirements: record.video_requirements === undefined || record.video_requirements === null
+      ? null
+      : normalizeVideoRequirements(expectRecord(record.video_requirements, 'video_requirements')),
+    generation_trace: record.generation_trace === undefined
+      ? []
+      : requiredRecordArray(record, 'generation_trace').map(normalizeGenerationTrace),
+    video_qa_artifacts: record.video_qa_artifacts === undefined
+      ? []
+      : requiredRecordArray(record, 'video_qa_artifacts').map(normalizeVideoQaArtifact),
     approval_status: normalizeApprovalStatus(expectRecord(record.approval_status, 'approval_status')),
     generated_assets: requiredRecordArray(record, 'generated_assets').map(normalizeGeneratedAsset),
     qa_notes: requiredTextArray(record, 'qa_notes'),
   };
 
   assertNoAccountAutomation(job);
+  if (job.output_mode === 'video' && !job.video_requirements) {
+    throw new Error('video_requirements are required when output_mode is video.');
+  }
+  if (job.output_mode === 'slideshow' && job.video_requirements) {
+    throw new Error('video_requirements must be null when output_mode is slideshow.');
+  }
+  if (job.output_requirements.house_style && job.output_requirements.slides.some((slide) => !slide.visual_mode || !slide.proof_cues?.length)) {
+    throw new Error('Every slide must declare visual_mode and proof_cues when output_requirements.house_style is enabled.');
+  }
   return job;
 }
 
@@ -329,6 +433,9 @@ function normalizeOutputRequirements(record: Record<string, unknown>): OutputReq
     slide_count: slideCount,
     required_outputs: requiredTextArray(record, 'required_outputs')
       .map((output) => oneOf(output, REQUIRED_OUTPUTS, 'output_requirements.required_outputs')),
+    house_style: record.house_style === undefined || record.house_style === null
+      ? null
+      : normalizeHouseStyle(expectRecord(record.house_style, 'output_requirements.house_style')),
     slides,
     caption: requiredText(record, 'caption'),
     hashtags: requiredTextArray(record, 'hashtags'),
@@ -338,10 +445,150 @@ function normalizeOutputRequirements(record: Record<string, unknown>): OutputReq
 }
 
 function normalizeSlideRequirement(record: Record<string, unknown>): CreativeSlideRequirement {
-  return {
+  const slide: CreativeSlideRequirement = {
     slide_number: requiredPositiveInteger(record, 'slide_number'),
     on_screen_text: requiredText(record, 'on_screen_text'),
     visual_direction: requiredText(record, 'visual_direction'),
+  };
+  if (record.visual_mode !== undefined) {
+    slide.visual_mode = oneOf(requiredText(record, 'visual_mode'), VISUAL_MODES, 'output_requirements.slides.visual_mode');
+  }
+  if (record.proof_cues !== undefined) {
+    const proofCues = requiredTextArray(record, 'proof_cues');
+    if (proofCues.length < 1 || proofCues.length > 5) {
+      throw new Error('output_requirements.slides.proof_cues must contain 1 to 5 items.');
+    }
+    if (proofCues.some((cue) => cue.length > 24)) {
+      throw new Error('output_requirements.slides.proof_cues items must be 24 characters or fewer.');
+    }
+    slide.proof_cues = proofCues;
+  }
+  if ((slide.visual_mode && !slide.proof_cues) || (!slide.visual_mode && slide.proof_cues)) {
+    throw new Error('output_requirements.slides.visual_mode and proof_cues must be provided together.');
+  }
+  if (slide.visual_mode && slide.proof_cues) {
+    const cueLimits: Record<NonNullable<CreativeSlideRequirement['visual_mode']>, [number, number]> = {
+      hero: [3, 5],
+      checklist: [2, 4],
+      comparison: [2, 3],
+      uncertainty: [2, 4],
+      decision: [2, 3],
+    };
+    const [minimum, maximum] = cueLimits[slide.visual_mode];
+    if (slide.proof_cues.length < minimum || slide.proof_cues.length > maximum) {
+      throw new Error(`output_requirements.slides.${slide.visual_mode} requires ${minimum} to ${maximum} proof cues.`);
+    }
+  }
+  return slide;
+}
+
+function normalizeHouseStyle(record: Record<string, unknown>): CreativeHouseStyle {
+  const overlayLabels = record.overlay_labels === undefined || record.overlay_labels === null
+    ? null
+    : expectRecord(record.overlay_labels, 'output_requirements.house_style.overlay_labels');
+  return {
+    system: oneOf(
+      requiredText(record, 'system'),
+      ['worthscan_proof_first_v1', 'internships_signal_stack_v1'] as const,
+      'output_requirements.house_style.system',
+    ),
+    promise: requiredText(record, 'promise'),
+    recurring_devices: requiredTextArray(record, 'recurring_devices'),
+    originality_rules: requiredTextArray(record, 'originality_rules'),
+    overlay_labels: overlayLabels
+      ? {
+        hero: requiredText(overlayLabels, 'hero'),
+        checklist: requiredText(overlayLabels, 'checklist'),
+        comparison: requiredText(overlayLabels, 'comparison'),
+        uncertainty: requiredText(overlayLabels, 'uncertainty'),
+        decision: requiredText(overlayLabels, 'decision'),
+        uncertainty_badge: requiredText(overlayLabels, 'uncertainty_badge'),
+      }
+      : null,
+    footer_note: optionalText(record.footer_note, 'output_requirements.house_style.footer_note') ?? null,
+  };
+}
+
+function normalizeBrandIdentity(record: Record<string, unknown>): CreativeBrandIdentity {
+  const websiteUrl = nullableText(record.website_url, 'brand.website_url');
+  if (websiteUrl) {
+    let parsed: URL;
+    try {
+      parsed = new URL(websiteUrl);
+    } catch {
+      throw new Error('brand.website_url must be a valid HTTPS URL or null.');
+    }
+    if (parsed.protocol !== 'https:') throw new Error('brand.website_url must be a valid HTTPS URL or null.');
+  }
+  const accountHandle = nullableText(record.account_handle, 'brand.account_handle');
+  if (accountHandle && !/^@[A-Za-z0-9._-]{2,32}$/.test(accountHandle)) {
+    throw new Error('brand.account_handle must be a public @handle or null.');
+  }
+  return {
+    id: requiredText(record, 'id'),
+    display_name: requiredText(record, 'display_name'),
+    website_url: websiteUrl,
+    account_handle: accountHandle,
+  };
+}
+
+function normalizeVideoRequirements(record: Record<string, unknown>): VideoOutputRequirements {
+  const targetDuration = requiredPositiveInteger(record, 'target_duration_sec');
+  if (targetDuration < 16 || targetDuration > 24) {
+    throw new Error('video_requirements.target_duration_sec must be between 16 and 24 seconds.');
+  }
+  const maxExtensions = requiredPositiveInteger(record, 'max_extensions_per_candidate');
+  if (maxExtensions > 2) {
+    throw new Error('video_requirements.max_extensions_per_candidate must not exceed 2.');
+  }
+  const storyboard = requiredRecordArray(record, 'storyboard').map((beat, index): VideoStoryboardBeat => {
+    const start = requiredNonNegativeNumber(beat, 'start_sec');
+    const end = requiredNonNegativeNumber(beat, 'end_sec');
+    if (end <= start || end > targetDuration) {
+      throw new Error(`video_requirements.storyboard[${index}] timestamps must be ordered within target_duration_sec.`);
+    }
+    return {
+      beat_number: requiredPositiveInteger(beat, 'beat_number'),
+      start_sec: start,
+      end_sec: end,
+      visual_direction: requiredText(beat, 'visual_direction'),
+      action: requiredText(beat, 'action'),
+      dialogue_or_voiceover: requiredText(beat, 'dialogue_or_voiceover'),
+      on_screen_text: requiredText(beat, 'on_screen_text'),
+      audio_direction: requiredText(beat, 'audio_direction'),
+    };
+  });
+  if (!storyboard.length) throw new Error('video_requirements.storyboard must not be empty.');
+  return {
+    aspect_ratio: oneOf(requiredText(record, 'aspect_ratio'), ['9:16'] as const, 'video_requirements.aspect_ratio'),
+    resolution: oneOf(requiredText(record, 'resolution'), ['720p'] as const, 'video_requirements.resolution'),
+    target_duration_sec: targetDuration,
+    storyboard,
+    action_sequence: requiredTextArray(record, 'action_sequence'),
+    max_extensions_per_candidate: maxExtensions,
+  };
+}
+
+function normalizeGenerationTrace(record: Record<string, unknown>): CreativeGenerationTrace {
+  return {
+    candidate_id: requiredText(record, 'candidate_id'),
+    provider: oneOf(requiredText(record, 'provider'), ['veo_video'] as const, 'generation_trace.provider'),
+    model: requiredText(record, 'model'),
+    operation_ids: requiredTextArray(record, 'operation_ids'),
+    generated_at: requiredText(record, 'generated_at'),
+    extension_count: requiredNonNegativeInteger(record, 'extension_count', 2),
+    estimated_cost_usd: requiredNonNegativeNumber(record, 'estimated_cost_usd'),
+    actual_cost_usd: nullableNonNegativeNumber(record.actual_cost_usd, 'actual_cost_usd'),
+  };
+}
+
+function normalizeVideoQaArtifact(record: Record<string, unknown>): VideoQaArtifact {
+  return {
+    candidate_id: requiredText(record, 'candidate_id'),
+    kind: oneOf(requiredText(record, 'kind'), ['pegasus_analysis', 'predicted_coas', 'technical_qa', 'human_review'] as const, 'video_qa_artifacts.kind'),
+    path: requiredText(record, 'path'),
+    status: oneOf(requiredText(record, 'status'), ['pending', 'passed', 'blocked'] as const, 'video_qa_artifacts.status'),
+    notes: requiredTextArray(record, 'notes'),
   };
 }
 
@@ -478,6 +725,30 @@ function requiredPositiveInteger(record: Record<string, unknown>, field: string)
   const value = record[field];
   if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0) {
     throw new Error(`${field} must be a positive integer.`);
+  }
+  return value;
+}
+
+function requiredNonNegativeInteger(record: Record<string, unknown>, field: string, max = Number.POSITIVE_INFINITY): number {
+  const value = record[field];
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > max) {
+    throw new Error(`${field} must be a non-negative integer${Number.isFinite(max) ? ` no greater than ${max}` : ''}.`);
+  }
+  return value;
+}
+
+function requiredNonNegativeNumber(record: Record<string, unknown>, field: string): number {
+  const value = record[field];
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+    throw new Error(`${field} must be a non-negative number.`);
+  }
+  return value;
+}
+
+function nullableNonNegativeNumber(value: unknown, field: string): number | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+    throw new Error(`${field} must be a non-negative number or null.`);
   }
   return value;
 }

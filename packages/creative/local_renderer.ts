@@ -63,7 +63,11 @@ export async function renderLocalPostPackage(
   } else {
     await sharp(Buffer.from(renderSourcePlaceholderSvg(job))).jpeg({ quality: 88 }).toFile(sourceImagePath);
   }
-  const sourceImageDataUri = `data:image/jpeg;base64,${fs.readFileSync(sourceImagePath).toString('base64')}`;
+  // librsvg can intermittently return incomplete JPEG tiles when a data URI is
+  // embedded in a larger SVG. Normalize the source to PNG in memory so each
+  // slide render is deterministic while preserving the legacy source artifact.
+  const sourceImageBuffer = await sharp(sourceImagePath).png().toBuffer();
+  const sourceImageDataUri = `data:image/png;base64,${sourceImageBuffer.toString('base64')}`;
 
   const listingPath = path.join(sourceDir, 'listing.txt');
   fs.writeFileSync(listingPath, renderListingSource(job));
@@ -179,12 +183,30 @@ export function renderSlideSvg(
   const colors = ['#16a085', '#f4c430', '#ef476f', '#118ab2', '#4f46e5'];
   const accent = colors[(slide.slide_number - 1) % colors.length];
   const nicheLines = wrapLines(job.niche.toUpperCase(), 52, 2);
-  const titleLines = wrapLines(slide.on_screen_text, 24, 4);
+  const titleLines = wrapLines(slide.on_screen_text, 21, 5);
+  const titleFontSize = titleLines.length >= 4 ? 60 : 68;
+  const titleLineHeight = titleFontSize + 16;
   const directionLines = wrapLines(slide.visual_direction, 36, 7);
   const visualLabel = sourceImageIsPlaceholder ? 'Visual placeholder' : 'Illustrative visual';
   const visualNote = sourceImageIsPlaceholder
     ? directionLines
-    : ['Verify the actual listing before you buy.'];
+    : ['Purpose-created brand visual; verify every factual claim.'];
+  const showVisualProvenanceBlock = sourceImageIsPlaceholder
+    || job.output_requirements.house_style?.system !== 'internships_signal_stack_v1';
+  const proofOverlay = renderHouseStyleOverlay(
+    slide,
+    job.output_requirements.house_style,
+    accent,
+    sourceImageIsPlaceholder,
+  );
+  const stylePromise = job.output_requirements.house_style?.promise
+    ?? 'Check: model • condition • comps • repair risk';
+  const footerNote = job.output_requirements.house_style?.footer_note
+    ?? (job.output_requirements.house_style?.system === 'worthscan_proof_first_v1'
+      ? 'Estimates guide a decision, not a guaranteed appraisal.'
+      : 'Review the source and claims before posting.');
+  const brandName = job.brand?.display_name
+    ?? (job.job_id.startsWith('worthscan_') ? 'WorthScan' : 'Viral Bench');
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -195,26 +217,111 @@ export function renderSlideSvg(
     `<text x="94" y="${148 + index * 30}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#15171c">${escapeXml(line)}</text>`
   )).join('\n  ')}
   ${titleLines.map((line, index) => (
-    `<text x="94" y="${275 + index * 86}" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800" fill="#15171c">${escapeXml(line)}</text>`
+    `<text x="94" y="${265 + index * titleLineHeight}" font-family="Arial, Helvetica, sans-serif" font-size="${titleFontSize}" font-weight="800" fill="#15171c">${escapeXml(line)}</text>`
   )).join('\n  ')}
   <clipPath id="visual-${slide.slide_number}"><rect x="94" y="640" width="${width - 188}" height="640" rx="0"/></clipPath>
   <image x="94" y="640" width="${width - 188}" height="640" preserveAspectRatio="xMidYMid slice" clip-path="url(#visual-${slide.slide_number})" href="${sourceImageDataUri}"/>
   <rect x="94" y="640" width="${width - 188}" height="640" fill="#15171c" opacity="${sourceImageIsPlaceholder ? '0' : '0.16'}" stroke="#d8d2c3" stroke-width="4"/>
+  ${proofOverlay}
+  ${showVisualProvenanceBlock ? `
   <rect x="94" y="${sourceImageIsPlaceholder ? 640 : 1104}" width="${width - 188}" height="${sourceImageIsPlaceholder ? 640 : 176}" fill="${sourceImageIsPlaceholder ? '#ffffff' : '#15171c'}" opacity="${sourceImageIsPlaceholder ? '0.94' : '0.82'}"/>
   <text x="132" y="${sourceImageIsPlaceholder ? 728 : 1162}" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="${sourceImageIsPlaceholder ? '#15171c' : '#ffffff'}">${escapeXml(visualLabel)}</text>
   ${visualNote.map((line, index) => (
     `<text x="132" y="${sourceImageIsPlaceholder ? 806 + index * 56 : 1222 + index * 42}" font-family="Arial, Helvetica, sans-serif" font-size="${sourceImageIsPlaceholder ? 40 : 30}" fill="${sourceImageIsPlaceholder ? '#272a31' : '#ffffff'}">${escapeXml(line)}</text>`
-  )).join('\n  ')}
+  )).join('\n  ')}` : ''}
   ${sourceImageIsPlaceholder ? `
   <rect x="94" y="1390" width="${width - 188}" height="240" fill="${accent}" opacity="0.18"/>
   <text x="132" y="1472" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#15171c">Operator review required</text>
   <text x="132" y="1534" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#15171c">Replace placeholder visuals with approved item photos.</text>` : `
   <rect x="94" y="1390" width="${width - 188}" height="160" fill="${accent}" opacity="0.15"/>
-  <text x="132" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#15171c">Check: model • condition • comps • repair risk</text>
-  <text x="132" y="1520" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#15171c">Estimates guide a decision, not a guaranteed appraisal.</text>`}
-  <text x="94" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#4b505a">WorthScan</text>
-  <text x="${width - 180}" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" fill="#15171c">${slide.slide_number}/${job.output_requirements.slide_count}</text>
+  <text x="132" y="1460" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#15171c">${escapeXml(stylePromise)}</text>
+  <text x="132" y="1520" font-family="Arial, Helvetica, sans-serif" font-size="26" fill="#15171c">${escapeXml(footerNote)}</text>`}
+  <text x="94" y="1740" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#4b505a">${escapeXml(brandName)}</text>
+  <text x="${width - 130}" y="1740" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" fill="#15171c">${slide.slide_number}/${job.output_requirements.slide_count}</text>
 </svg>`;
+}
+
+function renderHouseStyleOverlay(
+  slide: CreativeJobManifest['output_requirements']['slides'][number],
+  houseStyle: CreativeJobManifest['output_requirements']['house_style'],
+  accent: string,
+  sourceImageIsPlaceholder: boolean,
+): string {
+  if (sourceImageIsPlaceholder || !slide.visual_mode || !slide.proof_cues?.length) return '';
+  const cues = slide.proof_cues;
+  const panelX = 118;
+  const panelY = 824;
+  const panelWidth = 844;
+  const panelHeight = 246;
+  const labels = houseStyle?.overlay_labels ?? {
+    hero: 'PROOF-FIRST CHECK',
+    checklist: 'VERIFY THE VISIBLE PROOF',
+    comparison: 'COMPARE LIKE WITH LIKE',
+    uncertainty: 'PRICE THE UNKNOWN — DO NOT INVENT IT',
+    decision: 'RANGE + CONFIDENCE = DECISION',
+    uncertainty_badge: 'VERIFY',
+  };
+  const base = [
+    `<g data-proof-mode="${slide.visual_mode}">`,
+    `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" rx="24" fill="#15171c" opacity="0.88"/>`,
+  ];
+
+  if (slide.visual_mode === 'hero') {
+    base.push(`<text x="152" y="884" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="800" letter-spacing="2" fill="#ffffff">${escapeXml(labels.hero)}</text>`);
+    const gap = 14;
+    const chipWidth = (panelWidth - 68 - gap * (cues.length - 1)) / cues.length;
+    cues.forEach((cue, index) => {
+      const x = panelX + 34 + index * (chipWidth + gap);
+      base.push(`<rect x="${x}" y="918" width="${chipWidth}" height="112" rx="18" fill="${accent}"/>`);
+      base.push(`<text x="${x + chipWidth / 2}" y="960" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900" fill="#15171c">${index + 1}</text>`);
+      base.push(`<text x="${x + chipWidth / 2}" y="1002" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="800" fill="#15171c">${escapeXml(cue.toUpperCase())}</text>`);
+    });
+  } else if (slide.visual_mode === 'checklist') {
+    base.push(`<text x="152" y="876" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" letter-spacing="2" fill="#ffffff">${escapeXml(labels.checklist)}</text>`);
+    const gap = 16;
+    const chipWidth = (panelWidth - 68 - gap) / 2;
+    cues.slice(0, 4).forEach((cue, index) => {
+      const row = Math.floor(index / 2);
+      const column = index % 2;
+      const x = panelX + 34 + column * (chipWidth + gap);
+      const y = 908 + row * 70;
+      base.push(`<rect x="${x}" y="${y}" width="${chipWidth}" height="54" rx="14" fill="#ffffff" opacity="0.96"/>`);
+      base.push(`<circle cx="${x + 30}" cy="${y + 27}" r="12" fill="none" stroke="${accent}" stroke-width="6"/>`);
+      base.push(`<text x="${x + 56}" y="${y + 36}" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="800" fill="#15171c">${escapeXml(cue.toUpperCase())}</text>`);
+    });
+  } else if (slide.visual_mode === 'comparison') {
+    base.push(`<text x="152" y="876" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" letter-spacing="2" fill="#ffffff">${escapeXml(labels.comparison)}</text>`);
+    const gap = 16;
+    const cardWidth = (panelWidth - 68 - gap * (cues.length - 1)) / cues.length;
+    cues.forEach((cue, index) => {
+      const x = panelX + 34 + index * (cardWidth + gap);
+      base.push(`<rect x="${x}" y="910" width="${cardWidth}" height="126" rx="18" fill="#ffffff" opacity="0.96"/>`);
+      base.push(`<text x="${x + cardWidth / 2}" y="958" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="${accent}">${String(index + 1).padStart(2, '0')}</text>`);
+      base.push(`<text x="${x + cardWidth / 2}" y="1004" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="800" fill="#15171c">${escapeXml(cue.toUpperCase())}</text>`);
+    });
+  } else if (slide.visual_mode === 'uncertainty') {
+    base.push(`<text x="152" y="876" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" letter-spacing="2" fill="#ffffff">${escapeXml(labels.uncertainty)}</text>`);
+    const gap = 12;
+    const chipWidth = (panelWidth - 68 - gap * (cues.length - 1)) / cues.length;
+    cues.forEach((cue, index) => {
+      const x = panelX + 34 + index * (chipWidth + gap);
+      base.push(`<rect x="${x}" y="920" width="${chipWidth}" height="102" rx="18" fill="#ffffff" stroke="${accent}" stroke-width="5" opacity="0.98"/>`);
+      base.push(`<text x="${x + chipWidth / 2}" y="965" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="800" fill="#15171c">${escapeXml(cue.toUpperCase())}</text>`);
+      base.push(`<text x="${x + chipWidth / 2}" y="1002" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="800" fill="#15171c">${escapeXml(labels.uncertainty_badge)}</text>`);
+    });
+  } else {
+    base.push(`<text x="152" y="876" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" letter-spacing="2" fill="#ffffff">${escapeXml(labels.decision)}</text>`);
+    const gap = 18;
+    const chipWidth = (panelWidth - 68 - gap * (cues.length - 1)) / cues.length;
+    cues.forEach((cue, index) => {
+      const x = panelX + 34 + index * (chipWidth + gap);
+      base.push(`<rect x="${x}" y="920" width="${chipWidth}" height="102" rx="51" fill="#ffffff" stroke="${accent}" stroke-width="6" opacity="0.98"/>`);
+      base.push(`<text x="${x + chipWidth / 2}" y="983" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="900" fill="#15171c">${escapeXml(cue.toUpperCase())}</text>`);
+    });
+  }
+
+  base.push('</g>');
+  return base.join('\n  ');
 }
 
 function findLocalSourceVisual(job: CreativeJobManifest): { absolute_path: string; manifest_path: string } | null {
@@ -274,17 +381,17 @@ function renderQaChecklist(job: CreativeJobManifest): string {
     `# QA Checklist: ${job.job_id}`,
     '',
     '- [ ] Source image is operator-approved and contains no private account data.',
-    '- [ ] Listing text contains no seller contact details or credentials.',
-    '- [ ] Trend examples are manually recorded observations, not scraped data.',
+    '- [ ] Source content contains no private personal data, contact details, or credentials.',
+    '- [ ] Trend examples are cited observations or bounded provider results with provenance.',
     '- [ ] Caption, hashtags, and spoken script match the approved job manifest.',
-    '- [ ] Slides use approved visuals and do not claim a guaranteed appraisal.',
+    '- [ ] Slides use approved visuals and contain no unsupported outcome or value claims.',
     '- [ ] No account creation, login, CAPTCHA, phone verification, or posting was automated.',
     '- [ ] Human reviewer completed approval.md before any posted ledger move.',
     '',
     '## Job Notes',
     ...job.qa_notes.map((note) => `- ${note}`),
     '- Local renderer output is not approved for posting by default.',
-    '- Check every slide for factual valuation claims before publishing.',
+    '- Check every slide for factual and outcome claims before publishing.',
     '',
   ].join('\n');
 }
@@ -319,8 +426,8 @@ function renderListingSource(job: CreativeJobManifest): string {
     'Source inputs:',
     ...job.source_inputs.map((input) => `- ${input.label}: ${input.value ?? input.path ?? input.url ?? input.notes ?? ''}`),
     '',
-    'Replace this placeholder with the human-approved marketplace listing text.',
-    'Do not include seller contact details, account credentials, private messages, or phone verification material.',
+    'Replace this placeholder with human-approved source material when the job requires it.',
+    'Do not include private contact details, account credentials, private messages, or verification material.',
     '',
   ].join('\n');
 }
@@ -343,7 +450,7 @@ function renderImagePrompt(job: CreativeJobManifest, providerLabel: string): str
     '',
     'Gate: do not run paid generation unless ALLOW_PAID_GENERATION=true and this job explicitly approves the provider.',
     '',
-    `Create 9:16 short-form visuals for ${job.niche}. Use real, operator-approved item photos or listing screenshots as references. Keep the look native, phone-camera, and resale-marketplace oriented. Do not render text inside the image; text overlay is handled by the local renderer.`,
+    `Create 9:16 short-form visuals for ${job.niche}. Use only owned, licensed, purpose-created, or operator-approved source material. Keep the visual language native to the selected platform and brand. Do not render text inside the image; text overlay is handled by the local renderer.`,
     '',
     '## Slide Directions',
     ...job.output_requirements.slides.map((slide) => `${slide.slide_number}. ${slide.visual_direction}`),
@@ -375,8 +482,8 @@ function renderSourcePlaceholderSvg(job: CreativeJobManifest): string {
   <rect x="80" y="96" width="920" height="1248" fill="#f8f5ef" stroke="#c9c0ae" stroke-width="6"/>
   <text x="130" y="230" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" fill="#15171c">SOURCE PLACEHOLDER</text>
   <text x="130" y="335" font-family="Arial, Helvetica, sans-serif" font-size="42" fill="#272a31">Job: ${escapeXml(job.job_id)}</text>
-  <text x="130" y="435" font-family="Arial, Helvetica, sans-serif" font-size="38" fill="#272a31">Replace with an approved bike or scooter photo.</text>
-  <text x="130" y="520" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#4b505a">No credentials, private messages, or seller contact details.</text>
+  <text x="130" y="435" font-family="Arial, Helvetica, sans-serif" font-size="38" fill="#272a31">Replace with approved source or purpose-created media.</text>
+  <text x="130" y="520" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#4b505a">No credentials, private messages, or personal data.</text>
 </svg>`;
 }
 
