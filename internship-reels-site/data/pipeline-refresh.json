@@ -1,0 +1,60 @@
+{
+  "schema_version": "viralbench_pipeline_refresh_v1",
+  "status": "configured",
+  "updated_at": "2026-07-17T00:00:00.000Z",
+  "last_completed_at": null,
+  "schedule": {
+    "timezone": "America/Chicago",
+    "local_time": "09:17",
+    "weekdays": [
+      "Monday",
+      "Thursday"
+    ],
+    "cron": "17 9 * * 1,4"
+  },
+  "budget": {
+    "currency": "USD",
+    "max_total_usd": 5,
+    "max_apify_usd": 1,
+    "max_twelvelabs_usd": 4,
+    "actual_or_conservative_usd": null
+  },
+  "source": {
+    "request_id": "internship-category-creators-expansion-20260716",
+    "manifest_path": ".ops/url_intake_requests/internship-category-creators-expansion-20260716.json",
+    "requested_urls": 10
+  },
+  "providers": {
+    "apify": {
+      "state": "configured",
+      "accepted_posts": null,
+      "actual_or_conservative_usd": null
+    },
+    "twelvelabs": {
+      "state": "configured",
+      "analyzed_videos": null,
+      "analysis_coverage": null,
+      "actual_or_conservative_usd": null,
+      "models": [
+        "marengo3.0",
+        "pegasus1.5"
+      ]
+    }
+  },
+  "results": {
+    "posts_ingested": null,
+    "semantic_items_written": null,
+    "external_calls_made": null,
+    "library_unique_items": null,
+    "library_observations": null
+  },
+  "analyses": [],
+  "evidence_boundaries": [
+    "The scheduled job reads only the approved public URLs in the committed intake manifest.",
+    "Each run is capped at 5 USD: up to 1 USD for Apify and 4 USD for TwelveLabs.",
+    "Credentials, downloaded media, raw provider payloads, and the semantic database are not published.",
+    "Creative descriptions are provider observations, not causal performance claims."
+  ],
+  "errors": [],
+  "measurement_gaps": []
+}

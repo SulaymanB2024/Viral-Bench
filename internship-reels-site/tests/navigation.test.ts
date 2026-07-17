@@ -66,6 +66,17 @@ test('work hub and permanent redirects preserve the public route contract', () =
   assert.match(work, /Compare winners and research signals/);
   assert.match(work, /Review unreviewed candidates/);
   assert.match(work, /Operator[\s\S]*?Private/);
+  assert.match(work, /id="pipelineRefreshTitle"/);
+  assert.match(work, /src="\/work\.js"/);
+  const refreshStatus = JSON.parse(readSiteFile('data/pipeline-refresh.json')) as {
+    schema_version: string;
+    budget: { max_total_usd: number };
+    schedule: { timezone: string; weekdays: string[] };
+  };
+  assert.equal(refreshStatus.schema_version, 'viralbench_pipeline_refresh_v1');
+  assert.equal(refreshStatus.budget.max_total_usd, 5);
+  assert.equal(refreshStatus.schedule.timezone, 'America/Chicago');
+  assert.deepEqual(refreshStatus.schedule.weekdays, ['Monday', 'Thursday']);
 
   const config = JSON.parse(readSiteFile('vercel.json')) as {
     redirects?: Array<{ source: string; destination: string; permanent: boolean }>;
