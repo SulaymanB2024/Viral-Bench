@@ -1,0 +1,160 @@
+name: Scheduled semantic refresh
+
+on:
+  schedule:
+    - cron: '17 9 * * 1,4'
+      timezone: America/Chicago
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scheduled-semantic-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh evidence and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      TARGET_REF: codex/autonomous-harness-primitives
+      REFRESH_MANIFEST: .ops/url_intake_requests/internship-category-creators-expansion-20260716.json
+      REFRESH_ARTIFACT_DIR: .semantic-artifacts/scheduled-refresh/current
+      ALLOW_PAID_GENERATION: 'true'
+      ALLOW_PUBLIC_URL_INGESTION: 'true'
+      APIFY_ACTOR_TIKTOK: clockworks/tiktok-scraper
+      APIFY_ACTOR_BUILD_TIKTOK: 0.0.561
+      APIFY_INPUT_FIELD_TIKTOK: postURLs
+      APIFY_INPUT_FORMAT_TIKTOK: string_array
+      APIFY_INPUT_EXTRAS_TIKTOK_JSON: >-
+        {"scrapeAdditionalAuthorMeta":true,"shouldDownloadVideos":true,"shouldDownloadCovers":true,"shouldDownloadSlideshowImages":true,"downloadSubtitlesOptions":"DOWNLOAD_SUBTITLES"}
+      APIFY_USAGE_SETTLEMENT_MS: '10000'
+      APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+      TWELVELABS_API_KEY: ${{ secrets.TWELVELABS_API_KEY }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_MYMuDXoBrKio5LKLLvZWfXef
+      VERCEL_PROJECT_ID: prj_CPkYCRIYyDsAKWtYeffWMn45atqa
+
+    steps:
+      - name: Check out the published implementation branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_REF }}
+          fetch-depth: 0
+
+      - name: Record immutable paid-run input
+        run: echo "INITIAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            internship-reels-site/package-lock.json
+
+      - name: Install SQLite
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes sqlite3
+
+      - name: Install repository dependencies
+        run: |
+          npm ci
+          npm --prefix internship-reels-site ci
+
+      - name: Validate the approved provider contract
+        run: |
+          npm run semantic-refresh -- \
+            --preflight \
+            --manifest "$REFRESH_MANIFEST" \
+            --artifact-dir "$REFRESH_ARTIFACT_DIR" \
+            --max-total-usd 5
+
+      - name: Run the bounded Apify and TwelveLabs refresh
+        run: |
+          npm run semantic-refresh -- \
+            --run \
+            --manifest "$REFRESH_MANIFEST" \
+            --artifact-dir "$REFRESH_ARTIFACT_DIR" \
+            --max-total-usd 5
+
+      - name: Rebuild the public research index
+        run: npm --prefix internship-reels-site run agent:index
+
+      - name: Validate changed contracts
+        run: |
+          npm exec -- tsx --test tests/scheduled-semantic-refresh.test.ts
+          npm run typecheck
+          npm --prefix internship-reels-site test
+          npm --prefix internship-reels-site run typecheck
+
+      - name: Upload private provider evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .semantic-artifacts/scheduled-refresh/current/**
+            !.semantic-artifacts/scheduled-refresh/current/media/**
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Refuse stale paid-run publication
+        run: |
+          git fetch origin "$TARGET_REF"
+          REMOTE_SHA="$(git rev-parse "origin/$TARGET_REF")"
+          if [ "$REMOTE_SHA" != "$INITIAL_SHA" ]; then
+            echo "::error::Target branch advanced during the paid run; refusing to overwrite newer work."
+            exit 1
+          fi
+
+      - name: Commit reviewed public refresh artifacts
+        run: |
+          git config user.name "viralbench-refresh[bot]"
+          git config user.email "viralbench-refresh[bot]@users.noreply.github.com"
+          git add \
+            internship-reels-site/library.json \
+            internship-reels-site/data/pipeline-refresh.json \
+            internship-reels-site/data/agent-corpus.json \
+            internship-reels-site/data/agent-index-build-manifest.json \
+            internship-reels-site/data/agent-vectors.bin \
+            internship-reels-site/data/agent-vectors.json
+          if git diff --cached --quiet; then
+            echo "No public refresh changes to commit."
+          else
+            git commit -m "chore(research): refresh scheduled semantic evidence [skip ci]"
+            git push origin "HEAD:$TARGET_REF"
+          fi
+
+      - name: Deploy the refreshed site to production
+        working-directory: internship-reels-site
+        run: npx --yes vercel@54.14.0 --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Verify canonical production routes
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error \
+              https://internship-reels-site.vercel.app/data/pipeline-refresh.json \
+              | node -e '
+                let input = "";
+                process.stdin.on("data", chunk => input += chunk);
+                process.stdin.on("end", () => {
+                  const status = JSON.parse(input);
+                  if (!["completed", "partial"].includes(status.status)) process.exit(1);
+                });
+              '
+            then
+              break
+            fi
+            if [ "$attempt" = 6 ]; then
+              echo "::error::Production status did not converge after deployment."
+              exit 1
+            fi
+            sleep 5
+          done
+          curl --fail --silent --show-error --output /dev/null https://internship-reels-site.vercel.app/
+          curl --fail --silent --show-error --output /dev/null https://internship-reels-site.vercel.app/work
