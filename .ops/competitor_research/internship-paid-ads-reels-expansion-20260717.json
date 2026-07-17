@@ -1,0 +1,161 @@
+{
+  "research_id": "internship-paid-ads-reels-expansion-20260717",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 3.8,
+  "runs": [
+    {
+      "id": "meta-active-observed-and-ai-job-search",
+      "actor_id": "apify/facebook-ads-scraper",
+      "input_mode": "profile",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.facebook.com/joinsimplify"
+          },
+          {
+            "url": "https://www.facebook.com/joinhandshake"
+          },
+          {
+            "url": "https://www.facebook.com/parkerdeweyco"
+          },
+          {
+            "url": "https://www.facebook.com/jobrightai"
+          },
+          {
+            "url": "https://www.facebook.com/faangpath"
+          },
+          {
+            "url": "https://www.facebook.com/EntryLevelJobs/"
+          }
+        ],
+        "resultsLimit": 12,
+        "onlyTotal": false,
+        "includeAboutPage": false,
+        "isDetailsPerAd": false,
+        "activeStatus": "active",
+        "sorting": "relevancy_monthly_grouped"
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 72
+    },
+    {
+      "id": "meta-active-managed-internship-programs",
+      "actor_id": "apify/facebook-ads-scraper",
+      "input_mode": "profile",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.facebook.com/TheInternGroup"
+          },
+          {
+            "url": "https://www.facebook.com/capitalinternship"
+          },
+          {
+            "url": "https://www.facebook.com/absoluteinternship"
+          },
+          {
+            "url": "https://www.facebook.com/virtualintern/"
+          },
+          {
+            "url": "https://www.facebook.com/ciee"
+          },
+          {
+            "url": "https://www.facebook.com/ladderinterns/"
+          }
+        ],
+        "resultsLimit": 12,
+        "onlyTotal": false,
+        "includeAboutPage": false,
+        "isDetailsPerAd": false,
+        "activeStatus": "active",
+        "sorting": "relevancy_monthly_grouped"
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 72
+    },
+    {
+      "id": "meta-active-proof-building-and-marketplaces",
+      "actor_id": "apify/facebook-ads-scraper",
+      "input_mode": "profile",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.facebook.com/AcadiumOfficial/"
+          },
+          {
+            "url": "https://www.facebook.com/Riipen/"
+          },
+          {
+            "url": "https://www.facebook.com/internshala"
+          }
+        ],
+        "resultsLimit": 12,
+        "onlyTotal": false,
+        "includeAboutPage": false,
+        "isDetailsPerAd": false,
+        "activeStatus": "active",
+        "sorting": "relevancy_monthly_grouped"
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 36
+    },
+    {
+      "id": "tiktok-paid-cohort-popular-reels",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "joinsimplify",
+          "joinhandshake",
+          "microinternships",
+          "virtual_internships",
+          "capitalplacement",
+          "theinterngroupint",
+          "jobright.ai",
+          "collegerecruiter.com",
+          "cieestudyabroad"
+        ],
+        "profileScrapeSections": [
+          "videos"
+        ],
+        "profileSorting": "popular",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 54
+    },
+    {
+      "id": "instagram-paid-cohort-recent-reels",
+      "actor_id": "apify/instagram-scraper",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/simplify.jobs/",
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/microinternships/",
+          "https://www.instagram.com/virtualinternships/",
+          "https://www.instagram.com/capitalplacement/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/absoluteinternship/",
+          "https://www.instagram.com/cieestudyabroad/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/ladder_internships/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.9,
+      "max_items": 112
+    }
+  ]
+}

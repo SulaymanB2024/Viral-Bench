@@ -1,0 +1,34 @@
+{
+  "request_id": "internship-competitor-tiktok-core-20260716",
+  "urls": [
+    "https://www.tiktok.com/@fordcoleman_/video/7608354687993089310",
+    "https://www.tiktok.com/@fordcoleman_/video/7596782382410206494",
+    "https://www.tiktok.com/@fordcoleman_/video/7519978047487872286",
+    "https://www.tiktok.com/@joinhandshake/video/7132959807862050094",
+    "https://www.tiktok.com/@joinhandshake/video/7114383753186774315",
+    "https://www.tiktok.com/@joinhandshake/video/7221278457202904366",
+    "https://www.tiktok.com/@joinhandshake/video/7660601103800634655",
+    "https://www.tiktok.com/@joeysixfive/video/7660217345478085918",
+    "https://www.tiktok.com/@imellagonzales/video/7654884931029437727",
+    "https://www.tiktok.com/@emilyekru/video/7655503263583751455",
+    "https://www.tiktok.com/@lifewithsummeranisa/video/7655758711452896533",
+    "https://www.tiktok.com/@notbadjuju/video/7649888659587501342",
+    "https://www.tiktok.com/@anna..papalia/video/7637897049438031118"
+  ],
+  "allowed_platforms": [
+    "tiktok"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 4,
+    "max_apify_usd": 0.5,
+    "max_twelvelabs_usd": 3.5,
+    "max_gemini_usd": 0
+  }
+}

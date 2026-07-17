@@ -1,0 +1,244 @@
+{
+  "schema_version": "twelvelabs_dashboard_manifest_v1",
+  "dashboard_kind": "competitor_creative_research",
+  "owned_marketing_data_state": "not_connected",
+  "generated_at": "2026-07-17T21:50:40.147Z",
+  "sources": {
+    "media_manifest": {
+      "path": ".semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-media.json",
+      "sha256": "974eb4af2ae3c25d26e4739633f6db77b660806a1b72db3f038cc47fd036da56",
+      "bytes": 24951,
+      "modified_at": "2026-07-17T01:50:45.576Z"
+    },
+    "selection_ledger": {
+      "path": ".semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-selection.json",
+      "sha256": "c534daed8fd028258640e975f1c16af1e6b29860a757168533f10c50bb4dc005",
+      "bytes": 517205,
+      "modified_at": "2026-07-17T01:25:23.341Z"
+    },
+    "research_manifest": {
+      "path": ".ops/competitor_research/internship-us-content-expansion-20260716.json",
+      "sha256": "844c40e89fed81ae292133079e9be01714a3ed6ec2719d8ee6d6f98483d23183",
+      "bytes": 9338,
+      "modified_at": "2026-07-17T00:51:59.625Z"
+    },
+    "research_expansion": {
+      "path": ".semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-expansion.json",
+      "sha256": "908e52922808d471a6f2c2f17f1e00a39885809f80227a95f8da8f45bf2a3bc5",
+      "bytes": 56720,
+      "modified_at": "2026-07-17T19:24:39.595Z"
+    },
+    "deep_analysis_records": [
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/instagram-DWc3GgxDekQ-deep.json",
+        "sha256": "4e2c6576bd41c0347f3fe4ba8bf0bf2c960fcbbce78ad48a9ac0d2f9e52692f3",
+        "bytes": 13586,
+        "modified_at": "2026-07-17T15:59:53.828Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/instagram-Dax9yRczAKN-deep.json",
+        "sha256": "d8b29d2ffc04d32aa4c5821337e4ee9ee9c9ccb37d993fac6e41c04b4485774b",
+        "bytes": 8764,
+        "modified_at": "2026-07-17T15:59:53.829Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7138472018504076586-deep.json",
+        "sha256": "4984f968c6a7b8244888bcf0bd2ea4ff6290f0aa2c7859033795e788a8918890",
+        "bytes": 5685,
+        "modified_at": "2026-07-17T15:59:53.830Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7597494752891637006-deep.json",
+        "sha256": "57c9e6873a2eb364cae46c1d6c035fccfcf29cab93c2471ec9e7bb537d6095a9",
+        "bytes": 5270,
+        "modified_at": "2026-07-17T16:00:25.688Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7617148268836932896-deep.json",
+        "sha256": "f343894482acce402d8181e2754e72cef9ac8e2f5bd9d6ed44c46466b19ed3e7",
+        "bytes": 5547,
+        "modified_at": "2026-07-17T16:01:43.699Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7633478118182784286-deep.json",
+        "sha256": "0e5d7ea8a162b6f736be22137121b668ab8c6d2ec23a09241e16722b97e3a7e6",
+        "bytes": 5114,
+        "modified_at": "2026-07-17T16:01:16.595Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7647328396606721288-deep.json",
+        "sha256": "e2dd1357ebd693f0b39c78d515bac02b64087706e250dfac100b27b1864668f8",
+        "bytes": 6222,
+        "modified_at": "2026-07-17T16:00:52.518Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7648642378705865992-deep.json",
+        "sha256": "82a0967fef7f633b3a1de1b7965168cdd2f67b316a6276bf50195a711bfc9bf6",
+        "bytes": 5579,
+        "modified_at": "2026-07-17T15:10:55.754Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/tiktok-7653644857348525332-deep.json",
+        "sha256": "1cf1835902b520b013eb7232b20333278a3b036109db0c9191c38ff6a6fcde88",
+        "bytes": 7367,
+        "modified_at": "2026-07-17T15:59:53.829Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/youtube_shorts-Cx3zR1rqZB4-deep.json",
+        "sha256": "615fa1b10218c33dc8a180c7017893501fb7249604f035c7b114a26a2da1957a",
+        "bytes": 4879,
+        "modified_at": "2026-07-17T16:02:04.180Z"
+      },
+      {
+        "path": ".semantic-artifacts/competitor-content/analysis/internship-us-20260716-deep-v1/youtube_shorts-tKzKPxZupow-deep.json",
+        "sha256": "e20681635b301bdd78c4fef8f268273a64d07ad7d237f54d76e34db7bcdb3ae6",
+        "bytes": 20008,
+        "modified_at": "2026-07-17T15:59:53.829Z"
+      }
+    ]
+  },
+  "reconciliation": {
+    "analyzed_records": 11,
+    "rendered_records": 10,
+    "excluded_non_english": 1,
+    "failures": []
+  },
+  "analysis_cache": {
+    "fingerprinted_records": 0,
+    "legacy_unfingerprinted_records": 11,
+    "reuse_policy": "exact_fingerprint_and_quality_gate_required"
+  },
+  "media_assets": [
+    {
+      "candidate_id": "live:instagram:DWc3GgxDekQ:instagram-access-safety-ai-popular-search",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/instagram-DWc3GgxDekQ.mp4",
+        "sha256": "19a3051fa43605e9287890e7032afb84988081b2c753ff4f279cd670360ede0f",
+        "bytes": 8537991,
+        "modified_at": "2026-07-17T01:46:20.341Z"
+      },
+      "output_path": "media/instagram-DWc3GgxDekQ.mp4",
+      "output_sha256": "19a3051fa43605e9287890e7032afb84988081b2c753ff4f279cd670360ede0f",
+      "bytes": 8537991
+    },
+    {
+      "candidate_id": "live:youtube_shorts:tKzKPxZupow:youtube-competitor-brands-recent",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/youtube_shorts-tKzKPxZupow.mp4",
+        "sha256": "9b1613f692970a18774fb657e8feca545c0397e0d458246b79d0fa6af8a01e38",
+        "bytes": 3534082,
+        "modified_at": "2026-07-17T01:46:54.913Z"
+      },
+      "output_path": "media/youtube_shorts-tKzKPxZupow.mp4",
+      "output_sha256": "9b1613f692970a18774fb657e8feca545c0397e0d458246b79d0fa6af8a01e38",
+      "bytes": 3534082
+    },
+    {
+      "candidate_id": "live:instagram:Dax9yRczAKN:instagram-competitor-profiles-recent-and-popular-pool",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/instagram-Dax9yRczAKN.mp4",
+        "sha256": "f999d135beb0a84d2af77d54a474f3b608c760258c270e707c231e05304e94da",
+        "bytes": 2981892,
+        "modified_at": "2026-07-17T01:46:11.339Z"
+      },
+      "output_path": "media/instagram-Dax9yRczAKN.mp4",
+      "output_sha256": "f999d135beb0a84d2af77d54a474f3b608c760258c270e707c231e05304e94da",
+      "bytes": 2981892
+    },
+    {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:67:3c4ab0098b",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7653644857348525332.mp4",
+        "sha256": "e1a9cde909ccbcf3f4854f3f97f5b86e1a3ced53331d1f19b6ac47454736b2bc",
+        "bytes": 1549679,
+        "modified_at": "2026-07-17T01:43:47.605Z"
+      },
+      "output_path": "media/tiktok-7653644857348525332.mp4",
+      "output_sha256": "e1a9cde909ccbcf3f4854f3f97f5b86e1a3ced53331d1f19b6ac47454736b2bc",
+      "bytes": 1549679
+    },
+    {
+      "candidate_id": "live:tiktok:7138472018504076586:tiktok-competitor-profiles-popular",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7138472018504076586.mp4",
+        "sha256": "a8139ad34ef233e66869233e6d06bd88ba79064dafb920d6719d5ff55284c9a3",
+        "bytes": 539247,
+        "modified_at": "2026-07-17T01:46:32.874Z"
+      },
+      "output_path": "media/tiktok-7138472018504076586.mp4",
+      "output_sha256": "a8139ad34ef233e66869233e6d06bd88ba79064dafb920d6719d5ff55284c9a3",
+      "bytes": 539247
+    },
+    {
+      "candidate_id": "apify:kcIeq9zARMs4LUUwe:item:14:32eae7f638",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7597494752891637006.mp4",
+        "sha256": "9a850dfc8273ba8af391d350309b006422056eb979891f54dcd5034e00d8fc35",
+        "bytes": 542567,
+        "modified_at": "2026-07-17T01:43:58.274Z"
+      },
+      "output_path": "media/tiktok-7597494752891637006.mp4",
+      "output_sha256": "9a850dfc8273ba8af391d350309b006422056eb979891f54dcd5034e00d8fc35",
+      "bytes": 542567
+    },
+    {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:25:db5fbe06b2",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7647328396606721288.mp4",
+        "sha256": "883b33e2fdb81d33037cc14dec8f199dafb25e4fe4e8260e064dbbd2af87487e",
+        "bytes": 554790,
+        "modified_at": "2026-07-17T01:43:43.298Z"
+      },
+      "output_path": "media/tiktok-7647328396606721288.mp4",
+      "output_sha256": "883b33e2fdb81d33037cc14dec8f199dafb25e4fe4e8260e064dbbd2af87487e",
+      "bytes": 554790
+    },
+    {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:72:e386b44f3f",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7633478118182784286.mp4",
+        "sha256": "195e83670ba2ed1ee6aa05c61d23894215c050fea54e6f685a2ceab567ea0194",
+        "bytes": 394526,
+        "modified_at": "2026-07-17T01:43:51.074Z"
+      },
+      "output_path": "media/tiktok-7633478118182784286.mp4",
+      "output_sha256": "195e83670ba2ed1ee6aa05c61d23894215c050fea54e6f685a2ceab567ea0194",
+      "bytes": 394526
+    },
+    {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:8:7644d6a08c",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7617148268836932896.mp4",
+        "sha256": "c0eca7ade20fb7f40d8a99e4ef0079b8de38275a7d5d9071ce0ec273ba3630fc",
+        "bytes": 971419,
+        "modified_at": "2026-07-17T01:43:56.747Z"
+      },
+      "output_path": "media/tiktok-7617148268836932896.mp4",
+      "output_sha256": "c0eca7ade20fb7f40d8a99e4ef0079b8de38275a7d5d9071ce0ec273ba3630fc",
+      "bytes": 971419
+    },
+    {
+      "candidate_id": "live:youtube_shorts:Cx3zR1rqZB4:youtube-proof-process-recent-search",
+      "source": {
+        "path": ".semantic-artifacts/competitor-content/media/internship-us-20260716/youtube_shorts-Cx3zR1rqZB4.mp4",
+        "sha256": "9c696877b7f4f2bac679320e9af426e89050355d1da6ed5a4dd50617aaf10139",
+        "bytes": 652719,
+        "modified_at": "2026-07-17T01:46:47.157Z"
+      },
+      "output_path": "media/youtube_shorts-Cx3zR1rqZB4.mp4",
+      "output_sha256": "9c696877b7f4f2bac679320e9af426e89050355d1da6ed5a4dd50617aaf10139",
+      "bytes": 652719
+    }
+  ],
+  "outputs": {
+    "html_path": "internship-reels-site/dashboard.html",
+    "data_path": "internship-reels-site/twelvelabs-dashboard-data.js"
+  },
+  "evidence_boundaries": [
+    "This artifact is competitor creative research, not owned marketing performance.",
+    "No owned campaign, spend, click, lead, application, or conversion facts are connected.",
+    "Non-English exclusions are counted only when the language evidence gate classifies a record as non-English.",
+    "Missing joins, missing media, and integrity mismatches fail the build.",
+    "Legacy deep-analysis records remain visible as historical evidence but are never eligible for cache reuse without an exact input fingerprint."
+  ]
+}

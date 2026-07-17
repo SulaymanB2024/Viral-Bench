@@ -1,0 +1,42 @@
+{
+  "research_id": "viral-library-instagram-recheck-20260717",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 2,
+  "runs": [
+    {
+      "id": "instagram-selected-reels-recheck",
+      "actor_id": "apify/instagram-scraper",
+      "input_mode": "explicit_url",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/p/DaqUHbNzf9y/",
+          "https://www.instagram.com/p/Dax9yRczAKN/",
+          "https://www.instagram.com/p/Das1pZtTbnY/",
+          "https://www.instagram.com/p/DalLy-nRlHC/",
+          "https://www.instagram.com/p/DaLdbmHpvyO/",
+          "https://www.instagram.com/p/Da3F7iZzfY2/",
+          "https://www.instagram.com/p/DZyPofPvxBX/",
+          "https://www.instagram.com/p/DadLs-8GREq/",
+          "https://www.instagram.com/p/DanWvLvxTgw/",
+          "https://www.instagram.com/p/Da1tKStjrfC/",
+          "https://www.instagram.com/p/DakyBmFDORi/",
+          "https://www.instagram.com/p/DaDM3zblYz7/",
+          "https://www.instagram.com/p/DaPUxodjffh/",
+          "https://www.instagram.com/p/DaDUHlkkXu6/",
+          "https://www.instagram.com/p/Da1m3EZlPAi/",
+          "https://www.instagram.com/p/Daf-20TD3wO/",
+          "https://www.instagram.com/p/Davupe_iNmi/",
+          "https://www.instagram.com/p/DZx7o9gjmUB/",
+          "https://www.instagram.com/p/Da2KWJElMcK/",
+          "https://www.instagram.com/p/Daf55BuAQNc/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 1,
+        "addParentData": true
+      },
+      "max_charge_usd": 2,
+      "max_items": 20
+    }
+  ]
+}

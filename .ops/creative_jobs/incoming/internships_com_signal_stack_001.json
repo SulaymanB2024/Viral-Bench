@@ -48,8 +48,8 @@
     }
   ],
   "provider_policy": {
-    "approved_providers": ["local_renderer", "browser_manual"],
-    "allow_paid_generation": false,
+    "approved_providers": ["local_renderer", "browser_manual", "twelvelabs_analysis"],
+    "allow_paid_generation": true,
     "allow_browser_ui": true,
     "allow_social_publishing": true,
     "account_automation_allowed": false,
@@ -57,6 +57,7 @@
     "notes": [
       "Local rendering is the initial production path.",
       "Browser research is limited to visible official surfaces and requires the repository gate.",
+      "TwelveLabs may analyze only approved local drafts; this permission does not authorize competitor-media ingestion or content generation.",
       "Publishing requires a verified Internships.com TikTok account, approved assets and copy, and exact confirmation.",
       "No account creation, login automation, or private student-data intake is allowed."
     ]
@@ -142,7 +143,19 @@
   },
   "video_requirements": null,
   "generation_trace": [],
-  "video_qa_artifacts": [],
+  "video_qa_artifacts": [
+    {
+      "candidate_id": "internships_com_signal_stack_001:local-render-v1",
+      "kind": "pegasus_analysis",
+      "path": ".ops/creative_jobs/rendered/internships_com_signal_stack_001/provider_outputs/twelvelabs/job_content_analysis.json",
+      "status": "pending",
+      "notes": [
+        "Live Pegasus 1.5 analysis completed on 2026-07-16 and passed the repository response schema.",
+        "The opening hook and four-part structure were detected; the analysis also found no explicit in-video CTA.",
+        "Human review remains required because model timestamps grouped several slide-level text events too broadly."
+      ]
+    }
+  ],
   "approval_status": {
     "state": "draft",
     "human_reviewer": null,
@@ -152,8 +165,8 @@
   "generated_assets": [],
   "qa_notes": [
     "The content is grounded in current public Internships.com product positioning, not private student data.",
-    "The first draft does not claim to be based on winning TikTok posts because live TikTok research is not yet complete.",
-    "The bounded TikTok Apify request is prepared separately and remains blocked until the public-research gate and ephemeral credential are available.",
+    "The first draft was authored before the bounded TikTok feed; the 2026-07-16 feed now supplies 65 public metadata records for retrospective QA.",
+    "A live TwelveLabs canary analyzed the purpose-created local draft without ingesting competitor media.",
     "The Internships.com signal stack is original to this pipeline: match, prove, people, review.",
     "Every outcome claim and destination account must be rechecked immediately before publishing."
   ]

@@ -1,0 +1,1064 @@
+{
+  "schema_version": "viralbench_video_ai_reports_v1",
+  "generated_at": "2026-07-17T21:33:12.486Z",
+  "model": "gemini-3.1-flash-lite",
+  "reports": {
+    "apify:HDYTKotNtvX8ayhqC:item:67:3c4ab0098b": {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:67:3c4ab0098b",
+      "content_hash": "3b7f89ed51f256c35efc9c2cf400df2d5f0009940de1c9da9aef5b7fe54c5746",
+      "generated_at": "2026-07-17T21:31:10.674Z",
+      "model": "gemini-3.1-flash-lite",
+      "summary": "The video utilizes a continuous, handheld tracking shot that transitions from an exterior street scene into a building interior. A persistent text overlay remains centered throughout the 11.23-second duration, detailing a list of free services available to fresh graduates via a specific certificate.",
+      "audience_read": "The content addresses the friction points faced by new job seekers regarding the financial and administrative burden of securing mandatory employment documentation.",
+      "findings": [
+        {
+          "title": "Persistent Informational Overlay",
+          "analysis": "The creative maintains a single, static text block across the entire duration, ensuring the list of services and usage limitations remains visible regardless of the changing background footage.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:1",
+            "visual:2"
+          ]
+        },
+        {
+          "title": "Narrative Spatial Progression",
+          "analysis": "The visual sequence moves from a public street to a building interior, which may suggest a simplified path for the viewer to follow when seeking the documented services.",
+          "evidence_ids": [
+            "arc:0",
+            "visual:1",
+            "visual:2"
+          ]
+        },
+        {
+          "title": "Service-Oriented Value Proposition",
+          "analysis": "The narrative focuses on the utility of the 'First Time Jobseeker Certificate' by explicitly listing high-demand documents like NBI clearance and birth certificates as free benefits.",
+          "evidence_ids": [
+            "claim:0",
+            "claim:1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "hypothesis": "Segmenting the long-form text overlay into smaller, timed bullet points could improve readability compared to the current persistent block.",
+          "adaptation": "Replace the single text block with three sequential text overlays that appear in sync with the camera's movement from street to lobby.",
+          "success_metric": "Average duration of viewer attention on the text area.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:1",
+            "visual:2"
+          ]
+        },
+        {
+          "hypothesis": "Adding a human-centric visual element could increase the perceived accessibility of the process compared to the current empty-space tracking shot.",
+          "adaptation": "Include a brief, first-person perspective shot of a hand holding the certificate or interacting with a service counter.",
+          "success_metric": "Percentage of viewers who complete the full video duration.",
+          "evidence_ids": [
+            "visual:2",
+            "limitation:1"
+          ]
+        }
+      ],
+      "risks": [
+        "The claim that all listed services are free may be subject to local government policy variations.",
+        "The single-use limitation of the certificate is a critical constraint that may affect user planning.",
+        "The lack of audio or human narration may limit the clarity of the instructions for some viewers."
+      ],
+      "limitations": [
+        "No audio transcript is available to confirm if spoken instructions supplement the text.",
+        "The video does not show the actual interaction with government officials, leaving the ease of the process unverified.",
+        "The evidence is limited to visual observations of text and environment."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "opening:0",
+          "kind": "opening",
+          "label": "Opening observation",
+          "start_sec": 0,
+          "end_sec": 11.2
+        },
+        {
+          "evidence_id": "arc:0",
+          "kind": "arc",
+          "label": "Narrative arc",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "cta:0",
+          "kind": "cta",
+          "label": "Observed CTA",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "metrics:0",
+          "kind": "metric",
+          "label": "Platform snapshot",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:0",
+          "kind": "claim",
+          "label": "Observed claim 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:1",
+          "kind": "claim",
+          "label": "Observed claim 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:0",
+          "kind": "limitation",
+          "label": "Evidence limitation 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:1",
+          "kind": "limitation",
+          "label": "Evidence limitation 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "visual:0",
+          "kind": "visual",
+          "label": "Visual beat 1",
+          "start_sec": 0,
+          "end_sec": 3
+        },
+        {
+          "evidence_id": "visual:1",
+          "kind": "visual",
+          "label": "Visual beat 2",
+          "start_sec": 3,
+          "end_sec": 6
+        },
+        {
+          "evidence_id": "visual:2",
+          "kind": "visual",
+          "label": "Visual beat 3",
+          "start_sec": 6,
+          "end_sec": 11.2
+        },
+        {
+          "evidence_id": "audio:0",
+          "kind": "audio",
+          "label": "Audio beat 1",
+          "start_sec": 0,
+          "end_sec": 11.2
+        },
+        {
+          "evidence_id": "editing:0",
+          "kind": "editing",
+          "label": "Editing beat 1",
+          "start_sec": 0,
+          "end_sec": 3
+        },
+        {
+          "evidence_id": "editing:1",
+          "kind": "editing",
+          "label": "Editing beat 2",
+          "start_sec": 3,
+          "end_sec": 6
+        },
+        {
+          "evidence_id": "editing:2",
+          "kind": "editing",
+          "label": "Editing beat 3",
+          "start_sec": 6,
+          "end_sec": 9
+        },
+        {
+          "evidence_id": "editing:3",
+          "kind": "editing",
+          "label": "Editing beat 4",
+          "start_sec": 9,
+          "end_sec": 11.2
+        }
+      ]
+    },
+    "live:instagram:Dax9yRczAKN:instagram-competitor-profiles-recent-and-popular-pool": {
+      "candidate_id": "live:instagram:Dax9yRczAKN:instagram-competitor-profiles-recent-and-popular-pool",
+      "content_hash": "f812b49bef7d4c0773551875c9f5c88324061246d7971f1350015bde9da20bf2",
+      "generated_at": "2026-07-17T21:30:47.810Z",
+      "model": "gemini-3.1-flash-lite",
+      "summary": "The video utilizes a 22-second instructional format, alternating between a low-angle personal introduction and a series of screen-recorded steps demonstrating a software-based workflow. The narrative follows a problem-solution structure, transitioning from the inefficiency of manual job searching to a specific technical process for automation.",
+      "audience_read": "The content addresses individuals experiencing friction in the job application process, specifically those seeking to reduce the time investment required for identifying relevant opportunities.",
+      "findings": [
+        {
+          "title": "Problem-Solution Narrative Structure",
+          "analysis": "The content establishes a clear pain point regarding job search inefficiencies and immediately provides a technical resolution, maintaining a consistent focus on the utility of the proposed automation.",
+          "evidence_ids": [
+            "arc:0",
+            "claim:0"
+          ]
+        },
+        {
+          "title": "Instructional Screen Recording",
+          "analysis": "The use of static screen recordings with highlighted text boxes provides a step-by-step visual guide, allowing for the demonstration of specific software settings and prompt inputs.",
+          "evidence_ids": [
+            "visual:2",
+            "visual:3",
+            "visual:5"
+          ]
+        },
+        {
+          "title": "Direct Response Call-to-Action",
+          "analysis": "The final segment utilizes a direct request for user interaction in the comments section to facilitate the distribution of specific resources via direct message.",
+          "evidence_ids": [
+            "cta:0",
+            "visual:10"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "hypothesis": "Replacing the static screen recording with a voice-over narration could increase the clarity of the technical instructions compared to the current text-only overlay approach.",
+          "adaptation": "Record a voice-over explaining the steps while the screen recording plays, ensuring the audio matches the visual pacing.",
+          "success_metric": "Completion rate of the instructional sequence.",
+          "evidence_ids": [
+            "visual:2",
+            "visual:3",
+            "limitation:0"
+          ]
+        },
+        {
+          "hypothesis": "Testing a direct link in the bio instead of a comment-based DM trigger could reduce the friction for users accessing the prompt compared to the current manual interaction requirement.",
+          "adaptation": "Direct users to a link in the profile bio for the prompt and resource access instead of requesting a comment.",
+          "success_metric": "Total number of users accessing the external resource link.",
+          "evidence_ids": [
+            "cta:0",
+            "visual:10"
+          ]
+        }
+      ],
+      "risks": [
+        "The reliance on external AI tools for job curation may result in inaccurate or outdated listings.",
+        "The manual DM distribution process may create a bottleneck for scaling resource delivery.",
+        "Platform algorithm updates could impact the visibility of content relying on comment-based triggers.",
+        "Users may perceive the automation process as overly complex if the technical steps are not clearly explained."
+      ],
+      "limitations": [
+        "The analysis is constrained by the absence of audio, which prevents evaluation of tone or verbal guidance.",
+        "Visual evidence is restricted to screen recordings and text overlays, limiting the assessment of human-centric elements.",
+        "The provided evidence does not include data on user drop-off points within the 22-second duration."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "opening:0",
+          "kind": "opening",
+          "label": "Opening observation",
+          "start_sec": 0,
+          "end_sec": 2
+        },
+        {
+          "evidence_id": "arc:0",
+          "kind": "arc",
+          "label": "Narrative arc",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "cta:0",
+          "kind": "cta",
+          "label": "Observed CTA",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "metrics:0",
+          "kind": "metric",
+          "label": "Platform snapshot",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:0",
+          "kind": "claim",
+          "label": "Observed claim 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:1",
+          "kind": "claim",
+          "label": "Observed claim 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:0",
+          "kind": "limitation",
+          "label": "Evidence limitation 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:1",
+          "kind": "limitation",
+          "label": "Evidence limitation 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "visual:0",
+          "kind": "visual",
+          "label": "Visual beat 1",
+          "start_sec": 0,
+          "end_sec": 2
+        },
+        {
+          "evidence_id": "visual:2",
+          "kind": "visual",
+          "label": "Visual beat 3",
+          "start_sec": 4,
+          "end_sec": 6
+        },
+        {
+          "evidence_id": "visual:3",
+          "kind": "visual",
+          "label": "Visual beat 4",
+          "start_sec": 6,
+          "end_sec": 8
+        },
+        {
+          "evidence_id": "visual:5",
+          "kind": "visual",
+          "label": "Visual beat 6",
+          "start_sec": 10,
+          "end_sec": 12
+        },
+        {
+          "evidence_id": "visual:7",
+          "kind": "visual",
+          "label": "Visual beat 8",
+          "start_sec": 14,
+          "end_sec": 16
+        },
+        {
+          "evidence_id": "visual:8",
+          "kind": "visual",
+          "label": "Visual beat 9",
+          "start_sec": 16,
+          "end_sec": 18
+        },
+        {
+          "evidence_id": "visual:10",
+          "kind": "visual",
+          "label": "Visual beat 11",
+          "start_sec": 20,
+          "end_sec": 22
+        },
+        {
+          "evidence_id": "audio:0",
+          "kind": "audio",
+          "label": "Audio beat 1",
+          "start_sec": 0,
+          "end_sec": 22
+        },
+        {
+          "evidence_id": "editing:0",
+          "kind": "editing",
+          "label": "Editing beat 1",
+          "start_sec": 0,
+          "end_sec": 2
+        },
+        {
+          "evidence_id": "editing:1",
+          "kind": "editing",
+          "label": "Editing beat 2",
+          "start_sec": 2,
+          "end_sec": 18
+        },
+        {
+          "evidence_id": "editing:2",
+          "kind": "editing",
+          "label": "Editing beat 3",
+          "start_sec": 18,
+          "end_sec": 22
+        }
+      ]
+    },
+    "live:instagram:DWc3GgxDekQ:instagram-access-safety-ai-popular-search": {
+      "candidate_id": "live:instagram:DWc3GgxDekQ:instagram-access-safety-ai-popular-search",
+      "content_hash": "42fe2703e2e3ab4f527f9ffff9586473fffffe9761d8c65f93d172a2bd17a6f9",
+      "generated_at": "2026-07-17T21:32:43.725Z",
+      "model": "gemini-3.1-flash-lite",
+      "summary": "The video utilizes a static, medium close-up shot of a single speaker delivering a listicle-style narrative. The content is structured as a direct-to-camera address, employing on-screen text overlays and hand gestures to emphasize specific categories of social connections to remove following the acquisition of a summer internship.",
+      "audience_read": "The content addresses an audience navigating the transition into professional environments, highlighting a tension between maintaining long-term personal relationships and prioritizing professional networking or social status.",
+      "findings": [
+        {
+          "title": "Listicle Narrative Structure",
+          "analysis": "The narrative follows a sequential list format, categorizing specific groups of people for removal to align with professional goals, which provides a clear, segmented progression for the viewer.",
+          "evidence_ids": [
+            "arc:0",
+            "visual:5",
+            "visual:7"
+          ]
+        },
+        {
+          "title": "Direct Address and Gesture Emphasis",
+          "analysis": "The speaker maintains a consistent static frame while using hand gestures to punctuate the list items, which serves to visually reinforce the verbal points being made.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:3",
+            "visual:5"
+          ]
+        },
+        {
+          "title": "Text-Overlay Integration",
+          "analysis": "Centered text overlays appear throughout the video, mirroring the speaker's verbal points to provide a secondary visual anchor for the claims presented.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:2",
+            "visual:8"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "hypothesis": "A listicle format focusing on professional growth may result in different viewer attention patterns compared to a narrative-driven format.",
+          "adaptation": "Create a video that presents professional networking tips through a storytelling arc rather than a numbered list.",
+          "success_metric": "Average watch time per segment.",
+          "evidence_ids": [
+            "arc:0"
+          ]
+        },
+        {
+          "hypothesis": "The use of provocative, exclusionary claims could generate a different volume of audience interaction compared to inclusive, supportive career advice.",
+          "adaptation": "Produce a video offering inclusive, collaborative networking strategies for interns instead of exclusionary social advice.",
+          "success_metric": "Total volume of user-generated responses.",
+          "evidence_ids": [
+            "claim:0",
+            "claim:1",
+            "claim:2"
+          ]
+        }
+      ],
+      "risks": [
+        "The claims regarding social connections are subjective and lack empirical support.",
+        "The advice to remove long-term friends may be perceived as exclusionary or controversial.",
+        "The content relies on unverified social media metrics as indicators of professional seriousness.",
+        "The lack of speaker identification or branding may limit the establishment of authority."
+      ],
+      "limitations": [
+        "No visual evidence of the speaker's identity or professional credentials.",
+        "The provided evidence does not include specific shot order or production details.",
+        "The claims presented are anecdotal and lack external verification."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "opening:0",
+          "kind": "opening",
+          "label": "Opening observation",
+          "start_sec": 0,
+          "end_sec": 31.8
+        },
+        {
+          "evidence_id": "arc:0",
+          "kind": "arc",
+          "label": "Narrative arc",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "cta:0",
+          "kind": "cta",
+          "label": "Observed CTA",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "metrics:0",
+          "kind": "metric",
+          "label": "Platform snapshot",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:0",
+          "kind": "claim",
+          "label": "Observed claim 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:1",
+          "kind": "claim",
+          "label": "Observed claim 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:2",
+          "kind": "claim",
+          "label": "Observed claim 3",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:0",
+          "kind": "limitation",
+          "label": "Evidence limitation 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:1",
+          "kind": "limitation",
+          "label": "Evidence limitation 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:2",
+          "kind": "limitation",
+          "label": "Evidence limitation 3",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "visual:0",
+          "kind": "visual",
+          "label": "Visual beat 1",
+          "start_sec": 0,
+          "end_sec": 3
+        },
+        {
+          "evidence_id": "visual:2",
+          "kind": "visual",
+          "label": "Visual beat 3",
+          "start_sec": 6,
+          "end_sec": 9
+        },
+        {
+          "evidence_id": "visual:3",
+          "kind": "visual",
+          "label": "Visual beat 4",
+          "start_sec": 9,
+          "end_sec": 11
+        },
+        {
+          "evidence_id": "visual:5",
+          "kind": "visual",
+          "label": "Visual beat 6",
+          "start_sec": 14,
+          "end_sec": 17
+        },
+        {
+          "evidence_id": "visual:7",
+          "kind": "visual",
+          "label": "Visual beat 8",
+          "start_sec": 19,
+          "end_sec": 22
+        },
+        {
+          "evidence_id": "visual:8",
+          "kind": "visual",
+          "label": "Visual beat 9",
+          "start_sec": 22,
+          "end_sec": 25
+        },
+        {
+          "evidence_id": "visual:10",
+          "kind": "visual",
+          "label": "Visual beat 11",
+          "start_sec": 28,
+          "end_sec": 31.8
+        },
+        {
+          "evidence_id": "audio:0",
+          "kind": "audio",
+          "label": "Audio beat 1",
+          "start_sec": 0,
+          "end_sec": 3
+        },
+        {
+          "evidence_id": "audio:2",
+          "kind": "audio",
+          "label": "Audio beat 3",
+          "start_sec": 6,
+          "end_sec": 9
+        },
+        {
+          "evidence_id": "audio:4",
+          "kind": "audio",
+          "label": "Audio beat 5",
+          "start_sec": 12,
+          "end_sec": 15
+        },
+        {
+          "evidence_id": "audio:5",
+          "kind": "audio",
+          "label": "Audio beat 6",
+          "start_sec": 15,
+          "end_sec": 18
+        },
+        {
+          "evidence_id": "audio:7",
+          "kind": "audio",
+          "label": "Audio beat 8",
+          "start_sec": 21,
+          "end_sec": 24
+        },
+        {
+          "evidence_id": "audio:9",
+          "kind": "audio",
+          "label": "Audio beat 10",
+          "start_sec": 27,
+          "end_sec": 31.8
+        },
+        {
+          "evidence_id": "editing:0",
+          "kind": "editing",
+          "label": "Editing beat 1",
+          "start_sec": 0,
+          "end_sec": 2.5
+        },
+        {
+          "evidence_id": "editing:1",
+          "kind": "editing",
+          "label": "Editing beat 2",
+          "start_sec": 2.5,
+          "end_sec": 5.5
+        },
+        {
+          "evidence_id": "editing:2",
+          "kind": "editing",
+          "label": "Editing beat 3",
+          "start_sec": 5.5,
+          "end_sec": 8.5
+        },
+        {
+          "evidence_id": "editing:3",
+          "kind": "editing",
+          "label": "Editing beat 4",
+          "start_sec": 8.5,
+          "end_sec": 31.8
+        }
+      ]
+    },
+    "live:tiktok:7138472018504076586:tiktok-competitor-profiles-popular": {
+      "candidate_id": "live:tiktok:7138472018504076586:tiktok-competitor-profiles-popular",
+      "content_hash": "a806241441a0553789f4e2b17c55e4349b4f96e0d7dfcc1c56fefdb315592d7f",
+      "generated_at": "2026-07-17T21:31:34.959Z",
+      "model": "gemini-3.1-flash-lite",
+      "summary": "The video features a static close-up of a young woman presenting a template for professional cold outreach via on-screen text. The narrative follows a simple structure of presenting a communication challenge and providing a solution, concluding with a camera movement that shifts focus away from the subject.",
+      "audience_read": "The content addresses the tension of initiating professional networking, specifically for students or early-career individuals seeking mentorship in competitive fields like philanthropy.",
+      "findings": [
+        {
+          "title": "Template-Based Narrative",
+          "analysis": "The video utilizes a direct-to-camera format where the primary value is a copy-pasteable outreach script, positioning the creator as a facilitator for professional access.",
+          "evidence_ids": [
+            "opening:0",
+            "visual:0"
+          ]
+        },
+        {
+          "title": "Minimalist Visual Presentation",
+          "analysis": "The visual composition relies on a single static shot with text overlay, prioritizing readability of the provided script over complex production elements.",
+          "evidence_ids": [
+            "visual:0",
+            "editing:0"
+          ]
+        },
+        {
+          "title": "Non-Standard Camera Movement",
+          "analysis": "The mid-video tilt toward the ceiling represents a departure from standard talking-head framing, potentially serving as a visual break or an unscripted transition.",
+          "evidence_ids": [
+            "visual:1",
+            "editing:1"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "hypothesis": "Replacing the static text overlay with a split-screen format showing the sender and the recipient's perspective could change how users process the outreach narrative compared to the current single-shot format.",
+          "adaptation": "Create a two-pane video where the left side shows the sender and the right side shows a simulated email inbox receiving the message.",
+          "success_metric": "Average watch time per frame",
+          "evidence_ids": [
+            "visual:0",
+            "editing:0"
+          ]
+        },
+        {
+          "hypothesis": "Adding a clear call-to-action at the end of the script could change the user's next step compared to the current version which lacks a closing directive.",
+          "adaptation": "Include a final text overlay prompting viewers to save the template for their own internship search.",
+          "success_metric": "Ratio of viewers who interact with the video bookmark feature",
+          "evidence_ids": [
+            "cta:0",
+            "arc:0"
+          ]
+        }
+      ],
+      "risks": [
+        "The provided outreach template may be perceived as generic by high-level professionals.",
+        "The lack of audio context makes it difficult to determine if the creator's tone influences the perceived effectiveness of the script.",
+        "The camera tilt in the second half may be interpreted as a technical error rather than a creative choice."
+      ],
+      "limitations": [
+        "The evidence package lacks audio data, preventing analysis of verbal delivery or background sound.",
+        "The visual context is restricted to a single indoor setting, limiting insights into environmental storytelling.",
+        "There is no information regarding the creator's professional background, which may affect the perceived authority of the advice."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "opening:0",
+          "kind": "opening",
+          "label": "Opening observation",
+          "start_sec": 0,
+          "end_sec": 8
+        },
+        {
+          "evidence_id": "arc:0",
+          "kind": "arc",
+          "label": "Narrative arc",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "cta:0",
+          "kind": "cta",
+          "label": "Observed CTA",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "metrics:0",
+          "kind": "metric",
+          "label": "Platform snapshot",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:0",
+          "kind": "claim",
+          "label": "Observed claim 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:0",
+          "kind": "limitation",
+          "label": "Evidence limitation 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:1",
+          "kind": "limitation",
+          "label": "Evidence limitation 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:2",
+          "kind": "limitation",
+          "label": "Evidence limitation 3",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "visual:0",
+          "kind": "visual",
+          "label": "Visual beat 1",
+          "start_sec": 0,
+          "end_sec": 4
+        },
+        {
+          "evidence_id": "visual:1",
+          "kind": "visual",
+          "label": "Visual beat 2",
+          "start_sec": 4,
+          "end_sec": 8
+        },
+        {
+          "evidence_id": "audio:0",
+          "kind": "audio",
+          "label": "Audio beat 1",
+          "start_sec": 0,
+          "end_sec": 8
+        },
+        {
+          "evidence_id": "editing:0",
+          "kind": "editing",
+          "label": "Editing beat 1",
+          "start_sec": 0,
+          "end_sec": 4
+        },
+        {
+          "evidence_id": "editing:1",
+          "kind": "editing",
+          "label": "Editing beat 2",
+          "start_sec": 4,
+          "end_sec": 8
+        }
+      ]
+    },
+    "live:youtube_shorts:tKzKPxZupow:youtube-competitor-brands-recent": {
+      "candidate_id": "live:youtube_shorts:tKzKPxZupow:youtube-competitor-brands-recent",
+      "content_hash": "222c23914a482585203ce7dc58c4687623e243a2dfbb134498583898cb596d49",
+      "generated_at": "2026-07-17T21:33:12.486Z",
+      "model": "gemini-3.1-flash-lite",
+      "summary": "The video features a narrative-driven monologue presented by a graduate in a forest setting. The visual structure utilizes static shots and hard cuts between the subject in a graduation gown and the subject speaking in a casual setting. Text overlays accompany the spoken narrative to categorize career paths as Path A, Path B, and Path C.",
+      "audience_read": "The content addresses the tension of post-graduation uncertainty, specifically the pressure to choose between traditional corporate employment, further academic specialization, or entrepreneurship.",
+      "findings": [
+        {
+          "title": "Categorical Narrative Framework",
+          "analysis": "The narrative organizes complex life decisions into three distinct paths, using visual signposts to differentiate between industry, education, and entrepreneurship.",
+          "evidence_ids": [
+            "visual:4",
+            "audio:0",
+            "audio:2"
+          ]
+        },
+        {
+          "title": "Visual Contrast in Setting",
+          "analysis": "The creative alternates between an outdoor forest environment and an indoor setting with a microphone, which is consistent with a transition from a metaphorical journey to a reflective, personal account.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:11",
+            "visual:18"
+          ]
+        },
+        {
+          "title": "Text-Overlay Pacing",
+          "analysis": "Text overlays are synchronized with the spoken narrative to emphasize specific career-related terminology and the subject's internal decision-making process.",
+          "evidence_ids": [
+            "editing:0",
+            "editing:9",
+            "editing:15"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "hypothesis": "Replacing the forest setting with a professional office environment could shift the perceived tone of the career-path narrative compared to the current outdoor setting.",
+          "adaptation": "Film the subject discussing the three paths within a modern office or co-working space instead of a forest.",
+          "success_metric": "Comparison of audience retention rates at the transition points between path descriptions.",
+          "evidence_ids": [
+            "visual:0",
+            "visual:18"
+          ]
+        },
+        {
+          "hypothesis": "Adding concrete data points regarding the risks of entrepreneurship could alter the perceived credibility of the narrative compared to the current abstract description.",
+          "adaptation": "Include specific, verifiable statistics or milestones related to the entrepreneurship path instead of the current general claims.",
+          "success_metric": "Comparison of the duration of viewer attention during the Path C segment.",
+          "evidence_ids": [
+            "claim:1",
+            "audio:9"
+          ]
+        }
+      ],
+      "risks": [
+        "The narrative relies on subjective claims about career paths without providing verifiable data or specific examples of success.",
+        "The lack of visual evidence for the entrepreneurship outcome may lead to viewer skepticism regarding the subject's claims.",
+        "The use of broad categories like 'Path A' and 'Path B' may oversimplify the complexities of post-graduate career choices."
+      ],
+      "limitations": [
+        "The video lacks specific details regarding the risks and rewards of the chosen career path.",
+        "There is no visual evidence provided to support the claim of success in entrepreneurship.",
+        "The content does not include a call to action, limiting the ability to observe potential next steps for the viewer."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "opening:0",
+          "kind": "opening",
+          "label": "Opening observation",
+          "start_sec": 0,
+          "end_sec": 1
+        },
+        {
+          "evidence_id": "arc:0",
+          "kind": "arc",
+          "label": "Narrative arc",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "cta:0",
+          "kind": "cta",
+          "label": "Observed CTA",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "metrics:0",
+          "kind": "metric",
+          "label": "Platform snapshot",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:0",
+          "kind": "claim",
+          "label": "Observed claim 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "claim:1",
+          "kind": "claim",
+          "label": "Observed claim 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:0",
+          "kind": "limitation",
+          "label": "Evidence limitation 1",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "limitation:1",
+          "kind": "limitation",
+          "label": "Evidence limitation 2",
+          "start_sec": null,
+          "end_sec": null
+        },
+        {
+          "evidence_id": "visual:0",
+          "kind": "visual",
+          "label": "Visual beat 1",
+          "start_sec": 0,
+          "end_sec": 2
+        },
+        {
+          "evidence_id": "visual:4",
+          "kind": "visual",
+          "label": "Visual beat 5",
+          "start_sec": 8,
+          "end_sec": 10
+        },
+        {
+          "evidence_id": "visual:7",
+          "kind": "visual",
+          "label": "Visual beat 8",
+          "start_sec": 14,
+          "end_sec": 16
+        },
+        {
+          "evidence_id": "visual:11",
+          "kind": "visual",
+          "label": "Visual beat 12",
+          "start_sec": 22,
+          "end_sec": 24
+        },
+        {
+          "evidence_id": "visual:15",
+          "kind": "visual",
+          "label": "Visual beat 16",
+          "start_sec": 30,
+          "end_sec": 32
+        },
+        {
+          "evidence_id": "visual:18",
+          "kind": "visual",
+          "label": "Visual beat 19",
+          "start_sec": 36,
+          "end_sec": 38
+        },
+        {
+          "evidence_id": "visual:22",
+          "kind": "visual",
+          "label": "Visual beat 23",
+          "start_sec": 44,
+          "end_sec": 46.8
+        },
+        {
+          "evidence_id": "audio:0",
+          "kind": "audio",
+          "label": "Audio beat 1",
+          "start_sec": 0,
+          "end_sec": 4
+        },
+        {
+          "evidence_id": "audio:2",
+          "kind": "audio",
+          "label": "Audio beat 3",
+          "start_sec": 8,
+          "end_sec": 14
+        },
+        {
+          "evidence_id": "audio:4",
+          "kind": "audio",
+          "label": "Audio beat 5",
+          "start_sec": 20,
+          "end_sec": 24
+        },
+        {
+          "evidence_id": "audio:5",
+          "kind": "audio",
+          "label": "Audio beat 6",
+          "start_sec": 24,
+          "end_sec": 28
+        },
+        {
+          "evidence_id": "audio:7",
+          "kind": "audio",
+          "label": "Audio beat 8",
+          "start_sec": 34,
+          "end_sec": 38
+        },
+        {
+          "evidence_id": "audio:9",
+          "kind": "audio",
+          "label": "Audio beat 10",
+          "start_sec": 42,
+          "end_sec": 46.8
+        },
+        {
+          "evidence_id": "editing:0",
+          "kind": "editing",
+          "label": "Editing beat 1",
+          "start_sec": 0,
+          "end_sec": 2
+        },
+        {
+          "evidence_id": "editing:3",
+          "kind": "editing",
+          "label": "Editing beat 4",
+          "start_sec": 8,
+          "end_sec": 11
+        },
+        {
+          "evidence_id": "editing:6",
+          "kind": "editing",
+          "label": "Editing beat 7",
+          "start_sec": 17,
+          "end_sec": 20
+        },
+        {
+          "evidence_id": "editing:9",
+          "kind": "editing",
+          "label": "Editing beat 10",
+          "start_sec": 26,
+          "end_sec": 29
+        },
+        {
+          "evidence_id": "editing:12",
+          "kind": "editing",
+          "label": "Editing beat 13",
+          "start_sec": 35,
+          "end_sec": 38
+        },
+        {
+          "evidence_id": "editing:15",
+          "kind": "editing",
+          "label": "Editing beat 16",
+          "start_sec": 44,
+          "end_sec": 46.8
+        }
+      ]
+    }
+  }
+}

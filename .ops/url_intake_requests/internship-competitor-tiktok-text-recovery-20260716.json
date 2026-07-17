@@ -1,0 +1,25 @@
+{
+  "request_id": "internship-competitor-tiktok-text-recovery-20260716",
+  "urls": [
+    "https://www.tiktok.com/@fordcoleman_/video/7519978047487872286",
+    "https://www.tiktok.com/@joeysixfive/video/7660217345478085918",
+    "https://www.tiktok.com/@imellagonzales/video/7654884931029437727",
+    "https://www.tiktok.com/@emilyekru/video/7655503263583751455"
+  ],
+  "allowed_platforms": [
+    "tiktok"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 1.5,
+    "max_apify_usd": 0.5,
+    "max_twelvelabs_usd": 1,
+    "max_gemini_usd": 0
+  }
+}

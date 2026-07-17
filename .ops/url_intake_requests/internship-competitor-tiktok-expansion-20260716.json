@@ -1,0 +1,46 @@
+{
+  "request_id": "internship-competitor-tiktok-expansion-20260716",
+  "urls": [
+    "https://www.tiktok.com/@joinsimplify/video/7236616679957089579",
+    "https://www.tiktok.com/@joinsimplify/video/7256931169252494638",
+    "https://www.tiktok.com/@joinsimplify/video/7264304472250141994",
+    "https://www.tiktok.com/@joinsimplify/video/7350858779149454634",
+    "https://www.tiktok.com/@microinternships/video/7252715074169752875",
+    "https://www.tiktok.com/@microinternships/video/7338464050843634986",
+    "https://www.tiktok.com/@microinternships/video/7341050022395432238",
+    "https://www.tiktok.com/@theforage/video/7244258158460276011",
+    "https://www.tiktok.com/@theforage/video/7217823631655669034",
+    "https://www.tiktok.com/@theforage/video/6974918134281014533",
+    "https://www.tiktok.com/@externhq/video/7473277442577255723",
+    "https://www.tiktok.com/@externhq/video/7541529324600446238",
+    "https://www.tiktok.com/@externhq/video/7662606999812672799",
+    "https://www.tiktok.com/@ripplematch/video/7608585723976977677",
+    "https://www.tiktok.com/@ripplematch/video/7608588557938150669",
+    "https://www.tiktok.com/@ripplematch/video/7535936787013717261",
+    "https://www.tiktok.com/@ripplematch/video/7576695538834263309",
+    "https://www.tiktok.com/@wayup/video/7275751574129904938",
+    "https://www.tiktok.com/@wayup/video/7437178781220998442",
+    "https://www.tiktok.com/@wayup/video/7054206441422327087",
+    "https://www.tiktok.com/@joinhandshake/video/7662104069271506206",
+    "https://www.tiktok.com/@joinhandshake/video/7658362696382811422",
+    "https://www.tiktok.com/@virtual_internships/video/7267950886285020422",
+    "https://www.tiktok.com/@virtual_internships/video/7269749586867047686",
+    "https://www.tiktok.com/@virtual_internships/video/7327352892619230469"
+  ],
+  "allowed_platforms": [
+    "tiktok"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 6,
+    "max_apify_usd": 1,
+    "max_twelvelabs_usd": 5,
+    "max_gemini_usd": 0
+  }
+}

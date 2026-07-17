@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/traction-experiment.schema.json",
+  "title": "Traction Experiment Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "experiment_id", "job_id", "objective", "content_family", "creative_lane",
+    "delivery_mode", "hypothesis", "control_variant_id", "primary_metrics",
+    "variants", "decision_policy", "publishing_policy", "notes"
+  ],
+  "properties": {
+    "experiment_id": { "type": "string", "minLength": 1 },
+    "job_id": { "type": "string", "minLength": 1 },
+    "objective": { "const": "audience_traction" },
+    "content_family": { "type": "string", "minLength": 1 },
+    "creative_lane": { "enum": ["image_slideshow", "generated_video"] },
+    "delivery_mode": { "enum": ["native_carousel", "rendered_video"] },
+    "hypothesis": { "type": "string", "minLength": 1 },
+    "control_variant_id": { "type": ["string", "null"], "minLength": 1 },
+    "primary_metrics": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "contains": { "const": "view_velocity" },
+      "items": {
+        "enum": [
+          "view_velocity", "average_watch_time_sec", "completion_rate", "rewatch_rate",
+          "share_rate", "save_rate", "follow_rate", "profile_visit_rate"
+        ]
+      }
+    },
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": { "$ref": "#/$defs/variant" }
+    },
+    "decision_policy": { "$ref": "#/$defs/decision_policy" },
+    "publishing_policy": { "$ref": "#/$defs/publishing_policy" },
+    "notes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "label", "hook", "changed_dimensions", "audio_plan", "status"],
+      "properties": {
+        "variant_id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "hook": { "type": "string", "minLength": 1 },
+        "changed_dimensions": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["topic", "hook", "first_frame", "slide_order", "visual_style", "pacing", "audio", "cta", "duration"]
+          }
+        },
+        "audio_plan": { "$ref": "#/$defs/audio_plan" },
+        "status": { "enum": ["draft", "ready_for_manual_post", "posted", "measured", "rejected"] }
+      }
+    },
+    "audio_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode", "track_id", "track_title", "source_url", "captured_at", "region",
+        "commercial_use_status", "added_at_posting", "notes"
+      ],
+      "properties": {
+        "mode": { "enum": ["platform_commercial_music", "provider_native_audio", "original_audio", "none"] },
+        "track_id": { "type": ["string", "null"], "minLength": 1 },
+        "track_title": { "type": ["string", "null"], "minLength": 1 },
+        "source_url": { "type": ["string", "null"], "format": "uri" },
+        "captured_at": { "type": ["string", "null"], "format": "date-time" },
+        "region": { "type": ["string", "null"], "minLength": 1 },
+        "commercial_use_status": {
+          "enum": ["precleared", "provider_generated", "operator_owned", "requires_review", "not_applicable"]
+        },
+        "added_at_posting": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "decision_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_checkpoint", "min_repeats_before_pattern",
+        "max_changed_dimensions_per_variant", "stop_after_non_improving_variants"
+      ],
+      "properties": {
+        "minimum_checkpoint": { "enum": ["24h", "72h", "7d"] },
+        "min_repeats_before_pattern": { "type": "integer", "minimum": 2, "maximum": 5 },
+        "max_changed_dimensions_per_variant": { "enum": [1, 2] },
+        "stop_after_non_improving_variants": { "type": "integer", "minimum": 2, "maximum": 3 }
+      }
+    },
+    "publishing_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manual_only", "human_approval_required", "auto_posting_allowed"],
+      "properties": {
+        "manual_only": { "const": true },
+        "human_approval_required": { "const": true },
+        "auto_posting_allowed": { "const": false }
+      }
+    }
+  }
+}

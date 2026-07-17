@@ -1,0 +1,100 @@
+{
+  "research_id": "instagram-general-posts-canary-20260717",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 4,
+  "runs": [
+    {
+      "id": "instagram-general-post-profile-feeds",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/practera_exp/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/ladder_internships/",
+          "https://www.instagram.com/12twentyinc/",
+          "https://www.instagram.com/gouconnect/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/capitalplacement/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/absoluteinternship/",
+          "https://www.instagram.com/cieestudyabroad/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/seekgradau/",
+          "https://www.instagram.com/magnetmehq/",
+          "https://www.instagram.com/joinuntapped/",
+          "https://www.instagram.com/aiesecglobal/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 1.25,
+      "max_items": 144
+    },
+    {
+      "id": "instagram-general-post-hashtag-feeds",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "hashtag",
+      "input": {
+        "search": "#internshiptips,#internshipsearch,#careeradvice,#jobsearchtips,#resumetips,#interviewtips,#collegecareer,#earlycareer",
+        "searchType": "hashtag",
+        "searchLimit": 8,
+        "resultsType": "posts",
+        "resultsLimit": 12,
+        "onlyPostsNewerThan": "6 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 1.25,
+      "max_items": 96
+    },
+    {
+      "id": "instagram-general-post-profile-discovery",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "search",
+      "input": {
+        "search": "internship advice,college career,early career,career coach,resume tips,job search,interview coach,student jobs",
+        "searchType": "profile",
+        "searchLimit": 6,
+        "resultsType": "posts",
+        "resultsLimit": 6,
+        "onlyPostsNewerThan": "6 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 48
+    },
+    {
+      "id": "instagram-general-post-mentions-and-ugc",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/cieestudyabroad/"
+        ],
+        "resultsType": "mentions",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 64
+    }
+  ]
+}

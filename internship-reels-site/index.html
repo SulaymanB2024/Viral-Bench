@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ViralBench — Library</title>
+  <meta name="description" content="A time-dated library of short-form content ranked by observed performance, velocity, and repeat evidence.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23fcfcfc'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23050505'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site-navigation.js" defer></script>
+</head>
+<body class="library-page">
+  <a class="site-skip" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <a class="site-brand" href="/" aria-label="ViralBench library"><span class="site-brand-dot" aria-hidden="true"></span><span>ViralBench</span></a>
+    <button class="site-menu-button" type="button" aria-expanded="false" aria-controls="siteNavigation">Menu</button>
+    <nav class="site-navigation" id="siteNavigation" aria-label="Primary">
+      <a href="/" data-site-route="library">Library</a>
+      <a href="/benchmarks" data-site-route="benchmarks">Benchmarks</a>
+      <a href="/ask" data-site-route="ask">Ask</a>
+      <a href="/work" data-site-route="work">Work</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="library-intro">
+      <h1>Research library.</h1>
+      <div class="library-intro-copy">
+        <p><strong id="introUnique">563 videos</strong> across Instagram, TikTok, and YouTube Shorts. Ranked within platform and age cohorts.</p>
+      </div>
+    </section>
+
+    <section class="library-explorer" id="explorer">
+      <div class="explorer-heading">
+        <div>
+          <h2>Library</h2>
+          <p id="resultCount">Loading…</p>
+        </div>
+        <label class="library-search">
+          <span>Search</span>
+          <input id="searchInput" type="search" placeholder="Creator, caption, or hashtag" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="library-controls">
+        <div class="control-group" aria-label="Filter by platform">
+          <button class="library-filter active" data-platform="all" type="button">All platforms</button>
+          <button class="library-filter" data-platform="instagram" type="button">Instagram</button>
+          <button class="library-filter" data-platform="tiktok" type="button">TikTok</button>
+          <button class="library-filter" data-platform="youtube_shorts" type="button">YouTube Shorts</button>
+        </div>
+        <details class="library-advanced">
+          <summary>More filters</summary>
+          <div class="library-advanced-controls">
+            <label class="library-select">
+              <span>Signal</span>
+              <select id="signalSelect">
+                <option value="all">All signals</option>
+                <option value="breakout_candidate">Breakout candidates</option>
+                <option value="evergreen_winner">Evergreen winners</option>
+                <option value="high_performer">High performers</option>
+                <option value="promising">Promising</option>
+                <option value="baseline">Baseline</option>
+              </select>
+            </label>
+            <label class="library-select">
+              <span>Published</span>
+              <select id="ageSelect">
+                <option value="all">Any age</option>
+                <option value="0_72_hours">Last 72 hours</option>
+                <option value="4_30_days">4–30 days</option>
+                <option value="31_90_days">31–90 days</option>
+                <option value="91_365_days">91–365 days</option>
+                <option value="older_than_365_days">Older than one year</option>
+              </select>
+            </label>
+            <label class="library-select">
+              <span>Order</span>
+              <select id="sortSelect">
+                <option value="priority">Signal strength</option>
+                <option value="newest">Newest published</option>
+                <option value="velocity">Views per hour</option>
+                <option value="views">Total views</option>
+                <option value="engagement">Engagement rate</option>
+              </select>
+            </label>
+            <button class="library-reset" id="resetFilters" type="button">Reset</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="library-workspace">
+        <div class="library-list-panel">
+          <div class="library-list-head" aria-hidden="true">
+            <span>Rank</span>
+            <span>Source</span>
+            <span>Observed performance</span>
+          </div>
+          <div class="library-list" id="libraryList"></div>
+          <button class="load-more" id="loadMore" type="button">Load 24 more</button>
+        </div>
+
+        <aside class="library-inspector" id="libraryInspector" aria-live="polite">
+          <p class="inspector-loading">Select a video.</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="library-dialog" id="libraryDialog" aria-labelledby="libraryDialogTitle">
+    <div class="library-dialog-shell">
+      <div class="library-dialog-head">
+        <strong id="libraryDialogTitle">Video evidence</strong>
+        <button class="library-dialog-close" id="libraryDialogClose" type="button">Close</button>
+      </div>
+      <div class="library-dialog-content" id="libraryDialogContent"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const state = {
+      data: null,
+      platform: 'all',
+      signal: 'all',
+      age: 'all',
+      query: '',
+      sort: 'priority',
+      limit: 24,
+      selectedId: null,
+    };
+
+    const viewOptions = {
+      platform: new Set(['all', 'instagram', 'tiktok', 'youtube_shorts']),
+      signal: new Set(['all', 'breakout_candidate', 'evergreen_winner', 'high_performer', 'promising', 'baseline']),
+      age: new Set(['all', '0_72_hours', '4_30_days', '31_90_days', '91_365_days', 'older_than_365_days']),
+      sort: new Set(['priority', 'newest', 'velocity', 'views', 'engagement']),
+    };
+
+    const signalPriority = {
+      breakout_candidate: 6,
+      evergreen_winner: 5,
+      high_performer: 4,
+      promising: 3,
+      baseline: 2,
+      insufficient_data: 1,
+    };
+
+    const signalLabels = {
+      breakout_candidate: 'Breakout candidate',
+      evergreen_winner: 'Evergreen winner',
+      high_performer: 'High performer',
+      promising: 'Promising',
+      baseline: 'Baseline',
+      insufficient_data: 'Insufficient data',
+    };
+
+    const ageLabels = {
+      '0_72_hours': '0–72 hours',
+      '4_30_days': '4–30 days',
+      '31_90_days': '31–90 days',
+      '91_365_days': '91–365 days',
+      'older_than_365_days': 'Older than one year',
+    };
+
+    const platformLabels = {
+      instagram: 'Instagram',
+      tiktok: 'TikTok',
+      youtube_shorts: 'YouTube Shorts',
+    };
+
+    const number = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+    const integer = new Intl.NumberFormat('en-US');
+    const date = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function safeUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'https:' ? url.href : '#';
+      } catch {
+        return '#';
+      }
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Unknown';
+      const parsed = new Date(value);
+      return Number.isFinite(parsed.getTime()) ? date.format(parsed) : 'Unknown';
+    }
+
+    function formatMetric(value, suffix = '') {
+      return Number.isFinite(value) ? `${number.format(value)}${suffix}` : '—';
+    }
+
+    function formatPercent(value) {
+      return Number.isFinite(value) ? `${(value * 100).toFixed(value >= 0.1 ? 1 : 2)}%` : '—';
+    }
+
+    function sentence(value) {
+      const cleaned = String(value ?? '').replace(/\s+/g, ' ').trim();
+      return cleaned || 'No public caption retained for this item.';
+    }
+
+    function restoreViewFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      for (const key of ['platform', 'signal', 'age', 'sort']) {
+        const value = params.get(key);
+        if (value && viewOptions[key].has(value)) state[key] = value;
+      }
+      state.query = String(params.get('q') ?? '').trim().slice(0, 120);
+    }
+
+    function syncControlsFromState() {
+      document.querySelector('#signalSelect').value = state.signal;
+      document.querySelector('#ageSelect').value = state.age;
+      document.querySelector('#sortSelect').value = state.sort;
+      document.querySelector('#searchInput').value = state.query;
+      document.querySelectorAll('[data-platform]').forEach((button) => {
+        const active = button.dataset.platform === state.platform;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+    }
+
+    function syncViewUrl() {
+      const params = new URLSearchParams();
+      if (state.platform !== 'all') params.set('platform', state.platform);
+      if (state.signal !== 'all') params.set('signal', state.signal);
+      if (state.age !== 'all') params.set('age', state.age);
+      if (state.sort !== 'priority') params.set('sort', state.sort);
+      if (state.query) params.set('q', state.query);
+      const query = params.toString();
+      window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+    }
+
+    function renderSummary() {
+      const { summary } = state.data;
+      document.querySelector('#introUnique').textContent = `${integer.format(summary.unique_items)} videos`;
+    }
+
+    function filteredItems() {
+      const query = state.query.toLowerCase();
+      const filtered = state.data.items.filter((item) => {
+        if (state.platform !== 'all' && item.platform !== state.platform) return false;
+        if (state.signal !== 'all' && item.performance.signal !== state.signal) return false;
+        if (state.age !== 'all' && item.performance.age_bucket !== state.age) return false;
+        if (!query) return true;
+        const haystack = [
+          item.account_handle,
+          item.caption,
+          ...(item.hashtags ?? []),
+          platformLabels[item.platform],
+          signalLabels[item.performance.signal],
+        ].join(' ').toLowerCase();
+        return haystack.includes(query);
+      });
+
+      return filtered.sort((a, b) => {
+        if (state.sort === 'newest') return Date.parse(b.posted_at ?? 0) - Date.parse(a.posted_at ?? 0);
+        if (state.sort === 'velocity') return (b.performance.lifetime_views_per_hour ?? -1) - (a.performance.lifetime_views_per_hour ?? -1);
+        if (state.sort === 'views') return (b.performance.latest_views ?? -1) - (a.performance.latest_views ?? -1);
+        if (state.sort === 'engagement') return (b.performance.latest_engagement_rate ?? -1) - (a.performance.latest_engagement_rate ?? -1);
+        return (signalPriority[b.performance.signal] ?? 0) - (signalPriority[a.performance.signal] ?? 0)
+          || (b.performance.comparison_percentile ?? -1) - (a.performance.comparison_percentile ?? -1)
+          || (b.performance.latest_views ?? -1) - (a.performance.latest_views ?? -1);
+      });
+    }
+
+    function renderList() {
+      const items = filteredItems();
+      const visible = items.slice(0, state.limit);
+      syncViewUrl();
+      document.querySelector('#resultCount').textContent = `${integer.format(items.length)} matching videos · showing ${integer.format(visible.length)}`;
+      document.querySelector('#loadMore').hidden = visible.length >= items.length;
+
+      if (!visible.length) {
+        document.querySelector('#libraryList').innerHTML = '<p class="library-empty">No matches.</p>';
+        document.querySelector('#libraryInspector').innerHTML = '<p class="inspector-loading">Change filters.</p>';
+        if (document.querySelector('#libraryDialog').open) document.querySelector('#libraryDialog').close();
+        return;
+      }
+
+      if (!items.some((item) => item.item_id === state.selectedId)) state.selectedId = visible[0].item_id;
+      document.querySelector('#libraryList').innerHTML = visible.map((item, index) => {
+        const selected = item.item_id === state.selectedId;
+        const rowLabel = `${index + 1}. ${signalLabels[item.performance.signal] ?? item.performance.signal}. ${item.account_handle ? `@${item.account_handle}` : platformLabels[item.platform]}. ${formatMetric(item.performance.latest_views)} views on ${platformLabels[item.platform]}.`;
+        return `
+          <button class="library-row${selected ? ' active' : ''}" type="button" data-item-id="${escapeHtml(item.item_id)}" aria-label="${escapeHtml(rowLabel)}" aria-pressed="${selected}">
+            <span class="library-rank">${String(index + 1).padStart(2, '0')}</span>
+            <span class="library-source">
+              <span class="library-signal ${escapeHtml(item.performance.signal)}">${escapeHtml(signalLabels[item.performance.signal] ?? item.performance.signal)}</span>
+              <strong>${escapeHtml(item.account_handle ? `@${item.account_handle}` : platformLabels[item.platform])}</strong>
+              <span>${escapeHtml(sentence(item.caption))}</span>
+            </span>
+            <span class="library-performance">
+              <strong>${formatMetric(item.performance.latest_views)}</strong>
+              <span>${escapeHtml(platformLabels[item.platform])} · ${formatMetric(item.performance.lifetime_views_per_hour, '/h')}</span>
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.library-row').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.selectedId = button.dataset.itemId;
+          renderList();
+          if (window.matchMedia('(max-width: 900px)').matches) openMobileInspector(state.selectedId);
+        });
+      });
+      renderInspector(items.find((item) => item.item_id === state.selectedId) ?? visible[0]);
+    }
+
+    function inspectorMarkup(item) {
+      const observations = [...(item.observations ?? [])].sort((a, b) => Date.parse(b.captured_at) - Date.parse(a.captured_at));
+      const percentile = item.performance.comparison_percentile;
+      const sourceUrl = safeUrl(item.canonical_url);
+      return `
+        <div class="inspector-topline">
+          <span>${escapeHtml(platformLabels[item.platform])}</span>
+          <span>${escapeHtml(ageLabels[item.performance.age_bucket] ?? 'Unknown age')}</span>
+        </div>
+        <h3>${escapeHtml(item.account_handle ? `@${item.account_handle}` : 'Public source')}</h3>
+        <p class="inspector-caption">${escapeHtml(sentence(item.caption))}</p>
+        <a class="inspector-source-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open public source</a>
+
+        <div class="inspector-metrics">
+          <div><strong>${formatMetric(item.performance.latest_views)}</strong><span>Latest views</span></div>
+          <div><strong>${formatMetric(item.performance.lifetime_views_per_hour, '/h')}</strong><span>Lifetime velocity</span></div>
+          <div><strong>${formatPercent(item.performance.latest_engagement_rate)}</strong><span>Engagement rate</span></div>
+          <div><strong>${integer.format(item.observation_count)}</strong><span>Observations</span></div>
+        </div>
+
+        <section class="inspector-evidence">
+          <h4>Why it ranks</h4>
+          <dl>
+            <div><dt>Signal</dt><dd>${escapeHtml(signalLabels[item.performance.signal] ?? item.performance.signal)}</dd></div>
+            <div><dt>Cohort percentile</dt><dd>${Number.isFinite(percentile) ? `${(percentile * 100).toFixed(1)} percentile` : '—'} · ${integer.format(item.performance.comparison_group_size ?? 0)} peers</dd></div>
+            <div><dt>Published</dt><dd>${formatDate(item.posted_at)}</dd></div>
+            <div><dt>First captured</dt><dd>${formatDate(item.first_seen_at)}</dd></div>
+            <div><dt>Last captured</dt><dd>${formatDate(item.last_seen_at)}</dd></div>
+          </dl>
+        </section>
+
+        <section class="inspector-evidence">
+          <h4>Observation history</h4>
+          <div class="observation-history">
+            ${observations.slice(0, 4).map((observation) => `
+              <div>
+                <span>${formatDate(observation.captured_at)}</span>
+                <strong>${formatMetric(observation.views)} views</strong>
+                <small>${formatMetric(observation.lifetime_views_per_hour, '/h')} · ${formatPercent(observation.engagement_rate)}</small>
+              </div>
+            `).join('') || '<p>No dated observation retained.</p>'}
+          </div>
+        </section>
+
+        <p class="inspector-limitation">${escapeHtml(item.performance.evidence_limitations?.[0] ?? 'Observational; not causal.')}</p>
+      `;
+    }
+
+    function renderInspector(item) {
+      document.querySelector('#libraryInspector').innerHTML = inspectorMarkup(item);
+    }
+
+    function openMobileInspector(itemId) {
+      const item = state.data.items.find((candidate) => candidate.item_id === itemId);
+      const dialog = document.querySelector('#libraryDialog');
+      if (!item || !dialog || typeof dialog.showModal !== 'function') return;
+      dialog.dataset.returnItemId = itemId;
+      document.querySelector('#libraryDialogTitle').textContent = item.account_handle
+        ? `Evidence for @${item.account_handle}`
+        : `${platformLabels[item.platform]} evidence`;
+      document.querySelector('#libraryDialogContent').innerHTML = `<aside class="library-inspector">${inspectorMarkup(item)}</aside>`;
+      if (!dialog.open) dialog.showModal();
+      document.querySelector('#libraryDialogClose').focus();
+    }
+
+    function bindControls() {
+      document.querySelectorAll('[data-platform]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.platform = button.dataset.platform;
+          state.limit = 24;
+          document.querySelectorAll('[data-platform]').forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle('active', active);
+            candidate.setAttribute('aria-pressed', String(active));
+          });
+          renderList();
+        });
+      });
+      document.querySelector('#signalSelect').addEventListener('change', (event) => {
+        state.signal = event.target.value;
+        state.limit = 24;
+        renderList();
+      });
+      document.querySelector('#ageSelect').addEventListener('change', (event) => {
+        state.age = event.target.value;
+        state.limit = 24;
+        renderList();
+      });
+      document.querySelector('#sortSelect').addEventListener('change', (event) => {
+        state.sort = event.target.value;
+        renderList();
+      });
+      document.querySelector('#searchInput').addEventListener('input', (event) => {
+        state.query = event.target.value.trim();
+        state.limit = 24;
+        renderList();
+      });
+      document.querySelector('#loadMore').addEventListener('click', () => {
+        state.limit += 24;
+        renderList();
+      });
+      document.querySelector('#resetFilters').addEventListener('click', () => {
+        Object.assign(state, {
+          platform: 'all',
+          signal: 'all',
+          age: 'all',
+          query: '',
+          sort: 'priority',
+          limit: 24,
+          selectedId: null,
+        });
+        syncControlsFromState();
+        renderList();
+        document.querySelector('#searchInput').focus();
+      });
+
+      const dialog = document.querySelector('#libraryDialog');
+      document.querySelector('#libraryDialogClose').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+      dialog.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && dialog.open) {
+          event.preventDefault();
+          dialog.close();
+        }
+      });
+      dialog.addEventListener('close', () => {
+        const returnTarget = document.querySelector(`[data-item-id="${CSS.escape(dialog.dataset.returnItemId ?? '')}"]`);
+        if (returnTarget) returnTarget.focus();
+      });
+    }
+
+    async function init() {
+      restoreViewFromUrl();
+      bindControls();
+      syncControlsFromState();
+      try {
+        const response = await fetch('/library.json');
+        if (!response.ok) throw new Error(`Library request failed with ${response.status}`);
+        state.data = await response.json();
+        renderSummary();
+        renderList();
+      } catch (error) {
+        document.querySelector('#resultCount').textContent = 'Content library could not be loaded.';
+        document.querySelector('#libraryList').innerHTML = '<p class="library-empty">Data unavailable.</p>';
+        document.querySelector('#libraryInspector').innerHTML = '<p class="inspector-loading">Evidence unavailable.</p>';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

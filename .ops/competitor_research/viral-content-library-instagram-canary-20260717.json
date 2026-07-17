@@ -1,0 +1,60 @@
+{
+  "research_id": "viral-content-library-instagram-canary-20260717",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 5,
+  "runs": [
+    {
+      "id": "instagram-popular-keyword-search",
+      "actor_id": "apify/instagram-search-scraper",
+      "input_mode": "search",
+      "input": {
+        "search": "internship tips,job search,resume tips,interview tips,career advice,networking tips,intern life,day in the life intern,no experience resume,internship application",
+        "searchType": "popular",
+        "searchLimit": 12,
+        "enhanceUserSearchWithFacebookPage": false,
+        "liveSearch": false
+      },
+      "max_charge_usd": 1.5,
+      "max_items": 120
+    },
+    {
+      "id": "instagram-hashtag-topic-discovery",
+      "actor_id": "apify/instagram-search-scraper",
+      "input_mode": "search",
+      "input": {
+        "search": "internship,job search,resume,interview,career advice,networking,intern life,college career,early career,job hunting",
+        "searchType": "hashtag",
+        "searchLimit": 12,
+        "enhanceUserSearchWithFacebookPage": false,
+        "liveSearch": false
+      },
+      "max_charge_usd": 1,
+      "max_items": 120
+    },
+    {
+      "id": "instagram-recent-hashtag-reels",
+      "actor_id": "apify/instagram-hashtag-scraper",
+      "input_mode": "hashtag",
+      "input": {
+        "hashtags": [
+          "internship",
+          "internships",
+          "internlife",
+          "jobsearch",
+          "careeradvice",
+          "resumetips",
+          "interviewtips",
+          "collegecareer",
+          "earlycareer",
+          "networkingtips"
+        ],
+        "resultsType": "reels",
+        "resultsLimit": 10,
+        "keywordSearch": false
+      },
+      "max_charge_usd": 2.5,
+      "max_items": 100
+    }
+  ]
+}

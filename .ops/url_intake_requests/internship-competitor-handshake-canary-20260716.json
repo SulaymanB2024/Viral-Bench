@@ -1,0 +1,22 @@
+{
+  "request_id": "internship-competitor-handshake-canary-20260716",
+  "urls": [
+    "https://www.tiktok.com/@joinhandshake/video/7138472018504076586"
+  ],
+  "allowed_platforms": [
+    "tiktok"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 1,
+    "max_apify_usd": 0.5,
+    "max_twelvelabs_usd": 0.5,
+    "max_gemini_usd": 0
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "research_id": "internship-us-access-safety-ai-20260716",
+  "niche": "US internship access, safety, work authorization, truthful AI use, and internship performance for college students and recent graduates",
+  "strategy_mode": "career_guidance",
+  "platforms": ["tiktok"],
+  "search_queries": [
+    "internship scam warning college students",
+    "unpaid internship afford college student",
+    "CPT OPT internship US student",
+    "first generation college career advice",
+    "community college internship search",
+    "AI resume truthful student",
+    "AI internship application mistakes",
+    "remote internship scam check",
+    "internship return offer advice",
+    "what to do if no summer internship"
+  ],
+  "cohorts": ["recent", "popular"],
+  "max_results_per_query": 8,
+  "approval": {
+    "state": "approved",
+    "approved_by": "User-approved US Internship Content and Data Expansion plan",
+    "approved_at": "2026-07-16T22:30:00.000Z"
+  },
+  "cost_policy": {
+    "max_apify_usd": 1
+  },
+  "house_style": {
+    "name": "Internships.com signal stack",
+    "voice": ["direct", "student-respectful", "specific"],
+    "recurring_devices": [
+      "name the student problem in the first line",
+      "separate safety facts from heuristics",
+      "show one truthful next action"
+    ],
+    "differentiators": [
+      "first-party verification for legal and safety claims",
+      "no guaranteed outcomes",
+      "AI advice preserves truthful student review"
+    ]
+  }
+}

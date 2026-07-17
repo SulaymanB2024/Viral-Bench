@@ -1,0 +1,83 @@
+{
+  "research_id": "internship-paid-ad-web-metadata-apify-20260717",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 0.75,
+  "runs": [
+    {
+      "id": "apify-paid-ad-destinations-and-comparators",
+      "actor_id": "apify/website-content-crawler",
+      "input_mode": "explicit_url",
+      "build": "version-0",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://simplify.jobs/"
+          },
+          {
+            "url": "https://absoluteinternship.com/programs/"
+          },
+          {
+            "url": "https://capital-placement.com/choose-your-remote-program/"
+          },
+          {
+            "url": "https://capital-placement.com/internships/remote-finance-internships/"
+          },
+          {
+            "url": "https://capital-placement.com/internships/remote-marketing-internships/"
+          },
+          {
+            "url": "https://joinhandshake.com/employers/boost-your-job/"
+          },
+          {
+            "url": "https://joinhandshake.com/employers/hire-for-free/"
+          },
+          {
+            "url": "https://internshala.com/get-a-callback"
+          },
+          {
+            "url": "https://www.careerflow.ai/"
+          },
+          {
+            "url": "https://jobright.ai/"
+          },
+          {
+            "url": "https://theinterngroup.com/"
+          },
+          {
+            "url": "https://www.ciee.org/go-abroad/college-study-abroad/internships"
+          }
+        ],
+        "crawlerType": "playwright:adaptive",
+        "maxCrawlDepth": 0,
+        "maxCrawlPages": 12,
+        "maxResults": 12,
+        "useSitemaps": false,
+        "useLlmsTxt": false,
+        "respectRobotsTxtFile": true,
+        "proxyConfiguration": {
+          "useApifyProxy": true
+        },
+        "initialConcurrency": 2,
+        "maxConcurrency": 4,
+        "requestTimeoutSecs": 90,
+        "maxRequestRetries": 2,
+        "dynamicContentWaitSecs": 8,
+        "maxScrollHeightPixels": 10000,
+        "removeCookieWarnings": true,
+        "blockMedia": true,
+        "expandIframes": false,
+        "clickElementsCssSelector": "",
+        "removeElementsCssSelector": "nav, footer, style, noscript, svg, img[src^='data:']",
+        "htmlTransformer": "none",
+        "saveHtml": true,
+        "saveHtmlAsFile": false,
+        "saveMarkdown": true,
+        "saveFiles": false,
+        "saveScreenshots": false
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 12
+    }
+  ]
+}

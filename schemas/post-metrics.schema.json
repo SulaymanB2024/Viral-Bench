@@ -59,6 +59,30 @@
       "type": "string",
       "minLength": 1
     },
+    "experiment_id": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "variant_id": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "creative_lane": {
+      "type": ["string", "null"],
+      "enum": ["image_slideshow", "generated_video", null]
+    },
+    "delivery_mode": {
+      "type": ["string", "null"],
+      "enum": ["native_carousel", "rendered_video", null]
+    },
+    "audio_mode": {
+      "type": ["string", "null"],
+      "enum": ["platform_commercial_music", "provider_native_audio", "original_audio", "none", null]
+    },
+    "duration_sec": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0
+    },
     "metric_snapshots": {
       "type": "array",
       "items": {
@@ -79,6 +103,7 @@
       "additionalProperties": false,
       "required": [
         "captured_at",
+        "checkpoint",
         "views",
         "likes",
         "comments",
@@ -87,6 +112,10 @@
         "follows",
         "profile_visits",
         "dms",
+        "average_watch_time_sec",
+        "completion_rate",
+        "rewatch_rate",
+        "measurement_states",
         "notes"
       ],
       "properties": {
@@ -94,37 +123,84 @@
           "type": "string",
           "format": "date-time"
         },
+        "checkpoint": {
+          "enum": ["1h", "24h", "72h", "7d", "custom"]
+        },
         "views": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "likes": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "comments": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "shares": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "saves": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "follows": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "profile_visits": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "dms": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
+        },
+        "average_watch_time_sec": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "completion_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rewatch_rate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "measurement_states": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "views",
+            "likes",
+            "comments",
+            "shares",
+            "saves",
+            "follows",
+            "profile_visits",
+            "dms",
+            "average_watch_time_sec",
+            "completion_rate",
+            "rewatch_rate"
+          ],
+          "properties": {
+            "views": { "$ref": "#/$defs/measurement_state" },
+            "likes": { "$ref": "#/$defs/measurement_state" },
+            "comments": { "$ref": "#/$defs/measurement_state" },
+            "shares": { "$ref": "#/$defs/measurement_state" },
+            "saves": { "$ref": "#/$defs/measurement_state" },
+            "follows": { "$ref": "#/$defs/measurement_state" },
+            "profile_visits": { "$ref": "#/$defs/measurement_state" },
+            "dms": { "$ref": "#/$defs/measurement_state" },
+            "average_watch_time_sec": { "$ref": "#/$defs/measurement_state" },
+            "completion_rate": { "$ref": "#/$defs/measurement_state" },
+            "rewatch_rate": { "$ref": "#/$defs/measurement_state" }
+          }
         },
         "notes": {
           "type": "array",
@@ -134,6 +210,10 @@
           }
         }
       }
+    },
+    "measurement_state": {
+      "type": "string",
+      "enum": ["observed", "not_available", "not_applicable", "pending"]
     }
   }
 }

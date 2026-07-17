@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "batch_id": "internship-us-content-expansion-20260716",
+  "observed_at": "2026-07-16T23:55:00.000Z",
+  "signals": [
+    {
+      "signal_id": "handshake-2025-postings-applications",
+      "kind": "observed_first_party_research",
+      "period": "January 2023 to January 2025",
+      "claim": "Internship postings on Handshake declined by more than 15 percent while application activity increased; 41 percent of Class of 2025 students had applied to at least one internship through Handshake by January 2025, versus 34 percent of the Class of 2023 by graduation.",
+      "source_url": "https://joinhandshake.com/network-trends/handshake-internships-index-2025/",
+      "content_implication": "Treat competition, timing, and application quality as separate student problems rather than promising that volume alone fixes outcomes."
+    },
+    {
+      "signal_id": "handshake-2025-entry-level-competition",
+      "kind": "observed_first_party_research",
+      "period": "Class of 2025",
+      "claim": "Handshake reported a 15 percent year-over-year decline in job postings and a 30 percent increase in applications per job for the Class of 2025.",
+      "source_url": "https://joinhandshake.com/research/economic-research/class-of-2025-graduation/",
+      "content_implication": "Opportunity-radar posts should show fit, freshness, and alternatives rather than only announcing a crowded opening."
+    },
+    {
+      "signal_id": "handshake-2026-market-shifts",
+      "kind": "observed_first_party_research_summary",
+      "period": "2026",
+      "claim": "Handshake identifies earlier recruiting, changing AI expectations, and repeated employer familiarity as three structural shifts in the 2026 internship market.",
+      "source_url": "https://joinhandshake.com/employers/internship-report-2026/",
+      "content_implication": "Build recurring early-calendar, AI-boundary, and employer-familiarity series instead of one-off seasonal posts."
+    },
+    {
+      "signal_id": "nace-2025-skills-based-hiring",
+      "kind": "observed_first_party_research",
+      "period": "Job Outlook 2025",
+      "claim": "NACE reported that 64.8 percent of surveyed employers use skills-based hiring practices for new entry-level hires.",
+      "source_url": "https://www.naceweb.org/talent-acquisition/best-practices/d78c118a-edaa-4cec-beef-7f59827d264e",
+      "content_implication": "Keep Close the Proof Gap as the flagship series and organize it around demonstrable skills rather than credential inflation."
+    },
+    {
+      "signal_id": "bls-2025-young-worker-unemployment",
+      "kind": "observed_government_statistic",
+      "period": "2025 annual average",
+      "claim": "For people age 16 to 24, BLS reported unemployment rates of 7.4 percent for some college or an associate degree and 7.0 percent for a bachelor's degree or higher.",
+      "source_url": "https://www.bls.gov/cps/cpsaat07b.htm",
+      "content_implication": "Avoid framing difficult early-career searches as individual failure; distinguish market context from controllable application steps."
+    },
+    {
+      "signal_id": "ftc-2025-college-job-scams",
+      "kind": "observed_government_guidance",
+      "period": "May 2025",
+      "claim": "The FTC warns college students about fake job ads and recruiter messages, payment demands for training or starter kits, and fake-check requests that ask the student to forward money.",
+      "source_url": "https://consumer.ftc.gov/consumer-alerts/2025/05/college-students-avoid-scammers-while-you-job-hunt",
+      "content_implication": "Student Scam Check should be a recurring first-class series with an official-source verification step."
+    },
+    {
+      "signal_id": "uscis-practical-training",
+      "kind": "observed_government_guidance",
+      "period": "current page observed July 2026",
+      "claim": "USCIS distinguishes CPT, OPT, and STEM OPT; CPT requires authorization from the student's designated school official and must be integral to an established curriculum.",
+      "source_url": "https://www.uscis.gov/node/92821",
+      "content_implication": "International-student posts must link to official guidance, direct students to their DSO, and avoid individualized legal advice."
+    },
+    {
+      "signal_id": "dol-unpaid-intern-test",
+      "kind": "observed_government_guidance",
+      "period": "current guidance",
+      "claim": "The Department of Labor describes a flexible seven-factor primary-beneficiary test for determining whether an intern at a for-profit employer is an employee entitled to minimum wage and overtime.",
+      "source_url": "https://www.dol.gov/agencies/whd/fact-sheets/71-flsa-internships",
+      "content_implication": "Unpaid-internship content must explain the factors and uncertainty instead of declaring legality from a single detail."
+    },
+    {
+      "signal_id": "careerflow-student-positioning",
+      "kind": "company_marketing_claim",
+      "period": "page observed July 2026",
+      "claim": "Careerflow positions resume building, ATS checks, LinkedIn optimization, job tracking, mock interviews, and cover letters as one student job-search suite.",
+      "source_url": "https://www.careerflow.ai/for-students",
+      "content_implication": "AI assistance is a crowded claim; Internships.com needs a clearer evidence-truthfulness and human-review distinction."
+    },
+    {
+      "signal_id": "big-interview-positioning",
+      "kind": "company_marketing_claim",
+      "period": "page observed July 2026",
+      "claim": "Big Interview presents a learn, practice, and feedback loop using expert lessons, realistic questions, and AI-supported coaching.",
+      "source_url": "https://www.biginterview.com/",
+      "content_implication": "Interview content should demonstrate repeatable practice and reflection, not perfect-answer scripts."
+    },
+    {
+      "signal_id": "12twenty-campus-positioning",
+      "kind": "company_marketing_claim",
+      "period": "page observed July 2026",
+      "claim": "12twenty positions itself as campus-first infrastructure spanning career-center operations, outcome reporting, experiential learning, job boards, interviews, and career fairs.",
+      "source_url": "https://12twenty.com/",
+      "content_implication": "Institutional workflow and outcome data belong in a separate B2B2C intelligence lane rather than student editorial content."
+    },
+    {
+      "signal_id": "riipen-experiential-positioning",
+      "kind": "company_marketing_claim",
+      "period": "public material observed July 2026",
+      "claim": "Riipen positions real business and nonprofit projects as a way for students to gain work-ready experience and grow professional networks.",
+      "source_url": "https://info.riipen.com/hubfs/Riipen%20Partner%20Promo%20Kit%20Assets/Riipen%20for%20Educators%20-%20One-Pager.pdf",
+      "content_implication": "Proof-building alternatives deserve their own comparison lane alongside job-board discovery."
+    }
+  ],
+  "measurement_gaps": [
+    "Google Trends returned HTTP 429 during the current US query attempt; no relative-demand values are asserted.",
+    "Company product counts and outcome claims remain company-reported marketing claims unless separately verified.",
+    "The public web pass does not substitute for the credential-blocked social profile and search collection lanes."
+  ]
+}

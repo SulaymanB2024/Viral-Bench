@@ -34,6 +34,10 @@ export interface ApifyActorExecution {
   status: 'SUCCEEDED';
   items: unknown[];
   item_offsets: number[];
+  dataset_items_returned: number;
+  dataset_items_total_reported: number | null;
+  dataset_truncated: boolean;
+  dataset_truncation_unknown: boolean;
   actual_cost_usd: number | null;
   usage_finalized: boolean;
   pricing_info: unknown | null;
@@ -170,6 +174,10 @@ export class ApifyApiClient {
       status: 'SUCCEEDED',
       items: dataset.items,
       item_offsets: dataset.offsets,
+      dataset_items_returned: dataset.items.length,
+      dataset_items_total_reported: dataset.totalReported,
+      dataset_truncated: dataset.truncated,
+      dataset_truncation_unknown: dataset.truncationUnknown,
       actual_cost_usd: finalized.usageTotalUsd ?? terminal.usageTotalUsd,
       usage_finalized: usageFinalized,
       pricing_info: finalized.pricingInfo ?? terminal.pricingInfo,
@@ -205,12 +213,19 @@ export class ApifyApiClient {
     datasetId: string,
     pageSize = 500,
     maxItems = 10_000,
-  ): Promise<{ items: unknown[]; offsets: number[] }> {
+  ): Promise<{
+    items: unknown[];
+    offsets: number[];
+    totalReported: number | null;
+    truncated: boolean;
+    truncationUnknown: boolean;
+  }> {
     const limit = Math.min(1_000, positiveInteger(pageSize, 'datasetPageSize'));
     const ceiling = positiveInteger(maxItems, 'maxDatasetItems');
     const items: unknown[] = [];
     const offsets: number[] = [];
     let offset = 0;
+    let totalReported: number | null = null;
     while (items.length < ceiling) {
       const pageLimit = Math.min(limit, ceiling - items.length);
       const query = new URLSearchParams({ format: 'json', offset: String(offset), limit: String(pageLimit) });
@@ -220,6 +235,7 @@ export class ApifyApiClient {
         'Apify dataset page',
       );
       const totalHeader = nonNegativeHeader(response.headers.get('x-apify-pagination-total'));
+      if (totalHeader !== null) totalReported = totalHeader;
       const page = await parseJson<unknown[]>(response, 'Apify dataset page');
       if (!Array.isArray(page)) throw new Error('apify_dataset_response_must_be_array');
       page.forEach((item, index) => {
@@ -229,14 +245,14 @@ export class ApifyApiClient {
       offset += page.length;
       if (!page.length || page.length < pageLimit || (totalHeader !== null && offset >= totalHeader)) break;
     }
-    if (items.length >= ceiling) {
-      const total = items.length;
-      if (total === ceiling) {
-        // The local ceiling is deliberately observable; callers must not
-        // interpret a capped sample as complete provider coverage.
-      }
-    }
-    return { items, offsets };
+    const reachedCeiling = items.length >= ceiling;
+    return {
+      items,
+      offsets,
+      totalReported,
+      truncated: totalReported !== null && totalReported > items.length,
+      truncationUnknown: reachedCeiling && totalReported === null,
+    };
   }
 
   private headers(json: boolean): Record<string, string> {

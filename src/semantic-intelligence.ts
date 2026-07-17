@@ -499,7 +499,7 @@ export function normalizeActorItems(
     expectRecord(item, `dataset item ${index}`),
     {
       ...provenance,
-      dataset_item_offset: index,
+      dataset_item_offset: (provenance.dataset_item_offset ?? 0) + index,
       raw_item_sha256: crypto.createHash('sha256').update(canonicalJson(item)).digest('hex'),
     },
   ));
@@ -621,6 +621,15 @@ export class SqliteSemanticStore implements SemanticStore {
         checkpoint TEXT NOT NULL, source_kind TEXT NOT NULL,
         FOREIGN KEY(post_id) REFERENCES social_posts(evidence_id) ON DELETE CASCADE
       );
+      CREATE TABLE IF NOT EXISTS post_source_observations (
+        source_observation_id TEXT PRIMARY KEY, post_id TEXT NOT NULL, request_id TEXT NOT NULL,
+        collected_at TEXT NOT NULL, metric_captured_at TEXT NOT NULL, account_json TEXT NOT NULL,
+        post_json TEXT NOT NULL, comments_json TEXT NOT NULL, hashtags_json TEXT NOT NULL,
+        media_json TEXT NOT NULL, provenance_json TEXT NOT NULL, created_at TEXT NOT NULL,
+        FOREIGN KEY(post_id) REFERENCES social_posts(evidence_id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS post_source_observations_post_idx
+        ON post_source_observations(post_id, collected_at);
       CREATE TABLE IF NOT EXISTS video_assets (
         asset_id TEXT PRIMARY KEY, post_id TEXT NOT NULL, source_url TEXT, local_path TEXT,
         sha256 TEXT, bytes INTEGER, mime_type TEXT, created_at TEXT NOT NULL,
@@ -654,42 +663,76 @@ export class SqliteSemanticStore implements SemanticStore {
 
   upsertPost(post: NormalizedSocialPost): void {
     this.initialize();
-    const observationId = `${post.evidence_id}:${post.metric_snapshot.captured_at}`;
+    const sourceObservationId = `${post.evidence_id}:source:${post.provenance.raw_item_sha256}`;
+    const observationId = `${post.evidence_id}:${post.metric_snapshot.captured_at}:${post.provenance.raw_item_sha256.slice(0, 16)}`;
     const assetId = `${post.evidence_id}:video`;
     const statements: string[] = [
-      `INSERT OR REPLACE INTO social_accounts VALUES (${sqlValues([
+      `INSERT INTO social_accounts VALUES (${sqlValues([
         post.account.evidence_id, post.platform, post.account.platform_account_id, post.account.handle,
         post.account.display_name, post.account.bio, post.account.canonical_url, post.collected_at,
-      ])});`,
-      `INSERT OR REPLACE INTO social_posts VALUES (${sqlValues([
+      ])}) ON CONFLICT(evidence_id) DO UPDATE SET
+        platform=excluded.platform, platform_account_id=excluded.platform_account_id,
+        handle=excluded.handle, display_name=excluded.display_name, bio=excluded.bio,
+        canonical_url=excluded.canonical_url, updated_at=excluded.updated_at;`,
+      `INSERT INTO social_posts VALUES (${sqlValues([
         post.evidence_id, post.request_id, post.platform, post.platform_post_id, post.canonical_url,
         post.content_type, post.caption, post.posted_at, post.collected_at, post.account.evidence_id,
         JSON.stringify(post.hashtags), post.partial_text_only ? 1 : 0, post.provenance.raw_artifact_path,
         post.provenance.apify_actor_id, post.provenance.apify_run_id, post.provenance.apify_dataset_id,
         JSON.stringify(post.evidence_limitations), post.collected_at,
-      ])});`,
-      `DELETE FROM social_comments WHERE post_id=${sqlString(post.evidence_id)};`,
-      `DELETE FROM social_hashtags WHERE post_id=${sqlString(post.evidence_id)};`,
+      ])}) ON CONFLICT(evidence_id) DO UPDATE SET
+        request_id=excluded.request_id, platform=excluded.platform,
+        platform_post_id=excluded.platform_post_id, canonical_url=excluded.canonical_url,
+        content_type=excluded.content_type, caption=excluded.caption, posted_at=excluded.posted_at,
+        collected_at=excluded.collected_at, account_id=excluded.account_id,
+        hashtags_json=excluded.hashtags_json, partial_text_only=excluded.partial_text_only,
+        raw_artifact_path=excluded.raw_artifact_path, apify_actor_id=excluded.apify_actor_id,
+        apify_run_id=excluded.apify_run_id, apify_dataset_id=excluded.apify_dataset_id,
+        evidence_limitations_json=excluded.evidence_limitations_json, updated_at=excluded.updated_at;`,
       ...post.comments.map((comment) => `INSERT INTO social_comments VALUES (${sqlValues([
         comment.evidence_id, post.evidence_id, comment.platform_comment_id, comment.parent_comment_id,
         comment.thread_root_id, comment.author_handle, comment.text, comment.like_count, comment.reply_count,
         comment.created_at, comment.selection_reason,
-      ])});`),
+      ])}) ON CONFLICT(evidence_id) DO UPDATE SET
+        post_id=excluded.post_id, platform_comment_id=excluded.platform_comment_id,
+        parent_comment_id=excluded.parent_comment_id, thread_root_id=excluded.thread_root_id,
+        author_handle=excluded.author_handle, text=excluded.text, like_count=excluded.like_count,
+        reply_count=excluded.reply_count, created_at=excluded.created_at,
+        selection_reason=excluded.selection_reason;`),
       ...post.hashtags.map((tag) => `INSERT INTO social_hashtags VALUES (${sqlValues([
         `${post.evidence_id}:hashtag:${normalizedHashtag(tag)}`, post.evidence_id, post.platform,
         normalizedHashtag(tag), tag, post.caption,
-      ])});`),
-      `INSERT OR REPLACE INTO performance_observations VALUES (${sqlValues([
+      ])}) ON CONFLICT(evidence_id) DO UPDATE SET
+        post_id=excluded.post_id, platform=excluded.platform, normalized_tag=excluded.normalized_tag,
+        display_tag=excluded.display_tag, surrounding_context=excluded.surrounding_context;`),
+      `INSERT INTO performance_observations VALUES (${sqlValues([
         observationId, post.evidence_id, post.metric_snapshot.captured_at, post.metric_snapshot.views,
         post.metric_snapshot.likes, post.metric_snapshot.comments, post.metric_snapshot.shares,
         post.metric_snapshot.saves, post.metric_snapshot.follows, post.metric_snapshot.profile_visits,
         post.metric_snapshot.dms, post.metric_snapshot.view_velocity, post.metric_snapshot.checkpoint,
         post.metric_snapshot.source_kind,
-      ])});`,
-      `INSERT OR REPLACE INTO video_assets VALUES (${sqlValues([
+      ])}) ON CONFLICT(observation_id) DO NOTHING;`,
+      `INSERT INTO video_assets VALUES (${sqlValues([
         assetId, post.evidence_id, post.media.source_url, post.media.local_path, post.media.sha256,
         post.media.bytes, post.media.mime_type, post.collected_at,
-      ])});`,
+      ])}) ON CONFLICT(asset_id) DO UPDATE SET
+        source_url=excluded.source_url, local_path=excluded.local_path, sha256=excluded.sha256,
+        bytes=excluded.bytes, mime_type=excluded.mime_type, created_at=excluded.created_at;`,
+      `INSERT INTO post_source_observations VALUES (${sqlValues([
+        sourceObservationId, post.evidence_id, post.request_id, post.collected_at,
+        post.metric_snapshot.captured_at, JSON.stringify(post.account), JSON.stringify({
+          evidence_id: post.evidence_id,
+          platform: post.platform,
+          platform_post_id: post.platform_post_id,
+          canonical_url: post.canonical_url,
+          content_type: post.content_type,
+          caption: post.caption,
+          posted_at: post.posted_at,
+          partial_text_only: post.partial_text_only,
+          evidence_limitations: post.evidence_limitations,
+        }), JSON.stringify(post.comments), JSON.stringify(post.hashtags), JSON.stringify(post.media),
+        JSON.stringify(post.provenance), post.collected_at,
+      ])}) ON CONFLICT(source_observation_id) DO NOTHING;`,
     ];
     sqliteExec(this.dbPath, `BEGIN; ${statements.join('\n')} COMMIT;`);
   }
@@ -884,6 +927,10 @@ export async function storeContentAddressedMedia(
     fetchImpl?: typeof fetch;
     lookupHost?: (hostname: string) => Promise<Array<{ address: string; family: number }>>;
     maxBytes?: number;
+    bearerAuthorization?: {
+      origin: string;
+      token: string;
+    };
   } = {},
 ): Promise<NormalizedSocialPost['media']> {
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -893,7 +940,13 @@ export async function storeContentAddressedMedia(
   let response: Response | null = null;
   for (let redirect = 0; redirect <= 3; redirect += 1) {
     await assertPublicDownloadUrl(parsed, lookupHost);
-    response = await fetchImpl(parsed, { redirect: 'manual' });
+    const authorized = options.bearerAuthorization
+      && parsed.origin === options.bearerAuthorization.origin
+      && options.bearerAuthorization.token.trim();
+    response = await fetchImpl(parsed, {
+      redirect: 'manual',
+      ...(authorized ? { headers: { Authorization: `Bearer ${options.bearerAuthorization!.token.trim()}` } } : {}),
+    });
     if (response.status < 300 || response.status >= 400) break;
     const location = response.headers.get('location');
     if (!location) throw new Error('media_redirect_missing_location');
@@ -954,7 +1007,8 @@ function normalizeActorItem(
     ?? 'unknown';
   const comments = firstArray(item, ['comments', 'latestComments', 'commentList', 'topComments']) ?? [];
   const caption = firstText(item, ['text', 'caption', 'description', 'title']) ?? '';
-  const mediaUrl = firstText(item, ['videoUrl', 'video_url', 'downloadUrl', 'downloadAddr', 'mediaUrl', 'videoPlayUrl']);
+  const mediaUrl = firstText(item, ['videoUrl', 'video_url', 'downloadUrl', 'downloadAddr', 'mediaUrl', 'videoPlayUrl'])
+    ?? firstTextFromArray(item, ['mediaUrls', 'media_urls']);
   const hashtags = unique([
     ...extractHashtags(caption),
     ...(firstArray(item, ['hashtags', 'tags']) ?? []).flatMap((tag) => typeof tag === 'string'
@@ -964,8 +1018,8 @@ function normalizeActorItem(
   const accountId = firstText(author, ['id', 'userId', 'channelId']) ?? null;
   const metricSnapshot: SocialMetricSnapshot = {
     captured_at: collectedAt,
-    views: firstNumber(item, ['playCount', 'viewCount', 'views', 'videoPlayCount']),
-    likes: firstNumber(item, ['diggCount', 'likeCount', 'likes']),
+    views: firstNumber(item, ['playCount', 'viewCount', 'views', 'videoPlayCount', 'videoViewCount']),
+    likes: firstNumber(item, ['diggCount', 'likeCount', 'likes', 'likesCount']),
     comments: firstNumber(item, ['commentCount', 'commentsCount']),
     shares: firstNumber(item, ['shareCount', 'shares']),
     saves: firstNumber(item, ['collectCount', 'saveCount', 'saves']),
@@ -1039,9 +1093,9 @@ function flattenComments(input: unknown[], postEvidenceId: string): SocialCommen
       thread_root_id: currentRoot,
       author_handle: firstText(record, ['username', 'authorName', 'author', 'ownerUsername']) ?? 'unknown',
       text,
-      like_count: firstNumber(record, ['diggCount', 'likeCount', 'likes']) ?? 0,
+      like_count: firstNumber(record, ['diggCount', 'likeCount', 'likes', 'likesCount']) ?? 0,
       reply_count: firstNumber(record, ['replyCount', 'repliesCount']) ?? 0,
-      created_at: normalizeDate(firstValue(record, ['createTimeISO', 'createdAt', 'timestamp', 'createTime'])),
+      created_at: normalizeDate(firstValue(record, ['createTimeISO', 'createdAtIso', 'createdAt', 'timestamp', 'createTime'])),
       selection_reason: 'recent',
     });
     const replies = firstArray(record, ['replies', 'replyComments', 'children']) ?? [];
@@ -1223,6 +1277,12 @@ function firstNumber(record: Record<string, unknown>, keys: string[]): number | 
 function firstArray(record: Record<string, unknown>, keys: string[]): unknown[] | undefined {
   const value = firstValue(record, keys);
   return Array.isArray(value) ? value : undefined;
+}
+
+function firstTextFromArray(record: Record<string, unknown>, keys: string[]): string | undefined {
+  const values = firstArray(record, keys);
+  if (!values) return undefined;
+  return values.find((value): value is string => typeof value === 'string' && Boolean(value.trim()))?.trim();
 }
 
 function extractHashtags(text: string): string[] {

@@ -1,0 +1,32 @@
+{
+  "request_id": "internship-competitor-instagram-core-20260716",
+  "urls": [
+    "https://www.instagram.com/p/DZIZCFegb8V/",
+    "https://www.instagram.com/p/DYPx2fDpwGE/",
+    "https://www.instagram.com/p/DaLdbmHpvyO/",
+    "https://www.instagram.com/p/DUB7mpXkgOD/",
+    "https://www.instagram.com/p/DUo6bP6j8Dy/",
+    "https://www.instagram.com/p/DUEv_5tEuR4/",
+    "https://www.instagram.com/p/DUUAGGhEh1D/",
+    "https://www.instagram.com/p/DT3qoqjkpik/",
+    "https://www.instagram.com/p/C_OWv0ZisO3/",
+    "https://www.instagram.com/p/DadLs-8GREq/",
+    "https://www.instagram.com/p/Da2KWJElMcK/"
+  ],
+  "allowed_platforms": [
+    "instagram"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 3,
+    "max_apify_usd": 0.5,
+    "max_twelvelabs_usd": 2.5,
+    "max_gemini_usd": 0
+  }
+}

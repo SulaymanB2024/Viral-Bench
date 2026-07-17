@@ -1,0 +1,22 @@
+{
+  "feed_id": "job-search-content-sources-20260716",
+  "sources": [
+    "runway",
+    "handshake",
+    "internships_com"
+  ],
+  "cohorts": [
+    "recent",
+    "popular"
+  ],
+  "max_results_per_profile": 8,
+  "max_results_per_query": 6,
+  "approval": {
+    "state": "approved",
+    "approved_by": "User instruction in the current Codex task",
+    "approved_at": "2026-07-16T18:30:00.000Z"
+  },
+  "cost_policy": {
+    "max_apify_usd": 6
+  }
+}

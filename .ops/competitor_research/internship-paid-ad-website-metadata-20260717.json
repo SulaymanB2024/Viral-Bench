@@ -1,0 +1,681 @@
+{
+  "research_id": "internship-paid-ad-website-metadata-20260717",
+  "captured_at": "2026-07-17T20:46:01Z",
+  "scope": "Public paid-ad, short-form platform, and advertiser landing-page evidence for internship and early-career companies.",
+  "evidence_boundary": {
+    "meta": "Active-ad counts, formats, dates, placements, copy, CTA, and destinations are public Ad Library observations from a capped Apify result. Spend, targeting, conversions, and ROAS were unavailable.",
+    "tiktok": "The actor returned public profile metadata. Fourteen of 54 items were marked isAd=true, while zero were marked isSponsored=true; these fields are retained as platform metadata and are not treated as spend proof.",
+    "instagram": "The actor returned public recent-post metadata. One Jobright collaboration was marked paidPartnership=true. The other posts are creative-performance comparators, not assumed paid ads.",
+    "websites": "Page claims and metadata were collected by Apify Website Content Crawler version 0.3.92 from public HTML on the capture date. They were not independently audited and can change after capture.",
+    "tracking": "Tracking signals mean a public script or vendor identifier was present in the HTML returned by the Apify actor. They do not reveal audiences, budgets, or campaign performance."
+  },
+  "source_files": {
+    "discovery": ".semantic-artifacts/competitor-content/discovery/internship-paid-ads-reels-expansion-20260717.json",
+    "video_analysis": ".semantic-artifacts/competitor-content/reports/internship-paid-meta-video-ads-semantic-20260717.json",
+    "website_discovery": ".semantic-artifacts/competitor-content/discovery/internship-paid-ad-web-metadata-apify-20260717.json",
+    "website_run_config": ".ops/competitor_research/internship-paid-ad-web-metadata-apify-20260717.json"
+  },
+  "collection_cost": {
+    "apify_reported_usd": 0.7758,
+    "apify_website_crawl_usd": 0.036435,
+    "apify_total_reported_usd": 0.812235,
+    "twelvelabs_estimated_usd": 0.150835,
+    "combined_apify_reported_and_twelvelabs_estimated_usd": 0.96307,
+    "website_pages": 12,
+    "website_actor": "apify/website-content-crawler",
+    "website_actor_build": "0.3.92",
+    "website_actor_run_id": "jhJsTNBaZ5r9E6tF4",
+    "website_actor_dataset_id": "4HQaf0goms4CIfXE9",
+    "website_actor_usage_finalized": true,
+    "website_actor_external_calls": 42
+  },
+  "paid_ad_rollup": {
+    "active_ads": 44,
+    "advertisers_with_active_ads": 5,
+    "format_counts": {
+      "DCO": 6,
+      "IMAGE": 24,
+      "VIDEO": 14
+    },
+    "cta_counts": {
+      "APPLY_NOW": 14,
+      "LEARN_MORE": 17,
+      "SEE_DETAILS": 1,
+      "SIGN_UP": 12
+    },
+    "placement_counts": {
+      "FACEBOOK": 36,
+      "INSTAGRAM": 44,
+      "MESSENGER": 22,
+      "THREADS": 19,
+      "AUDIENCE_NETWORK": 13
+    },
+    "reach_fields_available": 0,
+    "spend_fields_available": 0
+  },
+  "companies": [
+    {
+      "company": "Simplify",
+      "cohort": "active_meta_advertiser",
+      "meta_active_ads": 12,
+      "meta_formats": {
+        "video": 9,
+        "image": 3,
+        "dco": 0
+      },
+      "meta_strategy": [
+        "Authority claim: Harvard students voted Simplify the number-one job-search tool.",
+        "Urgent AI transformation framing.",
+        "Free-signup conversion from broad cross-Meta placement."
+      ],
+      "ad_destinations": [
+        "https://simplify.jobs/"
+      ],
+      "website_pages": [
+        {
+          "url": "https://simplify.jobs/",
+          "status_code": 200,
+          "title": "Simplify | AI Job Search Platform",
+          "meta_description": "Simplify is your personal AI talent agent — one profile that powers your entire job search. Get matched, tailor your resume, build your network, and track every opportunity in one place.",
+          "canonical": "https://simplify.jobs/",
+          "robots": null,
+          "primary_ctas": [
+            "Join Now",
+            "Join Now - It's Free!",
+            "Get a Free Resume"
+          ],
+          "structured_data_types": [
+            "WebSite",
+            "Organization",
+            "SearchAction",
+            "FAQPage",
+            "Question",
+            "Answer"
+          ]
+        }
+      ],
+      "website_offer_and_proof": [
+        "One profile powers job matches, application autofill, tailored resumes, networking, and tracking.",
+        "1,500,000+ job seekers.",
+        "200,000,000+ applications submitted.",
+        "Candidates hear back 25% more than on other platforms, according to the page.",
+        "Named outcome testimonials tied to employers such as Google, Goldman, Meta, and Jane Street."
+      ],
+      "tracking_signals": [
+        "PostHog"
+      ],
+      "message_match": "Strong product-category and free-signup continuity. The page supplies the product proof and detailed workflow that the short authority-led ad omits.",
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@joinsimplify/video/7236616679957089579",
+        "views": 1700000,
+        "likes": 63500,
+        "shares": 4984,
+        "saves": 47289,
+        "format": "Saveable LinkedIn headline formula."
+      }
+    },
+    {
+      "company": "Handshake",
+      "cohort": "active_meta_advertiser",
+      "meta_active_ads": 12,
+      "meta_formats": {
+        "video": 1,
+        "image": 10,
+        "dco": 1
+      },
+      "meta_strategy": [
+        "Two-funnel employer acquisition: free posting for mid-funnel users and paid promotion for bottom-funnel users.",
+        "Quantified result framing: 3x qualified applicants, 25M candidates, first applicant within 12 hours.",
+        "Price anchoring at $34 per day for promotion.",
+        "High copy breadth with 11 observed offer or copy concepts."
+      ],
+      "ad_destinations": [
+        "https://joinhandshake.com/employers/boost-your-job/",
+        "https://joinhandshake.com/employers/hire-for-free/"
+      ],
+      "website_pages": [
+        {
+          "url": "https://joinhandshake.com/employers/boost-your-job/",
+          "status_code": 200,
+          "title": "Promote your job today | Handshake",
+          "meta_description": "Get 3x the qualified applicants for your open roles.",
+          "canonical": "https://joinhandshake.com/employers/boost-your-job/",
+          "robots": null,
+          "primary_ctas": [
+            "Promote your job",
+            "Sign up",
+            "Request demo"
+          ],
+          "structured_data_types": [
+            "WebSite",
+            "Organization",
+            "ImageObject",
+            "WebPage"
+          ]
+        },
+        {
+          "url": "https://joinhandshake.com/employers/hire-for-free/",
+          "status_code": 200,
+          "title": "Post a job for free | Handshake",
+          "meta_description": "Get your first applicant within 12 hours.",
+          "canonical": "https://joinhandshake.com/employers/hire-for-free/",
+          "robots": null,
+          "primary_ctas": [
+            "Post a job",
+            "Create your free account",
+            "Get started for free"
+          ],
+          "structured_data_types": [
+            "WebSite",
+            "Organization",
+            "ImageObject",
+            "WebPage"
+          ]
+        }
+      ],
+      "website_offer_and_proof": [
+        "1M employers already hiring early talent.",
+        "25M verified candidates.",
+        "3x qualified applicants when a job is promoted.",
+        "Average under 12 hours to the first applicant on the free-posting page.",
+        "Small businesses receive an average of 44 applications per job."
+      ],
+      "tracking_signals": [
+        "Google Tag Manager",
+        "Marketo",
+        "Bizible"
+      ],
+      "message_match": "Very strong outcome continuity across the free and promoted funnels. The $34-per-day anchor is explicit in ads but was not repeated in the scraped boost-page body, so price continuity depends on the next checkout step.",
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@joinhandshake/video/7138472018504076586",
+        "views": 244500,
+        "likes": 2564,
+        "shares": 13,
+        "saves": 175,
+        "format": "Pause-to-read coffee-chat outreach script."
+      }
+    },
+    {
+      "company": "Capital Placement",
+      "cohort": "active_meta_advertiser",
+      "meta_active_ads": 12,
+      "meta_formats": {
+        "video": 2,
+        "image": 9,
+        "dco": 1
+      },
+      "meta_strategy": [
+        "Narrow role and modality promise: remote finance or marketing internship.",
+        "Risk reversal: placement in eight weeks or refund.",
+        "Paid-experience promise, global-city specificity, and limited-slot urgency.",
+        "Dynamic creative routing into a program-comparison page."
+      ],
+      "ad_destinations": [
+        "https://capital-placement.com/choose-your-remote-program/",
+        "https://capital-placement.com/internships/remote-finance-internships/",
+        "https://capital-placement.com/internships/remote-marketing-internships/"
+      ],
+      "website_pages": [
+        {
+          "url": "https://capital-placement.com/choose-your-remote-program/",
+          "status_code": 200,
+          "title": "Remote Internships (Performance) - Capital Placement",
+          "meta_description": null,
+          "canonical": "https://capital-placement.com/choose-your-remote-program/",
+          "robots": null,
+          "primary_ctas": [
+            "Start My Career",
+            "Apply Now",
+            "Talk to Advisor"
+          ],
+          "structured_data_types": [
+            "WebPage",
+            "ImageObject",
+            "BreadcrumbList",
+            "WebSite",
+            "Organization"
+          ]
+        },
+        {
+          "url": "https://capital-placement.com/internships/remote-finance-internships/",
+          "status_code": 200,
+          "title": "Remote Finance Internships - Capital Placement",
+          "meta_description": "Apply for career-defining remote finance internships. Work with international brands, develop valuable skills and enhance your CV.",
+          "canonical": "https://capital-placement.com/internships/remote-finance-internships/",
+          "robots": null,
+          "primary_ctas": [
+            "Apply Now",
+            "Talk to Advisor"
+          ],
+          "structured_data_types": [
+            "WebPage",
+            "ImageObject",
+            "BreadcrumbList",
+            "WebSite",
+            "Organization"
+          ]
+        },
+        {
+          "url": "https://capital-placement.com/internships/remote-marketing-internships/",
+          "status_code": 200,
+          "title": "Remote Marketing Internships - Capital Placement",
+          "meta_description": "Kickstart your career with rewarding remote marketing internships. Work with real companies across the globe, build in-demand skills and boost your CV.",
+          "canonical": "https://capital-placement.com/internships/remote-marketing-internships/",
+          "robots": null,
+          "primary_ctas": [
+            "Apply Now",
+            "Start Your Journey",
+            "Talk to Advisor"
+          ],
+          "structured_data_types": [
+            "WebPage",
+            "ImageObject",
+            "BreadcrumbList",
+            "WebSite",
+            "Organization"
+          ]
+        }
+      ],
+      "website_offer_and_proof": [
+        "Guaranteed internship or money back.",
+        "Starter program: offer in six weeks or a full refund.",
+        "Remote program: placement in eight weeks or a full refund.",
+        "Program comparison showed $1,010 and $1,953 prices at capture time.",
+        "Finance page showed £300-£500 monthly stipend examples and a £1,550 program fee.",
+        "Marketing page showed $404-$673 monthly stipend examples.",
+        "The comparison page still displayed code RT100May and a £100 discount in July; treat it as potentially stale until verified."
+      ],
+      "tracking_signals": [
+        "Google Analytics",
+        "Meta Pixel",
+        "TikTok Pixel",
+        "Microsoft Clarity",
+        "Klaviyo"
+      ],
+      "message_match": "The strongest observed continuity: role, remote modality, paid experience, guarantee, duration, CTA, and program economics are all carried onto the page. The main risk is claim freshness rather than message mismatch.",
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@capitalplacement/video/7207516769605471494",
+        "views": 561200,
+        "likes": 18200,
+        "shares": 1604,
+        "saves": 11773,
+        "format": "Concrete LinkedIn profile-picture advice."
+      }
+    },
+    {
+      "company": "Absolute Internship",
+      "cohort": "active_meta_advertiser",
+      "meta_active_ads": 2,
+      "meta_formats": {
+        "video": 2,
+        "image": 0,
+        "dco": 0
+      },
+      "meta_strategy": [
+        "Long-running lifestyle and testimonial montage.",
+        "International city, culture, cohort, and identity transformation.",
+        "Award-led credibility and direct apply CTA in the ad wrapper."
+      ],
+      "ad_destinations": [
+        "https://absoluteinternship.com/programs/"
+      ],
+      "website_pages": [
+        {
+          "url": "https://absoluteinternship.com/programs/",
+          "status_code": 200,
+          "title": "Award-Winning Internship Abroad Programs | Absolute Internship",
+          "meta_description": "Stand out from the crowd with Absolute Internship's award-winning internship abroad program for students across Europe and Asia! Don't be late, join us now!",
+          "canonical": "https://absoluteinternship.com/programs/",
+          "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+          "primary_ctas": [
+            "Apply Now",
+            "Join Us"
+          ],
+          "structured_data_types": [
+            "Organization",
+            "ContactPoint",
+            "PostalAddress",
+            "WebPage",
+            "ImageObject",
+            "BreadcrumbList",
+            "WebSite"
+          ]
+        }
+      ],
+      "website_offer_and_proof": [
+        "Programs across 12 named locations in Europe and Asia.",
+        "Displayed location prices ranged from €4,799 to €6,995.",
+        "Third-party awards and review links from GoAbroad and Go Overseas.",
+        "Media-proof links included Reuters, Forbes, BBC, New York Times, and Bloomberg.",
+        "€800 enrollment discount before August 15."
+      ],
+      "tracking_signals": [
+        "Google Tag Manager",
+        "Google Analytics",
+        "HubSpot",
+        "Microsoft Clarity"
+      ],
+      "message_match": "Strong experiential and destination continuity, but weaker transaction continuity. The ad video omits the price, application process, and deadline that appear on the page, and its visual analysis found no explicit in-video CTA.",
+      "instagram_evidence": {
+        "url": "https://www.instagram.com/p/Da3gdYKRtcX/",
+        "likes": 157,
+        "comments": 2,
+        "format": "Participant memory montage from a co-created account."
+      }
+    },
+    {
+      "company": "Internshala",
+      "cohort": "active_meta_advertiser",
+      "meta_active_ads": 6,
+      "meta_formats": {
+        "video": 0,
+        "image": 2,
+        "dco": 4
+      },
+      "meta_strategy": [
+        "B2B guaranteed-hiring offer.",
+        "Instant profile access, expert support, and AI recruiting-tool bundle.",
+        "Low-creative-complexity image and dynamic-creative funnel to callback capture."
+      ],
+      "ad_destinations": [
+        "https://internshala.com/get-a-callback/"
+      ],
+      "website_pages": [
+        {
+          "url": "https://internshala.com/get-a-callback/",
+          "status_code": 200,
+          "title": "Post a Job Online and Get Guaranteed Hiring with Internshala Premium",
+          "meta_description": "Post your job online with Internshala Premium and hire top talent quickly. Hire Employees in 48 Hours ✓ Job Posting in India ✓ 300K+ Companies Hiring.",
+          "canonical": "https://internshala.com/get-a-callback/",
+          "robots": null,
+          "primary_ctas": [
+            "Get a callback",
+            "Register as an Employer"
+          ],
+          "structured_data_types": [
+            "SoftwareApplication",
+            "AggregateRating",
+            "Offer"
+          ],
+          "forms": 3,
+          "public_form_fields": 12
+        }
+      ],
+      "website_offer_and_proof": [
+        "Up to 500 relevant profiles.",
+        "Trusted by 100K+ brands.",
+        "100% refund if the customer cannot hire in 30 days.",
+        "Rated by 2,407 users as of July 13, 2026.",
+        "Page copy says 80% of one 50-person team was hired through Internshala.",
+        "AI interviewer, resume matching, filters, chat, assignment, and scheduling."
+      ],
+      "tracking_signals": [
+        "Google Ads"
+      ],
+      "message_match": "Very strong guarantee and capability continuity. The page adds refund terms, concrete profile volume, testimonials, and a callback form; the active Meta cohort itself contains no video creative.",
+      "instagram_evidence": {
+        "url": "https://www.instagram.com/p/DaxfXysRRzx/",
+        "likes": 38,
+        "comments": 45,
+        "format": "Comment-to-DM keyword lead capture."
+      }
+    },
+    {
+      "company": "CIEE",
+      "cohort": "organic_and_platform_ad_comparator",
+      "meta_active_ads": 0,
+      "website_pages": [
+        {
+          "url": "https://www.ciee.org/go-abroad/college-study-abroad/internships",
+          "status_code": 200,
+          "title": "Internships Abroad | CIEE",
+          "meta_description": "CIEE’s internships abroad offer students international internship opportunities across 20+ locations. Intern abroad in areas like business, marketing, and more.",
+          "canonical": "https://www.ciee.org/go-abroad/college-study-abroad/internships",
+          "robots": null,
+          "primary_ctas": [
+            "Apply",
+            "Start your CIEE application"
+          ],
+          "structured_data_types": [
+            "Organization",
+            "WebPage"
+          ],
+          "forms": 4,
+          "public_form_fields": 28
+        }
+      ],
+      "tracking_signals": [
+        "Meta Pixel",
+        "TikTok Pixel"
+      ],
+      "website_offer_and_proof": [
+        "Summer options of six or eight weeks and semester options of 12 weeks.",
+        "Full-time and part-time internship variants with explicit contact hours and academic credits.",
+        "34-38 locations depending on program.",
+        "Search by region and location."
+      ],
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@cieestudyabroad/video/7438717559668591914",
+        "views": 5400000,
+        "likes": 22700,
+        "shares": 1346,
+        "saves": 6083,
+        "is_ad": true,
+        "is_sponsored": false,
+        "format": "Free study-abroad giveaway with link-in-bio CTA."
+      },
+      "strategy_transfer": "Use a high-value scholarship or fee-credit giveaway to acquire the audience, then retarget with concrete program duration, location, credit, and application detail."
+    },
+    {
+      "company": "The Intern Group",
+      "cohort": "organic_and_platform_ad_comparator",
+      "meta_active_ads": 0,
+      "website_pages": [
+        {
+          "url": "https://theinterngroup.com/",
+          "status_code": 200,
+          "title": "International Internships & Intern Abroad Programs",
+          "meta_description": "International internships abroad. In-person & remote internships. Apply for our award-winning internship programs. Intern abroad to advance your career.",
+          "canonical": "https://theinterngroup.com/",
+          "robots": null,
+          "primary_ctas": [
+            "Apply now",
+            "Program fees and start dates",
+            "Join an info session"
+          ],
+          "structured_data_types": [
+            "Organization",
+            "ContactPoint"
+          ]
+        }
+      ],
+      "tracking_signals": [
+        "Google Analytics",
+        "HubSpot"
+      ],
+      "website_offer_and_proof": [
+        "Guaranteed internship.",
+        "15,000+ global alumni.",
+        "Trusted by 150+ universities.",
+        "20+ career fields, nine destinations, and 3,000+ host organizations.",
+        "Alumni rating claim of 9+/10.",
+        "Visible examples ranged from four to 24 weeks and included starting prices."
+      ],
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@theinterngroupint/video/7350705936434089222",
+        "views": 392000,
+        "is_ad": true,
+        "is_sponsored": false,
+        "format": "Native debate framing: study abroad versus intern abroad."
+      },
+      "strategy_transfer": "Lead with a native student tension or joke, then bridge into guarantee, price, destination, and alumni proof instead of opening with institutional program copy."
+    },
+    {
+      "company": "Jobright",
+      "cohort": "organic_and_paid_partnership_comparator",
+      "meta_active_ads": 0,
+      "website_pages": [
+        {
+          "url": "https://jobright.ai/",
+          "status_code": 200,
+          "title": "Jobright: Your AI Job Search Copilot",
+          "meta_description": "Discover your dream job with Jobright, your AI job search copilot. Get tailored resumes, social connections, and autofill jobs applilcations for your fit.",
+          "canonical": "https://jobright.ai/",
+          "robots": null,
+          "primary_ctas": [
+            "Try For Free"
+          ],
+          "structured_data_types": [
+            "Organization"
+          ]
+        }
+      ],
+      "tracking_signals": [
+        "Google Tag Manager",
+        "Google Analytics",
+        "TikTok Pixel",
+        "LinkedIn Insight"
+      ],
+      "website_offer_and_proof": [
+        "2,000,000+ users.",
+        "8,000,000+ total jobs and 400,000+ new jobs today at capture time.",
+        "Save 80% of application time.",
+        "Four-times interview-chance claim through insider referrals.",
+        "Resume tailoring in six seconds."
+      ],
+      "short_form_evidence": {
+        "tiktok_url": "https://www.tiktok.com/@jobright.ai/video/7380025530881412398",
+        "views": 26900,
+        "is_ad": true,
+        "is_sponsored": false,
+        "format": "Resume tutorial tied to a four-times interview claim."
+      },
+      "instagram_evidence": {
+        "url": "https://www.instagram.com/p/DZYPMbbStI6/",
+        "likes": 372,
+        "comments": 16,
+        "paid_partnership": true,
+        "format": "Creator collaboration with a comment-to-DM free-link CTA."
+      },
+      "strategy_transfer": "Pair a creator-delivered pain observation with a free resource or product link, then retarget into a workflow demo with one quantified time-saving claim."
+    },
+    {
+      "company": "Careerflow",
+      "cohort": "organic_comparator_meta_identity_unresolved",
+      "meta_active_ads": null,
+      "website_pages": [
+        {
+          "url": "https://www.careerflow.ai/",
+          "status_code": 200,
+          "title": "Careerflow - Your Career Copilot | Powerful AI Job Search Tools",
+          "meta_description": "Careerflow is the AI career platform trusted by 2M+ job seekers. Build ATS-ready resumes, optimize LinkedIn, track applications, and land jobs faster.",
+          "canonical": "https://www.careerflow.ai/",
+          "robots": null,
+          "primary_ctas": [
+            "Sign up for free",
+            "Start tracking",
+            "Start now"
+          ],
+          "structured_data_types": [
+            "Organization"
+          ]
+        }
+      ],
+      "tracking_signals": [],
+      "website_offer_and_proof": [
+        "Broad AI job-search suite spanning resume, LinkedIn, application tracking, and coaching.",
+        "Metadata says 2M+ users, while visible body copy used 1.2M and 1M+ variants; normalize this proof before reusing the pattern.",
+        "Visible free and paid plans with annual-discount anchors."
+      ],
+      "instagram_evidence": {
+        "url": "https://www.instagram.com/p/Dax9yRczAKN/",
+        "likes": 236,
+        "comments": 727,
+        "format": "Comment-gated ChatGPT job-search automation tutorial."
+      },
+      "strategy_transfer": "Comment-gated automation templates can create much higher response volume than ordinary product reels, but the landing-page proof numbers should be internally consistent before scaling."
+    }
+  ],
+  "run_ready_strategy_backlog": [
+    {
+      "priority": 1,
+      "audience": "student_candidate",
+      "strategy": "Saveable career utility",
+      "creative": "A 15-25 second step-by-step LinkedIn, resume, outreach, or application checklist.",
+      "offer": "Free internship tracker, profile grader, or template.",
+      "proof_to_show": "One before-and-after screen or measurable time saved.",
+      "cta": "Save this, then use the free tool.",
+      "evidence": "Simplify, Capital Placement, Handshake, and Jobright top TikTok examples."
+    },
+    {
+      "priority": 1,
+      "audience": "student_candidate",
+      "strategy": "Narrow internship guarantee",
+      "creative": "Open with role, remote or city modality, paid status, and a placement deadline.",
+      "offer": "Internship placement or money back.",
+      "proof_to_show": "Eligibility, process steps, time-to-placement, fee, stipend range, and refund terms.",
+      "cta": "Check eligibility or apply.",
+      "evidence": "Capital Placement ad-to-page funnel."
+    },
+    {
+      "priority": 1,
+      "audience": "employer",
+      "strategy": "Free acquisition versus paid acceleration",
+      "creative": "Separate a free-posting ad from a promoted-post ad instead of mixing both offers.",
+      "offer": "Post free or promote for a disclosed daily price.",
+      "proof_to_show": "Time to first applicant, candidate pool, applications per job, and qualified-applicant lift.",
+      "cta": "Post a job or promote a job.",
+      "evidence": "Handshake's two-funnel Meta architecture."
+    },
+    {
+      "priority": 1,
+      "audience": "employer",
+      "strategy": "Guaranteed hiring with callback capture",
+      "creative": "Lead with the refund window, then show profile access and AI screening.",
+      "offer": "Hire within a defined window or receive a refund.",
+      "proof_to_show": "Profile volume, customer count, ratings, and one customer outcome.",
+      "cta": "Request a callback.",
+      "evidence": "Internshala active Meta and landing page."
+    },
+    {
+      "priority": 2,
+      "audience": "student_candidate",
+      "strategy": "Creator pain observation plus gated resource",
+      "creative": "Creator names a recognizable job-search problem and offers a free resource by comment keyword.",
+      "offer": "Free curated internship link, tracker, or automation prompt.",
+      "proof_to_show": "Resource preview and creator walkthrough.",
+      "cta": "Comment a keyword for the link.",
+      "evidence": "Jobright paid partnership and Careerflow comment-gated reel."
+    },
+    {
+      "priority": 2,
+      "audience": "student_candidate",
+      "strategy": "Lifestyle transformation with transaction clarity",
+      "creative": "Student-led city, cohort, work, and culture montage.",
+      "offer": "International internship program.",
+      "proof_to_show": "Named city, participant outcome, exact duration, starting price, application deadline, and what is included.",
+      "cta": "Compare programs or apply.",
+      "evidence": "Absolute Internship, The Intern Group, and CIEE."
+    },
+    {
+      "priority": 2,
+      "audience": "student_candidate",
+      "strategy": "Scholarship or fee-credit giveaway",
+      "creative": "Direct value reveal in the first second with short entry mechanics.",
+      "offer": "Free program, scholarship, or fee credit.",
+      "proof_to_show": "Award value, eligibility, deadline, and winner-selection terms.",
+      "cta": "Enter, then explore eligible internships.",
+      "evidence": "CIEE TikTok ad-flagged giveaway creatives."
+    },
+    {
+      "priority": 3,
+      "audience": "student_candidate",
+      "strategy": "Authority proof into product demo",
+      "creative": "Open with one credible external ranking or cohort result, then immediately show the product workflow.",
+      "offer": "Free AI internship-search tool.",
+      "proof_to_show": "Source of authority claim, user volume, applications, and outcome lift.",
+      "cta": "Sign up free.",
+      "evidence": "Simplify active Meta cohort and website."
+    }
+  ]
+}

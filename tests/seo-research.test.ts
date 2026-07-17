@@ -159,6 +159,10 @@ test('Apify adapter retries safe reads, paginates raw items, and reconciles fina
   });
   assert.equal(result.items.length, 3);
   assert.deepEqual(result.item_offsets, [0, 1, 2]);
+  assert.equal(result.dataset_items_returned, 3);
+  assert.equal(result.dataset_items_total_reported, 3);
+  assert.equal(result.dataset_truncated, false);
+  assert.equal(result.dataset_truncation_unknown, false);
   assert.equal(result.actual_cost_usd, 0.011);
   assert.equal(result.usage_finalized, true);
   assert.equal(result.actor_build_number, '1.2.3');
@@ -239,6 +243,17 @@ test('SEO discovery retains observed evidence and strategy keeps inference separ
   assert.equal(strategy.approval_state, 'draft');
   assert.equal(strategy.content_concepts.length, 3);
   assert.ok(strategy.observed_patterns.length > 0);
+  assert.deepEqual(
+    new Set(strategy.observed_patterns.map((pattern) => pattern.segment.cohort)),
+    new Set(['recent', 'popular']),
+  );
+  assert.ok(strategy.observed_patterns.every((pattern) => (
+    pattern.segment.ranking_metric === 'observed_views_within_platform_and_cohort'
+  )));
+  assert.ok(strategy.observed_patterns.every((pattern) => (
+    pattern.observation.includes(pattern.segment.platform)
+    && pattern.observation.includes(pattern.segment.cohort)
+  )));
   assert.ok(strategy.derived_recommendations.every((item) => item.inference_method === 'bounded_pattern_synthesis'));
   assert.match(strategy.originality_constraints.join(' '), /Never copy/i);
   assert.match(strategy.limitations.join(' '), /not causal proof/i);
@@ -260,8 +275,16 @@ test('TikTok discovery normalizes observed metadata and builds career-guidance c
     playCount: 42000,
     diggCount: 3100,
     commentCount: 91,
+    shareCount: 240,
+    collectCount: 510,
+    repostCount: 12,
+    textLanguage: 'en',
+    isAd: false,
+    isSponsored: false,
+    isSlideshow: false,
     authorMeta: { name: 'careercoach', profileUrl: 'https://www.tiktok.com/@careercoach' },
     videoMeta: { duration: 24 },
+    musicMeta: { musicName: 'Original sound', musicAuthor: 'careercoach', musicOriginal: true },
     hashtags: [{ name: 'internshiptips' }],
   };
   const responses: Response[] = [];
@@ -300,6 +323,11 @@ test('TikTok discovery normalizes observed metadata and builds career-guidance c
   assert.equal(report.candidates[0].canonical_url, 'https://www.tiktok.com/@careercoach/video/7450000000000000001');
   assert.equal(report.candidates[0].channel_name, 'careercoach');
   assert.equal(report.candidates[0].observed_metrics.views, 42000);
+  assert.equal(report.candidates[0].observed_metrics.shares, 240);
+  assert.equal(report.candidates[0].observed_metrics.saves, 510);
+  assert.equal(report.candidates[0].observed_metrics.reposts, 12);
+  assert.equal(report.candidates[0].content_metadata.language, 'en');
+  assert.equal(report.candidates[0].content_metadata.music_original, true);
   assert.deepEqual(report.candidates[0].hashtags, ['internshiptips']);
 
   const strategy = buildSeoStrategyReport(tiktokRequest, report, () => new Date('2026-07-15T18:35:00.000Z'));

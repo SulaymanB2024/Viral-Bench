@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ViralBench — Velocity Benchmarks</title>
+  <meta name="description" content="Observed velocity benchmarks, recurring language, and fresh short-form content signals computed from the ViralBench content library.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site-navigation.js" defer></script>
+</head>
+<body class="library-page signals-page">
+  <a class="site-skip" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <a class="site-brand" href="/" aria-label="ViralBench library"><span class="site-brand-dot" aria-hidden="true"></span><span>ViralBench</span></a>
+    <button class="site-menu-button" type="button" aria-expanded="false" aria-controls="siteNavigation">Menu</button>
+    <nav class="site-navigation" id="siteNavigation" aria-label="Primary">
+      <a href="/" data-site-route="library">Library</a>
+      <a href="/benchmarks" data-site-route="benchmarks">Benchmarks</a>
+      <a href="/ask" data-site-route="ask">Ask</a>
+      <a href="/work" data-site-route="work">Work</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="library-intro signals-intro">
+      <h1>Benchmarks.</h1>
+      <div class="library-intro-copy">
+        <p><strong id="introWinners">60 high-signal videos</strong> across 563 posts. Velocity normalized by platform and age.</p>
+        <a href="#benchmarks">View benchmarks</a>
+      </div>
+    </section>
+
+    <section class="library-metrics signals-metrics" aria-label="Signal summary">
+      <div class="library-metric">
+        <strong id="metricWinners">60</strong>
+        <span>High-signal videos</span>
+      </div>
+      <div class="library-metric">
+        <strong id="metricWinnerRate">10.7%</strong>
+        <span>Share above baseline</span>
+      </div>
+      <div class="library-metric">
+        <strong id="metricFresh">29</strong>
+        <span>Fresh watchlist</span>
+      </div>
+      <div class="library-metric">
+        <strong id="metricRepeated">124</strong>
+        <span>Repeat observed</span>
+      </div>
+      <div class="library-metric">
+        <strong id="metricPlatforms">3</strong>
+        <span>Platforms compared</span>
+      </div>
+    </section>
+
+    <section class="library-distribution" aria-label="Signal and age distribution">
+      <div class="distribution-copy">
+        <h2>Two clocks.</h2>
+        <p>Lifetime velocity and repeat observations. Descriptive, not causal.</p>
+      </div>
+      <div class="distribution-plot">
+        <div class="distribution-group">
+          <div class="distribution-heading"><span>Performance signals</span><span id="signalTotal">Loading</span></div>
+          <div id="signalBars"></div>
+        </div>
+        <div class="distribution-group">
+          <div class="distribution-heading"><span>Age at latest capture</span><span>Published date</span></div>
+          <div id="ageBars"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="signals-platform-band" aria-label="Platform velocity benchmarks">
+      <div class="signals-band-copy">
+        <h2>Platform velocity.</h2>
+        <p>Median and upper-quartile lifetime views per hour.</p>
+      </div>
+      <div class="signals-platform-rail" id="platformRail">
+        <p class="signals-loading">Loading benchmarks…</p>
+      </div>
+    </section>
+
+    <section class="signals-benchmark" id="benchmarks">
+      <div class="signals-section-heading">
+        <div>
+          <h2>By age.</h2>
+          <p>Sample, median, upper quartile, and high-signal share.</p>
+        </div>
+        <div class="signals-filter" aria-label="Benchmark platform">
+          <button class="library-filter active" data-benchmark-platform="all" type="button">All platforms</button>
+          <button class="library-filter" data-benchmark-platform="instagram" type="button">Instagram</button>
+          <button class="library-filter" data-benchmark-platform="tiktok" type="button">TikTok</button>
+          <button class="library-filter" data-benchmark-platform="youtube_shorts" type="button">YouTube Shorts</button>
+        </div>
+      </div>
+
+      <div class="signals-table-wrap">
+        <table class="signals-table">
+          <caption>Age-cohort velocity benchmarks</caption>
+          <thead>
+            <tr>
+              <th scope="col">Published age</th>
+              <th scope="col">Sample</th>
+              <th scope="col">Median velocity</th>
+              <th scope="col">Upper quartile</th>
+              <th scope="col">High-signal share</th>
+            </tr>
+          </thead>
+          <tbody id="benchmarkRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="signals-dual">
+      <article class="signals-language">
+        <div class="signals-subheading">
+          <h2>Hashtag signal.</h2>
+          <p>Tags in at least five posts versus the library baseline. Association only.</p>
+        </div>
+        <div class="signals-list-head signals-tag-head" aria-hidden="true">
+          <span>Hashtag</span>
+          <span>Sample</span>
+          <span>High signal</span>
+          <span>Lift</span>
+        </div>
+        <div id="tagRows" class="signals-tag-list"></div>
+      </article>
+
+      <article class="signals-watchlist">
+        <div class="signals-subheading">
+          <h2>Last 72 hours.</h2>
+          <p id="freshSummary">Non-baseline posts by lifetime velocity.</p>
+        </div>
+        <div class="signals-list-head signals-watch-head" aria-hidden="true">
+          <span>Source</span>
+          <span>Observed performance</span>
+        </div>
+        <div id="freshRows" class="signals-watch-list"></div>
+      </article>
+    </section>
+
+    <section class="library-boundary signals-boundary">
+      <h2>Limits.</h2>
+      <p>Public counters, timestamps, captions, and cohorts. No causal attribution.</p>
+      <p id="updatedAt">Loading…</p>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      data: null,
+      benchmarkPlatform: 'all',
+    };
+
+    const winnerSignals = new Set(['breakout_candidate', 'evergreen_winner', 'high_performer']);
+    const platformOrder = ['instagram', 'tiktok', 'youtube_shorts'];
+    const ageOrder = ['0_72_hours', '4_30_days', '31_90_days', '91_365_days', 'older_than_365_days'];
+
+    const platformLabels = {
+      instagram: 'Instagram',
+      tiktok: 'TikTok',
+      youtube_shorts: 'YouTube Shorts',
+    };
+
+    const ageLabels = {
+      '0_72_hours': '0–72 hours',
+      '4_30_days': '4–30 days',
+      '31_90_days': '31–90 days',
+      '91_365_days': '91–365 days',
+      'older_than_365_days': 'Older than one year',
+    };
+
+    const signalLabels = {
+      breakout_candidate: 'Breakout candidate',
+      evergreen_winner: 'Evergreen winner',
+      high_performer: 'High performer',
+      promising: 'Promising',
+      baseline: 'Baseline',
+      insufficient_data: 'Insufficient data',
+    };
+
+    const number = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+    const integer = new Intl.NumberFormat('en-US');
+    const date = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function formatDate(value) {
+      const parsed = new Date(value);
+      return Number.isFinite(parsed.getTime()) ? date.format(parsed) : 'Unknown';
+    }
+
+    function formatMetric(value, suffix = '') {
+      return Number.isFinite(value) ? `${number.format(value)}${suffix}` : '—';
+    }
+
+    function formatPercent(value) {
+      return Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—';
+    }
+
+    function sentence(value) {
+      const cleaned = String(value ?? '').replace(/\s+/g, ' ').trim();
+      return cleaned || 'No public caption retained for this item.';
+    }
+
+    function median(values) {
+      const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return null;
+      const middle = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    function percentile(values, fraction) {
+      const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+      if (!sorted.length) return null;
+      return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * fraction))];
+    }
+
+    function isWinner(item) {
+      return winnerSignals.has(item.performance.signal);
+    }
+
+    function winnerRate(items) {
+      return items.length ? items.filter(isWinner).length / items.length : null;
+    }
+
+    function libraryUrl({ platform, signal, query }) {
+      const params = new URLSearchParams();
+      if (platform && platform !== 'all') params.set('platform', platform);
+      if (signal && signal !== 'all') params.set('signal', signal);
+      if (query) params.set('q', query);
+      return `/?${params.toString()}#explorer`;
+    }
+
+    function renderSummary() {
+      const items = state.data.items;
+      const winners = items.filter(isWinner);
+      const fresh = items.filter((item) => item.performance.age_bucket === '0_72_hours'
+        && !['baseline', 'insufficient_data'].includes(item.performance.signal));
+
+      document.querySelector('#updatedAt').textContent = `Updated ${formatDate(state.data.generated_at)}`;
+      document.querySelector('#introWinners').textContent = `${integer.format(winners.length)} high-signal videos`;
+      document.querySelector('#metricWinners').textContent = integer.format(winners.length);
+      document.querySelector('#metricWinnerRate').textContent = formatPercent(winners.length / items.length);
+      document.querySelector('#metricFresh').textContent = integer.format(fresh.length);
+      document.querySelector('#metricRepeated').textContent = integer.format(state.data.summary.repeated_items);
+      document.querySelector('#metricPlatforms').textContent = integer.format(Object.keys(state.data.summary.by_platform).length);
+      document.querySelector('#freshSummary').textContent = `${integer.format(fresh.length)} non-baseline posts sit inside the latest 72-hour cohort. The first ten below are ordered by lifetime velocity.`;
+      document.querySelector('#signalTotal').textContent = `${integer.format(state.data.summary.unique_items)} videos`;
+      renderDistributionBars('#signalBars', state.data.summary.by_signal, signalLabels, state.data.summary.unique_items);
+      renderDistributionBars('#ageBars', state.data.summary.by_age_bucket, ageLabels, state.data.summary.unique_items);
+    }
+
+    function renderDistributionBars(selector, values, labels, total) {
+      const ordered = Object.entries(values).sort((a, b) => b[1] - a[1]);
+      document.querySelector(selector).innerHTML = ordered.map(([key, value]) => `
+        <div class="distribution-row">
+          <div class="distribution-label"><span>${escapeHtml(labels[key] ?? key)}</span><strong>${integer.format(value)}</strong></div>
+          <div class="distribution-track"><span style="width:${Math.max(2, (value / total) * 100).toFixed(2)}%"></span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderPlatformRail() {
+      document.querySelector('#platformRail').innerHTML = platformOrder.map((platform) => {
+        const items = state.data.items.filter((item) => item.platform === platform);
+        const velocities = items.map((item) => item.performance.lifetime_views_per_hour);
+        return `
+          <article class="signals-platform-stat">
+            <span>${escapeHtml(platformLabels[platform])} · ${integer.format(items.length)} posts</span>
+            <strong>${formatMetric(median(velocities), '/h')}</strong>
+            <small>Median lifetime velocity</small>
+            <div>
+              <span>${formatMetric(percentile(velocities, 0.75), '/h')} upper quartile</span>
+              <span>${formatPercent(winnerRate(items))} high signal</span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderBenchmark() {
+      const items = state.benchmarkPlatform === 'all'
+        ? state.data.items
+        : state.data.items.filter((item) => item.platform === state.benchmarkPlatform);
+
+      document.querySelector('#benchmarkRows').innerHTML = ageOrder.map((age) => {
+        const cohort = items.filter((item) => item.performance.age_bucket === age);
+        const velocities = cohort.map((item) => item.performance.lifetime_views_per_hour);
+        return `
+          <tr>
+            <th scope="row">${escapeHtml(ageLabels[age])}</th>
+            <td>${integer.format(cohort.length)}</td>
+            <td>${formatMetric(median(velocities), '/h')}</td>
+            <td>${formatMetric(percentile(velocities, 0.75), '/h')}</td>
+            <td>${formatPercent(winnerRate(cohort))}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderTags() {
+      const items = state.data.items;
+      const globalRate = winnerRate(items);
+      const tags = new Map();
+
+      for (const item of items) {
+        for (const rawTag of new Set(item.hashtags ?? [])) {
+          const tag = String(rawTag).toLowerCase();
+          const row = tags.get(tag) ?? { tag, count: 0, winners: 0 };
+          row.count += 1;
+          row.winners += isWinner(item) ? 1 : 0;
+          tags.set(tag, row);
+        }
+      }
+
+      const ranked = [...tags.values()]
+        .filter((row) => row.count >= 5)
+        .map((row) => ({ ...row, rate: row.winners / row.count, lift: (row.winners / row.count) / globalRate }))
+        .sort((a, b) => b.lift - a.lift || b.count - a.count)
+        .slice(0, 10);
+
+      document.querySelector('#tagRows').innerHTML = ranked.map((row) => `
+        <a class="signals-tag-row" href="${escapeHtml(libraryUrl({ query: row.tag }))}">
+          <strong>#${escapeHtml(row.tag)}</strong>
+          <span>${integer.format(row.count)} posts</span>
+          <span>${formatPercent(row.rate)}</span>
+          <span>${row.lift.toFixed(1)}×</span>
+        </a>
+      `).join('');
+    }
+
+    function renderFresh() {
+      const fresh = state.data.items
+        .filter((item) => item.performance.age_bucket === '0_72_hours'
+          && !['baseline', 'insufficient_data'].includes(item.performance.signal))
+        .sort((a, b) => (b.performance.lifetime_views_per_hour ?? -1) - (a.performance.lifetime_views_per_hour ?? -1))
+        .slice(0, 10);
+
+      document.querySelector('#freshRows').innerHTML = fresh.map((item) => `
+        <a class="signals-watch-row" href="${escapeHtml(libraryUrl({
+          platform: item.platform,
+          signal: item.performance.signal,
+          query: item.account_handle,
+        }))}">
+          <span class="signals-watch-source">
+            <small>${escapeHtml(signalLabels[item.performance.signal])} · ${escapeHtml(platformLabels[item.platform])}</small>
+            <strong>${escapeHtml(item.account_handle ? `@${item.account_handle}` : platformLabels[item.platform])}</strong>
+            <span>${escapeHtml(sentence(item.caption))}</span>
+          </span>
+          <span class="signals-watch-metric">
+            <strong>${formatMetric(item.performance.lifetime_views_per_hour, '/h')}</strong>
+            <small>${formatMetric(item.performance.latest_views)} views</small>
+          </span>
+        </a>
+      `).join('');
+    }
+
+    function bindControls() {
+      document.querySelectorAll('[data-benchmark-platform]').forEach((button) => {
+        button.addEventListener('click', () => {
+          state.benchmarkPlatform = button.dataset.benchmarkPlatform;
+          document.querySelectorAll('[data-benchmark-platform]').forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle('active', active);
+            candidate.setAttribute('aria-pressed', String(active));
+          });
+          renderBenchmark();
+        });
+      });
+      document.querySelectorAll('[data-benchmark-platform]').forEach((button, index) => {
+        button.setAttribute('aria-pressed', String(index === 0));
+      });
+    }
+
+    async function init() {
+      bindControls();
+      try {
+        const response = await fetch('/library.json');
+        if (!response.ok) throw new Error(`Library request failed with ${response.status}`);
+        state.data = await response.json();
+        renderSummary();
+        renderPlatformRail();
+        renderBenchmark();
+        renderTags();
+        renderFresh();
+      } catch (error) {
+        document.querySelector('#platformRail').innerHTML = '<p class="signals-loading">Data unavailable.</p>';
+        document.querySelector('#benchmarkRows').innerHTML = '<tr><td colspan="5">No benchmark data is available.</td></tr>';
+        document.querySelector('#tagRows').innerHTML = '<p class="signals-loading">No hashtag signals.</p>';
+        document.querySelector('#freshRows').innerHTML = '<p class="signals-loading">No recent posts.</p>';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

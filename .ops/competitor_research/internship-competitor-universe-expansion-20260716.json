@@ -1,0 +1,64 @@
+{
+  "research_id": "internship-competitor-universe-expansion-20260716",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "runs": [
+    {
+      "id": "tiktok-new-competitor-profiles-latest",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "collegerecruiter.com",
+          "capitalplacement",
+          "theinterngroupint",
+          "jobright.ai",
+          "magnet.me",
+          "biginterview",
+          "cieestudyabroad"
+        ],
+        "profileScrapeSections": [
+          "videos"
+        ],
+        "profileSorting": "latest",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.7,
+      "max_items": 42
+    },
+    {
+      "id": "instagram-new-competitor-profiles-latest",
+      "actor_id": "apify/instagram-scraper",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/practera_exp/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/ladder_internships/",
+          "https://www.instagram.com/12twentyinc/",
+          "https://www.instagram.com/gouconnect/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/capitalplacement/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/absoluteinternship/",
+          "https://www.instagram.com/cieestudyabroad/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/seekgradau/",
+          "https://www.instagram.com/magnetmehq/",
+          "https://www.instagram.com/joinuntapped/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 6,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 96
+    }
+  ]
+}

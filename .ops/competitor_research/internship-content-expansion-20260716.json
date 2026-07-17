@@ -1,0 +1,157 @@
+{
+  "research_id": "internship-content-expansion-20260716",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "runs": [
+    {
+      "id": "tiktok-competitor-profiles-latest",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "joinsimplify",
+          "microinternships",
+          "theforage",
+          "externhq",
+          "wayup",
+          "joinhandshake",
+          "virtual_internships",
+          "ripplematch"
+        ],
+        "profileScrapeSections": [
+          "videos"
+        ],
+        "profileSorting": "latest",
+        "resultsPerPage": 8,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.7,
+      "max_items": 64
+    },
+    {
+      "id": "tiktok-competitor-profiles-popular",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "joinsimplify",
+          "microinternships",
+          "theforage",
+          "externhq",
+          "wayup",
+          "joinhandshake",
+          "virtual_internships",
+          "ripplematch"
+        ],
+        "profileScrapeSections": [
+          "videos"
+        ],
+        "profileSorting": "popular",
+        "resultsPerPage": 5,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.6,
+      "max_items": 40
+    },
+    {
+      "id": "tiktok-category-search",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship tips",
+          "college job search",
+          "internship resume",
+          "career fair tips",
+          "internship interview"
+        ],
+        "searchSection": "/video",
+        "videoSearchSorting": "MOST_LIKED",
+        "videoSearchDateFilter": "LAST_6_MONTHS",
+        "resultsPerPage": 8,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.7,
+      "max_items": 40
+    },
+    {
+      "id": "instagram-competitor-profiles",
+      "actor_id": "apify/instagram-scraper",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/simplify.jobs/",
+          "https://www.instagram.com/microinternships/",
+          "https://www.instagram.com/externhq/",
+          "https://www.instagram.com/wayup/",
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/ripplematch/",
+          "https://www.instagram.com/joinuntapped/",
+          "https://www.instagram.com/virtualinternships/",
+          "https://www.instagram.com/careeredgeorg/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 72
+    },
+    {
+      "id": "meta-active-competitor-ads-expanded",
+      "actor_id": "apify/facebook-ads-scraper",
+      "input_mode": "profile",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.facebook.com/joinsimplify"
+          },
+          {
+            "url": "https://www.facebook.com/parkerdeweyco"
+          },
+          {
+            "url": "https://www.facebook.com/joinhandshake"
+          },
+          {
+            "url": "https://www.facebook.com/wayup"
+          },
+          {
+            "url": "https://www.facebook.com/virtualintern"
+          },
+          {
+            "url": "https://www.facebook.com/YelloDotCo"
+          },
+          {
+            "url": "https://www.facebook.com/SymplicityCorporation"
+          },
+          {
+            "url": "https://www.facebook.com/CareerEdgeOrg"
+          },
+          {
+            "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=Extern&search_type=keyword_unordered"
+          },
+          {
+            "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=Forage&search_type=keyword_unordered"
+          },
+          {
+            "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&q=RippleMatch&search_type=keyword_unordered"
+          }
+        ],
+        "resultsLimit": 8,
+        "onlyTotal": false,
+        "includeAboutPage": false,
+        "isDetailsPerAd": false,
+        "activeStatus": "active",
+        "sorting": "relevancy_monthly_grouped"
+      },
+      "max_charge_usd": 0.8,
+      "max_items": 88
+    }
+  ]
+}

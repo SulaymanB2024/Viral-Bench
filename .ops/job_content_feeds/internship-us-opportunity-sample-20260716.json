@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "batch_id": "internship-us-content-expansion-20260716",
+  "observed_at": "2026-07-16T23:55:00.000Z",
+  "purpose": "public_opportunity_format_and_freshness_sample",
+  "publishing_in_scope": false,
+  "items": [
+    {
+      "opportunity_id": "college-recruiter-1940990408",
+      "role": "Summer Internship",
+      "employer": "Evonik",
+      "location": "Multiple US locations",
+      "pay": null,
+      "deadline": null,
+      "eligibility": "Undergraduate program; relocation within the US; US work authorization without current or future sponsorship stated on the observed page.",
+      "source_url": "https://www.collegerecruiter.com/job/1940990408-summer-internship",
+      "source_kind": "marketplace_listing",
+      "freshness": "page presented a recent posting label when observed",
+      "availability_status": "requires_employer_first_party_revalidation_before_content"
+    },
+    {
+      "opportunity_id": "college-recruiter-1928371909",
+      "role": "Intern, Economic Valuation Services - Real Estate | Summer 2026",
+      "employer": "KPMG LLP",
+      "location": "New York, NY",
+      "pay": null,
+      "deadline": "Rolling until filled",
+      "eligibility": "Current college coursework or bachelor's degree completed within the prior 12 months; graduation window and US work-authorization restrictions stated on the observed page.",
+      "source_url": "https://www.collegerecruiter.com/job/1928371909-intern-economic-valuation-services-real-estate--summer-2026",
+      "source_kind": "marketplace_listing",
+      "freshness": "page presented a recent posting label when observed",
+      "availability_status": "requires_employer_first_party_revalidation_before_content"
+    },
+    {
+      "opportunity_id": "college-recruiter-2020239454",
+      "role": "Summer 2026 Embedded Software Engineering Intern",
+      "employer": "AeroVironment",
+      "location": "Simi Valley, CA",
+      "pay": null,
+      "deadline": null,
+      "eligibility": "Student internship with stated ITAR or EAR eligibility constraints on the observed page.",
+      "source_url": "https://www.collegerecruiter.com/job/2020239454-summer-2026-embedded-software-engineering-intern",
+      "source_kind": "marketplace_listing",
+      "freshness": "page presented a recent posting label when observed",
+      "availability_status": "requires_employer_first_party_revalidation_before_content"
+    },
+    {
+      "opportunity_id": "college-recruiter-1962368084",
+      "role": "2026 Quality Engineer Student Experience",
+      "employer": "Doosan Bobcat North America",
+      "location": "Multiple US locations",
+      "pay": "Competitive pay stated; amount not observed",
+      "deadline": null,
+      "eligibility": "Freshman through senior engineering students; 3.0 GPA preferred; term commitment stated on the observed page.",
+      "source_url": "https://www.collegerecruiter.com/job/1962368084-2026-quality-engineer-student-experience",
+      "source_kind": "marketplace_listing",
+      "freshness": "page presented a recent posting label when observed",
+      "availability_status": "requires_employer_first_party_revalidation_before_content"
+    },
+    {
+      "opportunity_id": "smartrecruiters-versant-744000126372277",
+      "role": "Academic Year Internships: CNBC Production and Editorial",
+      "employer": "Versant",
+      "location": "United States",
+      "pay": null,
+      "deadline": null,
+      "eligibility": "Academic-year availability and US work-authorization restrictions stated on the employer-hosted page.",
+      "source_url": "https://jobs.smartrecruiters.com/Versant3/744000126372277-versant-academic-year-internships-cnbc-production-editorial",
+      "source_kind": "employer_hosted_listing",
+      "freshness": "2026-2027 program",
+      "availability_status": "requires_immediate_revalidation_before_content"
+    },
+    {
+      "opportunity_id": "smartrecruiters-nbc-744000121816588",
+      "role": "NBC News Bureau Internships - Academic Year",
+      "employer": "NBCUniversal",
+      "location": "United States",
+      "pay": null,
+      "deadline": null,
+      "eligibility": "Degree-program enrollment, graduation timing, weekly availability, and US work-authorization restrictions stated on the employer-hosted page.",
+      "source_url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000121816588-nbc-news-bureau-internships-academic-year",
+      "source_kind": "employer_hosted_listing",
+      "freshness": "2026-2027 academic-year program",
+      "availability_status": "requires_immediate_revalidation_before_content"
+    }
+  ],
+  "evidence_boundary": "These observations demonstrate the opportunity-data interface. Availability, pay, deadline, and eligibility must be rechecked on the employer's first-party page immediately before any public opportunity post."
+}

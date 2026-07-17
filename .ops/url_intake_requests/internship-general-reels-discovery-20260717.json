@@ -1,0 +1,33 @@
+{
+  "request_id": "internship-general-reels-discovery-20260717",
+  "urls": [
+    "https://www.instagram.com/reel/Da1U-n1xMpM/",
+    "https://www.instagram.com/reel/DY56-eHBydw/",
+    "https://www.instagram.com/reel/DTX-tIWkqth/",
+    "https://www.instagram.com/reel/DY2tM0sh_kh/",
+    "https://www.instagram.com/reel/DYkARrSkydY/",
+    "https://www.instagram.com/reel/DZLXd5iBnDP/",
+    "https://www.instagram.com/reel/DZpyTOgzPJ_/",
+    "https://www.instagram.com/reel/Da3Bh0HvfFl/",
+    "https://www.instagram.com/reel/DaxcsoCKd7f/",
+    "https://www.instagram.com/reel/DXFXIvSJT8R/",
+    "https://www.instagram.com/reel/DavFi4CK7fE/",
+    "https://www.instagram.com/reel/DU_MFVXDkD0/"
+  ],
+  "allowed_platforms": [
+    "instagram"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "draft",
+  "cost_limits": {
+    "max_total_usd": 0,
+    "max_apify_usd": 0,
+    "max_twelvelabs_usd": 0,
+    "max_gemini_usd": 0
+  }
+}

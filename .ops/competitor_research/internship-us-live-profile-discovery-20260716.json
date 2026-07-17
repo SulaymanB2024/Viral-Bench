@@ -1,0 +1,268 @@
+{
+  "research_id": "internship-us-live-profile-discovery-20260716",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 3,
+  "runs": [
+    {
+      "id": "tiktok-competitor-profiles-recent",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": ["joinhandshake", "simplifyjobs", "ripplematch", "wayup", "externhq", "microinternships", "collegerecruiter.com", "jobright.ai", "biginterview"],
+        "profileScrapeSections": ["videos"],
+        "profileSorting": "latest",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 54
+    },
+    {
+      "id": "tiktok-competitor-profiles-popular",
+      "actor_id": "clockworks/tiktok-scraper",
+      "input_mode": "profile",
+      "input": {
+        "profiles": ["joinhandshake", "simplifyjobs", "ripplematch", "wayup", "externhq", "microinternships", "collegerecruiter.com", "jobright.ai", "biginterview"],
+        "profileScrapeSections": ["videos"],
+        "profileSorting": "popular",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 54
+    },
+    {
+      "id": "instagram-competitor-profiles-recent-and-popular-pool",
+      "actor_id": "apify/instagram-scraper",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/12twentyinc/",
+          "https://www.instagram.com/gouconnect/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 12,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.35,
+      "max_items": 84
+    },
+    {
+      "id": "youtube-competitor-brands-recent",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "College Recruiter internships",
+          "Riipen student projects",
+          "Acadium apprenticeships",
+          "Careerflow career advice",
+          "Big Interview interview prep",
+          "Forage virtual work experience",
+          "AfterCollege jobs",
+          "Teal career tools",
+          "Huntr job search",
+          "Final Round AI interview"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "date",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.25,
+      "max_items": 60
+    },
+    {
+      "id": "youtube-competitor-brands-popular",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "College Recruiter internships",
+          "Riipen student projects",
+          "Acadium apprenticeships",
+          "Careerflow career advice",
+          "Big Interview interview prep",
+          "Forage virtual work experience",
+          "AfterCollege jobs",
+          "Teal career tools",
+          "Huntr job search",
+          "Final Round AI interview"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "views",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.25,
+      "max_items": 60
+    },
+    {
+      "id": "instagram-proof-process-popular-search",
+      "actor_id": "apify/instagram-search-scraper",
+      "input_mode": "search",
+      "input": {
+        "search": "internship no experience college student,turn class project into resume experience,internship resume proof not responsibilities,internship application no response,college student networking message,internship interview practice,career fair follow up student,internship rejection burnout,freshman sophomore internship US,recent graduate first job search",
+        "searchType": "popular",
+        "searchLimit": 8,
+        "enhanceUserSearchWithFacebookPage": false
+      },
+      "max_charge_usd": 0.275,
+      "max_items": 80
+    },
+    {
+      "id": "instagram-access-safety-ai-popular-search",
+      "actor_id": "apify/instagram-search-scraper",
+      "input_mode": "search",
+      "input": {
+        "search": "internship scam warning college students,unpaid internship afford college student,CPT OPT internship US student,first generation college career advice,community college internship search,AI resume truthful student,AI internship application mistakes,remote internship scam check,internship return offer advice,what to do if no summer internship",
+        "searchType": "popular",
+        "searchLimit": 8,
+        "enhanceUserSearchWithFacebookPage": false
+      },
+      "max_charge_usd": 0.275,
+      "max_items": 80
+    },
+    {
+      "id": "youtube-proof-process-recent-search",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship no experience college student",
+          "turn class project into resume experience",
+          "internship resume proof not responsibilities",
+          "internship application no response",
+          "college student networking message",
+          "internship interview practice",
+          "career fair follow up student",
+          "internship rejection burnout",
+          "freshman sophomore internship US",
+          "recent graduate first job search"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "date",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.15,
+      "max_items": 60
+    },
+    {
+      "id": "youtube-proof-process-popular-search",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship no experience college student",
+          "turn class project into resume experience",
+          "internship resume proof not responsibilities",
+          "internship application no response",
+          "college student networking message",
+          "internship interview practice",
+          "career fair follow up student",
+          "internship rejection burnout",
+          "freshman sophomore internship US",
+          "recent graduate first job search"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "views",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.15,
+      "max_items": 60
+    },
+    {
+      "id": "youtube-access-safety-ai-recent-search",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship scam warning college students",
+          "unpaid internship afford college student",
+          "CPT OPT internship US student",
+          "first generation college career advice",
+          "community college internship search",
+          "AI resume truthful student",
+          "AI internship application mistakes",
+          "remote internship scam check",
+          "internship return offer advice",
+          "what to do if no summer internship"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "date",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.15,
+      "max_items": 60
+    },
+    {
+      "id": "youtube-access-safety-ai-popular-search",
+      "actor_id": "streamers/youtube-scraper",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship scam warning college students",
+          "unpaid internship afford college student",
+          "CPT OPT internship US student",
+          "first generation college career advice",
+          "community college internship search",
+          "AI resume truthful student",
+          "AI internship application mistakes",
+          "remote internship scam check",
+          "internship return offer advice",
+          "what to do if no summer internship"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 6,
+        "maxResultStreams": 0,
+        "sortingOrder": "views",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.15,
+      "max_items": 60
+    }
+  ]
+}

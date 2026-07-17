@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { ApifyApiClient, canonicalJson, type ApifyActorExecution } from './apify-api';
+import { atomicWriteJson } from './artifact-integrity';
 
 export const SEO_RESEARCH_PLATFORMS = ['youtube_shorts', 'tiktok'] as const;
 export const SEO_RESEARCH_COHORTS = ['recent', 'popular'] as const;
@@ -72,6 +73,23 @@ export interface SeoDiscoveryCandidate {
     views: number | null;
     likes: number | null;
     comments: number | null;
+    shares: number | null;
+    saves: number | null;
+    reposts: number | null;
+  };
+  creator_metadata: {
+    platform_verified: boolean | null;
+    followers: number | null;
+    following: number | null;
+  };
+  content_metadata: {
+    language: string | null;
+    is_ad: boolean | null;
+    is_sponsored: boolean | null;
+    is_slideshow: boolean | null;
+    music_name: string | null;
+    music_author: string | null;
+    music_original: boolean | null;
   };
   metric_capture_at: string;
   provider_gap: string | null;
@@ -106,6 +124,10 @@ export interface SeoDiscoveryReport {
     dataset_id: string;
     actor_build_id: string | null;
     actor_build_number: string | null;
+    dataset_items_returned: number;
+    dataset_items_total_reported: number | null;
+    dataset_truncated: boolean;
+    dataset_truncation_unknown: boolean;
     max_total_charge_usd: number;
     usage_total_usd: number | null;
     usage_finalized: boolean;
@@ -137,6 +159,12 @@ export interface SeoStrategyReport {
     pattern: string;
     evidence_ids: string[];
     observation: string;
+    segment: {
+      platform: SeoResearchPlatform;
+      cohort: SeoResearchCohort;
+      sample_size: number;
+      ranking_metric: 'observed_views_within_platform_and_cohort';
+    };
   }>;
   derived_recommendations: Array<{
     recommendation: string;
@@ -382,6 +410,10 @@ export async function runSeoDiscovery(
         dataset_id: execution.dataset_id,
         actor_build_id: execution.actor_build_id,
         actor_build_number: execution.actor_build_number,
+        dataset_items_returned: execution.dataset_items_returned,
+        dataset_items_total_reported: execution.dataset_items_total_reported,
+        dataset_truncated: execution.dataset_truncated,
+        dataset_truncation_unknown: execution.dataset_truncation_unknown,
         max_total_charge_usd: runCap,
         usage_total_usd: execution.actual_cost_usd,
         usage_finalized: execution.usage_finalized,
@@ -427,25 +459,35 @@ export function buildSeoStrategyReport(
   const request = validateSeoResearchRequest(requestValue);
   if (discovery.research_id !== request.research_id) throw new Error('Discovery report research_id does not match the request.');
   const usable = discovery.candidates.filter((candidate) => !candidate.provider_gap && candidate.title.trim());
-  const ranked = [...usable].sort((left, right) => (right.observed_metrics.views ?? -1) - (left.observed_metrics.views ?? -1));
-  const evidenceIds = ranked.slice(0, 20).map((candidate) => candidate.evidence_id);
-  const top = ranked.slice(0, Math.min(10, ranked.length));
-  const hookGroups = groupHookPatterns(top);
-  const terms = commonTerms(request.search_queries, top);
+  const segments = segmentSeoCandidates(usable);
+  const segmentTops = segments.flatMap((segment) => segment.top);
+  const evidenceIds = unique(segmentTops.map((candidate) => candidate.evidence_id)).slice(0, 20);
+  const terms = commonTerms(request.search_queries, segmentTops);
   const observedPatterns: SeoStrategyReport['observed_patterns'] = [];
-  for (const group of hookGroups.slice(0, 3)) {
-    observedPatterns.push({
-      pattern: group.label,
-      evidence_ids: group.candidates.map((candidate) => candidate.evidence_id),
-      observation: `${group.candidates.length} of the ${top.length} highest-view observed titles in this bounded sample use ${group.label}.`,
-    });
-  }
-  if (top.length) {
-    const averageLength = Math.round(top.reduce((sum, candidate) => sum + candidate.title.length, 0) / top.length);
+  for (const segment of segments) {
+    const metadata: SeoStrategyReport['observed_patterns'][number]['segment'] = {
+      platform: segment.platform,
+      cohort: segment.cohort,
+      sample_size: segment.comparable_count,
+      ranking_metric: 'observed_views_within_platform_and_cohort',
+    };
+    for (const group of groupHookPatterns(segment.top).slice(0, 3)) {
+      observedPatterns.push({
+        pattern: group.label,
+        evidence_ids: unique(group.candidates.map((candidate) => candidate.evidence_id)),
+        observation: `${group.candidates.length} of the ${segment.top.length} highest-view observed ${segment.platform} ${segment.cohort} titles use ${group.label}.`,
+        segment: metadata,
+      });
+    }
+    if (!segment.top.length) continue;
+    const averageLength = Math.round(segment.top.reduce((sum, candidate) => (
+      sum + candidate.title.length
+    ), 0) / segment.top.length);
     observedPatterns.push({
       pattern: 'title length',
-      evidence_ids: top.map((candidate) => candidate.evidence_id),
-      observation: `The ${top.length} highest-view observed titles average ${averageLength} characters in this collection.`,
+      evidence_ids: unique(segment.top.map((candidate) => candidate.evidence_id)),
+      observation: `The ${segment.top.length} highest-view observed ${segment.platform} ${segment.cohort} titles average ${averageLength} characters.`,
+      segment: metadata,
     });
   }
   const confidence = Math.min(0.85, round(0.35 + usable.length / 100, 2));
@@ -622,6 +664,23 @@ function normalizeDiscoveryCandidate(
       views: firstNumberAt(item, ['playCount', 'stats.playCount', 'viewCount', 'views']),
       likes: firstNumberAt(item, ['diggCount', 'stats.diggCount', 'likes', 'likeCount']),
       comments: firstNumberAt(item, ['commentCount', 'stats.commentCount', 'commentsCount', 'comments']),
+      shares: firstNumberAt(item, ['shareCount', 'stats.shareCount', 'shares']),
+      saves: firstNumberAt(item, ['collectCount', 'stats.collectCount', 'saveCount', 'saves']),
+      reposts: firstNumberAt(item, ['repostCount', 'stats.repostCount', 'reposts']),
+    },
+    creator_metadata: {
+      platform_verified: firstBooleanAt(item, ['authorMeta.verified', 'authorMeta.isVerified', 'isVerified']),
+      followers: firstNumberAt(item, ['authorMeta.fans', 'authorMeta.followers', 'authorMeta.followerCount', 'channelSubscribers']),
+      following: firstNumberAt(item, ['authorMeta.following', 'authorMeta.followingCount']),
+    },
+    content_metadata: {
+      language: firstTextAt(item, ['textLanguage', 'language', 'defaultLanguage']),
+      is_ad: firstBooleanAt(item, ['isAd', 'ad']),
+      is_sponsored: firstBooleanAt(item, ['isSponsored', 'sponsored']),
+      is_slideshow: firstBooleanAt(item, ['isSlideshow']),
+      music_name: firstTextAt(item, ['musicMeta.musicName', 'musicInfo.title', 'musicTitle']),
+      music_author: firstTextAt(item, ['musicMeta.musicAuthor', 'musicInfo.artist_name', 'musicAuthor']),
+      music_original: firstBooleanAt(item, ['musicMeta.musicOriginal', 'musicInfo.is_original_sound']),
     },
     metric_capture_at: capturedAt,
     provider_gap: providerGap,
@@ -696,6 +755,38 @@ function groupHookPatterns(candidates: SeoDiscoveryCandidate[]): Array<{ label: 
     .map(([label, pattern]) => ({ label, candidates: candidates.filter((candidate) => pattern.test(candidate.title)) }))
     .filter((group) => group.candidates.length)
     .sort((left, right) => right.candidates.length - left.candidates.length || left.label.localeCompare(right.label));
+}
+
+function segmentSeoCandidates(candidates: SeoDiscoveryCandidate[]): Array<{
+  platform: SeoResearchPlatform;
+  cohort: SeoResearchCohort;
+  comparable_count: number;
+  top: SeoDiscoveryCandidate[];
+}> {
+  const grouped = new Map<string, SeoDiscoveryCandidate[]>();
+  for (const candidate of candidates) {
+    const key = `${candidate.platform}:${candidate.cohort}`;
+    const rows = grouped.get(key) ?? [];
+    rows.push(candidate);
+    grouped.set(key, rows);
+  }
+  return [...grouped.values()].map((rows) => {
+    const comparable = rows
+      .filter((candidate) => candidate.observed_metrics.views !== null)
+      .sort((left, right) => (
+        (right.observed_metrics.views ?? 0) - (left.observed_metrics.views ?? 0)
+        || left.evidence_id.localeCompare(right.evidence_id)
+      ));
+    return {
+      platform: rows[0].platform,
+      cohort: rows[0].cohort,
+      comparable_count: comparable.length,
+      top: comparable.slice(0, Math.min(10, comparable.length)),
+    };
+  }).sort((left, right) => (
+    left.platform.localeCompare(right.platform)
+    || left.cohort.localeCompare(right.cohort)
+  ));
 }
 
 function commonTerms(queries: string[], candidates: SeoDiscoveryCandidate[]): string[] {
@@ -804,12 +895,7 @@ function writeRawDiscoveryArtifact(
 }
 
 function writeJsonAtomic(target: string, value: unknown): void {
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  const serialized = `${JSON.stringify(value, null, 2)}\n`;
-  if (fs.existsSync(target) && fs.readFileSync(target, 'utf8') === serialized) return;
-  const temporary = `${target}.${process.pid}.tmp`;
-  fs.writeFileSync(temporary, serialized, { flag: 'wx' });
-  fs.renameSync(temporary, target);
+  atomicWriteJson(target, value);
 }
 
 function firstTextAt(record: Record<string, unknown>, keys: string[]): string | null {
@@ -828,6 +914,14 @@ function firstNumberAt(record: Record<string, unknown>, keys: string[]): number 
       const parsed = Number(value.replace(/,/g, ''));
       if (Number.isFinite(parsed)) return parsed < 0 ? null : parsed;
     }
+  }
+  return null;
+}
+
+function firstBooleanAt(record: Record<string, unknown>, keys: string[]): boolean | null {
+  for (const key of keys) {
+    const value = valueAtPath(record, key);
+    if (typeof value === 'boolean') return value;
   }
   return null;
 }

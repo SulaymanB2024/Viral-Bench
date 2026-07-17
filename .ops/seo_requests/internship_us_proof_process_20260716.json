@@ -1,0 +1,42 @@
+{
+  "research_id": "internship-us-proof-process-20260716",
+  "niche": "US internship proof building, applications, interviews, networking, and rejection for college students and recent graduates",
+  "strategy_mode": "career_guidance",
+  "platforms": ["tiktok"],
+  "search_queries": [
+    "internship no experience college student",
+    "turn class project into resume experience",
+    "internship resume proof not responsibilities",
+    "internship application no response",
+    "college student networking message",
+    "internship interview practice",
+    "career fair follow up student",
+    "internship rejection burnout",
+    "freshman sophomore internship US",
+    "recent graduate first job search"
+  ],
+  "cohorts": ["recent", "popular"],
+  "max_results_per_query": 8,
+  "approval": {
+    "state": "approved",
+    "approved_by": "User-approved US Internship Content and Data Expansion plan",
+    "approved_at": "2026-07-16T22:30:00.000Z"
+  },
+  "cost_policy": {
+    "max_apify_usd": 1
+  },
+  "house_style": {
+    "name": "Internships.com signal stack",
+    "voice": ["direct", "student-respectful", "specific"],
+    "recurring_devices": [
+      "name the student problem in the first line",
+      "match prove connect review signal stack",
+      "show one truthful before and after"
+    ],
+    "differentiators": [
+      "no invented experience",
+      "no guaranteed outcomes",
+      "product CTA follows useful advice"
+    ]
+  }
+}

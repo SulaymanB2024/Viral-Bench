@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/marketing-dashboard.schema.json",
+  "title": "Owned Marketing Dashboard Dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "connection_state", "dimensions", "facts", "quality", "mart"],
+  "properties": {
+    "schema_version": { "const": "owned_marketing_dashboard_v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "connection_state": { "enum": ["not_connected", "partial", "connected"] },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accounts", "campaigns", "experiments", "variants", "posts"],
+      "properties": {
+        "accounts": { "type": "array", "items": { "$ref": "#/$defs/account" } },
+        "campaigns": { "type": "array", "items": { "$ref": "#/$defs/campaign" } },
+        "experiments": { "type": "array", "items": { "$ref": "#/$defs/experiment" } },
+        "variants": { "type": "array", "items": { "$ref": "#/$defs/variant" } },
+        "posts": { "type": "array", "items": { "$ref": "#/$defs/post" } }
+      }
+    },
+    "facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_observations", "event_aggregates"],
+      "properties": {
+        "metric_observations": { "type": "array", "items": { "$ref": "#/$defs/metric_fact" } },
+        "event_aggregates": { "type": "array", "items": { "$ref": "owned-research-events.schema.json" } }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_completeness", "checkpoint_coverage", "issues"],
+      "properties": {
+        "metric_completeness": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "checkpoint_coverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["severity", "code", "message"],
+            "properties": {
+              "severity": { "enum": ["critical", "high", "medium", "low"] },
+              "code": { "type": "string", "minLength": 1 },
+              "message": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "mart": { "$ref": "#/$defs/mart" }
+  },
+  "$defs": {
+    "account": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account_id", "platform", "account_handle"],
+      "properties": {
+        "account_id": { "type": "string", "minLength": 1 },
+        "platform": { "type": ["string", "null"] },
+        "account_handle": { "type": ["string", "null"] }
+      }
+    },
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["campaign_id", "source"],
+      "properties": {
+        "campaign_id": { "type": "string", "minLength": 1 },
+        "source": { "const": "owned_event_attribution" }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experiment_id", "job_id"],
+      "properties": {
+        "experiment_id": { "type": "string", "minLength": 1 },
+        "job_id": { "type": ["string", "null"] }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant_id", "experiment_id"],
+      "properties": {
+        "variant_id": { "type": "string", "minLength": 1 },
+        "experiment_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "post": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["post_id", "account_id", "job_id", "experiment_id", "variant_id", "platform", "posted_at", "content_type"],
+      "properties": {
+        "post_id": { "type": "string", "minLength": 1 },
+        "account_id": { "type": "string", "minLength": 1 },
+        "job_id": { "type": "string", "minLength": 1 },
+        "experiment_id": { "type": ["string", "null"], "minLength": 1 },
+        "variant_id": { "type": ["string", "null"], "minLength": 1 },
+        "platform": { "type": "string", "minLength": 1 },
+        "posted_at": { "type": "string", "format": "date-time" },
+        "content_type": { "type": "string", "minLength": 1 }
+      }
+    },
+    "metric_fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact_id", "post_id", "captured_at", "checkpoint", "metric_name", "value", "measurement_state"],
+      "properties": {
+        "fact_id": { "type": "string", "minLength": 1 },
+        "post_id": { "type": "string", "minLength": 1 },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "checkpoint": { "enum": ["1h", "24h", "72h", "7d", "custom"] },
+        "metric_name": {
+          "enum": [
+            "views", "likes", "comments", "shares", "saves", "follows",
+            "profile_visits", "dms", "average_watch_time_sec", "completion_rate", "rewatch_rate"
+          ]
+        },
+        "value": { "type": ["number", "null"], "minimum": 0 },
+        "measurement_state": { "enum": ["observed", "not_available", "not_applicable", "pending"] }
+      }
+    },
+    "mart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpoint", "post_count", "posts_at_checkpoint", "kpis", "drivers", "guardrails", "post_performance"],
+      "properties": {
+        "checkpoint": { "enum": ["1h", "24h", "72h", "7d", "custom"] },
+        "post_count": { "type": "integer", "minimum": 0 },
+        "posts_at_checkpoint": { "type": "integer", "minimum": 0 },
+        "kpis": { "type": "object" },
+        "drivers": { "type": "object" },
+        "guardrails": { "type": "object" },
+        "post_performance": { "type": "array" }
+      }
+    }
+  }
+}

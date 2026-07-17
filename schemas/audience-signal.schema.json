@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/audience-signal.schema.json",
+  "title": "Identity-free Public Audience Signal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["signal_id", "source_url", "source_type", "community", "published_at", "audience_segment", "theme", "paraphrased_need", "confidence", "identity_redacted"],
+  "properties": {
+    "signal_id": { "type": "string", "minLength": 1 },
+    "source_url": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "source_type": { "type": "string", "enum": ["public_community_thread", "public_comment"] },
+    "community": { "type": "string", "minLength": 1 },
+    "published_at": { "type": ["string", "null"], "format": "date-time" },
+    "audience_segment": { "type": "string", "enum": ["college_student", "recent_graduate", "international_student", "first_generation_or_access", "unspecified_early_career"] },
+    "theme": { "type": "string", "minLength": 1 },
+    "paraphrased_need": { "type": "string", "minLength": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "identity_redacted": { "const": true }
+  }
+}

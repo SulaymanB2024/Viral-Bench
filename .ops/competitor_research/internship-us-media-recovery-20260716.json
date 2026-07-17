@@ -1,0 +1,28 @@
+{
+  "research_id": "internship-us-media-recovery-20260716",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 1,
+  "runs": [
+    {
+      "id": "selected-tiktok-video-and-slideshow-recovery",
+      "actor_id": "clockworks/tiktok-video-scraper",
+      "input_mode": "explicit_url",
+      "input": {
+        "postURLs": [
+          "https://www.tiktok.com/@externhq/video/7505574462432218414",
+          "https://www.tiktok.com/@externhq/video/7544973919770479903",
+          "https://www.tiktok.com/@ripplematch/video/7569307233801063735",
+          "https://www.tiktok.com/@externhq/video/7586091282162814222"
+        ],
+        "scrapeRelatedVideos": false,
+        "shouldDownloadVideos": true,
+        "shouldDownloadCovers": false,
+        "shouldDownloadSlideshowImages": true,
+        "downloadSubtitlesOptions": "NEVER_DOWNLOAD_SUBTITLES"
+      },
+      "max_charge_usd": 1,
+      "max_items": 4
+    }
+  ]
+}

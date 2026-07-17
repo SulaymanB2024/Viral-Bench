@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/owned-research-events.schema.json",
+  "title": "Privacy-safe Owned Marketing Event Aggregate",
+  "description": "Aggregate event facts at bucket x attribution-key x event grain. Individual people, content, messages, and application histories are prohibited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bucket_start",
+    "bucket_end",
+    "account_id",
+    "campaign_id",
+    "experiment_id",
+    "variant_id",
+    "post_id",
+    "audience_segment",
+    "event_name",
+    "count",
+    "rates",
+    "privacy"
+  ],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "bucket_start": { "type": "string", "format": "date-time" },
+    "bucket_end": { "type": "string", "format": "date-time" },
+    "account_id": { "type": "string", "minLength": 1 },
+    "campaign_id": { "type": ["string", "null"], "minLength": 1 },
+    "experiment_id": { "type": ["string", "null"], "minLength": 1 },
+    "variant_id": { "type": ["string", "null"], "minLength": 1 },
+    "post_id": { "type": ["string", "null"], "minLength": 1 },
+    "audience_segment": { "type": "string", "minLength": 1 },
+    "event_name": {
+      "type": "string",
+      "enum": [
+        "search_performed",
+        "zero_results",
+        "listing_clicked",
+        "listing_saved",
+        "match_viewed",
+        "tailor_started",
+        "tailor_completed",
+        "tailor_edited",
+        "tailor_rejected",
+        "application_started",
+        "application_reviewed",
+        "application_submitted",
+        "social_reach",
+        "social_three_second_view",
+        "social_completed_view",
+        "social_saved",
+        "social_shared",
+        "social_commented",
+        "social_profile_visit",
+        "social_followed",
+        "social_link_clicked"
+      ]
+    },
+    "count": { "type": "integer", "minimum": 0 },
+    "rates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["average_watch_time_seconds", "completion_rate", "hook_retention_rate"],
+      "properties": {
+        "average_watch_time_seconds": { "type": ["number", "null"], "minimum": 0 },
+        "completion_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "hook_retention_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregate_only", "minimum_bucket_count", "prohibited_fields"],
+      "properties": {
+        "aggregate_only": { "const": true },
+        "minimum_bucket_count": { "type": "integer", "minimum": 5 },
+        "prohibited_fields": {
+          "type": "array",
+          "const": ["resume_text", "name", "email", "message", "user_id", "application_history"]
+        }
+      }
+    }
+  }
+}

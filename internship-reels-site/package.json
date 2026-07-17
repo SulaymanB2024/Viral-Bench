@@ -1,0 +1,22 @@
+{
+  "name": "viralbench-research-copilot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "agent:index": "tsx scripts/build-agent-index.ts",
+    "agent:hash-password": "tsx scripts/hash-operator-password.ts",
+    "video-reports:build": "tsx scripts/build-video-ai-reports.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "@vercel/node": "^5.8.26",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request_id": "internship-category-creators-expansion-20260716",
+  "urls": [
+    "https://www.tiktok.com/@birdtart01/video/7651771589461150989",
+    "https://www.tiktok.com/@retiredd1yapparumaysa/video/7631197403009387806",
+    "https://www.tiktok.com/@davis_engineering/video/7601983531174169870",
+    "https://www.tiktok.com/@lifewithsummeranisa/video/7623920155076087060",
+    "https://www.tiktok.com/@imellagonzales/video/7599931965780856095",
+    "https://www.tiktok.com/@imellagonzales/video/7628495619035909407",
+    "https://www.tiktok.com/@rachelinarealway/video/7639392724139003167",
+    "https://www.tiktok.com/@soleilssofiaa/video/7607526109193784607",
+    "https://www.tiktok.com/@fakewasian777/video/7647741660478147871",
+    "https://www.tiktok.com/@selfmademillennial/video/7614191897598381326"
+  ],
+  "allowed_platforms": [
+    "tiktok"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 5,
+    "max_apify_usd": 1,
+    "max_twelvelabs_usd": 4,
+    "max_gemini_usd": 0
+  }
+}

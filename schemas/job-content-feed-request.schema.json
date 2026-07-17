@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-bench.local/schemas/job-content-feed-request.schema.json",
+  "title": "Job-search content feed request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "feed_id",
+    "sources",
+    "cohorts",
+    "max_results_per_profile",
+    "max_results_per_query",
+    "approval",
+    "cost_policy"
+  ],
+  "properties": {
+    "feed_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["runway", "handshake", "internships_com"]
+      }
+    },
+    "cohorts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["recent", "popular"]
+      }
+    },
+    "max_results_per_profile": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 25
+    },
+    "max_results_per_query": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 25
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "approved_by", "approved_at"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["draft", "approved", "rejected"]
+        },
+        "approved_by": {
+          "type": ["string", "null"]
+        },
+        "approved_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "cost_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_apify_usd"],
+      "properties": {
+        "max_apify_usd": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    }
+  }
+}

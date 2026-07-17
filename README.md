@@ -30,6 +30,53 @@ lane are documented in [docs/APIFY_TWELVELABS_WORKFLOW.md](docs/APIFY_TWELVELABS
 They keep observed public metrics, derived strategy, owned-media analysis, and
 publishing as separate evidence and approval boundaries.
 
+Audit the non-secret provider setup without making an external call:
+
+```bash
+npm run trend -- provider:config-audit --env-file .env
+npm run trend -- provider:config-audit --env-file .env --live-readonly
+```
+
+The default `full_fidelity_analysis` profile checks reviewed Actor IDs, pinned
+builds, direct-URL input shapes, media/subtitle enrichment, usage settlement,
+credentials by presence only, and the explicit live-call gates. Use
+`--profile metadata_discovery` for the lower-cost discovery lane. The optional
+`--live-readonly` mode authenticates both providers and confirms that every
+pinned Apify build still exists and succeeded; it reports newer builds for a
+one-item canary but never starts an Actor or TwelveLabs analysis.
+
+The job-search content feed studies public short-form content from Runway's
+founder, Handshake's official profile, and a clearly labeled Internships.com
+category proxy. It classifies hooks, topics, formats, CTAs, and claim risks
+without downloading competitor media. Start with
+[docs/JOB_CONTENT_FEEDS.md](docs/JOB_CONTENT_FEEDS.md) and the current
+[job-search language synthesis](docs/JOB_SEARCH_CONTENT_LANGUAGE_20260716.md).
+
+The US internship research batch adds a batch-wide $25 ceiling, explicit
+provider-gap states, deterministic three-platform selection quotas,
+identity-redacted audience signals, and a future aggregate-only owned-data
+contract. Validate or prepare its public-data artifacts with:
+
+```bash
+npm run internship-research -- validate
+npm run internship-research -- prepare
+```
+
+The batch input is
+`.ops/competitor_research/internship-us-content-expansion-20260716.json`.
+`prepare` writes a distinct `*-preflight-selection.json` artifact and never
+overwrites the production `*-selection.json` ledger. Only the explicit
+`select` command writes a production selection.
+Paid social discovery and multimodal analysis remain fail-closed until their
+documented credentials and gates are present.
+
+The current TwelveLabs dashboard is a competitor creative-research surface.
+It is not an owned campaign-performance dashboard and cannot populate owned
+reach, engagement, clicks, applications, or conversions. Its build fails on
+missing selection/media joins and writes
+`twelvelabs-dashboard-manifest.json` with source hashes, media hashes, row
+reconciliation, and counted language exclusions.
+
 ## Setup
 
 Requires Node 22+ and the system `sqlite3` CLI with FTS5 support. macOS ships
@@ -600,6 +647,9 @@ npm run trend -- provider:validate-request \
 npm run trend -- provider:run-dry \
   --file .ops/provider_requests/sample_openai_image_request.json
 
+npm run trend -- provider:config-audit \
+  --env-file .env
+
 ALLOW_PAID_GENERATION=true npm run trend -- provider:run-live \
   --env-file .env \
   --file .ops/provider_requests/sample_openai_image_live_request.json \
@@ -623,20 +673,23 @@ rendered package folder, but it refuses to overwrite existing package files
 unless the caller passes an explicit overwrite flag.
 
 `provider:run-live` is separate from dry-run evaluation. It currently supports
-OpenAI image generation only, and it remains blocked unless all of these are
-true:
+reviewed OpenAI image generation, Veo video generation, and TwelveLabs video
+analysis. Every live request remains blocked unless all of these are true:
 
-- The request uses `provider: "openai_image"`.
-- The request uses `provider_mode: "generation"`.
+- The request uses a provider with a reviewed live adapter.
+- The request uses `provider_mode: "generation"`, or `provider_mode:
+  "analysis"` for `twelvelabs_analysis`.
 - The request sets `cost_policy.allow_paid_generation: true`.
 - The request sets `cost_policy.external_calls_allowed: true`.
 - The request sets a positive `cost_policy.max_cost_usd`.
 - The environment has `ALLOW_PAID_GENERATION=true`.
-- The environment has `OPENAI_API_KEY`.
+- The environment has the matching provider credential.
+- TwelveLabs requests also provide
+  `TWELVELABS_ESTIMATED_ANALYSIS_COST_USD` for pre-call accounting.
 
 The live adapter writes only declared local output files under the rendered
 package directory. Its run report redacts credential values and never serializes
-image `b64_json` payloads.
+inline image or video payloads.
 
 ## Gemini and Nano Banana image requests
 
@@ -758,6 +811,7 @@ npm run metrics:create-post -- \
 
 npm run metrics:add-snapshot -- \
   --post-id worthscan-post-001 \
+  --checkpoint 24h \
   --views 1200 \
   --likes 140 \
   --comments 24 \
@@ -767,13 +821,57 @@ npm run metrics:add-snapshot -- \
   --profile-visits 35 \
   --dms 2
 
-npm run metrics:compare -- --metric saves
+npm run metrics:compare -- --metric saves --checkpoint 24h
 npm run metrics:export -- --format csv --out .ops/metrics/post_metrics_export.csv
 ```
 
-Supported comparison metrics are `views`, `likes`, `comments`, `shares`,
-`saves`, `follows`, `profile_visits`, and `dms`. Early pilot comparisons are
-directional only until repeated posts complete their 7-day reads.
+Snapshots are append-only. Standard checkpoints (`1h`, `24h`, `72h`, and `7d`)
+can appear only once per post, capture timestamps must be unique and later than
+posting, and cumulative counters cannot decrease between observed captures.
+CSV export retains every snapshot rather than only the latest one. Comparisons
+use the same checkpoint across posts; custom captures are comparable only when
+their post-relative capture windows are within one hour.
+
+Unavailable values stay `null`. They are never converted to zero. An omitted
+metric defaults to `not_available`; use an explicit state when the distinction
+matters, for example `--shares-state pending` or
+`--saves-state not_applicable`. Supported states are `observed`,
+`not_available`, `not_applicable`, and `pending`.
+
+Supported comparison metrics include the raw counters plus `view_velocity`,
+`average_watch_time_sec`, `completion_rate`, `rewatch_rate`, `share_rate`,
+`save_rate`, `follow_rate`, and `profile_visit_rate`. Observed velocity requires
+two distinct captures and is calculated from the counter delta and elapsed
+capture time, never from lifetime post age.
+
+## Owned marketing dashboard
+
+The owned dashboard model is implemented in `src/marketing-data-model.ts` and
+validated by `schemas/marketing-dashboard.schema.json`. Its reusable fact grain
+is:
+
+- post metrics: `post_id × captured_at × metric_name`
+- owned events: `time bucket × account/campaign/experiment/variant/post × event`
+
+Aggregate owned events follow
+`schemas/owned-research-events.schema.json`. They must include explicit
+attribution keys and the privacy contract; individual names, email addresses,
+messages, resume text, user IDs, and application histories are prohibited.
+
+Build the local dashboard artifacts with:
+
+```bash
+npm run marketing:build -- \
+  --store .ops/metrics/post_metrics.json \
+  --events-dir .ops/metrics/owned_events \
+  --checkpoint 24h
+```
+
+Outputs are written under `.semantic-artifacts/marketing-dashboard/` with a
+source/integrity manifest. If neither owned source is connected, the result is
+an explicit `not_connected` state with null KPIs. If only one source is
+available, it is `partial`. Competitor research is never used as fallback
+marketing performance data.
 
 ## Valuation-card process
 

@@ -9,7 +9,10 @@ import {
   loadCreativeJobManifest,
   type CreativeProviderName,
 } from '../packages/creative/job_schema';
-import { TwelveLabsClient } from './semantic-pipeline';
+import {
+  TwelveLabsClient,
+  estimateTwelveLabsAnalysisCost,
+} from './semantic-pipeline';
 
 export const SUPPORTED_PROVIDER_NAMES = CREATIVE_PROVIDER_NAMES;
 
@@ -704,9 +707,27 @@ async function runTwelveLabsAnalysisLive(
       model_revision: analysis.model_revision ?? null,
       approved_for_posting: false,
     };
+    const outputTokens = analysis.usage?.output_tokens ?? null;
+    const usagePricingEstimateUsd = outputTokens === null
+      ? null
+      : Math.round(estimateTwelveLabsAnalysisCost(
+        analysis.duration_sec,
+        outputTokens,
+      ) * 1_000_000) / 1_000_000;
     const written = writeProviderOutput(request, options.packageDir, {
       relativePath: analysisOutputPath,
-      content: `${JSON.stringify({ analysis, estimated_cost_usd: estimatedCost, approved_for_posting: false, redactions: ['TWELVELABS_API_KEY'] }, null, 2)}\n`,
+      content: `${JSON.stringify({
+        analysis,
+        estimated_cost_usd: estimatedCost,
+        usage_pricing_estimate_usd: usagePricingEstimateUsd,
+        pricing_basis: {
+          input_video_usd_per_minute: 0.0292,
+          output_text_usd_per_1k_tokens: 0.0075,
+          actual_charge_reported_by_provider: false,
+        },
+        approved_for_posting: false,
+        redactions: ['TWELVELABS_API_KEY'],
+      }, null, 2)}\n`,
       overwrite: options.overwrite,
     });
     return {

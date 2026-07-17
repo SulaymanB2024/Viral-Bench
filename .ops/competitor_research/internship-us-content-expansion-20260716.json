@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "batch_id": "internship-us-content-expansion-20260716",
+  "purpose": "public_us_internship_content_and_market_research",
+  "geography": "US",
+  "audience": [
+    "college_students",
+    "recent_graduates"
+  ],
+  "publishing_in_scope": false,
+  "privacy": {
+    "public_data_only": true,
+    "persist_usernames": false,
+    "persist_profile_urls": false,
+    "excluded_data": [
+      "high_school_and_admissions_content",
+      "private_applypilot_data",
+      "resume_text",
+      "names",
+      "email_addresses",
+      "direct_messages",
+      "individual_application_history"
+    ]
+  },
+  "budget": {
+    "currency": "USD",
+    "hard_cap_usd": 25,
+    "lanes": [
+      {
+        "id": "discovery",
+        "max_usd": 5,
+        "required_credentials": ["APIFY_TOKEN"],
+        "required_gates": ["ALLOW_PUBLIC_SEO_RESEARCH", "ALLOW_PAID_GENERATION"]
+      },
+      {
+        "id": "audience_voice",
+        "max_usd": 4,
+        "required_credentials": ["APIFY_TOKEN"],
+        "required_gates": ["ALLOW_PUBLIC_URL_INGESTION", "ALLOW_PAID_GENERATION"]
+      },
+      {
+        "id": "multimodal_analysis",
+        "max_usd": 12,
+        "required_credentials": ["TWELVELABS_API_KEY"],
+        "required_gates": ["ALLOW_PUBLIC_URL_INGESTION", "ALLOW_PAID_GENERATION"]
+      },
+      {
+        "id": "supplemental_retrieval",
+        "max_usd": 2,
+        "required_credentials": [],
+        "required_gates": []
+      },
+      {
+        "id": "retry_reserve",
+        "max_usd": 2,
+        "required_credentials": [],
+        "required_gates": []
+      }
+    ]
+  },
+  "collection": {
+    "platforms": [
+      "tiktok",
+      "instagram",
+      "youtube_shorts"
+    ],
+    "cohorts": [
+      "recent",
+      "popular"
+    ],
+    "max_results_per_profile_per_cohort": 6,
+    "max_results_per_query_per_cohort": 8,
+    "profiles": [
+      { "company": "Handshake", "platform": "tiktok", "locator": "joinhandshake", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "Simplify", "platform": "tiktok", "locator": "simplifyjobs", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "RippleMatch", "platform": "tiktok", "locator": "ripplematch", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "WayUp", "platform": "tiktok", "locator": "wayup", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "Extern", "platform": "tiktok", "locator": "externhq", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "Parker Dewey", "platform": "tiktok", "locator": "microinternships", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "College Recruiter", "platform": "tiktok", "locator": "collegerecruiter.com", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Jobright", "platform": "tiktok", "locator": "jobright.ai", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Big Interview", "platform": "tiktok", "locator": "biginterview", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Handshake", "platform": "instagram", "locator": "https://www.instagram.com/joinhandshake/", "identity_status": "verified_existing_corpus", "source_group": "competitor_product" },
+      { "company": "Riipen", "platform": "instagram", "locator": "https://www.instagram.com/riipennetworks/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Acadium", "platform": "instagram", "locator": "https://www.instagram.com/acadiumofficial/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "12twenty", "platform": "instagram", "locator": "https://www.instagram.com/12twentyinc/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "uConnect", "platform": "instagram", "locator": "https://www.instagram.com/gouconnect/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Jobright", "platform": "instagram", "locator": "https://www.instagram.com/jobright.ai/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "Careerflow", "platform": "instagram", "locator": "https://www.instagram.com/careerflow.ai/", "identity_status": "official_site_link", "source_group": "competitor_product" },
+      { "company": "College Recruiter", "platform": "youtube_shorts", "locator": "College Recruiter", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Riipen", "platform": "youtube_shorts", "locator": "Riipen", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Acadium", "platform": "youtube_shorts", "locator": "Acadium", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Careerflow", "platform": "youtube_shorts", "locator": "Careerflow", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Big Interview", "platform": "youtube_shorts", "locator": "Big Interview", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Forage", "platform": "youtube_shorts", "locator": "Forage virtual work experience", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "AfterCollege", "platform": "youtube_shorts", "locator": "AfterCollege jobs", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Teal", "platform": "youtube_shorts", "locator": "Teal career tools", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Huntr", "platform": "youtube_shorts", "locator": "Huntr job search", "identity_status": "requires_verification", "source_group": "competitor_product" },
+      { "company": "Final Round AI", "platform": "youtube_shorts", "locator": "Final Round AI interview", "identity_status": "requires_verification", "source_group": "competitor_product" }
+    ],
+    "query_batches": [
+      {
+        "id": "proof-and-process",
+        "queries": [
+          "internship no experience college student",
+          "turn class project into resume experience",
+          "internship resume proof not responsibilities",
+          "internship application no response",
+          "college student networking message",
+          "internship interview practice",
+          "career fair follow up student",
+          "internship rejection burnout",
+          "freshman sophomore internship US",
+          "recent graduate first job search"
+        ]
+      },
+      {
+        "id": "access-safety-and-ai",
+        "queries": [
+          "internship scam warning college students",
+          "unpaid internship afford college student",
+          "CPT OPT internship US student",
+          "first generation college career advice",
+          "community college internship search",
+          "AI resume truthful student",
+          "AI internship application mistakes",
+          "remote internship scam check",
+          "internship return offer advice",
+          "what to do if no summer internship"
+        ]
+      }
+    ],
+    "comments": {
+      "target_posts": 18,
+      "max_high_engagement": 5,
+      "max_recent": 5,
+      "max_replies_per_thread": 2
+    },
+    "community_sources": [
+      {
+        "community": "r/internships",
+        "url": "https://www.reddit.com/r/internships/new/.rss?limit=25",
+        "max_items": 12
+      },
+      {
+        "community": "r/college",
+        "url": "https://www.reddit.com/r/college/search.rss?q=internship%20OR%20job&restrict_sr=on&sort=new&t=year&limit=25",
+        "max_items": 12
+      },
+      {
+        "community": "r/careerguidance",
+        "url": "https://www.reddit.com/r/careerguidance/search.rss?q=internship%20OR%20recent%20graduate&restrict_sr=on&sort=new&t=year&limit=25",
+        "max_items": 12
+      },
+      {
+        "community": "r/resumes",
+        "url": "https://www.reddit.com/r/resumes/search.rss?q=internship%20OR%20college%20student&restrict_sr=on&sort=new&t=year&limit=25",
+        "max_items": 12
+      },
+      {
+        "community": "r/cscareerquestions",
+        "url": "https://www.reddit.com/r/cscareerquestions/search.rss?q=internship%20OR%20new%20grad&restrict_sr=on&sort=new&t=year&limit=25",
+        "max_items": 12
+      }
+    ]
+  },
+  "selection": {
+    "target_total": 36,
+    "group_quotas": {
+      "competitor_product": 12,
+      "student_problem_creator": 12,
+      "opportunity_access_safety": 6,
+      "contrast_outlier": 6
+    },
+    "minimum_per_platform": 8,
+    "maximum_per_account": 3
+  },
+  "approval": {
+    "state": "approved",
+    "basis": "User explicitly approved implementation of the US Internship Content and Data Expansion plan in the current Codex task.",
+    "approved_at": "2026-07-16T22:30:00.000Z"
+  }
+}

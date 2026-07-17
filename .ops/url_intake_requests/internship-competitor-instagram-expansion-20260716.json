@@ -1,0 +1,33 @@
+{
+  "request_id": "internship-competitor-instagram-expansion-20260716",
+  "urls": [
+    "https://www.instagram.com/p/DXaKtr9kue5/",
+    "https://www.instagram.com/p/DZyPofPvxBX/",
+    "https://www.instagram.com/p/DW7eugCDxn3/",
+    "https://www.instagram.com/p/DXK9POaj5A6/",
+    "https://www.instagram.com/p/Da1tKStjrfC/",
+    "https://www.instagram.com/p/Da1m3EZlPAi/",
+    "https://www.instagram.com/p/Ck3D34spjgQ/",
+    "https://www.instagram.com/p/CkGFxJ4p-X-/",
+    "https://www.instagram.com/p/DanWvLvxTgw/",
+    "https://www.instagram.com/p/DTv9igkEt0r/",
+    "https://www.instagram.com/p/DTyiEivkisd/",
+    "https://www.instagram.com/p/DaDM3zblYz7/"
+  ],
+  "allowed_platforms": [
+    "instagram"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 4,
+    "max_apify_usd": 1,
+    "max_twelvelabs_usd": 3,
+    "max_gemini_usd": 0
+  }
+}

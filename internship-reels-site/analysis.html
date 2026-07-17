@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ViralBench — Deep Analysis</title>
+  <meta name="description" content="Timestamp-grounded analysis of successful internship and early-career short-form content.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23fcfcfc'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23050505'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      /* Void Agency brand palette; semantic aliases retain the dashboard structure. */
+      --void-black: #050505;
+      --void-charcoal: #141414;
+      --void-slate: #333333;
+      --void-gray: #666666;
+      --void-silver: #999999;
+      --void-mist: #cccccc;
+      --void-ash: #e6e6e6;
+      --void-pearl: #f3f3f3;
+      --void-paper: #fcfcfc;
+      --void-white: #ffffff;
+      --void-sage: #8b9b87;
+      --void-sage-dark: #6d7d69;
+      --void-accent-subtle: rgba(139,155,135,.08);
+      --bg: var(--void-paper);
+      --surface: var(--void-white);
+      --surface-2: var(--void-pearl);
+      --line: #e8e8e8;
+      --line-soft: #f0f0f0;
+      --text: var(--void-black);
+      --muted: var(--void-gray);
+      --dim: var(--void-silver);
+      --lime: var(--void-sage-dark);
+      --cyan: var(--void-black);
+      --violet: var(--void-sage);
+      --amber: var(--void-charcoal);
+      --danger: var(--void-charcoal);
+      --radius: 12px;
+      --ui: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", "Roboto Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--ui); }
+    body { overflow-x: hidden; }
+    button, a { font: inherit; }
+    button { color: inherit; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 224px minmax(0, 1fr) 340px; grid-template-rows: 68px minmax(0, 1fr); }
+    .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 24px; padding: 0 24px; border-bottom: 1px solid var(--line); background: rgba(252,252,252,.94); position: sticky; top: 0; z-index: 10; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 200px; }
+    .brand-mark { width: 22px; height: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; transform: rotate(-6deg); }
+    .brand-mark span { background: var(--lime); border-radius: 1px; }
+    .brand-mark span:nth-child(2) { opacity: .72; }
+    .brand-mark span:nth-child(3) { opacity: .42; }
+    .brand-name { font-size: 14px; font-weight: 720; letter-spacing: -.02em; }
+    .top-title { flex: 1; font-size: 13px; color: var(--muted); }
+    .top-title strong { color: var(--text); font-weight: 620; }
+    .top-link { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--lime); font: 10px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding-bottom: 3px; white-space: nowrap; }
+    .top-link:hover { color: var(--lime); }
+    .top-link:focus-visible, .source:focus-visible, .segment:focus-visible, .source-link:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+    .run-state { display: flex; align-items: center; gap: 9px; color: var(--muted); font: 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+    .run-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 4px var(--void-accent-subtle); }
+    .sources { grid-column: 1; grid-row: 2; border-right: 1px solid var(--line); padding: 18px 12px; background: #f6f6f6; }
+    .rail-heading { margin: 0 10px 14px; color: var(--dim); font: 10px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .source { width: 100%; display: grid; grid-template-columns: 29px minmax(0, 1fr); gap: 9px; align-items: center; padding: 11px 9px; border: 0; border-left: 2px solid transparent; border-radius: 0 7px 7px 0; background: transparent; text-align: left; cursor: pointer; transition: background 160ms ease, border-color 160ms ease; }
+    .source:hover { background: var(--surface); }
+    .source.active { background: var(--surface-2); border-left-color: var(--lime); }
+    .source-rank { color: var(--dim); font: 11px/1 var(--mono); }
+    .source.active .source-rank { color: var(--lime); }
+    .source-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 620; }
+    .source-meta { margin-top: 4px; color: var(--dim); font: 10px/1.2 var(--mono); }
+    .workspace { grid-column: 2; grid-row: 2; min-width: 0; padding: 22px 24px 32px; overflow: auto; }
+    .hero { display: grid; grid-template-columns: minmax(230px, 300px) minmax(320px, 1fr); gap: 26px; align-items: start; }
+    .video-frame { position: relative; background: #000; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; aspect-ratio: 9 / 16; max-height: 54vh; justify-self: center; box-shadow: 0 24px 70px rgba(0,0,0,.32); }
+    video { display: block; width: 100%; height: 100%; object-fit: cover; background: #000; }
+    .rank-flag { position: absolute; top: 10px; left: 10px; padding: 6px 8px; border-radius: 5px; background: rgba(5,5,5,.86); backdrop-filter: blur(8px); color: var(--void-white); font: 10px/1 var(--mono); pointer-events: none; }
+    .narrative { padding-top: 4px; }
+    .narrative h1 { margin: 0; max-width: 730px; font-size: clamp(28px, 3.3vw, 50px); line-height: 1.03; letter-spacing: -.045em; font-weight: 660; text-wrap: balance; }
+    .identity-line { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 17px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .identity-company { color: var(--text); }
+    .identity-language { color: var(--lime); font-family: var(--mono); font-size: 11px; text-transform: uppercase; }
+    .identity-paid { color: var(--muted); font-family: var(--mono); font-size: 11px; text-transform: uppercase; }
+    .identity-paid.paid { color: var(--amber); }
+    .identity-paid.clear { color: var(--lime); }
+    .metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .metric-value { font: 19px/1 var(--mono); }
+    .metric-value.good { color: var(--lime); }
+    .metric-value.missing { color: var(--dim); }
+    .metric-label { margin-top: 7px; color: var(--dim); font: 9px/1.2 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    .metric-note { grid-column: 1 / -1; margin-top: 2px; color: var(--dim); font: 9px/1.45 var(--mono); }
+    .now-inspecting { margin-top: 28px; padding: 17px 0 0; border-top: 1px solid var(--line-soft); }
+    .inspect-label { color: var(--dim); font: 9px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .inspect-time { margin-left: 8px; color: var(--lime); }
+    .inspect-copy { margin-top: 9px; color: var(--text); font-size: 13px; line-height: 1.52; }
+    .timeline { margin-top: 28px; padding-top: 21px; border-top: 1px solid var(--line); }
+    .timeline-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .timeline-head h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
+    .timeline-head p { margin: 0; color: var(--dim); font: 10px/1.3 var(--mono); }
+    .axis { position: relative; height: 18px; margin-left: 76px; border-bottom: 1px solid var(--line-soft); }
+    .tick { position: absolute; bottom: 3px; color: var(--dim); font: 8px/1 var(--mono); transform: translateX(-50%); }
+    .lane { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; margin-top: 12px; align-items: center; }
+    .lane-label { color: var(--muted); font: 9px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .lane-track { position: relative; height: 34px; background: var(--void-white); border: 1px solid var(--line-soft); overflow: hidden; }
+    .segment { position: absolute; top: 3px; bottom: 3px; min-width: 3px; border: 0; border-right: 1px solid rgba(255,255,255,.42); cursor: pointer; opacity: .78; transition: opacity 120ms ease, transform 120ms ease, filter 120ms ease; }
+    .segment:hover, .segment.active { opacity: 1; filter: brightness(1.14); transform: translateY(-1px); }
+    .segment.visual { background: var(--cyan); }
+    .segment.audio { background: var(--violet); }
+    .segment.editing { background: var(--amber); }
+    .playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--void-black); z-index: 5; pointer-events: none; box-shadow: none; }
+    .inspector { grid-column: 3; grid-row: 2; border-left: 1px solid var(--line); padding: 22px 22px 32px; background: #f6f6f6; overflow: auto; }
+    .inspector h2 { margin: 0; font-size: 15px; letter-spacing: -.015em; }
+    .structure { margin-top: 18px; }
+    .structure-row { padding: 14px 0; border-top: 1px solid var(--line-soft); }
+    .structure-label { color: var(--dim); font: 9px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .structure-copy { margin-top: 7px; color: var(--void-slate); font-size: 12px; line-height: 1.5; }
+    .cta { color: var(--lime); }
+    .claims { margin-top: 20px; }
+    .claim { padding: 11px 0 11px 13px; border-left: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .claim + .claim { margin-top: 8px; }
+    .claim-status { display: block; margin-top: 5px; color: var(--dim); font: 8px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .source-link { display: inline-flex; margin-top: 22px; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--lime); font-size: 11px; padding-bottom: 3px; }
+    .empty-note { color: var(--muted); font-size: 12px; }
+    .context-value { margin-top: 7px; color: var(--void-slate); font-size: 12px; line-height: 1.5; }
+    .context-value.paid { color: var(--amber); }
+    .context-value.clear { color: var(--lime); }
+    .context-basis { display: block; margin-top: 4px; color: var(--dim); font: 9px/1.4 var(--mono); }
+    .inspector-section { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 184px minmax(0, 1fr); }
+      .inspector { grid-column: 2; grid-row: 3; border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 180px 1fr; gap: 24px; }
+      .structure { margin-top: 0; }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .topbar { height: 62px; padding: 0 16px; }
+      .top-title { display: none; }
+      .top-link { margin-left: auto; }
+      .run-state { display: none; }
+      .sources { border-right: 0; border-bottom: 1px solid var(--line); display: block; overflow: hidden; padding: 10px; }
+      .rail-heading { display: none; }
+      #sourceList { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+      #sourceList::-webkit-scrollbar { display: none; }
+      .source { min-width: 168px; }
+      .workspace { padding: 18px 16px 26px; }
+      .hero { grid-template-columns: 116px minmax(0, 1fr); gap: 16px; }
+      .video-frame { max-height: 38vh; border-radius: 8px; }
+      .narrative h1 { font-size: 24px; }
+      .mechanism { font-size: 12px; margin-top: 12px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; padding-top: 14px; }
+      .metric-value { font-size: 14px; }
+      .now-inspecting { margin-top: 16px; }
+      .axis { margin-left: 58px; }
+      .lane { grid-template-columns: 50px minmax(0, 1fr); }
+      .inspector { display: block; padding: 20px 16px 30px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=analysis-case-study-v3">
+  <script src="/site-navigation.js" defer></script>
+</head>
+<body class="analysis-page">
+  <a class="site-skip" href="#main">Skip to main content</a>
+  <main class="app" id="main">
+    <header class="topbar site-header">
+      <a class="site-brand" href="/" aria-label="ViralBench library"><span class="site-brand-dot" aria-hidden="true"></span><span>ViralBench</span></a>
+      <button class="site-menu-button" type="button" aria-expanded="false" aria-controls="siteNavigation">Menu</button>
+      <nav class="site-navigation" id="siteNavigation" aria-label="Primary">
+        <a href="/" data-site-route="library">Library</a>
+        <a href="/benchmarks" data-site-route="benchmarks">Benchmarks</a>
+        <a href="/ask" data-site-route="ask">Ask</a>
+        <a href="/work" data-site-route="work">Work</a>
+      </nav>
+    </header>
+    <nav class="sources" aria-label="Analyzed videos">
+      <p class="rail-heading">Analyzed</p>
+      <div id="sourceList"></div>
+    </nav>
+    <section class="workspace">
+      <article class="hero">
+        <div class="media-column">
+          <div class="video-frame">
+            <video id="video" controls playsinline preload="metadata"></video>
+            <div class="rank-flag" id="rankFlag"></div>
+          </div>
+          <div class="media-caption">
+            <span id="mediaPlatform"></span>
+            <span id="mediaDuration"></span>
+          </div>
+        </div>
+        <div class="narrative">
+          <h1 id="headline"></h1>
+          <div class="identity-line">
+            <span class="identity-company" id="identityCompany"></span>
+            <span id="identityAccount"></span>
+            <span class="identity-language">English</span>
+            <span class="identity-paid" id="identityPaid"></span>
+          </div>
+          <div class="mechanism-panel">
+            <div class="section-label">Why it works</div>
+            <p id="mechanism"></p>
+          </div>
+          <div class="metrics" id="metrics"></div>
+        </div>
+      </article>
+
+      <section class="anatomy" aria-labelledby="anatomyTitle">
+        <div class="section-head">
+          <div>
+            <h2 id="anatomyTitle">Video anatomy</h2>
+            <p>Structure after the hook.</p>
+          </div>
+          <p class="section-note">Observed only</p>
+        </div>
+        <div class="anatomy-grid" id="anatomy"></div>
+      </section>
+
+      <section class="timeline" aria-label="Timestamped evidence">
+        <div class="timeline-head">
+          <div>
+            <h2>Beat-by-beat evidence</h2>
+            <p>Select a block to seek.</p>
+          </div>
+          <div class="lane-legend" aria-label="Timeline legend">
+            <span><i class="visual"></i>Visual</span>
+            <span><i class="audio"></i>Audio</span>
+            <span><i class="editing"></i>Editing</span>
+          </div>
+        </div>
+        <div class="axis" id="axis"></div>
+        <div id="lanes"></div>
+        <div class="now-inspecting" aria-live="polite">
+          <div class="inspect-label">Evidence in focus <span class="inspect-time" id="inspectTime"></span></div>
+          <div class="inspect-copy" id="inspectCopy"></div>
+        </div>
+      </section>
+    </section>
+
+    <aside class="inspector">
+      <div class="inspector-intro">
+        <h2>Evidence ledger</h2>
+        <p class="empty-note">Source, mechanics, limits.</p>
+      </div>
+      <section class="inspector-section ai-report-section" aria-labelledby="aiReportTitle">
+        <div class="ai-report-header">
+          <div>
+            <p class="ai-report-kicker">Synthesis</p>
+            <h2 id="aiReportTitle">Gemini report</h2>
+          </div>
+          <span class="ai-report-status" id="aiReportStatus">Reviewed snapshot</span>
+        </div>
+        <p class="ai-report-meta" id="aiReportMeta"></p>
+        <div id="aiReport" aria-live="polite"></div>
+      </section>
+      <div class="structure context-grid" id="context"></div>
+      <section class="inspector-section">
+        <h2>Reusable recipe</h2>
+        <p class="empty-note">Testable mechanics.</p>
+        <div class="structure" id="structure"></div>
+      </section>
+      <section class="inspector-section evidence-section">
+        <h2>Claims &amp; limits</h2>
+        <p class="empty-note">Supported versus unsupported.</p>
+        <div class="claims" id="claims"></div>
+        <div class="limitations" id="limitations"></div>
+        <a class="source-link" id="sourceLink" target="_blank" rel="noreferrer">Open public source <span aria-hidden="true">↗</span></a>
+      </section>
+    </aside>
+  </main>
+  <script src="/data/video-ai-reports.js?v=video-ai-reports-v1"></script>
+  <script>
+    const records = [{"candidate_id":"live:instagram:DWc3GgxDekQ:instagram-access-safety-ai-popular-search","platform":"instagram","platform_post_id":"DWc3GgxDekQ","canonical_url":"https://www.instagram.com/p/DWc3GgxDekQ/","chosen_pillar":"contrast_outlier","analysis_profile":"successful_content_deep_clone_v1","cohort":{"rank":1,"success_percentile":1,"complexity_score":0.8949,"comparison_method":"within_platform_and_age_bucket_percentile"},"provider_asset_id":"6a5a455a25a60b86566fa5b9","strategy":{"data":{"opening":{"start_sec":0,"end_sec":31.8,"observed_words":"This is everyone you need to drop as soon as you land your summer internship.","observed_visual":"Speaker uses hand gestures to emphasize the list format.","mechanism":"Direct address to a specific audience with a clear purpose."},"content_arc":{"audience_problem":"Maintaining a social circle that doesn't align with professional success.","progression":"Listicle format presenting three categories of people to remove.","payoff":"Removing specific types of connections to align with professional goals."},"cta":{"observed_words":"And send this to someone who doesn't have a summer internship.","requested_action":"Share the video with someone who hasn't secured a summer internship."},"claims":[{"observed_claim":"Anyone with sub 500+ LinkedIn connections is not taking their life seriously.","evidence_status":"spoken"},{"observed_claim":"Day ones (college, high school, hometown friends) should be removed from your life.","evidence_status":"spoken"},{"observed_claim":"People with a bad following to follower ratio should be dropped.","evidence_status":"spoken"}],"transferable_structure":{"hook_pattern":"Direct address to a specific audience with a provocative statement.","beat_pattern":"Listicle format with three distinct categories.","payoff_pattern":"Encouraging sharing of the advice with others who haven't achieved the goal."},"evidence_limitations":["No visual evidence of the speaker's identity or branding.","No footage or shot order details provided.","Claims are subjective and lack empirical evidence."]},"provider_generation_id":"8ed97f4a-4a71-4ce2-9212-71ef7efba999","finish_reason":"stop","usage":{"input_tokens":11042,"output_tokens":456}},"segmentation":{"task_id":"6a5a456f64280805ba3165b9","provider_generation_id":"5bc6c49a-894d-4c0d-a9f9-4029c861fa40","finish_reason":"stop","usage":{"input_tokens":34192,"output_tokens":3010},"segments":{"visual_shots":[{"start_time":0,"end_time":3,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"PSA to all summer 2026 interns (top center, white text); This is everyone you need to drop as soon as you land your summer internship. (center, white text)","visual_description":"A young woman with long dark hair, wearing a black top and a necklace, speaks directly to the camera in a room with a bandana hanging on the wall behind her."}},{"start_time":3,"end_time":6,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"No. 1 anyone who has sub 500+ LinkedIn connections. (center, white text)","visual_description":"The woman continues speaking, gesturing with her hands to emphasize her point about LinkedIn connections."}},{"start_time":6,"end_time":9,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"Honestly, like at that point you're just not taking your life seriously. (center, white text)","visual_description":"The woman continues her explanation, using hand gestures to emphasize her point about not taking life seriously."}},{"start_time":9,"end_time":11,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"Fade. Cut. (center, white text)","visual_description":"The woman makes a cutting gesture with her hands, indicating a transition or dismissal."}},{"start_time":11,"end_time":14,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"No.2. This one's really important. (center, white text)","visual_description":"The woman introduces her second point, emphasizing its importance with hand gestures."}},{"start_time":14,"end_time":17,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"All of your day ones. Slime them out. Like friends from college, high school, hometown friends. (center, white text)","visual_description":"The woman lists different types of friends to 'slime out,' using hand gestures to enumerate them."}},{"start_time":17,"end_time":19,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"People you've known since you were like a baby. Like, slime them out. (center, white text)","visual_description":"The woman continues her list, emphasizing the long-standing nature of these friendships before advising to 'slime them out.'"}},{"start_time":19,"end_time":22,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"And lastly, this one's also pretty important anyone who has bad following to follower ratio. (center, white text)","visual_description":"The woman introduces her final point about social media following ratios, using hand gestures to emphasize its importance."}},{"start_time":22,"end_time":25,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"Like if they're following more people than they have followers. (center, white text)","visual_description":"The woman explains the concept of a bad following-to-follower ratio, using hand gestures to illustrate the imbalance."}},{"start_time":25,"end_time":28,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"Like, you don't need them in your life. (center, white text)","visual_description":"The woman concludes her point about people with bad following ratios, advising viewers not to need them in their lives."}},{"start_time":28,"end_time":31.8,"metadata":{"camera_and_motion":"Static camera, medium close-up shot of the speaker.","on_screen_text_exact":"I hope this helps someone out there. And send this to someone who doesn't have a summer internship. (center, white text)","visual_description":"The woman concludes her video, offering hope and encouraging viewers to share the advice with others."}}],"audio_beats":[{"start_time":0,"end_time":3,"metadata":{"delivery":"Fast-paced, energetic, and humorous tone with clear enunciation.","music_and_sound":"none","speech_exact":"This is everyone you need to drop as soon as you land your summer internship."}},{"start_time":3,"end_time":6,"metadata":{"delivery":"Fast-paced, humorous, with a slight pause before 'Honestly'.","music_and_sound":"none","speech_exact":"Number one, anyone who has sub 500 plus LinkedIn connections."}},{"start_time":6,"end_time":9,"metadata":{"delivery":"Fast-paced, humorous, with a sharp 'Cut' at the end.","music_and_sound":"none","speech_exact":"Honestly, like at that point you're just not taking your life seriously. Cut."}},{"start_time":9,"end_time":12,"metadata":{"delivery":"Fast-paced, humorous, with emphasis on 'really important'.","music_and_sound":"none","speech_exact":"Number two, this one's really important."}},{"start_time":12,"end_time":15,"metadata":{"delivery":"Fast-paced, humorous, with a slight pause before 'Like'.","music_and_sound":"none","speech_exact":"All of your day ones. Slime them out."}},{"start_time":15,"end_time":18,"metadata":{"delivery":"Fast-paced, humorous, with emphasis on 'baby'.","music_and_sound":"none","speech_exact":"Like friends from college, high school, hometown friends. People you've known since you were like a baby."}},{"start_time":18,"end_time":21,"metadata":{"delivery":"Fast-paced, humorous, with emphasis on 'pretty important'.","music_and_sound":"none","speech_exact":"Like, slime them out. And lastly, this one's also pretty important."}},{"start_time":21,"end_time":24,"metadata":{"delivery":"Fast-paced, humorous, with emphasis on 'bad following to follower ratio'.","music_and_sound":"none","speech_exact":"Anyone who has bad following to follower ratio."}},{"start_time":24,"end_time":27,"metadata":{"delivery":"Fast-paced, humorous, with emphasis on 'more people than they have followers'.","music_and_sound":"none","speech_exact":"Like if they're following more people than they have followers."}},{"start_time":27,"end_time":31.8,"metadata":{"delivery":"Fast-paced, humorous, with a slight pause before 'And send this'.","music_and_sound":"none","speech_exact":"Like, you don't need them in your life. I hope this helps someone out there. And send this to someone who doesn't have a summer internship."}}],"editing_beats":[{"start_time":0,"end_time":2.5,"metadata":{"attention_device":"text change","layout_and_motion":"Static shot with centered caption overlay","transition_in":"opening frame"}},{"start_time":2.5,"end_time":5.5,"metadata":{"attention_device":"text change","layout_and_motion":"Static shot with centered caption overlay","transition_in":"hard cut"}},{"start_time":5.5,"end_time":8.5,"metadata":{"attention_device":"gesture","layout_and_motion":"Static shot with centered caption overlay","transition_in":"hard cut"}},{"start_time":8.5,"end_time":31.8,"metadata":{"attention_device":"text change","layout_and_motion":"Static shot with centered caption overlay","transition_in":"hard cut"}}]}},"retry_segmentation":null,"first_pass_quality":{"passed":true,"definition_counts":{"visual_shots":11,"audio_beats":10,"editing_beats":4},"visual_coverage_ratio":0.9969,"max_visual_gap_sec":0.1,"missing_metadata_fields":[],"retry_definition_ids":[]},"quality":{"passed":true,"definition_counts":{"visual_shots":11,"audio_beats":10,"editing_beats":4},"visual_coverage_ratio":0.9969,"max_visual_gap_sec":0.1,"missing_metadata_fields":[],"retry_definition_ids":[]},"retry_performed":false,"maximum_estimated_cost_usd":0.492673,"usage_pricing_estimate_usd":0.088094,"external_calls_made":18,"media_src":"./media/instagram-DWc3GgxDekQ.mp4","duration_sec":31.9,"account_handle":"jaceytothefourthpower","source_group":"contrast_outlier","posted_at":"2026-03-29T02:09:12.000Z","metric_snapshot_at":"2026-07-17T01:25:23.327Z","metrics":{"views":145558,"likes":3973,"comments":34,"shares":null,"saves":null},"language":{"is_english":true,"basis":"spoken_and_on_screen","common_word_ratio":0.4378},"company":{"name":null,"basis":"No reviewed company profile matched this creator or channel."},"paid":{"label":"Unknown","state":"unknown","basis":"No explicit paid, ad, or sponsorship flag was retained for this source."}},{"candidate_id":"live:youtube_shorts:tKzKPxZupow:youtube-competitor-brands-recent","platform":"youtube_shorts","platform_post_id":"tKzKPxZupow","canonical_url":"https://www.youtube.com/shorts/tKzKPxZupow","chosen_pillar":"competitor_product","analysis_profile":"successful_content_deep_clone_v1","cohort":{"rank":2,"success_percentile":1,"complexity_score":0.8845,"comparison_method":"within_platform_and_age_bucket_percentile"},"provider_asset_id":"6a5a458525a60b86566fa5c4","strategy":{"data":{"opening":{"start_sec":0,"end_sec":1,"observed_words":"The world will push you to","observed_visual":"Graduate in a blue gown and cap standing in a forest","mechanism":"Text overlay"},"content_arc":{"audience_problem":"Choosing a career path after college","progression":"Exploring different options (industry, further education, entrepreneurship) and weighing pros and cons","payoff":"The graduate's successful pursuit of entrepreneurship"},"cta":{"observed_words":"none","requested_action":"none"},"claims":[{"observed_claim":"The graduate chose entrepreneurship (Path C) after considering industry jobs and further education.","evidence_status":"spoken"},{"observed_claim":"Entrepreneurship was a risky but ultimately rewarding choice.","evidence_status":"spoken"}],"transferable_structure":{"hook_pattern":"Presenting a common problem (choosing a career path after college)","beat_pattern":"Problem -> Process -> Proof -> Action","payoff_pattern":"Showing the successful outcome of the chosen path (entrepreneurship)"},"evidence_limitations":["No visual evidence of the graduate's success in entrepreneurship","No specific details about the risks and rewards of entrepreneurship"]},"provider_generation_id":"5fd1e500-2184-45c6-9775-e850119cdf90","finish_reason":"stop","usage":{"input_tokens":7321,"output_tokens":241}},"segmentation":{"task_id":"6a5a4593616efc4733ff69c9","provider_generation_id":"efb592e7-35a8-48dc-84cc-3c1d4310e867","finish_reason":"stop","usage":{"input_tokens":23029,"output_tokens":4473},"segments":{"visual_shots":[{"start_time":0,"end_time":2,"metadata":{"camera_and_motion":"Medium shot, static camera, subject walks into frame from right.","on_screen_text_exact":"The world will push you to","visual_description":"A young man in a blue graduation gown and cap walks into a forest setting. Text overlay appears."}},{"start_time":2,"end_time":4,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"PATH A, PATH B, PATH C","visual_description":"A wooden signpost with three arrows pointing in different directions, labeled PATH A, PATH B, and PATH C."}},{"start_time":4,"end_time":6,"metadata":{"camera_and_motion":"Medium shot, static camera, subject gestures.","on_screen_text_exact":"but what's the right choice?","visual_description":"The graduate stands in the forest, looking thoughtful, with text overlay."}},{"start_time":6,"end_time":8,"metadata":{"camera_and_motion":"Medium shot, following the graduates from behind.","on_screen_text_exact":"After graduation, I saw many of my friends walk down","visual_description":"Several graduates in blue gowns walk away from the camera down a forest path."}},{"start_time":8,"end_time":10,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"PATH A, INDUSTRY, PATH B, PATH C","visual_description":"The signpost now shows 'INDUSTRY' on the top arrow."}},{"start_time":10,"end_time":12,"metadata":{"camera_and_motion":"Close-up, static shot of the paper.","on_screen_text_exact":"JOB OFFER, Google, a six-figure job offers","visual_description":"A piece of paper with 'JOB OFFER' and 'Google' written on it, held by hands."}},{"start_time":12,"end_time":14,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"Google, Meta, Goldman Sachs, PATH B, PATH C","visual_description":"The signpost arrows now show 'Google', 'Meta', and 'Goldman Sachs'."}},{"start_time":14,"end_time":16,"metadata":{"camera_and_motion":"Medium shot, following the graduate from behind.","on_screen_text_exact":"I was tempted to follow right behind them","visual_description":"The graduate walks towards the signpost in the forest."}},{"start_time":16,"end_time":18,"metadata":{"camera_and_motion":"Close-up, static shot of the paper.","on_screen_text_exact":"PAYCHECK, for that steady PAYCHECK & RESUME BOOST","visual_description":"A piece of paper with 'PAYCHECK' written on it, held by hands."}},{"start_time":18,"end_time":20,"metadata":{"camera_and_motion":"Medium shot, static camera, subject gestures.","on_screen_text_exact":"but I knew if I went down that route","visual_description":"The graduate stands in the forest, looking contemplative."}},{"start_time":20,"end_time":22,"metadata":{"camera_and_motion":"Close-up, static shot of the graduate's face.","on_screen_text_exact":"I'd feel boxed in","visual_description":"Close-up of the graduate's face, looking concerned."}},{"start_time":22,"end_time":24,"metadata":{"camera_and_motion":"Medium shot, static camera, subject gestures.","on_screen_text_exact":"Some of my other friends felt the same","visual_description":"The graduate, now in a white t-shirt, sits on a couch and speaks into a microphone."}},{"start_time":24,"end_time":26,"metadata":{"camera_and_motion":"Medium shot, following the graduates from behind.","on_screen_text_exact":"so they walked down PATH B","visual_description":"Graduates walk down a forest path."}},{"start_time":26,"end_time":28,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"PATH A, MORE SCHOOL, PATH C","visual_description":"The signpost now shows 'MORE SCHOOL' on the middle arrow."}},{"start_time":28,"end_time":30,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"LAW SCHOOL, MEDICAL SCHOOL, BUSINESS SCHOOL, PATH C","visual_description":"The signpost arrows now show 'LAW SCHOOL', 'MEDICAL SCHOOL', and 'BUSINESS SCHOOL'."}},{"start_time":30,"end_time":32,"metadata":{"camera_and_motion":"Close-up, static shot of the paper.","on_screen_text_exact":"GMAT, which is where I thought I'd go to specialize","visual_description":"A piece of paper with 'GMAT' written on it, held by hands."}},{"start_time":32,"end_time":34,"metadata":{"camera_and_motion":"Medium shot, static camera, subject sits at a desk.","on_screen_text_exact":"but it would cost me more years","visual_description":"The graduate sits at a desk in a classroom setting, looking thoughtful."}},{"start_time":34,"end_time":36,"metadata":{"camera_and_motion":"Medium shot, static camera, subject holds money.","on_screen_text_exact":"and tons of student loans","visual_description":"The graduate holds a stack of money, looking concerned."}},{"start_time":36,"end_time":38,"metadata":{"camera_and_motion":"Medium shot, static camera, subject gestures.","on_screen_text_exact":"so that's when I turned to PATH C","visual_description":"The graduate stands in the forest, looking determined."}},{"start_time":38,"end_time":40,"metadata":{"camera_and_motion":"Medium shot, static camera, subject looks through branches.","on_screen_text_exact":"This one was hard to see through","visual_description":"The graduate looks through branches in the forest."}},{"start_time":40,"end_time":42,"metadata":{"camera_and_motion":"Close-up, static shot of the signpost.","on_screen_text_exact":"PATH A, PATH B, ENTREPRENEURSHIP","visual_description":"The signpost now shows 'ENTREPRENEURSHIP' on the bottom arrow."}},{"start_time":42,"end_time":44,"metadata":{"camera_and_motion":"Medium shot, static camera, subject gestures.","on_screen_text_exact":"Was it risky? Yeah","visual_description":"The graduate, in a white t-shirt, sits on a couch and speaks into a microphone."}},{"start_time":44,"end_time":46.8,"metadata":{"camera_and_motion":"Medium shot, static camera, subject looks at a plant.","on_screen_text_exact":"but is it working? Thankfully, because you followed GOHAR","visual_description":"The graduate kneels in the forest, looking at a small plant."}}],"audio_beats":[{"start_time":0,"end_time":4,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"The world will push you to choose path A, B, or C after college, but what's the right choice?"}},{"start_time":4,"end_time":8,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"After graduation, I saw many of my friends walk down path A, or industry."}},{"start_time":8,"end_time":14,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"They accepted six-figure job offers from companies like Google, Meta, and Goldman Sachs."}},{"start_time":14,"end_time":20,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"I was tempted to follow right behind them for that steady paycheck and resume boost, but I knew if I went down that route, I'd feel boxed in."}},{"start_time":20,"end_time":24,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"Some of my other friends felt the same, so they walked down path B, more school."}},{"start_time":24,"end_time":28,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"They ended up in law school, med school, and even business school, which is where I thought I would go to specialize."}},{"start_time":28,"end_time":34,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"but it would cost me more years in the classroom and tons of student loans."}},{"start_time":34,"end_time":38,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"So that's when I turned to Pat C. This one was hard to see through, but who knew what lay on the other side?"}},{"start_time":38,"end_time":42,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"I took the risk and stumbled into entrepreneurship."}},{"start_time":42,"end_time":46.8,"metadata":{"delivery":"Narrative, steady pace","music_and_sound":"none","speech_exact":"Was it risky? Yeah, but is it working? Thankfully, because you followed GoHart."}}],"editing_beats":[{"start_time":0,"end_time":2,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate in forest, text overlay 'The world will push you to'","transition_in":"opening frame"}},{"start_time":2,"end_time":5,"metadata":{"attention_device":"text change","layout_and_motion":"Signpost with paths A, B, C, text overlay 'choose PATH A, B, or C'","transition_in":"hard cut"}},{"start_time":5,"end_time":8,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate thinking, text overlay 'but what's the right choice? After graduation'","transition_in":"hard cut"}},{"start_time":8,"end_time":11,"metadata":{"attention_device":"text change","layout_and_motion":"Graduates walking, text overlay 'I saw many of my friends walk down'","transition_in":"hard cut"}},{"start_time":11,"end_time":14,"metadata":{"attention_device":"text change","layout_and_motion":"Signpost with 'INDUSTRY', text overlay 'PATH A, or INDUSTRY'","transition_in":"hard cut"}},{"start_time":14,"end_time":17,"metadata":{"attention_device":"text change","layout_and_motion":"Job offer letter, text overlay 'They accepted six-figure job offers'","transition_in":"hard cut"}},{"start_time":17,"end_time":20,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate walking, text overlay 'I was tempted to follow right behind them'","transition_in":"hard cut"}},{"start_time":20,"end_time":23,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate thinking, text overlay 'for that steady PAYCHECK & RESUME BOOST'","transition_in":"hard cut"}},{"start_time":23,"end_time":26,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate speaking, text overlay 'but I knew if I went down that route'","transition_in":"hard cut"}},{"start_time":26,"end_time":29,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate speaking, text overlay 'I'd feel boxed in. Some of my other friends'","transition_in":"hard cut"}},{"start_time":29,"end_time":32,"metadata":{"attention_device":"text change","layout_and_motion":"Graduates walking, text overlay 'felt the same, so they walked down PATH B'","transition_in":"hard cut"}},{"start_time":32,"end_time":35,"metadata":{"attention_device":"text change","layout_and_motion":"Signpost with 'MORE SCHOOL', text overlay 'MORE SCHOOL'","transition_in":"hard cut"}},{"start_time":35,"end_time":38,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate at desk, text overlay 'They ended up in law school, med school'","transition_in":"hard cut"}},{"start_time":38,"end_time":41,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate at desk, text overlay 'and even business school, which is where'","transition_in":"hard cut"}},{"start_time":41,"end_time":44,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate at desk, text overlay 'I thought I'd go to specialize, but it would cost me'","transition_in":"hard cut"}},{"start_time":44,"end_time":46.8,"metadata":{"attention_device":"text change","layout_and_motion":"Graduate at desk, text overlay 'more years in the classroom and tons of student loans'","transition_in":"hard cut"}}]}},"retry_segmentation":null,"first_pass_quality":{"passed":true,"definition_counts":{"visual_shots":23,"audio_beats":10,"editing_beats":16},"visual_coverage_ratio":0.9985,"max_visual_gap_sec":0.07,"missing_metadata_fields":[],"retry_definition_ids":[]},"quality":{"passed":true,"definition_counts":{"visual_shots":23,"audio_beats":10,"editing_beats":16},"visual_coverage_ratio":0.9985,"max_visual_gap_sec":0.07,"missing_metadata_fields":[],"retry_definition_ids":[]},"retry_performed":false,"maximum_estimated_cost_usd":0.54367,"usage_pricing_estimate_usd":0.126595,"external_calls_made":21,"media_src":"./media/youtube_shorts-tKzKPxZupow.mp4","duration_sec":46.87,"account_handle":"goharsguide","source_group":"competitor_product","posted_at":"2025-09-12T23:38:34.000Z","metric_snapshot_at":"2026-07-17T01:25:23.327Z","metrics":{"views":20031946,"likes":560000,"comments":3707,"shares":null,"saves":null},"language":{"is_english":true,"basis":"spoken_and_on_screen","common_word_ratio":0.4102},"company":{"name":null,"basis":"No reviewed company profile matched this creator or channel."},"paid":{"label":"Unknown","state":"unknown","basis":"No explicit paid, ad, or sponsorship flag was retained for this source."}},{"candidate_id":"live:instagram:Dax9yRczAKN:instagram-competitor-profiles-recent-and-popular-pool","platform":"instagram","platform_post_id":"Dax9yRczAKN","canonical_url":"https://www.instagram.com/p/Dax9yRczAKN/","chosen_pillar":"competitor_product","analysis_profile":"successful_content_deep_clone_v1","cohort":{"rank":3,"success_percentile":1,"complexity_score":0.8048,"comparison_method":"within_platform_and_age_bucket_percentile"},"provider_asset_id":"6a5a45b0f7d01227536120cf","strategy":{"data":{"opening":{"start_sec":0,"end_sec":2,"observed_words":"Automate your Job Search using OpenAI","observed_visual":"Low-angle shot of a woman against a blue sky","mechanism":"Text overlay on a low-angle shot"},"content_arc":{"audience_problem":"Job search is time-consuming and inefficient","progression":"Step-by-step guide on setting up automation using ChatGPT","payoff":"Receiving a curated list of relevant jobs with direct links every morning"},"cta":{"observed_words":"COMMENT WITH AN 'EMOJI' 😎 I'LL DM YOU THE PROMPT AND LINK","requested_action":"Comment with an emoji to receive the prompt and link via DM"},"claims":[{"observed_claim":"Automate your Job Search using OpenAI","evidence_status":"visible"},{"observed_claim":"curated list of relevant jobs with direct links","evidence_status":"visible"}],"transferable_structure":{"hook_pattern":"Problem-solution introduction","beat_pattern":"Step-by-step process demonstration","payoff_pattern":"Engagement-driven call to action"},"evidence_limitations":["No audio evidence provided for analysis","Visual evidence limited to screen recordings and text overlays"]},"provider_generation_id":"e378c8ff-e165-4fd7-ba29-482308680fe7","finish_reason":"stop","usage":{"input_tokens":8059,"output_tokens":372}},"segmentation":{"task_id":"6a5a45c268ddb6ab84cd0fdc","provider_generation_id":"509bb3f1-67fb-4ed2-ae7d-ebcc5a566c0f","finish_reason":"stop","usage":{"input_tokens":25243,"output_tokens":2629},"segments":{"visual_shots":[{"start_time":0,"end_time":2,"metadata":{"camera_and_motion":"Static camera, low angle shot.","on_screen_text_exact":"Automate your Job Search using OpenAI, centered at the top in yellow and white.","visual_description":"A woman with curly hair stands outdoors against a blue sky, looking upwards. Text overlays appear promoting job search automation."}},{"start_time":2,"end_time":4,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"Just go to ChatGPT, centered in a blue box.","visual_description":"A smartphone screen displays the ChatGPT app interface with a list of chat options."}},{"start_time":4,"end_time":6,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"click Settings, then Notifications, centered in a blue box.","visual_description":"The smartphone screen shows the ChatGPT settings menu, highlighting the 'Notifications' option."}},{"start_time":6,"end_time":8,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"click Tasks, centered in a blue box.","visual_description":"The smartphone screen displays the Notifications settings, with 'Tasks' highlighted."}},{"start_time":8,"end_time":10,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"and turn on push and email alerts, centered in a blue box.","visual_description":"The smartphone screen shows the Tasks notification settings with push and email alerts toggled on."}},{"start_time":10,"end_time":12,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"Now paste this prompt into ChatGPT, centered in a blue box.","visual_description":"The smartphone screen shows the ChatGPT chat interface with a blurred prompt being pasted."}},{"start_time":12,"end_time":14,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"Every morning, centered in a white box.","visual_description":"The smartphone screen displays a ChatGPT response with a list of curated job roles."}},{"start_time":14,"end_time":16,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"curated list of, centered in a white box.","visual_description":"The smartphone screen continues to display the ChatGPT response with job listings."}},{"start_time":16,"end_time":18,"metadata":{"camera_and_motion":"Static screen recording.","on_screen_text_exact":"relevant jobs with direct links, centered in a white box.","visual_description":"The smartphone screen shows more job listings from the ChatGPT response."}},{"start_time":18,"end_time":20,"metadata":{"camera_and_motion":"Static graphic.","on_screen_text_exact":"COMMENT WITH AN 'EMOJI' 😎, centered in blue and black.","visual_description":"A static graphic with a textured background displays a call to action to comment with an emoji."}},{"start_time":20,"end_time":22,"metadata":{"camera_and_motion":"Static graphic.","on_screen_text_exact":"I'LL DM YOU THE PROMPT AND LINK, centered in blue and black. Careerflow.ai logo, centered.","visual_description":"A static graphic with a textured background displays a promise to DM the prompt and link, along with the Careerflow.ai logo."}}],"audio_beats":[{"start_time":0,"end_time":22,"metadata":{"delivery":"none","music_and_sound":"none","speech_exact":"none"}}],"editing_beats":[{"start_time":0,"end_time":2,"metadata":{"attention_device":"text change","layout_and_motion":"Text overlay with animated graphics, static camera","transition_in":"opening frame"}},{"start_time":2,"end_time":18,"metadata":{"attention_device":"text change","layout_and_motion":"Screen recording with text overlay, static camera","transition_in":"hard cut"}},{"start_time":18,"end_time":22,"metadata":{"attention_device":"text change","layout_and_motion":"Text overlay with animated graphics, static camera","transition_in":"hard cut"}}]}},"retry_segmentation":null,"first_pass_quality":{"passed":true,"definition_counts":{"visual_shots":11,"audio_beats":1,"editing_beats":3},"visual_coverage_ratio":0.9941,"max_visual_gap_sec":0.13,"missing_metadata_fields":[],"retry_definition_ids":[]},"quality":{"passed":true,"definition_counts":{"visual_shots":11,"audio_beats":1,"editing_beats":3},"visual_coverage_ratio":0.9941,"max_visual_gap_sec":0.13,"missing_metadata_fields":[],"retry_definition_ids":[]},"retry_performed":false,"maximum_estimated_cost_usd":0.45939,"usage_pricing_estimate_usd":0.065587,"external_calls_made":17,"media_src":"./media/instagram-Dax9yRczAKN.mp4","duration_sec":22.13,"account_handle":"careerflow.ai","source_group":"competitor_product","posted_at":"2026-07-14T16:54:30.000Z","metric_snapshot_at":"2026-07-17T01:25:23.327Z","metrics":{"views":13219,"likes":217,"comments":675,"shares":null,"saves":null},"language":{"is_english":true,"basis":"on_screen","common_word_ratio":0.3661},"company":{"name":"Careerflow","basis":"Matched to reviewed official site link profile."},"paid":{"label":"Unknown","state":"unknown","basis":"No explicit paid, ad, or sponsorship flag was retained for this source."}},{"candidate_id":"apify:HDYTKotNtvX8ayhqC:item:67:3c4ab0098b","platform":"tiktok","platform_post_id":"7653644857348525332","canonical_url":"https://www.tiktok.com/@msrob.s/video/7653644857348525332","chosen_pillar":"student_problem_creator","analysis_profile":"successful_content_deep_clone_v1","cohort":{"rank":5,"success_percentile":0.9808,"complexity_score":0.7681,"comparison_method":"within_platform_and_age_bucket_percentile"},"provider_asset_id":"6a5a45ff5488381aa197cd2c","strategy":{"data":{"opening":{"start_sec":0,"end_sec":11.2,"observed_words":"Text block listing free services for fresh graduates","observed_visual":"Static shot of a street scene featuring a gas station and passing traffic","mechanism":"Text overlay on static street scene"},"content_arc":{"audience_problem":"Fresh graduates need employment requirements.","progression":"The video visually guides the viewer from the street into the relevant building, implying the ease of access.","payoff":"The 'First Time Jobseeker Certificate' provides free access to these requirements."},"cta":{"observed_words":"get your 'First Time Jobseeker Certificate' from your barangay","requested_action":"Obtain the 'First Time Jobseeker Certificate' from the local barangay."},"claims":[{"observed_claim":"Fresh graduates can access specific services free of charge, including NBI Clearance, Barangay Clearance, Medical Certificate, Birth Certificate, Marriage Certificate, Transcript of Records (TOR), Tax Identification Number (TIN), and Unified Multi-Purpose ID (UMID) Card.","evidence_status":"visible"},{"observed_claim":"The certificate can be used only once.","evidence_status":"visible"}],"transferable_structure":{"hook_pattern":"Benefit-first strategy, immediately presenting the value proposition","beat_pattern":"Problem/Opportunity -> Solution -> Process (Visual) -> Action","payoff_pattern":"Clear instruction on how to obtain the certificate"},"evidence_limitations":["No audio transcript provided to verify spoken claims.","Visual evidence limited to text overlays and scene transitions; no direct interaction with officials shown."]},"provider_generation_id":"2a901015-dece-4622-98fd-a834c0256c94","finish_reason":"stop","usage":{"input_tokens":5081,"output_tokens":324}},"segmentation":{"task_id":"6a5a461125a60b86566fa5f9","provider_generation_id":"875ec687-ca1e-41ac-999f-a68f875ad44b","finish_reason":"stop","usage":{"input_tokens":16309,"output_tokens":1007},"segments":{"visual_shots":[{"start_time":0,"end_time":3,"metadata":{"camera_and_motion":"Static camera, slight handheld shake.","on_screen_text_exact":"Fresh graduates, get your 'First Time Jobseeker Certificate' from your barangay and enjoy the following services free of charge: [list of services] Note: You may use the First Time Jobseeker Certificate only once. Make sure to maximize its benefits when processing your employment requirements. (Centered, white text with black outline)","visual_description":"A street scene with a gas station on the left, power lines overhead, and a silver car and a scooter passing by. The sky is partly cloudy."}},{"start_time":3,"end_time":6,"metadata":{"camera_and_motion":"Forward tracking shot, handheld.","on_screen_text_exact":"Fresh graduates, get your 'First Time Jobseeker Certificate' from your barangay and enjoy the following services free of charge: [list of services] Note: You may use the First Time Jobseeker Certificate only once. Make sure to maximize its benefits when processing your employment requirements. (Centered, white text with black outline)","visual_description":"The camera moves along a sidewalk, passing parked motorcycles and trees, approaching a building entrance."}},{"start_time":6,"end_time":11.2,"metadata":{"camera_and_motion":"Forward tracking shot, handheld, entering a building.","on_screen_text_exact":"Fresh graduates, get your 'First Time Jobseeker Certificate' from your barangay and enjoy the following services free of charge: [list of services] Note: You may use the First Time Jobseeker Certificate only once. Make sure to maximize its benefits when processing your employment requirements. (Centered, white text with black outline)","visual_description":"The camera enters a building lobby with a tiled floor, service counters, and a person walking ahead. The interior is brightly lit."}}],"audio_beats":[{"start_time":0,"end_time":11.2,"metadata":{"delivery":"none","music_and_sound":"none","speech_exact":"none"}}],"editing_beats":[{"start_time":0,"end_time":3,"metadata":{"attention_device":"text change","layout_and_motion":"Static text overlay listing benefits over a moving street scene.","transition_in":"opening frame"}},{"start_time":3,"end_time":6,"metadata":{"attention_device":"none","layout_and_motion":"Continuous handheld camera movement with persistent text overlay.","transition_in":"hard cut"}},{"start_time":6,"end_time":9,"metadata":{"attention_device":"none","layout_and_motion":"Camera movement continues into the building interior with text overlay.","transition_in":"hard cut"}},{"start_time":9,"end_time":11.2,"metadata":{"attention_device":"none","layout_and_motion":"Steady interior shot with persistent text overlay.","transition_in":"hard cut"}}]}},"retry_segmentation":null,"first_pass_quality":{"passed":true,"definition_counts":{"visual_shots":3,"audio_beats":1,"editing_beats":4},"visual_coverage_ratio":0.9973,"max_visual_gap_sec":0.03,"missing_metadata_fields":[],"retry_definition_ids":[]},"quality":{"passed":true,"definition_counts":{"visual_shots":3,"audio_beats":1,"editing_beats":4},"visual_coverage_ratio":0.9973,"max_visual_gap_sec":0.03,"missing_metadata_fields":[],"retry_definition_ids":[]},"retry_performed":false,"maximum_estimated_cost_usd":0.422257,"usage_pricing_estimate_usd":0.031844,"external_calls_made":13,"media_src":"./media/tiktok-7653644857348525332.mp4","duration_sec":11.23,"account_handle":"msrob.s","source_group":"student_problem_creator","posted_at":"2026-06-21T00:51:08.000Z","metric_snapshot_at":"2026-07-17T01:25:23.327Z","metrics":{"views":297093,"likes":20800,"comments":170,"shares":null,"saves":null},"language":{"is_english":true,"basis":"on_screen","common_word_ratio":0.3182},"company":{"name":null,"basis":"No reviewed company profile matched this creator or channel."},"paid":{"label":"Unknown","state":"unknown","basis":"No explicit paid, ad, or sponsorship flag was retained for this source."}},{"candidate_id":"live:tiktok:7138472018504076586:tiktok-competitor-profiles-popular","platform":"tiktok","platform_post_id":"7138472018504076586","canonical_url":"https://www.tiktok.com/@joinhandshake/video/7138472018504076586","chosen_pillar":"competitor_product","analysis_profile":"successful_content_deep_clone_v1","cohort":{"rank":6,"success_percentile":0.9667,"complexity_score":0.7414,"comparison_method":"within_platform_and_age_bucket_percentile"},"provider_asset_id":"6a5a461c64280805ba3165e5","strategy":{"data":{"opening":{"start_sec":0,"end_sec":8,"observed_words":"Hi, my name is ____, and I am a rising senior at ____. I'm reaching out because I'm fascinated by your philanthropy work in the community. I know you're busy, but I would love to meet for coffee and learn more about how I can get a start in philanthropy. Do you have availability over the next couple of weeks?","observed_visual":"A young woman with long brown hair, wearing a green top, sits on a beige couch and speaks directly to the camera. Text overlay displays a sample outreach message.","mechanism":"Text overlay and direct address"},"content_arc":{"audience_problem":"Difficulty getting started in philanthropy","progression":"Outreach message leads to a positive response","payoff":"Positive response to outreach"},"cta":{"observed_words":"none","requested_action":"none"},"claims":[{"observed_claim":"The video visually demonstrates a successful outcome of sending a cold outreach message for an internship or mentorship opportunity.","evidence_status":"visible"}],"transferable_structure":{"hook_pattern":"Direct address with text overlay","beat_pattern":"Problem -> Process -> Proof -> Action","payoff_pattern":"Positive response to outreach"},"evidence_limitations":["Limited visual context beyond the described scenes","No audio evidence provided","No additional context on the creator or platform"]},"provider_generation_id":"85b00830-4c94-4e9d-87f5-1c5984b4b07a","finish_reason":"stop","usage":{"input_tokens":4044,"output_tokens":283}},"segmentation":{"task_id":"6a5a462964280805ba3165ea","provider_generation_id":"1c5d1346-3199-4d41-8537-f7618c97cfb1","finish_reason":"stop","usage":{"input_tokens":13198,"output_tokens":896},"segments":{"visual_shots":[{"start_time":0,"end_time":4,"metadata":{"camera_and_motion":"Static close-up shot of the woman's face.","on_screen_text_exact":"Me: Hi, my name is _____, and I am a rising senior at _____. I'm reaching out because I'm fascinated by your philanthropy work in the community. I know you're busy, but I would love to meet for coffee and learn more about how I can get a start in philanthropy. Do you have availability over the next couple of weeks? (White text with black outline, centered over the woman's face)","visual_description":"A young woman with long brown hair and a green top is looking directly at the camera. She is in a room with a chandelier and a window with white curtains visible in the background. Text overlay displays a message she is reading."}},{"start_time":4,"end_time":8,"metadata":{"camera_and_motion":"The camera tilts upwards to show the ceiling, then tilts back down to the woman's face.","on_screen_text_exact":"none","visual_description":"The camera moves away from the woman's face, tilting up to show a white ceiling with a vent and a smoke detector. It then tilts back down to reveal the woman's face again."}}],"audio_beats":[{"start_time":0,"end_time":8,"metadata":{"delivery":"none","music_and_sound":"none","speech_exact":"none"}}],"editing_beats":[{"start_time":0,"end_time":4,"metadata":{"attention_device":"text change","layout_and_motion":"Static shot of woman with overlaid text message","transition_in":"opening frame"}},{"start_time":4,"end_time":8,"metadata":{"attention_device":"none","layout_and_motion":"Camera pans upward to ceiling with no text overlay","transition_in":"hard cut"}}]}},"retry_segmentation":null,"first_pass_quality":{"passed":true,"definition_counts":{"visual_shots":2,"audio_beats":1,"editing_beats":2},"visual_coverage_ratio":0.9963,"max_visual_gap_sec":0.03,"missing_metadata_fields":[],"retry_definition_ids":[]},"quality":{"passed":true,"definition_counts":{"visual_shots":2,"audio_beats":1,"editing_beats":2},"visual_coverage_ratio":0.9963,"max_visual_gap_sec":0.03,"missing_metadata_fields":[],"retry_definition_ids":[]},"retry_performed":false,"maximum_estimated_cost_usd":0.411356,"usage_pricing_estimate_usd":0.024474,"external_calls_made":14,"media_src":"./media/tiktok-7138472018504076586.mp4","duration_sec":8.03,"account_handle":"joinhandshake","source_group":"competitor_product","posted_at":"2022-09-01T17:57:19.000Z","metric_snapshot_at":"2026-07-17T01:25:23.327Z","metrics":{"views":244500,"likes":2564,"comments":3,"shares":13,"saves":175},"language":{"is_english":true,"basis":"on_screen","common_word_ratio":0.5424},"company":{"name":"Handshake","basis":"Matched to reviewed verified existing corpus profile."},"paid":{"label":"Paid/ad flag observed","state":"paid_flag_observed","basis":"Source metadata: isAd=true; isSponsored=false."}}];
+    const laneSpecs = [
+      { id: 'visual_shots', label: 'Visual', className: 'visual' },
+      { id: 'audio_beats', label: 'Audio', className: 'audio' },
+      { id: 'editing_beats', label: 'Editing', className: 'editing' },
+    ];
+    const sourceList = document.querySelector('#sourceList');
+    const video = document.querySelector('#video');
+    const lanes = document.querySelector('#lanes');
+    const aiReportSnapshot = window.__VIRALBENCH_VIDEO_AI_REPORTS__ ?? { reports: {} };
+    const playheads = [];
+    let activeIndex = 0;
+    let activeSegment = null;
+    let pendingSeek = null;
+
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[char]));
+    const time = (seconds) => seconds < 60
+      ? seconds.toFixed(seconds % 1 ? 1 : 0) + 's'
+      : Math.floor(seconds / 60) + ':' + String(Math.round(seconds % 60)).padStart(2, '0');
+    const firstMetadata = (metadata) => Object.values(metadata ?? {}).filter(Boolean).join(' · ');
+    const compactNumber = (value) => {
+      if (value === null || value === undefined) return '—';
+      return new Intl.NumberFormat('en-US', {
+        notation: value >= 10000 ? 'compact' : 'standard',
+        maximumFractionDigits: value >= 1000000 ? 1 : 0,
+      }).format(value);
+    };
+    const fullNumber = (value) => value === null || value === undefined
+      ? 'Not returned by source'
+      : new Intl.NumberFormat('en-US').format(value);
+    const date = (value) => value
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value))
+      : 'Unknown';
+    const companyLabel = (record) => record.company.name ?? 'No company identified';
+    const humanLabel = (value) => {
+      const copy = String(value ?? '').replaceAll('_', ' ');
+      return copy ? copy.charAt(0).toUpperCase() + copy.slice(1) : 'Unknown';
+    };
+    const shortModelLabel = (value) => String(value ?? '')
+      .replace('gemini-', 'Gemini ')
+      .replaceAll('-', ' ')
+      .replace(/\b\w/g, (character) => character.toUpperCase());
+    const headline = (value) => {
+      const copy = String(value ?? '').trim();
+      if (copy.length <= 150) return copy;
+      const firstSentence = copy.match(/^.{25,150}?[.!?](?:\s|$)/)?.[0]?.trim();
+      if (firstSentence) return firstSentence;
+      return copy.slice(0, 147).replace(/\s+\S*$/, '') + '…';
+    };
+    const detailRows = (rows) => rows
+      .filter(([, copy]) => copy && String(copy).toLowerCase() !== 'none')
+      .map(([label, copy]) => `
+        <div class="inspect-row">
+          <div class="inspect-row-label">${escapeHtml(label)}</div>
+          <div class="inspect-row-copy">${escapeHtml(copy)}</div>
+        </div>
+      `).join('');
+
+    function renderSources() {
+      sourceList.innerHTML = records.map((record, index) => `
+        <button class="source ${index === activeIndex ? 'active' : ''}" type="button" data-index="${index}" aria-pressed="${index === activeIndex}">
+          <span class="source-rank">${String(record.cohort.rank).padStart(2, '0')}</span>
+          <span>
+            <span class="source-name">${escapeHtml(record.company.name ?? '@' + record.account_handle)}</span>
+            <span class="source-meta">${escapeHtml(record.platform.replace('_', ' '))} · ${compactNumber(record.metrics.views)} views${aiReportSnapshot.reports[record.candidate_id] ? ' · AI' : ''}</span>
+          </span>
+        </button>
+      `).join('');
+      sourceList.querySelectorAll('.source').forEach((button) => {
+        button.addEventListener('click', () => selectRecord(Number(button.dataset.index)));
+      });
+      if (window.matchMedia('(max-width: 760px)').matches) {
+        sourceList.querySelector('.source.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    }
+
+    function renderAxis(duration) {
+      const ticks = duration > 90 ? 6 : 5;
+      document.querySelector('#axis').innerHTML = Array.from({ length: ticks }, (_, index) => {
+        const pct = (index / (ticks - 1)) * 100;
+        return `<span class="tick" style="left:${pct}%">${time(duration * index / (ticks - 1))}</span>`;
+      }).join('');
+    }
+
+    function renderLanes(record) {
+      playheads.length = 0;
+      lanes.innerHTML = laneSpecs.map((lane) => {
+        const segments = record.segmentation.segments[lane.id] ?? [];
+        const blocks = segments.map((segment, index) => {
+          const left = (segment.start_time / record.duration_sec) * 100;
+          const width = ((segment.end_time - segment.start_time) / record.duration_sec) * 100;
+          return `<button class="segment ${lane.className}" type="button" data-lane="${lane.id}" data-index="${index}" aria-label="${escapeHtml(lane.label + ' beat ' + (index + 1) + ': ' + firstMetadata(segment.metadata))}" title="${escapeHtml(firstMetadata(segment.metadata))}" style="left:${left}%;width:${width}%"><span>${String(index + 1).padStart(2, '0')}</span></button>`;
+        }).join('');
+        return `<div class="lane"><div class="lane-label">${lane.label}<span>${segments.length}</span></div><div class="lane-track">${blocks}<span class="playhead"></span></div></div>`;
+      }).join('');
+      lanes.querySelectorAll('.playhead').forEach((node) => playheads.push(node));
+      lanes.querySelectorAll('.segment').forEach((button) => {
+        button.addEventListener('click', () => inspectSegment(button.dataset.lane, Number(button.dataset.index), button));
+      });
+    }
+
+    function renderStructure(record) {
+      const strategy = record.strategy.data;
+      const structure = strategy.transferable_structure;
+      document.querySelector('#anatomy').innerHTML = [
+        ['01', 'Audience tension', strategy.content_arc.audience_problem],
+        ['02', 'Progression', strategy.content_arc.progression],
+        ['03', 'Payoff', strategy.content_arc.payoff],
+      ].map(([number, label, copy]) => `
+        <article class="anatomy-step">
+          <div class="anatomy-number">${number}</div>
+          <div>
+            <div class="section-label">${escapeHtml(label)}</div>
+            <p>${escapeHtml(copy)}</p>
+          </div>
+        </article>
+      `).join('');
+      document.querySelector('#structure').innerHTML = [
+        ['Hook pattern', structure.hook_pattern],
+        ['Beat pattern', structure.beat_pattern],
+        ['Payoff pattern', structure.payoff_pattern],
+        ['CTA', strategy.cta.requested_action],
+      ].map(([label, copy]) => `<div class="structure-row"><div class="structure-label">${escapeHtml(label)}</div><div class="structure-copy ${label === 'CTA' ? 'cta' : ''}">${escapeHtml(copy)}</div></div>`).join('');
+      document.querySelector('#claims').innerHTML = strategy.claims.length
+        ? '<div class="structure-label evidence-group-label">Observed claims</div>' + strategy.claims.map((claim) => `<div class="claim">${escapeHtml(claim.observed_claim)}<span class="claim-status">${escapeHtml(claim.evidence_status)}</span></div>`).join('')
+        : '<p class="empty-evidence">No explicit claims were retained for this clip.</p>';
+      document.querySelector('#limitations').innerHTML = strategy.evidence_limitations.length
+        ? '<div class="structure-label evidence-group-label">Evidence limits</div>' + strategy.evidence_limitations.map((limitation) => `<div class="limitation">${escapeHtml(limitation)}</div>`).join('')
+        : '';
+      const sourceLink = document.querySelector('#sourceLink');
+      sourceLink.href = record.canonical_url;
+    }
+
+    function renderContext(record) {
+      const paidClass = record.paid.state === 'paid_flag_observed'
+        ? 'paid'
+        : record.paid.state === 'not_marked_paid' ? 'clear' : '';
+      const rows = [
+        ['Language', 'English', 'TwelveLabs evidence: ' + record.language.basis.replaceAll('_', ' ') + '.', 'clear'],
+        ['Company', companyLabel(record), record.company.basis, ''],
+        ['Account', '@' + record.account_handle, record.source_group.replaceAll('_', ' '), ''],
+        ['Paid status', record.paid.label, record.paid.basis, paidClass],
+        ['Posted', date(record.posted_at), 'Platform publication date.', ''],
+        ['Metrics captured', date(record.metric_snapshot_at), 'Observed snapshot; counters may change.', ''],
+      ];
+      document.querySelector('#context').innerHTML = rows.map(([label, value, basis, cls]) => `
+        <div class="structure-row">
+          <div class="structure-label">${escapeHtml(label)}</div>
+          <div class="context-value ${cls}">${escapeHtml(value)}<span class="context-basis">${escapeHtml(basis)}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderEvidenceReferences(report, evidenceIds) {
+      return evidenceIds.map((evidenceId) => {
+        const evidence = report.evidence.find((item) => item.evidence_id === evidenceId);
+        const label = evidence?.label ?? evidenceId;
+        const timed = Number.isFinite(evidence?.start_sec);
+        const timing = timed
+          ? ' · ' + time(evidence.start_sec) + (Number.isFinite(evidence.end_sec) ? '—' + time(evidence.end_sec) : '')
+          : '';
+        return timed
+          ? `<button class="ai-evidence-ref" type="button" data-evidence-id="${escapeHtml(evidenceId)}" title="Inspect this timestamp">${escapeHtml(label + timing)}</button>`
+          : `<span class="ai-evidence-ref static">${escapeHtml(label)}</span>`;
+      }).join('');
+    }
+
+    function renderAIReport(record) {
+      const report = aiReportSnapshot.reports[record.candidate_id];
+      const reportRoot = document.querySelector('#aiReport');
+      if (!report) {
+        document.querySelector('#aiReportStatus').textContent = 'Evidence only';
+        document.querySelector('#aiReportMeta').textContent = 'No validated model snapshot is available for this video.';
+        reportRoot.innerHTML = '<p class="ai-report-empty">No Gemini report. TwelveLabs evidence remains below.</p>';
+        return;
+      }
+
+      document.querySelector('#aiReportStatus').textContent = 'Evidence checked';
+      document.querySelector('#aiReportMeta').textContent =
+        shortModelLabel(report.model) + ' · ' + date(report.generated_at) + ' · static reviewed snapshot';
+      reportRoot.innerHTML = `
+        <div class="ai-report-body">
+          <div class="ai-report-lead">
+            <p class="ai-report-summary">${escapeHtml(report.summary)}</p>
+            <div class="ai-audience">
+              <span class="ai-report-label">Audience read</span>
+              <p>${escapeHtml(report.audience_read)}</p>
+            </div>
+          </div>
+          <div class="ai-report-analysis">
+            <div class="ai-report-group">
+              <span class="ai-report-label">Evidence-backed findings</span>
+              ${report.findings.map((finding, index) => `
+                <article class="ai-finding">
+                  <span class="ai-item-number">${String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3>${escapeHtml(finding.title)}</h3>
+                    <p>${escapeHtml(finding.analysis)}</p>
+                    <div class="ai-evidence-list">${renderEvidenceReferences(report, finding.evidence_ids)}</div>
+                  </div>
+                </article>
+              `).join('')}
+            </div>
+            <div class="ai-report-group ai-tests">
+              <span class="ai-report-label">Controlled tests for Internships.com</span>
+              ${report.tests.map((test, index) => `
+                <article class="ai-test">
+                  <div class="ai-test-head"><span>Test ${index + 1}</span><strong>${escapeHtml(test.success_metric)}</strong></div>
+                  <p class="ai-test-hypothesis">${escapeHtml(test.hypothesis)}</p>
+                  <p>${escapeHtml(test.adaptation)}</p>
+                  <div class="ai-evidence-list">${renderEvidenceReferences(report, test.evidence_ids)}</div>
+                </article>
+              `).join('')}
+            </div>
+            <details class="ai-report-disclosure">
+              <summary>Risks &amp; evidence limits <span>${report.risks.length + report.limitations.length}</span></summary>
+              <div class="ai-disclosure-copy">
+                ${report.risks.map((risk) => `<p><strong>Risk</strong>${escapeHtml(risk)}</p>`).join('')}
+                ${report.limitations.map((limitation) => `<p><strong>Limit</strong>${escapeHtml(limitation)}</p>`).join('')}
+              </div>
+            </details>
+          </div>
+        </div>
+      `;
+      reportRoot.querySelectorAll('.ai-evidence-ref[data-evidence-id]').forEach((button) => {
+        button.addEventListener('click', () => inspectReportEvidence(report, button.dataset.evidenceId));
+      });
+    }
+
+    function inspectReportEvidence(report, evidenceId) {
+      const evidence = report.evidence.find((item) => item.evidence_id === evidenceId);
+      if (!evidence || !Number.isFinite(evidence.start_sec)) return;
+      const [kind, rawIndex] = evidence.evidence_id.split(':');
+      const laneId = kind === 'visual'
+        ? 'visual_shots'
+        : kind === 'audio' ? 'audio_beats' : kind === 'editing' ? 'editing_beats' : null;
+      const index = Number(rawIndex);
+      const button = laneId ? lanes.querySelector(`[data-lane="${laneId}"][data-index="${index}"]`) : null;
+      if (button) {
+        inspectSegment(laneId, index, button);
+        button.focus({ preventScroll: true });
+      } else {
+        seekVideo(evidence.start_sec);
+      }
+      document.querySelector('.timeline').scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }
+
+    function selectRecord(index) {
+      activeIndex = index;
+      activeSegment = null;
+      pendingSeek = null;
+      const record = records[index];
+      renderSources();
+      video.src = `${record.media_src}?v=h264-aac-v1`;
+      document.querySelector('#rankFlag').textContent = '#'
+        + String(record.cohort.rank).padStart(2, '0')
+        + ' · ' + Math.round(record.cohort.success_percentile * 100) + 'P';
+      document.querySelector('#mediaPlatform').textContent = humanLabel(record.platform);
+      document.querySelector('#mediaDuration').textContent = time(record.duration_sec) + ' runtime';
+      const fullHeadline = record.strategy.data.opening.observed_words;
+      document.querySelector('#headline').textContent = headline(fullHeadline);
+      document.querySelector('#headline').title = fullHeadline;
+      document.querySelector('#mechanism').textContent = record.strategy.data.opening.mechanism;
+      document.querySelector('#identityCompany').textContent = companyLabel(record);
+      document.querySelector('#identityAccount').textContent = '@' + record.account_handle;
+      const identityPaid = document.querySelector('#identityPaid');
+      identityPaid.textContent = record.paid.label;
+      identityPaid.className = 'identity-paid '
+        + (record.paid.state === 'paid_flag_observed' ? 'paid' : record.paid.state === 'not_marked_paid' ? 'clear' : '');
+      document.querySelector('#metrics').innerHTML = [
+        [record.metrics.views, 'views'],
+        [record.metrics.likes, 'likes'],
+        [record.metrics.comments, 'comments'],
+        [record.metrics.shares, 'shares'],
+        [record.metrics.saves, 'saves'],
+      ].map(([value, label]) => `
+        <div title="${escapeHtml(fullNumber(value))}">
+          <div class="metric-value ${value === null ? 'missing' : label === 'views' ? 'good' : ''}">${compactNumber(value)}</div>
+          <div class="metric-label">${escapeHtml(label)}</div>
+        </div>
+      `).join('') + `
+        <div class="metric-note">Within-platform, age-normalized rank.</div>
+      `;
+      const opening = record.strategy.data.opening;
+      document.querySelector('#inspectTime').textContent = 'Opening · ' + time(opening.start_sec) + '—' + time(opening.end_sec);
+      document.querySelector('#inspectCopy').innerHTML = detailRows([
+        ['Observed visual', opening.observed_visual],
+        ['Attention mechanism', opening.mechanism],
+      ]);
+      renderAxis(record.duration_sec);
+      renderLanes(record);
+      renderContext(record);
+      renderStructure(record);
+      renderAIReport(record);
+    }
+
+    function seekVideo(seconds) {
+      pendingSeek = seconds;
+      if (video.readyState < 1) return;
+      video.currentTime = pendingSeek;
+      pendingSeek = null;
+      video.play().catch(() => {});
+    }
+
+    function inspectSegment(laneId, index, button) {
+      const record = records[activeIndex];
+      const segment = record.segmentation.segments[laneId][index];
+      seekVideo(segment.start_time);
+      if (activeSegment) activeSegment.classList.remove('active');
+      activeSegment = button;
+      activeSegment.classList.add('active');
+      const label = laneSpecs.find((lane) => lane.id === laneId)?.label ?? laneId;
+      document.querySelector('#inspectTime').textContent = label + ' · ' + time(segment.start_time) + '—' + time(segment.end_time);
+      document.querySelector('#inspectCopy').innerHTML = detailRows(
+        Object.entries(segment.metadata).map(([key, value]) => [humanLabel(key), String(value)]),
+      );
+    }
+
+    video.addEventListener('loadedmetadata', () => {
+      if (pendingSeek === null) return;
+      video.currentTime = pendingSeek;
+      pendingSeek = null;
+    });
+
+    video.addEventListener('timeupdate', () => {
+      const record = records[activeIndex];
+      const pct = Math.max(0, Math.min(100, (video.currentTime / record.duration_sec) * 100));
+      playheads.forEach((node) => { node.style.left = pct + '%'; });
+    });
+
+    selectRecord(0);
+  </script>
+</body>
+</html>

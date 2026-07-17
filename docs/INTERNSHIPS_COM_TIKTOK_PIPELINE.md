@@ -79,6 +79,36 @@ the verified Internships.com TikTok handle, approved non-personal brand access,
 human asset/copy approval, and exact confirmation of the final video hash and
 destination account.
 
+## TwelveLabs draft analysis
+
+The first TwelveLabs canary analyzes the purpose-created local draft, not
+competitor footage. The request also declares the bounded Apify job-content feed
+as a provenance input so the prompt can test whether the original
+`match, prove, people, review` format expresses the observed category grammar
+without treating metadata correlations as causal findings.
+
+```bash
+npm run trend -- provider:validate-request \
+  --file .ops/provider_requests/internships_com_twelvelabs_analysis_20260716.json
+
+ALLOW_PAID_GENERATION=true \
+TWELVELABS_ESTIMATED_ANALYSIS_COST_USD=0.05 \
+npm run trend -- provider:run-live \
+  --env-file .env \
+  --file .ops/provider_requests/internships_com_twelvelabs_analysis_20260716.json \
+  --package-dir .ops/creative_jobs/rendered/internships_com_signal_stack_001
+```
+
+The live command requires `TWELVELABS_API_KEY` in the process environment or
+ignored `.env`. It uploads the local video once, polls the asset until ready,
+and writes validated Pegasus analysis only to
+`provider_outputs/twelvelabs/job_content_analysis.json`. The request has a
+`$0.08` hard ceiling and uses a `$0.05` pre-call estimate for the approximately
+24-second draft. The output remains unapproved QA evidence and performs no
+account or publishing action. The first live result and revision decisions are
+recorded in
+[`TWELVELABS_INTERNSHIPS_CANARY_20260716.md`](./TWELVELABS_INTERNSHIPS_CANARY_20260716.md).
+
 ## First research-derived generated-video package
 
 ```bash

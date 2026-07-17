@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ViralBench — Paid Ad Intelligence</title>
+  <meta name="description" content="Ad-specific analysis of active internship and early-career Meta creative, with TwelveLabs video evidence and transparent cost scenarios.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23fcfcfc'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23050505'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=paid-ads-v2">
+  <link rel="stylesheet" href="/ads.css?v=paid-ads-v5">
+  <script src="/site-navigation.js" defer></script>
+</head>
+<body class="ads-page">
+  <a class="site-skip" href="#main">Skip to main content</a>
+  <header class="ads-topbar site-header">
+    <a class="site-brand" href="/" aria-label="ViralBench library"><span class="site-brand-dot" aria-hidden="true"></span><span>ViralBench</span></a>
+    <button class="site-menu-button" type="button" aria-expanded="false" aria-controls="siteNavigation">Menu</button>
+    <nav class="site-navigation" id="siteNavigation" aria-label="Primary">
+      <a href="/" data-site-route="library">Library</a>
+      <a href="/benchmarks" data-site-route="benchmarks">Benchmarks</a>
+      <a href="/ask" data-site-route="ask">Ask</a>
+      <a href="/work" data-site-route="work">Work</a>
+    </nav>
+  </header>
+
+  <main class="ads-main" id="main">
+    <section class="ads-hero">
+      <div class="ads-hero-copy">
+        <h1>What the ads say.<em>What they may cost.</em></h1>
+        <p class="ads-lede">44 active ads. 14 TwelveLabs video reads. Offers, proof, and cost scenarios.</p>
+      </div>
+      <aside class="ads-method-card">
+        <span class="ads-method-index">01</span>
+        <h2>Spend is not public.</h2>
+        <p>$25 / $100 / $500 daily scenarios. Not actual spend.</p>
+        <a href="#methodology">Method</a>
+      </aside>
+    </section>
+
+    <section class="ads-summary" id="summary" aria-label="Ad research summary"></section>
+
+    <section class="ads-advertisers" aria-labelledby="advertiserTitle">
+      <div class="ads-section-head">
+        <div>
+          <h2 id="advertiserTitle">Advertisers</h2>
+        </div>
+        <p>$100/day scenario from each advertiser’s oldest active start.</p>
+      </div>
+      <div class="ads-advertiser-grid" id="advertiserGrid"></div>
+    </section>
+
+    <section class="ads-workbench" id="ledger" aria-labelledby="ledgerTitle">
+      <div class="ads-section-head ads-workbench-head">
+        <div>
+          <h2 id="ledgerTitle">Ads</h2>
+        </div>
+        <p id="resultCount">Loading the active cohort…</p>
+      </div>
+
+      <div class="ads-controls" aria-label="Ad ledger filters">
+        <label class="ads-search">
+          <span>Search</span>
+          <input id="adSearch" type="search" placeholder="Advertiser, hook, offer, or ad ID" autocomplete="off">
+        </label>
+        <label>
+          <span>Advertiser</span>
+          <select id="companyFilter">
+            <option value="all">All advertisers</option>
+          </select>
+        </label>
+        <label>
+          <span>Format</span>
+          <select id="formatFilter">
+            <option value="all">All formats</option>
+            <option value="video">TwelveLabs video</option>
+            <option value="image">Static image</option>
+            <option value="dco">Dynamic creative</option>
+          </select>
+        </label>
+        <label>
+          <span>Order</span>
+          <select id="sortFilter">
+            <option value="value">Perceived value</option>
+            <option value="newest">Newest active</option>
+            <option value="company">Advertiser</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="ads-workspace">
+        <div class="ads-ledger-panel">
+          <div class="ads-ledger-head" aria-hidden="true">
+            <span>Creative</span>
+            <span>Offer signal</span>
+            <span>Value</span>
+          </div>
+          <div class="ads-ledger-list" id="adList"></div>
+        </div>
+        <aside class="ads-inspector" id="adInspector" aria-live="polite">
+          <p class="ads-loading">Select an ad.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="ads-methodology" id="methodology">
+      <div>
+        <h2>Method</h2>
+      </div>
+      <div class="ads-method-grid">
+        <article>
+          <span>Media</span>
+          <h3>$25 / $100 / $500 per day</h3>
+          <p>From oldest active start. Per-ad values split evenly.</p>
+        </article>
+        <article>
+          <span>Production</span>
+          <h3>$50–$12k by format</h3>
+          <p>Internal planning bands. Not quotes.</p>
+        </article>
+        <article>
+          <span>Value</span>
+          <h3>0–100 score</h3>
+          <p>Offer, proof, value, CTA, and craft. Not performance.</p>
+        </article>
+        <article>
+          <span>Coverage</span>
+          <h3>14 video / 30 metadata</h3>
+          <p>TwelveLabs analyzes video only.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/ads-data.js"></script>
+  <script src="/ads.js"></script>
+</body>
+</html>

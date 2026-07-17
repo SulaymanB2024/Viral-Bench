@@ -1,0 +1,61 @@
+{
+  "experiment_id": "internships_proof_gap_video_traction_001",
+  "job_id": "internships_com_proof_gap_002",
+  "objective": "audience_traction",
+  "content_family": "student application proof",
+  "creative_lane": "generated_video",
+  "delivery_mode": "rendered_video",
+  "hypothesis": "Showing the completed proof bridge in the opening beat will improve early retention and completion.",
+  "control_variant_id": "proof-gap-video-control",
+  "primary_metrics": ["view_velocity", "average_watch_time_sec", "completion_rate", "share_rate"],
+  "variants": [
+    {
+      "variant_id": "proof-gap-video-control",
+      "label": "Linear proof-gap story",
+      "hook": "No experience? Don't invent it.",
+      "changed_dimensions": [],
+      "audio_plan": {
+        "mode": "provider_native_audio",
+        "track_id": null,
+        "track_title": null,
+        "source_url": null,
+        "captured_at": null,
+        "region": null,
+        "commercial_use_status": "provider_generated",
+        "added_at_posting": false,
+        "notes": ["Provider-native draft audio remains subject to human review."]
+      },
+      "status": "draft"
+    },
+    {
+      "variant_id": "proof-first-open",
+      "label": "Proof-first opening",
+      "hook": "This is what real experience looks like on an application",
+      "changed_dimensions": ["hook", "first_frame"],
+      "audio_plan": {
+        "mode": "provider_native_audio",
+        "track_id": null,
+        "track_title": null,
+        "source_url": null,
+        "captured_at": null,
+        "region": null,
+        "commercial_use_status": "provider_generated",
+        "added_at_posting": false,
+        "notes": ["Preserve the control's audio direction so the opening visual remains the main tested change."]
+      },
+      "status": "draft"
+    }
+  ],
+  "decision_policy": {
+    "minimum_checkpoint": "24h",
+    "min_repeats_before_pattern": 2,
+    "max_changed_dimensions_per_variant": 2,
+    "stop_after_non_improving_variants": 2
+  },
+  "publishing_policy": {
+    "manual_only": true,
+    "human_approval_required": true,
+    "auto_posting_allowed": false
+  },
+  "notes": ["Generation remains cost-gated and every candidate remains unapproved until human review."]
+}

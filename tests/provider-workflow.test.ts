@@ -257,3 +257,117 @@ test('openai live provider run writes declared files without serializing secrets
   assert.doesNotMatch(reportText, /secret-value-for-test/);
   assert.doesNotMatch(reportText, new RegExp(b64));
 });
+
+test('TwelveLabs live analysis records a usage-based pricing estimate without claiming an invoice', async () => {
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'viral-bench-provider-live-twelvelabs-'));
+  const packageDir = path.join(rootDir, '.ops', 'creative_jobs', 'rendered', 'internships_com_signal_stack_001');
+  const promptPath = path.join(rootDir, '.ops', 'prompts', 'twelvelabs', 'analysis.md');
+  const videoPath = path.join(packageDir, 'output', 'draft.mp4');
+  const jobPath = path.join(rootDir, '.ops', 'creative_jobs', 'incoming', 'internships_com_signal_stack_001.json');
+  fs.mkdirSync(path.dirname(promptPath), { recursive: true });
+  fs.mkdirSync(path.dirname(videoPath), { recursive: true });
+  fs.mkdirSync(path.dirname(jobPath), { recursive: true });
+  fs.writeFileSync(promptPath, 'Analyze the owned draft.\n');
+  fs.writeFileSync(videoPath, Buffer.from('owned-video-fixture'));
+  const job = JSON.parse(fs.readFileSync(
+    path.resolve('.ops/creative_jobs/incoming/internships_com_signal_stack_001.json'),
+    'utf8',
+  )) as Record<string, unknown>;
+  const providerPolicy = job.provider_policy as Record<string, unknown>;
+  providerPolicy.approved_providers = ['local_renderer', 'twelvelabs_analysis'];
+  providerPolicy.allow_paid_generation = true;
+  fs.writeFileSync(jobPath, `${JSON.stringify(job, null, 2)}\n`);
+
+  const request = createProviderRequestManifest({
+    request_id: 'live-twelvelabs-success',
+    provider: 'twelvelabs_analysis',
+    provider_mode: 'analysis',
+    job_id: 'internships_com_signal_stack_001',
+    prompt_path: '.ops/prompts/twelvelabs/analysis.md',
+    input_assets: [
+      '.ops/creative_jobs/rendered/internships_com_signal_stack_001/output/draft.mp4',
+    ],
+    output_requirements: {
+      package_subdir: 'provider_outputs/twelvelabs',
+      files: [{ path: 'analysis.json', kind: 'qa', description: 'Analysis fixture.' }],
+      notes: ['Live TwelveLabs fixture.'],
+    },
+    cost_policy: {
+      allow_paid_generation: true,
+      external_calls_allowed: true,
+      max_cost_usd: 0.08,
+    },
+  });
+  const analysisPayload = {
+    duration_sec: 24,
+    hook: { text: 'Check four signals.', start_sec: 0, end_sec: 2 },
+    creative_beats: [{
+      start_sec: 0,
+      end_sec: 24,
+      label: 'list',
+      description: 'Four signals are explained.',
+      evidence: ['The four labels are visible.'],
+    }],
+    visible_proof: [{ start_sec: 0, end_sec: 24, description: 'Four labels are visible.' }],
+    on_screen_text: [{ start_sec: 0, end_sec: 2, text: 'Check four signals.' }],
+    speech: [{ start_sec: 0, end_sec: 19, text: 'Check four signals.' }],
+    audio_cues: [],
+    pacing: { cuts_per_minute: 12, pattern: 'steady slides' },
+    cta: { text: '', start_sec: null, end_sec: null },
+    claims: [{ text: 'Check four signals.', start_sec: 0, end_sec: 2, support: 'visible' }],
+    style: ['list explainer'],
+    evidence_limitations: ['Human review remains required.'],
+  };
+  const responses = [
+    new Response(JSON.stringify({
+      _id: 'asset-fixture',
+      status: 'processing',
+      method: 'direct',
+      filename: 'draft.mp4',
+    }), { status: 201 }),
+    new Response(JSON.stringify({
+      _id: 'asset-fixture',
+      status: 'ready',
+      method: 'direct',
+      filename: 'draft.mp4',
+      duration: 24,
+      size: 19,
+    })),
+    new Response(JSON.stringify({
+      id: 'generation-fixture',
+      data: JSON.stringify(analysisPayload),
+      finish_reason: 'stop',
+      usage: { input_tokens: 8_979, output_tokens: 825 },
+    })),
+  ];
+
+  const result = await runProviderLive(request, {
+    rootDir,
+    packageDir,
+    env: {
+      ALLOW_PAID_GENERATION: 'true',
+      TWELVELABS_API_KEY: 'test-key',
+      TWELVELABS_ESTIMATED_ANALYSIS_COST_USD: '0.05',
+    },
+    fetchImpl: async () => {
+      const response = responses.shift();
+      assert.ok(response);
+      return response;
+    },
+  });
+
+  assert.equal(result.status, 'completed');
+  assert.equal(result.external_calls_made, 3);
+  const output = JSON.parse(fs.readFileSync(
+    path.join(packageDir, 'provider_outputs', 'twelvelabs', 'analysis.json'),
+    'utf8',
+  )) as Record<string, unknown>;
+  assert.equal(output.estimated_cost_usd, 0.05);
+  assert.equal(output.usage_pricing_estimate_usd, 0.017868);
+  assert.deepEqual(output.pricing_basis, {
+    input_video_usd_per_minute: 0.0292,
+    output_text_usd_per_1k_tokens: 0.0075,
+    actual_charge_reported_by_provider: false,
+  });
+  assert.doesNotMatch(JSON.stringify(output), /test-key/);
+});

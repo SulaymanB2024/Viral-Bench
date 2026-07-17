@@ -33,6 +33,11 @@ import {
   writeSeoStrategyReport,
   type SeoDiscoveryReport,
 } from './seo-research';
+import {
+  auditProviderConfiguration,
+  verifyProviderConfiguration,
+  type ProviderOptimizationProfile,
+} from './provider-config';
 
 interface CliArgs {
   command: string;
@@ -181,6 +186,15 @@ async function main(): Promise<void> {
         quality: stringOpt(options, 'quality'),
         outputFormat: imageOutputFormatOpt(stringOpt(options, 'output-format')),
       });
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+
+    case 'provider:config-audit': {
+      const profile = providerOptimizationProfileOpt(stringOpt(options, 'profile'));
+      const result = booleanOpt(options, 'live-readonly')
+        ? await verifyProviderConfiguration(effectiveEnv, profile)
+        : auditProviderConfiguration(effectiveEnv, profile);
       console.log(JSON.stringify(result, null, 2));
       return;
     }
@@ -334,6 +348,12 @@ function imageOutputFormatOpt(value: string | undefined): 'png' | 'jpeg' | 'webp
   return value as typeof allowed[number];
 }
 
+function providerOptimizationProfileOpt(value: string | undefined): ProviderOptimizationProfile {
+  if (!value || value === 'full_fidelity_analysis') return 'full_fidelity_analysis';
+  if (value === 'metadata_discovery') return value;
+  throw new Error('--profile must be metadata_discovery or full_fidelity_analysis');
+}
+
 function printHelp(): void {
   console.log(`Viral-Bench trend research CLI
 
@@ -349,6 +369,7 @@ Commands:
   provider:validate-request --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-dry --file .ops/provider_requests/sample_openai_image_request.json
   provider:run-live --file .ops/provider_requests/<live_request>.json --package-dir .ops/creative_jobs/rendered/<job_id> [--env-file .env]
+  provider:config-audit [--env-file .env] [--profile full_fidelity_analysis|metadata_discovery] [--live-readonly]
   seo:validate --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json
   seo:preflight --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json [--env-file .env]
   seo:discover --file .ops/seo_requests/worthscan_scooter_youtube_20260715.json --out .semantic-artifacts/seo [--env-file .env]

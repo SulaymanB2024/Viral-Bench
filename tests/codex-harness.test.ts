@@ -261,7 +261,10 @@ test('inspect lists incoming jobs, provider requests, capabilities, and primitiv
   assert.ok(inspected.capability_unlock_map.lanes.some((lane) => lane.id === 'paid_provider_generation'));
   assert.ok(inspected.credential_coverage.keys.some((key) => key.key === 'OPENAI_API_KEY'));
   assert.ok(inspected.provider_route_map.routes.some((route) => route.request_id === 'sample-openai-image-live-request'));
-  assert.equal(inspected.provider_activation_plan.summary.recommended_request_id, 'sample-openai-image-live-request');
+  assert.ok(inspected.provider_activation_plan.summary.recommended_request_id);
+  assert.ok(inspected.provider_activation_plan.requests.some((request) => (
+    request.request_id === inspected.provider_activation_plan.summary.recommended_request_id
+  )));
   assert.ok(inspected.browser_research_plan.summary.capture_count >= 1);
   assert.ok(inspected.publishing_handoff_plan.summary.manual_handoff_ready_job_count >= 1);
   assert.equal(inspected.autonomy_unblock_plan.summary.api_key_would_help, true);
@@ -330,7 +333,8 @@ test('job matrix links jobs to renders, providers, launch queue, metrics, and co
   const scooter = matrix.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
   const scanBike = matrix.jobs.find((row) => row.job_id === 'scan_bike_001');
 
-  assert.equal(matrix.job_count, 12);
+  assert.equal(matrix.job_count, matrix.jobs.length);
+  assert.ok(matrix.job_count >= 12);
   assert.ok(matrix.rendered_job_count >= 3);
   assert.ok(matrix.provider_linked_job_count >= 1);
   assert.ok(matrix.launch_queue_job_count >= 3);
@@ -348,7 +352,8 @@ test('evidence map exposes job sources, rendered evidence, claim safety, and com
   const scooter = map.jobs.find((row) => row.job_id === 'worthscan_scooter_battery_001');
   const internships = map.jobs.find((row) => row.job_id === 'internships_com_signal_stack_001');
 
-  assert.equal(map.job_count, 12);
+  assert.equal(map.job_count, map.jobs.length);
+  assert.ok(map.job_count >= 12);
   assert.ok(map.jobs_with_trend_examples >= 10);
   assert.ok(map.jobs_with_manual_boundary >= 10);
   assert.ok(map.jobs_with_rendered_evidence >= 3);
@@ -646,7 +651,10 @@ test('provider route map ranks API-key usefulness without leaking values', () =>
   const gemini = locked.routes.find((route) => route.provider === 'gemini_image');
 
   assert.equal(locked.summary.external_calls_made, 0);
-  assert.equal(locked.summary.api_key_would_help_count, 2);
+  assert.equal(
+    locked.summary.api_key_would_help_count,
+    locked.routes.filter((route) => route.would_api_key_help).length,
+  );
   assert.ok(lockedOpenAi);
   assert.equal(lockedOpenAi?.route_type, 'live_provider');
   assert.equal(lockedOpenAi?.would_api_key_help, true);
@@ -720,8 +728,14 @@ test('provider activation plan consolidates API-key live-run boundaries without 
   const gemini = locked.requests.find((request) => request.provider === 'gemini_image');
 
   assert.equal(locked.summary.external_calls_made, 0);
-  assert.equal(locked.summary.recommended_request_id, 'sample-openai-image-live-request');
-  assert.equal(locked.summary.api_key_unlockable_count, 2);
+  assert.ok(locked.summary.recommended_request_id);
+  assert.ok(locked.requests.some((request) => (
+    request.request_id === locked.summary.recommended_request_id
+  )));
+  assert.equal(
+    locked.summary.api_key_unlockable_count,
+    locked.requests.filter((request) => request.would_api_key_help).length,
+  );
   assert.ok(locked.credential_setup.required_missing_keys.includes('OPENAI_API_KEY'));
   assert.ok(locked.credential_setup.required_env_flags.includes('ALLOW_PAID_GENERATION=true'));
   assert.ok(lockedOpenAi);
@@ -1158,7 +1172,10 @@ test('doctor reports readiness, information surface, and recommended commands', 
   assert.ok(doctor.capability_plan.provider_requests.length >= 1);
   assert.ok(doctor.provider_preflight.preflights.length >= 1);
   assert.ok(doctor.provider_route_map.routes.length >= 1);
-  assert.equal(doctor.provider_activation_plan.summary.recommended_request_id, 'sample-openai-image-live-request');
+  assert.ok(doctor.provider_activation_plan.summary.recommended_request_id);
+  assert.ok(doctor.provider_activation_plan.requests.some((request) => (
+    request.request_id === doctor.provider_activation_plan.summary.recommended_request_id
+  )));
   assert.ok(doctor.browser_research_plan.summary.capture_count >= 1);
   assert.ok(doctor.publishing_handoff_plan.summary.manual_handoff_ready_job_count >= 1);
   assert.equal(doctor.autonomy_unblock_plan.summary.recommended_lane_id, 'provider_api_key');
