@@ -1,0 +1,310 @@
+{
+  "research_id": "scheduled-internship-broad-discovery-v1",
+  "purpose": "public_competitor_content_research",
+  "publishing_in_scope": false,
+  "max_total_charge_usd": 4.5,
+  "runs": [
+    {
+      "id": "tiktok-competitor-profiles-recent",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "joinhandshake",
+          "simplifyjobs",
+          "ripplematch",
+          "wayup",
+          "externhq",
+          "microinternships",
+          "theforage",
+          "virtual_internships",
+          "jobright.ai",
+          "biginterview",
+          "careerflow.ai",
+          "riipen",
+          "acadium",
+          "collegerecruiter.com",
+          "finalroundai",
+          "teal_hq",
+          "huntrco",
+          "joinuntapped"
+        ],
+        "profileScrapeSections": ["videos"],
+        "profileSorting": "latest",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 108
+    },
+    {
+      "id": "tiktok-competitor-profiles-popular",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "input_mode": "profile",
+      "input": {
+        "profiles": [
+          "joinhandshake",
+          "simplifyjobs",
+          "ripplematch",
+          "wayup",
+          "externhq",
+          "microinternships",
+          "theforage",
+          "virtual_internships",
+          "jobright.ai",
+          "biginterview",
+          "careerflow.ai",
+          "riipen",
+          "acadium",
+          "collegerecruiter.com",
+          "finalroundai",
+          "teal_hq",
+          "huntrco",
+          "joinuntapped"
+        ],
+        "profileScrapeSections": ["videos"],
+        "profileSorting": "popular",
+        "resultsPerPage": 6,
+        "excludePinnedPosts": false,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 108
+    },
+    {
+      "id": "tiktok-student-problems-recent-search",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship no experience college student",
+          "internship resume proof",
+          "internship application no response",
+          "college student networking",
+          "internship interview practice",
+          "career fair follow up",
+          "internship rejection burnout",
+          "freshman sophomore internship",
+          "recent graduate first job",
+          "day in the life intern"
+        ],
+        "searchSection": "/video",
+        "videoSearchSorting": "LATEST",
+        "videoSearchDateFilter": "LAST_6_MONTHS",
+        "resultsPerPage": 8,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 80
+    },
+    {
+      "id": "tiktok-access-safety-ai-popular-search",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship scam warning",
+          "unpaid internship college student",
+          "CPT OPT internship",
+          "first generation career advice",
+          "community college internship",
+          "AI resume truthful",
+          "AI internship application mistakes",
+          "remote internship scam",
+          "internship return offer",
+          "what if no summer internship"
+        ],
+        "searchSection": "/video",
+        "videoSearchSorting": "MOST_LIKED",
+        "videoSearchDateFilter": "LAST_6_MONTHS",
+        "resultsPerPage": 8,
+        "shouldDownloadVideos": false,
+        "commentsPerPost": 0
+      },
+      "max_charge_usd": 0.5,
+      "max_items": 80
+    },
+    {
+      "id": "instagram-reviewed-profile-feeds",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/practera_exp/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/ladder_internships/",
+          "https://www.instagram.com/12twentyinc/",
+          "https://www.instagram.com/gouconnect/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/capitalplacement/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/absoluteinternship/",
+          "https://www.instagram.com/cieestudyabroad/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/seekgradau/",
+          "https://www.instagram.com/magnetmehq/",
+          "https://www.instagram.com/joinuntapped/",
+          "https://www.instagram.com/aiesecglobal/"
+        ],
+        "resultsType": "posts",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.65,
+      "max_items": 144
+    },
+    {
+      "id": "instagram-topic-hashtag-feeds",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "hashtag",
+      "input": {
+        "search": "#internshiptips,#internshipsearch,#careeradvice,#jobsearchtips,#resumetips,#interviewtips,#collegecareer,#earlycareer",
+        "searchType": "hashtag",
+        "searchLimit": 8,
+        "resultsType": "posts",
+        "resultsLimit": 12,
+        "onlyPostsNewerThan": "6 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.65,
+      "max_items": 96
+    },
+    {
+      "id": "instagram-adjacent-profile-discovery",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "search",
+      "input": {
+        "search": "internship advice,college career,early career,career coach,resume tips,job search,interview coach,student jobs",
+        "searchType": "profile",
+        "searchLimit": 6,
+        "resultsType": "posts",
+        "resultsLimit": 6,
+        "onlyPostsNewerThan": "6 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.35,
+      "max_items": 48
+    },
+    {
+      "id": "instagram-mentions-and-ugc",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.691",
+      "input_mode": "profile",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/joinhandshake/",
+          "https://www.instagram.com/internshala/",
+          "https://www.instagram.com/jobright.ai/",
+          "https://www.instagram.com/careerflow.ai/",
+          "https://www.instagram.com/theinterngroup/",
+          "https://www.instagram.com/riipennetworks/",
+          "https://www.instagram.com/acadiumofficial/",
+          "https://www.instagram.com/cieestudyabroad/"
+        ],
+        "resultsType": "mentions",
+        "resultsLimit": 8,
+        "onlyPostsNewerThan": "12 months",
+        "addParentData": true
+      },
+      "max_charge_usd": 0.35,
+      "max_items": 64
+    },
+    {
+      "id": "youtube-topic-and-brand-recent-search",
+      "actor_id": "streamers/youtube-scraper",
+      "build": "0.0.273",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship no experience college student",
+          "internship resume proof",
+          "internship application no response",
+          "college student networking",
+          "internship interview practice",
+          "career fair follow up student",
+          "internship scam warning",
+          "unpaid internship afford",
+          "CPT OPT internship US",
+          "first generation college career",
+          "community college internship",
+          "AI resume truthful",
+          "remote internship scam",
+          "internship return offer",
+          "what to do no summer internship",
+          "Handshake internships",
+          "Riipen student projects",
+          "Forage virtual work experience",
+          "Careerflow career advice",
+          "Final Round AI interview"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 4,
+        "maxResultStreams": 0,
+        "sortingOrder": "date",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.25,
+      "max_items": 80
+    },
+    {
+      "id": "youtube-topic-and-brand-popular-search",
+      "actor_id": "streamers/youtube-scraper",
+      "build": "0.0.273",
+      "input_mode": "search",
+      "input": {
+        "searchQueries": [
+          "internship no experience college student",
+          "internship resume proof",
+          "internship application no response",
+          "college student networking",
+          "internship interview practice",
+          "career fair follow up student",
+          "internship scam warning",
+          "unpaid internship afford",
+          "CPT OPT internship US",
+          "first generation college career",
+          "community college internship",
+          "AI resume truthful",
+          "remote internship scam",
+          "internship return offer",
+          "what to do no summer internship",
+          "Handshake internships",
+          "Riipen student projects",
+          "Forage virtual work experience",
+          "Careerflow career advice",
+          "Final Round AI interview"
+        ],
+        "maxResults": 0,
+        "maxResultsShorts": 4,
+        "maxResultStreams": 0,
+        "sortingOrder": "views",
+        "dateFilter": "year",
+        "downloadSubtitles": false,
+        "saveSubsToKVS": false,
+        "aiVideoDescription": false,
+        "aiVideoSummary": false
+      },
+      "max_charge_usd": 0.25,
+      "max_items": 80
+    }
+  ]
+}

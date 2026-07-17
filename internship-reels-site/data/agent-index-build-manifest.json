@@ -1,12 +1,12 @@
 {
   "schema_version": "viralbench_agent_index_build_v1",
-  "generated_at": "2026-07-17T22:38:29.080Z",
-  "index_version": "5e63f19d70523b719960",
+  "generated_at": "2026-07-17T23:50:43.525Z",
+  "index_version": "255b6e52d431a64f3fdd",
   "sources": {
     "library": {
       "path": "library.json",
-      "sha256": "d846e30d40c982a62c47637831558bbfc2062620b9085e6ba49b3cc8e9d4dd03",
-      "bytes": 2145844
+      "sha256": "1a75f9b8258302e81d7f85a870af5db47b26dc866e2d97cc94a3714f44f6f1f7",
+      "bytes": 3221165
     },
     "dashboard": {
       "path": "twelvelabs-dashboard-data.js",
@@ -17,12 +17,12 @@
   "outputs": {
     "corpus": {
       "path": "data/agent-corpus.json",
-      "sha256": "62fbb16091823e48e81bb172cb4c93efc75babf69079a52598d6b3d93d685154",
-      "bytes": 1492776
+      "sha256": "81c2756b70459a0f89bd2d3d78411d13a79a55258d58ae8ddd3643c7ce70f3d8",
+      "bytes": 2235167
     },
     "vector_manifest": {
       "path": "data/agent-vectors.json",
-      "sha256": "11de75e02dc24739844511baf5491dec10a4493b2a0a707da1ffb230018f2e4f",
+      "sha256": "9198b1f02efeca169995af57b6320b24522d2118a87cc6c16ac95a58f528e1f8",
       "bytes": 227
     },
     "vector_binary": {
@@ -32,7 +32,7 @@
     }
   },
   "reconciliation": {
-    "documents": 568,
+    "documents": 845,
     "vectors": 0,
     "vector_coverage": 0,
     "vector_coverage_state": "absent_not_requested",

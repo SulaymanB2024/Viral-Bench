@@ -37,19 +37,21 @@ function render(status) {
 
   const coverage = status.providers?.twelvelabs?.analysis_coverage;
   const cost = status.budget?.actual_or_conservative_usd;
-  const posts = status.results?.posts_ingested;
+  const posts = status.results?.broad_discovery_rows ?? status.results?.posts_ingested;
+  const selected = status.orchestration?.selected_videos ?? status.source?.requested_urls;
   metricsElement.replaceChildren(
     metric('Schedule', 'Mon + Thu'),
     metric('Per-run ceiling', moneyFormat.format(status.budget?.max_total_usd ?? 5)),
-    metric('Posts', Number.isFinite(posts) ? numberFormat.format(posts) : 'Pending'),
+    metric('Surface rows', Number.isFinite(posts) ? numberFormat.format(posts) : 'Pending'),
+    metric('TL selected', Number.isFinite(selected) ? numberFormat.format(selected) : 'Pending'),
     metric('TL coverage', Number.isFinite(coverage) ? percentFormat.format(coverage) : 'Pending'),
     metric('Last cost', Number.isFinite(cost) ? moneyFormat.format(cost) : 'Pending'),
   );
 
   if (status.status === 'partial') {
-    noteElement.textContent = 'All requested URLs reconciled; some analysis remained incomplete and is explicitly labeled.';
+    noteElement.textContent = 'Codex selected a bounded cohort from the broad public surface; some analysis remained incomplete and is explicitly labeled.';
   } else if (status.status === 'completed') {
-    noteElement.textContent = 'The latest approved public-URL refresh passed reconciliation, analysis coverage, and budget gates.';
+    noteElement.textContent = 'Broad discovery, Codex selection, public-URL reconciliation, analysis coverage, and provider budget gates passed.';
   }
 }
 
@@ -63,6 +65,6 @@ fetch('/data/pipeline-refresh.json', { cache: 'no-store' })
     stateElement.textContent = 'Status unavailable';
     metricsElement.replaceChildren(
       metric('Schedule', 'Mon + Thu'),
-      metric('Per-run ceiling', '$5.00'),
+      metric('Per-run ceiling', '$9.00'),
     );
   });

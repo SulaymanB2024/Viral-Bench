@@ -1,0 +1,32 @@
+{
+  "request_id": "scheduled-internship-broad-discovery-v1-2026-07-17-codex-selection",
+  "urls": [
+    "https://www.instagram.com/p/DaygU7YSFA5/",
+    "https://www.instagram.com/p/DanLwW7hxE1/",
+    "https://www.instagram.com/p/Da21HSVN_1k/",
+    "https://www.instagram.com/p/Da3F7iZzfY2/",
+    "https://www.tiktok.com/@juss_whitney/video/7656050756583345429",
+    "https://www.tiktok.com/@birdtart01/video/7650950928962555149",
+    "https://www.tiktok.com/@dylanthompson2/video/7659083433703902495",
+    "https://www.tiktok.com/@buyout_boy/video/7634214368535645453",
+    "https://www.tiktok.com/@himdemetrii/video/7663224031193206046",
+    "https://www.tiktok.com/@steph.dcreator/video/7658342164237126920"
+  ],
+  "allowed_platforms": [
+    "tiktok",
+    "instagram"
+  ],
+  "comment_policy": {
+    "enabled": false,
+    "max_high_engagement": 0,
+    "max_recent": 0,
+    "max_replies_per_thread": 0
+  },
+  "approval_state": "approved",
+  "cost_limits": {
+    "max_total_usd": 4.5,
+    "max_apify_usd": 0.5,
+    "max_twelvelabs_usd": 4,
+    "max_gemini_usd": 0
+  }
+}

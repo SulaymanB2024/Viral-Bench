@@ -23,6 +23,7 @@
     "internship-site:build": "tsx src/internship-reels-site-build.ts",
     "internship-site:ads": "tsx src/internship-paid-ad-site-build.ts",
     "semantic-refresh": "tsx src/scheduled-semantic-refresh.ts",
+    "semantic-selection": "tsx src/codex-semantic-selection.ts",
     "traction": "tsx src/traction-experiment.ts",
     "shorts": "tsx src/short-video-renderer.ts",
     "creative": "tsx packages/creative/cli.ts",

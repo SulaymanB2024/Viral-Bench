@@ -193,9 +193,10 @@ test('published library observations become deterministic stored-snapshot discov
 
 test('public pipeline messages redact provider credentials and local paths', () => {
   const redacted = redactPublicPipelineText(
-    'token=apify_api_secret Bearer tlk_secret at /Users/person/private/file.json',
+    "token=apify_api_secret Bearer tlk_secret at /Users/person/private/file.json and https://instagram.example.fbcdn.net/o1/video.mp4?signature=secret",
   );
-  assert.doesNotMatch(redacted, /apify_api_secret|tlk_secret|\/Users\/person/);
+  assert.doesNotMatch(redacted, /apify_api_secret|tlk_secret|\/Users\/person|signature=secret/);
   assert.match(redacted, /\[REDACTED\]/);
   assert.match(redacted, /\[local path\]/);
+  assert.match(redacted, /\[provider media URL\]/);
 });
