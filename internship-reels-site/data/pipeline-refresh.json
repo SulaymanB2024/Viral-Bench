@@ -1,8 +1,8 @@
 {
   "schema_version": "viralbench_pipeline_refresh_v1",
-  "status": "configured",
-  "updated_at": "2026-07-17T00:00:00.000Z",
-  "last_completed_at": null,
+  "status": "partial",
+  "updated_at": "2026-07-17T22:38:28.597Z",
+  "last_completed_at": "2026-07-17T22:38:28.597Z",
   "schedule": {
     "timezone": "America/Chicago",
     "local_time": "09:17",
@@ -17,7 +17,7 @@
     "max_total_usd": 5,
     "max_apify_usd": 1,
     "max_twelvelabs_usd": 4,
-    "actual_or_conservative_usd": null
+    "actual_or_conservative_usd": 1.015219
   },
   "source": {
     "request_id": "internship-category-creators-expansion-20260716",
@@ -26,15 +26,15 @@
   },
   "providers": {
     "apify": {
-      "state": "configured",
-      "accepted_posts": null,
-      "actual_or_conservative_usd": null
+      "state": "completed",
+      "accepted_posts": 10,
+      "actual_or_conservative_usd": 0.051
     },
     "twelvelabs": {
-      "state": "configured",
-      "analyzed_videos": null,
-      "analysis_coverage": null,
-      "actual_or_conservative_usd": null,
+      "state": "partial",
+      "analyzed_videos": 9,
+      "analysis_coverage": 0.9,
+      "actual_or_conservative_usd": 0.964219,
       "models": [
         "marengo3.0",
         "pegasus1.5"
@@ -42,19 +42,174 @@
     }
   },
   "results": {
-    "posts_ingested": null,
-    "semantic_items_written": null,
-    "external_calls_made": null,
-    "library_unique_items": null,
-    "library_observations": null
+    "posts_ingested": 10,
+    "semantic_items_written": 377,
+    "external_calls_made": 151,
+    "library_unique_items": 563,
+    "library_observations": 741
   },
-  "analyses": [],
+  "analyses": [
+    {
+      "canonical_url": "https://www.tiktok.com/@imellagonzales/video/7599931965780856095",
+      "platform": "tiktok",
+      "platform_post_id": "7599931965780856095",
+      "duration_sec": 63.2,
+      "hook": "If you can't pass a behavioral interview in 2026, just cheat, but not in the way you think.",
+      "cta": "Follow and comment 'MAP' to receive the behavioral skill map.",
+      "style": [
+        "Direct address to the camera",
+        "Confident and engaging tone",
+        "Use of text overlays and images to emphasize points"
+      ],
+      "evidence_limitations": [
+        "The video does not provide specific details on how to create the skill map.",
+        "The effectiveness of the method is based on the speaker's personal experience."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@davis_engineering/video/7601983531174169870",
+      "platform": "tiktok",
+      "platform_post_id": "7601983531174169870",
+      "duration_sec": 79.1,
+      "hook": "When it comes to interviewing for internships, there are going to be questions that you will be asked in almost every single interview, regardless of your major, and it's important that you answer them correctly.",
+      "cta": "Thank you.",
+      "style": [
+        "Informative",
+        "Direct",
+        "Conversational"
+      ],
+      "evidence_limitations": [
+        "No visual evidence of specific internship interview scenarios.",
+        "No visual evidence of the speaker's qualifications or experience."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@selfmademillennial/video/7614191897598381326",
+      "platform": "tiktok",
+      "platform_post_id": "7614191897598381326",
+      "duration_sec": 128.7,
+      "hook": "How do you get hired from a job fair? Here is the exact script you should say when you walk up to the table.",
+      "cta": "Follow the script to stand out at job fairs.",
+      "style": [
+        "Podcast-style setting",
+        "Professional atmosphere",
+        "Text overlays to highlight key points"
+      ],
+      "evidence_limitations": [
+        "The video does not provide visual examples of job fairs or company representatives."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@lifewithsummeranisa/video/7623920155076087060",
+      "platform": "tiktok",
+      "platform_post_id": "7623920155076087060",
+      "duration_sec": 47.6,
+      "hook": "If you don't have experience yet, you're probably not getting the summer internship.",
+      "cta": "Check the link in my bio for more information.",
+      "style": [
+        "Direct address",
+        "Text overlays",
+        "Personal endorsement"
+      ],
+      "evidence_limitations": [
+        "No visual evidence of the Extern platform interface or specific project examples.",
+        "Limited information on the application process or success rates of externships."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@imellagonzales/video/7628495619035909407",
+      "platform": "tiktok",
+      "platform_post_id": "7628495619035909407",
+      "duration_sec": 48.1,
+      "hook": "Your first meeting with your intern manager could literally set you up to fail unless you ask the right question.",
+      "cta": "Follow and comment doc for more information.",
+      "style": [
+        "Informative",
+        "Engaging",
+        "Direct-to-camera"
+      ],
+      "evidence_limitations": [
+        "The analysis is based on the provided transcript and visual evidence. Some details may be inferred from the context."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@retiredd1yapparumaysa/video/7631197403009387806",
+      "platform": "tiktok",
+      "platform_post_id": "7631197403009387806",
+      "duration_sec": 9.6,
+      "hook": "when im still shocked my pepsi interview went well but this is how much prep i did for it.",
+      "cta": "No call to action present in the video.",
+      "style": [
+        "Screen recording",
+        "Text overlay"
+      ],
+      "evidence_limitations": [
+        "The video does not show any human faces or mouth movements.",
+        "The audio content is unrelated to the visual content."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@rachelinarealway/video/7639392724139003167",
+      "platform": "tiktok",
+      "platform_post_id": "7639392724139003167",
+      "duration_sec": 97.6,
+      "hook": "If you're a summer intern and you're working in finance or consulting, please do not wear designer items to work.",
+      "cta": "Put away the Van Cleef at the office when you're a summer intern.",
+      "style": [
+        "Direct address",
+        "Walking and talking",
+        "Informative",
+        "Advisory"
+      ],
+      "evidence_limitations": [
+        "No specific visual evidence of designer items being worn by interns.",
+        "No direct visual evidence of senior finance professionals' backgrounds."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@fakewasian777/video/7647741660478147871",
+      "platform": "tiktok",
+      "platform_post_id": "7647741660478147871",
+      "duration_sec": 82.4,
+      "hook": "The most underrated thing that you can do to get an internship is a project.",
+      "cta": "Create a personalized project to enhance your internship application.",
+      "style": [
+        "Direct address to the camera",
+        "Informative and conversational tone",
+        "Use of hand gestures for emphasis"
+      ],
+      "evidence_limitations": [
+        "The video does not provide visual evidence of the speaker's project or its results.",
+        "The video does not show any specific examples of personalized projects beyond the speaker's anecdote."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@birdtart01/video/7651771589461150989",
+      "platform": "tiktok",
+      "platform_post_id": "7651771589461150989",
+      "duration_sec": 18.8,
+      "hook": "10 out of 10 questions to ask at a networking event",
+      "cta": "Follow for more career side quests",
+      "style": [
+        "Informative",
+        "Engaging",
+        "Professional"
+      ],
+      "evidence_limitations": [
+        "No specific timestamps for each tip provided in the transcript",
+        "Visual evidence does not specify exact timing of each inset video scene"
+      ]
+    }
+  ],
   "evidence_boundaries": [
     "The scheduled job reads only the approved public URLs in the committed intake manifest.",
-    "Each run is capped at 5 USD: up to 1 USD for Apify and 4 USD for TwelveLabs.",
-    "Credentials, downloaded media, raw provider payloads, and the semantic database are not published.",
-    "Creative descriptions are provider observations, not causal performance claims."
+    "Costs are provider-reported actuals when available and conservative estimates otherwise.",
+    "Partial means every requested URL reconciled and at least 80% received TwelveLabs analysis; it does not mean complete analysis coverage.",
+    "Creative descriptions are provider observations, not causal performance claims.",
+    "Credentials, downloaded media, raw provider payloads, and the semantic database are not published."
   ],
-  "errors": [],
+  "errors": [
+    "twelvelabs:speech[5] must have a valid timestamp range within the video duration."
+  ],
   "measurement_gaps": []
 }

@@ -2,8 +2,8 @@
   "schema_version": "viralbench_agent_vectors_v1",
   "model": "gemini-embedding-2",
   "dimension": 768,
-  "index_version": "daa79400c1bf2336813a",
-  "generated_at": "2026-07-17T21:38:34.980Z",
+  "index_version": "5e63f19d70523b719960",
+  "generated_at": "2026-07-17T22:38:29.066Z",
   "count": 0,
   "entries": []
 }

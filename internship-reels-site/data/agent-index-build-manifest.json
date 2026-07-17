@@ -1,28 +1,28 @@
 {
   "schema_version": "viralbench_agent_index_build_v1",
-  "generated_at": "2026-07-17T21:38:34.989Z",
-  "index_version": "daa79400c1bf2336813a",
+  "generated_at": "2026-07-17T22:38:29.080Z",
+  "index_version": "5e63f19d70523b719960",
   "sources": {
     "library": {
       "path": "library.json",
-      "sha256": "8dc688968e408b4846fa60acab3bc4cd47f79c52b19979c12fd4e9cd089302e1",
-      "bytes": 950611
+      "sha256": "d846e30d40c982a62c47637831558bbfc2062620b9085e6ba49b3cc8e9d4dd03",
+      "bytes": 2145844
     },
     "dashboard": {
       "path": "twelvelabs-dashboard-data.js",
-      "sha256": "e2ff31648b0b252362e5954d22f04eadd4bd8c96ca71ffb329410f83689d8264",
+      "sha256": "416d1d13b1f89aa063da37ed6af1fc96d39432c807da49992afb8d2b4f4cb466",
       "bytes": 103411
     }
   },
   "outputs": {
     "corpus": {
       "path": "data/agent-corpus.json",
-      "sha256": "0a4860504b8855ec8c5e509bd535543d068e32aa07214f3b06d2a966c66c9935",
-      "bytes": 1433737
+      "sha256": "62fbb16091823e48e81bb172cb4c93efc75babf69079a52598d6b3d93d685154",
+      "bytes": 1492776
     },
     "vector_manifest": {
       "path": "data/agent-vectors.json",
-      "sha256": "b37c706958e835ee810b5fe3a294128a2660bf453e741731e72c1a7cd5ff2376",
+      "sha256": "11de75e02dc24739844511baf5491dec10a4493b2a0a707da1ffb230018f2e4f",
       "bytes": 227
     },
     "vector_binary": {
