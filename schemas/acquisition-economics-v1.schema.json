@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "acquisition-economics-v1.schema.json",
+  "title": "Viral-Bench AcquisitionEconomicsV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "program_id",
+    "status",
+    "scope_policy",
+    "compatibility",
+    "spend_ledger",
+    "route_scorecard",
+    "tranche_gate",
+    "source_to_corpus",
+    "acquisition_runs",
+    "twelvelabs_batches",
+    "discovery",
+    "live_validation",
+    "artifact_links",
+    "ranking_policy",
+    "evidence_boundaries"
+  ],
+  "properties": {
+    "schema_version": { "const": "viralbench_acquisition_economics_v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "program_id": { "const": "viralbench-acquisition-20260718" },
+    "status": { "enum": ["ready_with_locked_next_tranche", "ready", "blocked"] },
+    "scope_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "internship_early_career_minimum_share",
+        "broader_job_search_maximum_share",
+        "discovery_seed_counts",
+        "post_acquisition_scope_mix_state"
+      ],
+      "properties": {
+        "internship_early_career_minimum_share": { "const": 0.7 },
+        "broader_job_search_maximum_share": { "const": 0.3 },
+        "discovery_seed_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["total", "internship_early_career", "broader_job_search"],
+          "properties": {
+            "total": { "$ref": "#/$defs/count" },
+            "internship_early_career": { "$ref": "#/$defs/count" },
+            "broader_job_search": { "$ref": "#/$defs/count" }
+          }
+        },
+        "post_acquisition_scope_mix_state": { "enum": ["measured", "unmeasured"] }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "migration_style",
+        "normalized_social_post_contract_unchanged",
+        "viral_content_library_schema_2_readable",
+        "prior_provider_ledger_readable"
+      ],
+      "properties": {
+        "migration_style": { "const": "additive" },
+        "normalized_social_post_contract_unchanged": { "const": true },
+        "viral_content_library_schema_2_readable": { "const": true },
+        "prior_provider_ledger_readable": { "const": true }
+      }
+    },
+    "spend_ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "lifetime_program_ceiling_usd",
+        "tranche_size_usd",
+        "baseline",
+        "finalized_current_wave",
+        "cumulative",
+        "events"
+      ],
+      "properties": {
+        "currency": { "const": "USD" },
+        "lifetime_program_ceiling_usd": { "const": 100 },
+        "tranche_size_usd": { "const": 25 },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["actual_reported_usd", "conservative_spend_usd", "settlement_state"],
+          "properties": {
+            "actual_reported_usd": { "$ref": "#/$defs/money" },
+            "conservative_spend_usd": { "$ref": "#/$defs/money" },
+            "settlement_state": { "const": "partially_settled_conservative_reserved" }
+          }
+        },
+        "finalized_current_wave": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "apify_actual_reported_usd",
+            "twelvelabs_actual_or_conservative_usd",
+            "combined_actual_or_conservative_usd",
+            "settlement_state"
+          ],
+          "properties": {
+            "apify_actual_reported_usd": { "$ref": "#/$defs/money" },
+            "twelvelabs_actual_or_conservative_usd": { "$ref": "#/$defs/money" },
+            "combined_actual_or_conservative_usd": { "$ref": "#/$defs/money" },
+            "settlement_state": { "const": "apify_settled_twelvelabs_conservatively_estimated" }
+          }
+        },
+        "cumulative": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actual_reported_usd",
+            "actual_reported_plus_provider_estimate_usd",
+            "conservative_spend_usd",
+            "first_tranche_remaining_usd",
+            "settlement_state"
+          ],
+          "properties": {
+            "actual_reported_usd": { "$ref": "#/$defs/money" },
+            "actual_reported_plus_provider_estimate_usd": { "$ref": "#/$defs/money" },
+            "conservative_spend_usd": { "$ref": "#/$defs/money" },
+            "first_tranche_remaining_usd": { "$ref": "#/$defs/money" },
+            "settlement_state": { "const": "partially_settled_all_unknowns_conservatively_reserved" }
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/spend_event" }
+        }
+      }
+    },
+    "route_scorecard": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/route_economics" }
+    },
+    "tranche_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_tranche",
+        "current_tranche_ceiling_usd",
+        "next_tranche",
+        "next_tranche_state",
+        "gates",
+        "stop_reasons",
+        "allocation_caps"
+      ],
+      "properties": {
+        "current_tranche": { "enum": [1, 2, 3, 4] },
+        "current_tranche_ceiling_usd": { "$ref": "#/$defs/money" },
+        "next_tranche": { "enum": [2, 3, 4, null] },
+        "next_tranche_state": { "enum": ["locked", "unlocked", "program_complete"] },
+        "gates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "observed", "threshold"],
+            "properties": {
+              "gate_id": { "type": "string", "minLength": 1 },
+              "passed": { "type": "boolean" },
+              "observed": {
+                "anyOf": [
+                  { "type": "number" },
+                  { "type": "boolean" },
+                  { "type": "null" }
+                ]
+              },
+              "threshold": {
+                "anyOf": [
+                  { "type": "number" },
+                  { "type": "boolean" },
+                  { "type": "string" }
+                ]
+              }
+            }
+          }
+        },
+        "stop_reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "allocation_caps": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "best_acquisition_route_usd",
+            "temporal_rechecks_usd",
+            "selected_multimodal_analysis_usd",
+            "exploration_and_reserve_usd"
+          ],
+          "properties": {
+            "best_acquisition_route_usd": { "$ref": "#/$defs/money" },
+            "temporal_rechecks_usd": { "$ref": "#/$defs/money" },
+            "selected_multimodal_analysis_usd": { "$ref": "#/$defs/money" },
+            "exploration_and_reserve_usd": { "$ref": "#/$defs/money" }
+          }
+        }
+      }
+    },
+    "source_to_corpus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "acquired_raw_rows",
+        "acquired_unique_public_items",
+        "production_social_posts",
+        "total_source_records",
+        "public_documents",
+        "operator_documents",
+        "public_vectors",
+        "operator_vectors",
+        "current_wave_items_promoted_to_production_corpus",
+        "state"
+      ],
+      "properties": {
+        "acquired_raw_rows": { "$ref": "#/$defs/count" },
+        "acquired_unique_public_items": { "$ref": "#/$defs/count" },
+        "production_social_posts": { "$ref": "#/$defs/count" },
+        "total_source_records": { "$ref": "#/$defs/count" },
+        "public_documents": { "$ref": "#/$defs/count" },
+        "operator_documents": { "$ref": "#/$defs/count" },
+        "public_vectors": { "$ref": "#/$defs/count" },
+        "operator_vectors": { "$ref": "#/$defs/count" },
+        "current_wave_items_promoted_to_production_corpus": { "const": 0 },
+        "state": { "const": "reconciled_baseline_wave_not_promoted" }
+      }
+    },
+    "acquisition_runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "run_id",
+          "provider",
+          "actor_id",
+          "build",
+          "returned_rows",
+          "actual_reported_usd",
+          "usage_finalized"
+        ],
+        "properties": {
+          "run_id": { "type": "string", "minLength": 1 },
+          "provider": { "const": "apify" },
+          "actor_id": { "type": "string", "minLength": 1 },
+          "build": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "returned_rows": { "$ref": "#/$defs/count" },
+          "actual_reported_usd": { "$ref": "#/$defs/nullable_money" },
+          "usage_finalized": { "type": "boolean" }
+        }
+      }
+    },
+    "twelvelabs_batches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "records",
+        "current_wave_execution_mode",
+        "batch_parity_evidence_state",
+        "contract_schema_path"
+      ],
+      "properties": {
+        "records": { "type": "array", "maxItems": 0 },
+        "current_wave_execution_mode": { "const": "individual" },
+        "batch_parity_evidence_state": { "const": "missing" },
+        "contract_schema_path": { "const": "schemas/twelvelabs-batch-analysis-v1.schema.json" }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed_manifest_path",
+        "seed_count",
+        "registry_review_candidates",
+        "unresolved_access_gaps",
+        "external_calls_authorized"
+      ],
+      "properties": {
+        "seed_manifest_path": { "type": "string", "minLength": 1 },
+        "seed_count": { "$ref": "#/$defs/count" },
+        "registry_review_candidates": { "$ref": "#/$defs/count" },
+        "unresolved_access_gaps": { "$ref": "#/$defs/count" },
+        "external_calls_authorized": { "const": false }
+      }
+    },
+    "live_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "new_calls_made",
+        "new_conservative_reservation_usd",
+        "credentials_present",
+        "reviewed_actor_pins_present",
+        "reusable_assets_manifest_present",
+        "approved_new_call_manifest_present",
+        "shared_reservation_recorded",
+        "paid_and_public_ingestion_gates_enabled",
+        "three_video_batch_parity_evidence_present",
+        "blockers"
+      ],
+      "properties": {
+        "decision": { "const": "blocked_zero_calls" },
+        "new_calls_made": { "const": 0 },
+        "new_conservative_reservation_usd": { "const": 0 },
+        "credentials_present": { "type": "boolean" },
+        "reviewed_actor_pins_present": { "type": "boolean" },
+        "reusable_assets_manifest_present": { "type": "boolean" },
+        "approved_new_call_manifest_present": { "type": "boolean" },
+        "shared_reservation_recorded": { "type": "boolean" },
+        "paid_and_public_ingestion_gates_enabled": { "type": "boolean" },
+        "three_video_batch_parity_evidence_present": { "type": "boolean" },
+        "blockers": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "artifact_links": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "path", "sha256"],
+        "properties": {
+          "role": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "ranking_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_cross_platform_performance_ranking_allowed",
+        "required_comparison_boundary"
+      ],
+      "properties": {
+        "raw_cross_platform_performance_ranking_allowed": { "const": false },
+        "required_comparison_boundary": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "money": {
+      "type": "number",
+      "minimum": 0
+    },
+    "nullable_money": {
+      "anyOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "null" }
+      ]
+    },
+    "nullable_metric": {
+      "anyOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "null" }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "spend_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "provider",
+        "route_id",
+        "actual_reported_usd",
+        "actual_or_conservative_usd",
+        "settlement_state",
+        "source_path"
+      ],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "route_id": { "type": "string", "minLength": 1 },
+        "actual_reported_usd": { "$ref": "#/$defs/nullable_money" },
+        "actual_or_conservative_usd": { "$ref": "#/$defs/money" },
+        "settlement_state": {
+          "enum": ["settled", "conservatively_reserved", "actual_or_conservative"]
+        },
+        "source_path": { "type": "string", "minLength": 1 }
+      }
+    },
+    "route_economics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "route_kind",
+        "returned_rows",
+        "relevant_rows",
+        "unique_rows",
+        "recent_timestamp_and_view_rows",
+        "metric_complete_rows",
+        "competitor_coverage_gained",
+        "analyzed_items",
+        "analysis_passed_items",
+        "temporal_rechecks_attempted",
+        "temporal_rechecks_with_usable_snapshot",
+        "actual_or_conservative_cost_usd",
+        "cost_basis",
+        "accepted",
+        "relevant_rows_per_dollar",
+        "unique_rows_per_dollar",
+        "cost_per_new_relevant_item_usd",
+        "relevant_after_dedupe_rate",
+        "duplicate_rate",
+        "freshness_rate",
+        "metric_completeness_rate",
+        "analysis_pass_rate",
+        "temporal_recheck_yield"
+      ],
+      "properties": {
+        "route_id": { "type": "string", "minLength": 1 },
+        "route_kind": {
+          "enum": ["acquisition", "analysis", "temporal_recheck", "draft_discovery"]
+        },
+        "returned_rows": { "$ref": "#/$defs/count" },
+        "relevant_rows": { "$ref": "#/$defs/count" },
+        "unique_rows": { "$ref": "#/$defs/count" },
+        "recent_timestamp_and_view_rows": { "$ref": "#/$defs/count" },
+        "metric_complete_rows": { "$ref": "#/$defs/count" },
+        "competitor_coverage_gained": { "$ref": "#/$defs/count" },
+        "analyzed_items": { "$ref": "#/$defs/count" },
+        "analysis_passed_items": { "$ref": "#/$defs/count" },
+        "temporal_rechecks_attempted": { "$ref": "#/$defs/count" },
+        "temporal_rechecks_with_usable_snapshot": { "$ref": "#/$defs/count" },
+        "actual_or_conservative_cost_usd": { "$ref": "#/$defs/money" },
+        "cost_basis": {
+          "enum": ["actual_reported", "actual_or_conservative", "zero_call_draft"]
+        },
+        "accepted": { "type": "boolean" },
+        "relevant_rows_per_dollar": { "$ref": "#/$defs/nullable_metric" },
+        "unique_rows_per_dollar": { "$ref": "#/$defs/nullable_metric" },
+        "cost_per_new_relevant_item_usd": { "$ref": "#/$defs/nullable_metric" },
+        "relevant_after_dedupe_rate": { "$ref": "#/$defs/nullable_metric" },
+        "duplicate_rate": { "$ref": "#/$defs/nullable_metric" },
+        "freshness_rate": { "$ref": "#/$defs/nullable_metric" },
+        "metric_completeness_rate": { "$ref": "#/$defs/nullable_metric" },
+        "analysis_pass_rate": { "$ref": "#/$defs/nullable_metric" },
+        "temporal_recheck_yield": { "$ref": "#/$defs/nullable_metric" }
+      }
+    }
+  }
+}

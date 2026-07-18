@@ -1,0 +1,449 @@
+{
+  "schema_version": "viralbench_acquisition_economics_v1",
+  "generated_at": "2026-07-18T16:41:08Z",
+  "program_id": "viralbench-acquisition-20260718",
+  "status": "ready_with_locked_next_tranche",
+  "scope_policy": {
+    "internship_early_career_minimum_share": 0.7,
+    "broader_job_search_maximum_share": 0.3,
+    "discovery_seed_counts": {
+      "total": 40,
+      "internship_early_career": 28,
+      "broader_job_search": 12
+    },
+    "post_acquisition_scope_mix_state": "unmeasured"
+  },
+  "compatibility": {
+    "migration_style": "additive",
+    "normalized_social_post_contract_unchanged": true,
+    "viral_content_library_schema_2_readable": true,
+    "prior_provider_ledger_readable": true
+  },
+  "spend_ledger": {
+    "currency": "USD",
+    "lifetime_program_ceiling_usd": 100,
+    "tranche_size_usd": 25,
+    "baseline": {
+      "actual_reported_usd": 1.5555,
+      "conservative_spend_usd": 18.681168,
+      "settlement_state": "partially_settled_conservative_reserved"
+    },
+    "finalized_current_wave": {
+      "apify_actual_reported_usd": 1.0934,
+      "twelvelabs_actual_or_conservative_usd": 0.782054,
+      "combined_actual_or_conservative_usd": 1.875454,
+      "settlement_state": "apify_settled_twelvelabs_conservatively_estimated"
+    },
+    "cumulative": {
+      "actual_reported_usd": 2.6489,
+      "actual_reported_plus_provider_estimate_usd": 3.430954,
+      "conservative_spend_usd": 20.556622,
+      "first_tranche_remaining_usd": 4.443378,
+      "settlement_state": "partially_settled_all_unknowns_conservatively_reserved"
+    },
+    "events": [
+      {
+        "event_id": "social-discovery-refresh",
+        "provider": "Apify",
+        "route_id": "social_discovery",
+        "actual_reported_usd": 1.1622,
+        "actual_or_conservative_usd": 3,
+        "settlement_state": "settled",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "audience-comment-refresh",
+        "provider": "Apify",
+        "route_id": "audience_comment_research",
+        "actual_reported_usd": 0.3393,
+        "actual_or_conservative_usd": 4,
+        "settlement_state": "settled",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "metric-recheck",
+        "provider": "Apify",
+        "route_id": "metric_rechecks",
+        "actual_reported_usd": 0.054,
+        "actual_or_conservative_usd": 2,
+        "settlement_state": "settled",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "video-analysis-primary",
+        "provider": "TwelveLabs",
+        "route_id": "video_analysis",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 3.627389,
+        "settlement_state": "conservatively_reserved",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "video-analysis-retry",
+        "provider": "TwelveLabs",
+        "route_id": "analysis_retries",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 1.541791,
+        "settlement_state": "conservatively_reserved",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "video-analysis-reserve-recovery",
+        "provider": "TwelveLabs",
+        "route_id": "reserve",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 0.511988,
+        "settlement_state": "conservatively_reserved",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "static-analysis-primary",
+        "provider": "Gemini",
+        "route_id": "static_analysis",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 3,
+        "settlement_state": "conservatively_reserved",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "static-analysis-reserve-recovery",
+        "provider": "Gemini",
+        "route_id": "reserve",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 1,
+        "settlement_state": "conservatively_reserved",
+        "source_path": "internship-reels-site/data/provider-spend-ledger.json"
+      },
+      {
+        "event_id": "authorized-wave-apify-20260718",
+        "provider": "Apify",
+        "route_id": "authorized-competitor-collection-waves-20260718",
+        "actual_reported_usd": 1.0934,
+        "actual_or_conservative_usd": 1.0934,
+        "settlement_state": "settled",
+        "source_path": ".semantic-artifacts/authorized-waves/wave-reconciliation-20260718.json"
+      },
+      {
+        "event_id": "authorized-wave-twelvelabs-20260718",
+        "provider": "TwelveLabs",
+        "route_id": "authorized-competitor-analysis-waves-20260718",
+        "actual_reported_usd": null,
+        "actual_or_conservative_usd": 0.782054,
+        "settlement_state": "actual_or_conservative",
+        "source_path": ".semantic-artifacts/authorized-waves/wave-reconciliation-20260718.json"
+      }
+    ]
+  },
+  "route_scorecard": [
+    {
+      "route_id": "authorized-competitor-collection-waves-20260718",
+      "route_kind": "acquisition",
+      "returned_rows": 273,
+      "relevant_rows": 220,
+      "unique_rows": 220,
+      "recent_timestamp_and_view_rows": 70,
+      "metric_complete_rows": 220,
+      "competitor_coverage_gained": 10,
+      "analyzed_items": 15,
+      "analysis_passed_items": 13,
+      "temporal_rechecks_attempted": 0,
+      "temporal_rechecks_with_usable_snapshot": 0,
+      "actual_or_conservative_cost_usd": 1.0934,
+      "cost_basis": "actual_reported",
+      "accepted": true,
+      "relevant_rows_per_dollar": 201.207243,
+      "unique_rows_per_dollar": 201.207243,
+      "cost_per_new_relevant_item_usd": 0.00497,
+      "relevant_after_dedupe_rate": 0.805861,
+      "duplicate_rate": 0.194139,
+      "freshness_rate": 0.318182,
+      "metric_completeness_rate": 1,
+      "analysis_pass_rate": 0.866667,
+      "temporal_recheck_yield": null
+    },
+    {
+      "route_id": "authorized-competitor-analysis-waves-20260718",
+      "route_kind": "analysis",
+      "returned_rows": 15,
+      "relevant_rows": 15,
+      "unique_rows": 15,
+      "recent_timestamp_and_view_rows": 15,
+      "metric_complete_rows": 15,
+      "competitor_coverage_gained": 13,
+      "analyzed_items": 15,
+      "analysis_passed_items": 13,
+      "temporal_rechecks_attempted": 0,
+      "temporal_rechecks_with_usable_snapshot": 0,
+      "actual_or_conservative_cost_usd": 0.782054,
+      "cost_basis": "actual_or_conservative",
+      "accepted": true,
+      "relevant_rows_per_dollar": 19.180261,
+      "unique_rows_per_dollar": 19.180261,
+      "cost_per_new_relevant_item_usd": 0.052137,
+      "relevant_after_dedupe_rate": 1,
+      "duplicate_rate": 0,
+      "freshness_rate": 1,
+      "metric_completeness_rate": 1,
+      "analysis_pass_rate": 0.866667,
+      "temporal_recheck_yield": null
+    },
+    {
+      "route_id": "metric-recheck",
+      "route_kind": "temporal_recheck",
+      "returned_rows": 20,
+      "relevant_rows": 20,
+      "unique_rows": 20,
+      "recent_timestamp_and_view_rows": 20,
+      "metric_complete_rows": 20,
+      "competitor_coverage_gained": 0,
+      "analyzed_items": 0,
+      "analysis_passed_items": 0,
+      "temporal_rechecks_attempted": 20,
+      "temporal_rechecks_with_usable_snapshot": 20,
+      "actual_or_conservative_cost_usd": 0.054,
+      "cost_basis": "actual_reported",
+      "accepted": true,
+      "relevant_rows_per_dollar": 370.37037,
+      "unique_rows_per_dollar": 370.37037,
+      "cost_per_new_relevant_item_usd": 0.0027,
+      "relevant_after_dedupe_rate": 1,
+      "duplicate_rate": 0,
+      "freshness_rate": 1,
+      "metric_completeness_rate": 1,
+      "analysis_pass_rate": null,
+      "temporal_recheck_yield": 1
+    },
+    {
+      "route_id": "internship-discovery-acquisition-draft-v1-20260718",
+      "route_kind": "draft_discovery",
+      "returned_rows": 0,
+      "relevant_rows": 0,
+      "unique_rows": 0,
+      "recent_timestamp_and_view_rows": 0,
+      "metric_complete_rows": 0,
+      "competitor_coverage_gained": 0,
+      "analyzed_items": 0,
+      "analysis_passed_items": 0,
+      "temporal_rechecks_attempted": 0,
+      "temporal_rechecks_with_usable_snapshot": 0,
+      "actual_or_conservative_cost_usd": 0,
+      "cost_basis": "zero_call_draft",
+      "accepted": false,
+      "relevant_rows_per_dollar": null,
+      "unique_rows_per_dollar": null,
+      "cost_per_new_relevant_item_usd": null,
+      "relevant_after_dedupe_rate": null,
+      "duplicate_rate": null,
+      "freshness_rate": null,
+      "metric_completeness_rate": null,
+      "analysis_pass_rate": null,
+      "temporal_recheck_yield": null
+    }
+  ],
+  "tranche_gate": {
+    "current_tranche": 1,
+    "current_tranche_ceiling_usd": 25,
+    "next_tranche": 2,
+    "next_tranche_state": "locked",
+    "gates": [
+      {
+        "gate_id": "deduplicated_relevance",
+        "passed": true,
+        "observed": 0.805861,
+        "threshold": 0.2
+      },
+      {
+        "gate_id": "recent_timestamp_and_view_candidates",
+        "passed": true,
+        "observed": 70,
+        "threshold": 10
+      },
+      {
+        "gate_id": "analysis_quality",
+        "passed": true,
+        "observed": 0.866667,
+        "threshold": 0.8
+      },
+      {
+        "gate_id": "spend_settled_or_conservatively_reserved",
+        "passed": true,
+        "observed": true,
+        "threshold": true
+      },
+      {
+        "gate_id": "cost_per_new_relevant",
+        "passed": true,
+        "observed": 0.00497,
+        "threshold": 0.030992
+      },
+      {
+        "gate_id": "internship_early_career_scope_mix",
+        "passed": false,
+        "observed": null,
+        "threshold": 0.7
+      }
+    ],
+    "stop_reasons": [],
+    "allocation_caps": {
+      "best_acquisition_route_usd": 12.5,
+      "temporal_rechecks_usd": 5,
+      "selected_multimodal_analysis_usd": 5,
+      "exploration_and_reserve_usd": 2.5
+    }
+  },
+  "source_to_corpus": {
+    "acquired_raw_rows": 273,
+    "acquired_unique_public_items": 220,
+    "production_social_posts": 1052,
+    "total_source_records": 1183,
+    "public_documents": 1073,
+    "operator_documents": 1082,
+    "public_vectors": 1073,
+    "operator_vectors": 1082,
+    "current_wave_items_promoted_to_production_corpus": 0,
+    "state": "reconciled_baseline_wave_not_promoted"
+  },
+  "acquisition_runs": [
+    {
+      "run_id": "CiIVgpWrKQnGKTLqv",
+      "provider": "apify",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "returned_rows": 102,
+      "actual_reported_usd": 0.3784,
+      "usage_finalized": true
+    },
+    {
+      "run_id": "4DfRQuSXJ7VGWC64F",
+      "provider": "apify",
+      "actor_id": "clockworks/tiktok-scraper",
+      "build": "0.0.561",
+      "returned_rows": 102,
+      "actual_reported_usd": 0.3784,
+      "usage_finalized": true
+    },
+    {
+      "run_id": "DNT2CAih9uff2OxIb",
+      "provider": "apify",
+      "actor_id": "apify/instagram-scraper",
+      "build": "0.0.690",
+      "returned_rows": 1,
+      "actual_reported_usd": 0.0027,
+      "usage_finalized": true
+    },
+    {
+      "run_id": "D5udfwFDc3fn0nXkq",
+      "provider": "apify",
+      "actor_id": "streamers/youtube-scraper",
+      "build": "0.0.273",
+      "returned_rows": 34,
+      "actual_reported_usd": 0.136,
+      "usage_finalized": true
+    },
+    {
+      "run_id": "yRggT5ZC5dhl72TlA",
+      "provider": "apify",
+      "actor_id": "streamers/youtube-scraper",
+      "build": "0.0.273",
+      "returned_rows": 34,
+      "actual_reported_usd": 0.136,
+      "usage_finalized": true
+    }
+  ],
+  "twelvelabs_batches": {
+    "records": [],
+    "current_wave_execution_mode": "individual",
+    "batch_parity_evidence_state": "missing",
+    "contract_schema_path": "schemas/twelvelabs-batch-analysis-v1.schema.json"
+  },
+  "discovery": {
+    "seed_manifest_path": ".ops/competitor_research/internship-discovery-acquisition-draft-v1-20260718.json",
+    "seed_count": 40,
+    "registry_review_candidates": 22,
+    "unresolved_access_gaps": 3,
+    "external_calls_authorized": false
+  },
+  "live_validation": {
+    "decision": "blocked_zero_calls",
+    "new_calls_made": 0,
+    "new_conservative_reservation_usd": 0,
+    "credentials_present": true,
+    "reviewed_actor_pins_present": true,
+    "reusable_assets_manifest_present": false,
+    "approved_new_call_manifest_present": false,
+    "shared_reservation_recorded": false,
+    "paid_and_public_ingestion_gates_enabled": false,
+    "three_video_batch_parity_evidence_present": false,
+    "blockers": [
+      "ALLOW_PAID_GENERATION is disabled in the inspected canonical environment.",
+      "ALLOW_PUBLIC_URL_INGESTION is disabled in the inspected canonical environment.",
+      "No reviewed manifest authorizes a new canary or parity call.",
+      "No shared conservative reservation up to $1.00 was recorded for a new call.",
+      "No reusable three-asset batch manifest and no batch-versus-individual parity record were found."
+    ]
+  },
+  "artifact_links": [
+    {
+      "role": "discovery",
+      "path": ".ops/competitor_research/internship-discovery-acquisition-draft-v1-20260718.json",
+      "sha256": "ae95ea5b2c452f22159b92dda7d6666610a804feeb8a5572161448fbf2aeae4f"
+    },
+    {
+      "role": "baseline_ledger",
+      "path": "internship-reels-site/data/provider-spend-ledger.json",
+      "sha256": "4a515eb19c2a9d49cac29579fb7e44402592cee932f7bd3828dab1d1c4c8919b"
+    },
+    {
+      "role": "wave",
+      "path": ".semantic-artifacts/authorized-waves/wave-reconciliation-20260718.json",
+      "sha256": "d3aa14221717de8e0eb425025930636115a4cacf9487303717fb6f1ae87a25f7"
+    },
+    {
+      "role": "collection",
+      "path": ".semantic-artifacts/authorized-waves/competitor-collection-report-20260718.json",
+      "sha256": "e3af03028ed139a20d750182e8f3fc7def8687d0d502c9d832d49a0c82d52c64"
+    },
+    {
+      "role": "analysis",
+      "path": ".semantic-artifacts/authorized-waves/analysis-status-output-20260718.json",
+      "sha256": "8df3e415302c973c2224e49412b5c10eaa6ffe7253f65cf4f525aa8c3a634e11"
+    },
+    {
+      "role": "metric_recheck",
+      "path": "internship-reels-site/data/metric-recheck-refresh.json",
+      "sha256": "bac7404788509eee9775ea041479b1a8f08c78e0337cdd663dfe9823249ee29d"
+    },
+    {
+      "role": "source_manifest",
+      "path": "internship-reels-site/data/source-record-manifest.json",
+      "sha256": "4f9a1cdd99be4201db1c262b8e8253a8a0922c24ed2cfd119be33e7a75cdab0a"
+    },
+    {
+      "role": "index_manifest",
+      "path": "internship-reels-site/data/agent-index-build-manifest.json",
+      "sha256": "36e98dd9f9eb28aa31399fa9a74b594e5c699684009b6da50c6651e197ebf076"
+    },
+    {
+      "role": "collection_manifest",
+      "path": ".semantic-artifacts/authorized-waves/competitor-collection-20260718.json",
+      "sha256": "923a9fbe3cace7b323b6e4d62684a67ee9e79d8c9c98deecb30d017c5c4eaf21"
+    },
+    {
+      "role": "analysis_manifest",
+      "path": ".semantic-artifacts/authorized-waves/competitor-analysis-20260718.json",
+      "sha256": "cdf5831a859c8b2fb8c74bbde711e6cde999ef4d099ccf5584f0c2dbb64d6643"
+    }
+  ],
+  "ranking_policy": {
+    "raw_cross_platform_performance_ranking_allowed": false,
+    "required_comparison_boundary": "Compare performance only within platform, content type, and age bucket; preserve raw metrics as dated observations."
+  },
+  "evidence_boundaries": [
+    "AcquisitionEconomicsV1 is additive and does not migrate or rewrite normalized social posts, ViralContentLibrary schema 2, or the prior provider ledger.",
+    "Actual reported provider cost is separated from provider estimates and conservative reservations; missing invoices are never represented as zero.",
+    "The finalized wave remains ignored research evidence and added zero items to the production corpus in this controller integration.",
+    "Discovery seeds remain draft-only pending registry review and authorize zero external calls.",
+    "Raw cross-platform performance ranking is forbidden.",
+    "No provider call was made while live-call gates, a new manifest, a shared reservation, reusable assets, or parity evidence were absent."
+  ]
+}
