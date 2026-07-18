@@ -1,0 +1,180 @@
+{
+  "schema_version": "viralbench_competitor_source_review_candidates_v1",
+  "generated_at": "2026-07-18T02:55:18.000Z",
+  "scope": "public_shortform_social_sources_for_unresolved_competitors",
+  "status": "partial",
+  "authoritative_registry_updated": false,
+  "summary": {
+    "competitors_reviewed": 6,
+    "competitors_with_review_candidates": 4,
+    "competitors_still_unresolved": 2,
+    "candidate_sources": 10
+  },
+  "competitors": [
+    {
+      "competitor": "Bright Network",
+      "official_url": "https://www.brightnetwork.co.uk/",
+      "review_state": "candidate_sources_found",
+      "candidate_sources": [
+        {
+          "platform": "instagram",
+          "handle": "brightnetwork",
+          "url": "https://www.instagram.com/brightnetwork/",
+          "confidence": "high"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "brightnetwork.co.uk",
+          "url": "https://www.tiktok.com/@brightnetwork.co.uk",
+          "confidence": "high"
+        },
+        {
+          "platform": "youtube_shorts",
+          "handle": "UC4KXMeop9KAuhw8MVmGUznQ",
+          "url": "https://www.youtube.com/channel/UC4KXMeop9KAuhw8MVmGUznQ",
+          "confidence": "high"
+        }
+      ],
+      "evidence": [
+        {
+          "url": "https://linktr.ee/brightnetwork",
+          "kind": "official_brand_link_hub",
+          "observation": "The brand link hub links Bright Network's official website and names Instagram, TikTok, and YouTube as its social accounts."
+        }
+      ],
+      "limitation": "Candidate ownership still requires the normal registry review before collection."
+    },
+    {
+      "competitor": "AfterCollege",
+      "official_url": "https://www.aftercollege.com/",
+      "review_state": "no_verified_shortform_source_found",
+      "candidate_sources": [],
+      "evidence": [
+        {
+          "url": "https://www.aftercollege.com/academia/",
+          "kind": "official_site_review",
+          "observation": "The current public site confirms the company and its internship/job content but did not expose a verifiable Instagram, TikTok, or YouTube brand source in this review."
+        }
+      ],
+      "limitation": "Search exhaustion is not proof that no account exists; keep the source-discovery task open."
+    },
+    {
+      "competitor": "Prentus",
+      "official_url": "https://prentus.com/",
+      "review_state": "no_verified_shortform_source_found",
+      "candidate_sources": [],
+      "evidence": [
+        {
+          "url": "https://prentus.com/",
+          "kind": "official_site_review",
+          "observation": "The current public site confirms Prentus's career-outcomes product but did not expose a verifiable Instagram, TikTok, or YouTube brand source in this review."
+        },
+        {
+          "url": "https://help.prentus.co/what-is-prentus",
+          "kind": "official_help_center_review",
+          "observation": "The official help center confirms the company identity and audience but did not establish a short-form social source."
+        }
+      ],
+      "limitation": "Search exhaustion is not proof that no account exists; keep the source-discovery task open."
+    },
+    {
+      "competitor": "StandOut Connect",
+      "official_url": "https://www.standoutconnect.org/",
+      "review_state": "candidate_sources_found",
+      "candidate_sources": [
+        {
+          "platform": "instagram",
+          "handle": "standout.search",
+          "url": "https://www.instagram.com/standout.search",
+          "confidence": "high"
+        }
+      ],
+      "evidence": [
+        {
+          "url": "https://www.standoutconnect.org/about",
+          "kind": "official_site_footer",
+          "observation": "The official StandOut Connect site links the Instagram account directly from its footer."
+        }
+      ],
+      "limitation": "No official TikTok or YouTube source was established in this review."
+    },
+    {
+      "competitor": "Final Round AI",
+      "official_url": "https://www.finalroundai.com/",
+      "review_state": "candidate_sources_found",
+      "candidate_sources": [
+        {
+          "platform": "instagram",
+          "handle": "finalround_ai",
+          "url": "https://www.instagram.com/finalround_ai/",
+          "confidence": "high"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "finalroundai.com",
+          "url": "https://www.tiktok.com/@finalroundai.com",
+          "confidence": "high"
+        },
+        {
+          "platform": "youtube_shorts",
+          "handle": "FinalRoundAI",
+          "url": "https://www.youtube.com/channel/UCJkfd9KjwdDn1IEpWvb3xYw",
+          "confidence": "high"
+        }
+      ],
+      "evidence": [
+        {
+          "url": "https://www.finalroundai.com/",
+          "kind": "official_site_footer",
+          "observation": "The official site footer links Instagram, TikTok, and YouTube; the YouTube handle resolves to the recorded channel identity."
+        }
+      ],
+      "limitation": "The registry should use the official-site identities rather than the different unreviewed TikTok handle currently present in the failed discovery manifest."
+    },
+    {
+      "competitor": "Teal",
+      "official_url": "https://www.tealhq.com/",
+      "review_state": "candidate_sources_found",
+      "candidate_sources": [
+        {
+          "platform": "instagram",
+          "handle": "teal_hq",
+          "url": "https://www.instagram.com/teal_hq",
+          "confidence": "high"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "teal_hq",
+          "url": "https://www.tiktok.com/@teal_hq",
+          "confidence": "high"
+        },
+        {
+          "platform": "youtube_shorts",
+          "handle": "UCZlIaL4DOEFig1b2jgx25zA",
+          "url": "https://www.youtube.com/channel/UCZlIaL4DOEFig1b2jgx25zA",
+          "confidence": "high"
+        }
+      ],
+      "evidence": [
+        {
+          "url": "https://chromewebstore.google.com/publisher/teal-labs-inc/u05c16b3ac4089814dc5ee8c1c63edeea",
+          "kind": "verified_product_publisher",
+          "observation": "Teal Labs' Chrome Web Store publisher page lists the company's Instagram, TikTok, and YouTube destinations."
+        },
+        {
+          "url": "https://www.tealhq.com/post/how-do-you-answer-tell-me-about-yourself-in-an-interview",
+          "kind": "official_site_embedded_social_content",
+          "observation": "Teal's official site embeds and attributes current short-form career content to @teal_hq."
+        }
+      ],
+      "limitation": "The candidate identities require normal registry review; the TikTok handle agrees with the failed discovery manifest after normalization."
+    }
+  ],
+  "evidence_boundaries": [
+    "These rows are review candidates, not authoritative registry mutations or proof of account ownership.",
+    "Official-site links and verified product-publisher links receive high confidence; search-result resemblance alone is not accepted.",
+    "No verified source found means this bounded review was inconclusive, not that the competitor has no account.",
+    "No provider call, login, follow, message, account change, or publication was performed.",
+    "Only public short-form social sources are in scope; official websites, blogs, newsletters, podcasts, LinkedIn, and other source classes remain separate coverage domains."
+  ]
+}
