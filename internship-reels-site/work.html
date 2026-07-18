@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
   <script src="/site-navigation.js" defer></script>
+  <script src="/work.js" defer></script>
 </head>
 <body class="work-page">
   <a class="site-skip" href="#main">Skip to main content</a>
@@ -53,6 +54,18 @@
         <span class="work-label work-label--private">Private</span>
       </a>
     </nav>
+
+    <section class="work-refresh" aria-labelledby="pipelineRefreshTitle">
+      <div class="work-refresh-heading">
+        <div>
+          <p class="work-refresh-kicker">Evidence refresh</p>
+          <h2 id="pipelineRefreshTitle">Apify + TwelveLabs</h2>
+        </div>
+        <p class="work-refresh-state" id="pipelineRefreshState" aria-live="polite">Loading status…</p>
+      </div>
+      <div class="work-refresh-metrics" id="pipelineRefreshMetrics" aria-label="Pipeline refresh summary"></div>
+      <p class="work-refresh-note" id="pipelineRefreshNote">Runs Monday and Thursday at 9:17 AM Central with a hard $5 ceiling per run.</p>
+    </section>
 
     <p class="work-boundary">Research stays read-only. Publishing gates are unchanged.</p>
   </main>
