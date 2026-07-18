@@ -18,10 +18,22 @@ export async function requireOperatorSession(
   if (!store || !secret || secret.length < 32) {
     throw new HttpError(503, 'operator_unavailable', 'Operator authentication is unavailable.');
   }
-  const token = cookieValue(request.headers.cookie, OPERATOR_COOKIE);
-  const session = token ? verifySessionToken(token, secret) : null;
-  if (!session || await store.isSessionRevoked(session.jti)) {
+  const session = await optionalOperatorSession(request, store, env);
+  if (!session) {
     throw new HttpError(401, 'authentication_required', 'Operator authentication is required.');
   }
+  return session;
+}
+
+export async function optionalOperatorSession(
+  request: VercelRequest,
+  store: AgentStateStore | null,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<OperatorSession | null> {
+  const secret = env.AGENT_SESSION_SECRET?.trim();
+  if (!store || !secret || secret.length < 32) return null;
+  const token = cookieValue(request.headers.cookie, OPERATOR_COOKIE);
+  const session = token ? verifySessionToken(token, secret) : null;
+  if (!session || await store.isSessionRevoked(session.jti)) return null;
   return session;
 }

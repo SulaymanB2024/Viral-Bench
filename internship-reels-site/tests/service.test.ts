@@ -272,6 +272,49 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 
+test('operator research access bypasses app quotas and public cache', async () => {
+  const fake = new FakeGemini();
+  const library = corpus();
+  const service = new AgentService({
+    corpus: library,
+    vectorIndex: localVectorIndex(library),
+    enabled: true,
+    store: new MemoryAgentStateStore(),
+    gemini: fake as unknown as GeminiClient,
+  });
+  const questions = [
+    'resume internship hook example one',
+    'resume internship hook example two',
+    'resume internship hook example three',
+    'resume internship hook example four',
+    'resume internship hook example five',
+    'resume internship hook example six',
+  ];
+
+  for (const question of questions.slice(0, 5)) {
+    const result = await service.research({ question }, 'shared-ip-hash');
+    assert.equal(result.mode, 'generated');
+  }
+  const limited = await service.research({ question: questions[5]! }, 'shared-ip-hash');
+  assert.equal(limited.mode, 'retrieval_only');
+  assert.match(limited.limitations.join(' '), /daily uncached-question limit/i);
+
+  const operatorAccess = { bypassAppQuota: true, bypassCache: true };
+  const firstOperator = await service.research(
+    { question: questions[5]! },
+    null,
+    operatorAccess,
+  );
+  const secondOperator = await service.research(
+    { question: questions[5]! },
+    null,
+    operatorAccess,
+  );
+  assert.equal(firstOperator.mode, 'generated');
+  assert.equal(secondOperator.mode, 'generated');
+  assert.equal(fake.generateCalls, 7);
+});
+
 test('operator generation exports schema-valid inert drafts only', async () => {
   const fake = new FakeGemini();
   const library = corpus();

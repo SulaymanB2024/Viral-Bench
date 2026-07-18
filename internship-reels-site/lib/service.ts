@@ -51,6 +51,11 @@ export interface ResearchQueryInput {
   filters?: AgentFilters;
 }
 
+export interface ResearchAccess {
+  bypassAppQuota?: boolean;
+  bypassCache?: boolean;
+}
+
 export interface OperatorBriefInput {
   objective: string;
   audience: string;
@@ -91,7 +96,13 @@ export class AgentService {
     this.#diagnosticLogger = options.diagnosticLogger ?? null;
   }
 
-  async research(input: ResearchQueryInput, ipHash: string | null): Promise<ResearchAnswer> {
+  async research(
+    input: ResearchQueryInput,
+    ipHash: string | null,
+    access: ResearchAccess = {},
+  ): Promise<ResearchAnswer> {
+    const bypassAppQuota = access.bypassAppQuota === true;
+    const bypassCache = access.bypassCache === true;
     const lexical = retrieveEvidence({
       corpus: this.#corpus,
       query: input.question,
@@ -107,7 +118,7 @@ export class AgentService {
       );
     }
     if (unavailable) return retrievalOnlyResearch(lexical, this.#corpus.index_version, unavailable);
-    if (!ipHash) {
+    if (!ipHash && !bypassAppQuota) {
       return retrievalOnlyResearch(
         lexical,
         this.#corpus.index_version,
@@ -122,34 +133,38 @@ export class AgentService {
     })}`;
 
     try {
-      const cached = await this.#runResearchStage('state_cache_read', () => (
-        this.#store!.getJson<ResearchAnswer>(cacheKey)
-      ));
-      if (isCachedResearchAnswer(cached, this.#corpus.index_version)) {
-        return { ...cached, mode: 'cached' };
+      if (!bypassCache) {
+        const cached = await this.#runResearchStage('state_cache_read', () => (
+          this.#store!.getJson<ResearchAnswer>(cacheKey)
+        ));
+        if (isCachedResearchAnswer(cached, this.#corpus.index_version)) {
+          return { ...cached, mode: 'cached' };
+        }
       }
 
-      const ipQuota = await this.#runResearchStage('state_rate_limit', () => (
-        this.#store!.rateLimit(`public:ip:${ipHash}:day`, 5, DAY_MS)
-      ));
-      if (!ipQuota.allowed) {
-        return retrievalOnlyResearch(
-          lexical,
-          this.#corpus.index_version,
-          `Daily uncached-question limit reached. Retrieval remains available until ${ipQuota.reset_at}.`,
-        );
+      if (!bypassAppQuota) {
+        const ipQuota = await this.#runResearchStage('state_rate_limit', () => (
+          this.#store!.rateLimit(`public:ip:${ipHash}:day`, 5, DAY_MS)
+        ));
+        if (!ipQuota.allowed) {
+          return retrievalOnlyResearch(
+            lexical,
+            this.#corpus.index_version,
+            `Daily uncached-question limit reached. Retrieval remains available until ${ipQuota.reset_at}.`,
+          );
+        }
+        const generationQuota = await this.#runResearchStage('state_rate_limit', () => (
+          this.#consumePublicGenerationQuota()
+        ));
+        if (!generationQuota) {
+          return retrievalOnlyResearch(
+            lexical,
+            this.#corpus.index_version,
+            'Public generation capacity is temporarily exhausted; showing deterministic retrieval.',
+          );
+        }
       }
-      const generationQuota = await this.#runResearchStage('state_rate_limit', () => (
-        this.#consumePublicGenerationQuota()
-      ));
-      if (!generationQuota) {
-        return retrievalOnlyResearch(
-          lexical,
-          this.#corpus.index_version,
-          'Public generation capacity is temporarily exhausted; showing deterministic retrieval.',
-        );
-      }
-      const queryVector = await this.#researchQueryVector(input.question);
+      const queryVector = await this.#researchQueryVector(input.question, bypassAppQuota);
       if (!queryVector) {
         return retrievalOnlyResearch(
           lexical,
@@ -207,9 +222,13 @@ export class AgentService {
           prompt: generationPrompt,
           responseSchema: RESEARCH_RESPONSE_SCHEMA,
           maxOutputTokens: 1_400,
-          beforeRetry: () => this.#runResearchStage('state_rate_limit', () => (
-            this.#consumePublicGenerationQuota()
-          )),
+          beforeRetry: () => (
+            bypassAppQuota
+              ? Promise.resolve(true)
+              : this.#runResearchStage('state_rate_limit', () => (
+                this.#consumePublicGenerationQuota()
+              ))
+          ),
         }),
       );
       let generated = normalizeResearchOutput(await generate(prompt), hybrid.evidence);
@@ -217,9 +236,13 @@ export class AgentService {
       try {
         validated = validateResearchOutput(generated, hybrid.evidence);
       } catch (error) {
-        const repairQuota = await this.#runResearchStage('state_rate_limit', () => (
-          this.#consumePublicGenerationQuota()
-        ));
+        const repairQuota = (
+          bypassAppQuota
+            ? true
+            : await this.#runResearchStage('state_rate_limit', () => (
+              this.#consumePublicGenerationQuota()
+            ))
+        );
         if (!repairQuota) {
           return retrievalOnlyResearch(
             hybrid,
@@ -261,9 +284,11 @@ export class AgentService {
         query_intent: hybrid.query_intent,
         coverage: hybrid.coverage,
       };
-      await this.#runResearchStage('state_cache_write', () => (
-        this.#store!.setJson(cacheKey, answer, PUBLIC_CACHE_SECONDS)
-      ));
+      if (!bypassCache) {
+        await this.#runResearchStage('state_cache_write', () => (
+          this.#store!.setJson(cacheKey, answer, PUBLIC_CACHE_SECONDS)
+        ));
+      }
       return answer;
     } catch {
       return retrievalOnlyResearch(
@@ -375,17 +400,25 @@ export class AgentService {
     return daily.allowed;
   }
 
-  async #researchQueryVector(value: string): Promise<number[] | null> {
+  async #researchQueryVector(value: string, bypassAppQuota = false): Promise<number[] | null> {
     if (this.#vectorIndex?.manifest.model === 'viralbench-local-hash-v1') {
       return localHashEmbedding(tokenize(value.slice(0, 8_000)).join(' '));
     }
-    const embeddingQuota = await this.#runResearchStage('state_rate_limit', () => (
-      this.#consumeEmbeddingQuota()
-    ));
+    const embeddingQuota = (
+      bypassAppQuota
+        ? true
+        : await this.#runResearchStage('state_rate_limit', () => (
+          this.#consumeEmbeddingQuota()
+        ))
+    );
     if (!embeddingQuota) return null;
     return await this.#runResearchStage('gemini_embed', () => this.#gemini!.embedText(
       value.slice(0, 8_000),
-      () => this.#runResearchStage('state_rate_limit', () => this.#consumeEmbeddingQuota()),
+      () => (
+        bypassAppQuota
+          ? Promise.resolve(true)
+          : this.#runResearchStage('state_rate_limit', () => this.#consumeEmbeddingQuota())
+      ),
     ));
   }
 

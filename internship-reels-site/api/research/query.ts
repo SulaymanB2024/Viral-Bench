@@ -9,17 +9,33 @@ import {
   requireMethod,
   sendJson,
 } from '../../lib/http.js';
+import { optionalOperatorSession } from '../../lib/operator-auth.js';
 import {
-  AgentService,
   createDefaultAgentService,
   parseResearchQuery,
+  type ResearchAccess,
+  type ResearchQueryInput,
 } from '../../lib/service.js';
-import { localAgentStateEnabled } from '../../lib/state.js';
+import {
+  createAgentStateStore,
+  localAgentStateEnabled,
+  type AgentStateStore,
+} from '../../lib/state.js';
+import type { ResearchAnswer } from '../../lib/types.js';
 
 const LOCAL_IP_HASH_SECRET = 'viralbench-local-development-ip-hash-secret-v1';
 
+interface ResearchService {
+  research(
+    input: ResearchQueryInput,
+    ipHash: string | null,
+    access?: ResearchAccess,
+  ): Promise<ResearchAnswer>;
+}
+
 interface ResearchRouteOptions {
-  service?: AgentService;
+  service?: ResearchService;
+  store?: AgentStateStore | null;
   env?: NodeJS.ProcessEnv;
 }
 
@@ -38,7 +54,17 @@ export function createResearchQueryHandler(options: ResearchRouteOptions = {}) {
       const ipHash = secret && secret.length >= 32
         ? hashIpAddress(requestIp(request.headers), secret)
         : null;
-      const result = await (options.service ?? createDefaultAgentService(env)).research(input, ipHash);
+      const store = options.store === undefined ? createAgentStateStore(env) : options.store;
+      const operator = await optionalOperatorSession(request, store, env);
+      const access: ResearchAccess = operator
+        ? { bypassAppQuota: true, bypassCache: true }
+        : {};
+      if (operator) {
+        response.setHeader('Vary', 'Cookie');
+        response.setHeader('X-ViralBench-Research-Access', 'operator');
+      }
+      const result = await (options.service ?? createDefaultAgentService(env))
+        .research(input, ipHash, access);
       sendJson(response, 200, result);
     } catch (error) {
       handleApiError(response, error);
