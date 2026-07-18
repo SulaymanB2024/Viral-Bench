@@ -4,5 +4,6 @@ node_modules
 .env.local
 .env.*.local
 coverage
+public
 data/.embedding-maintenance.json
 .env*

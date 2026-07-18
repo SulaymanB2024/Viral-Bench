@@ -1,0 +1,739 @@
+{
+  "schema_version": "viralbench_official_sources_v1",
+  "generated_at": "2026-07-17T23:19:57.118Z",
+  "resources": [
+    {
+      "resource_id": "nace-career-readiness-competencies",
+      "title": "What is Career Readiness?",
+      "publisher": "National Association of Colleges and Employers",
+      "url": "https://www.naceweb.org/career-readiness/competencies/career-readiness-defined",
+      "source_class": "career_framework",
+      "authority": "professional_association",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "career_identity",
+        "resume_and_application",
+        "intern_life"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "role_uncertain",
+        "workplace_uncertain"
+      ],
+      "series": [
+        "Close the Proof Gap",
+        "Internship Reality Check",
+        "No Internship, Still Build Proof",
+        "Community College and Transfer Proof",
+        "Return Offer Signal Check"
+      ],
+      "use_for": "Map student evidence and internship behaviors to a shared career-readiness vocabulary.",
+      "evidence_boundary": "The competencies are a framework, not proof that a particular student or post demonstrates mastery.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:35.149Z",
+      "final_url": "https://www.naceweb.org/career-readiness/competencies/career-readiness-defined",
+      "http_status": 200,
+      "page_title": "What is Career Readiness?",
+      "summary": "Professional Development Professional Development Career Readiness What Is Career Readiness Career Development Featured Articles Talent Acquisition Featured Articles Public Policy & Legal Featured Articles Career readiness is a foundation from which to demonstrate requisite core competencies that broadly prepare the college educated for success in the workplace and lifelong career management, as defined by the National Association of Colleges and Employers (NACE). For new college graduates, career readiness is key to ensuring successful entrance into the workforce. Career readiness is the foundation upon which a successful career is launched. Career readiness is, quite simply, the new career currency. For higher education, career readiness provides a framework for addressing career-related",
+      "chunks": [
+        "Professional Development Professional Development Career Readiness What Is Career Readiness Career Development Featured Articles Talent Acquisition Featured Articles Public Policy & Legal Featured Articles Career readiness is a foundation from which to demonstrate requisite core competencies that broadly prepare the college educated for success in the workplace and lifelong career management, as defined by the National Association of Colleges and Employers (NACE). For new college graduates, career readiness is key to ensuring successful entrance into the workforce. Career readiness is the foundation upon which a successful career is launched. Career readiness is, quite simply, the new career currency. For higher education, career readiness provides a framework for addressing career-related goals and outcomes of curricular and extracurricular activities, regardless of the student&rsquo;s field of study. For employers, career readiness plays an important role in sourcing talent, providing a means of identifying key skills and abilities across all job functions; similarly, career readiness offers employers a framework for developing talent through internship and other experiential education programs. There are eight career readiness competencies , each of which can be demonstrated in a variety of ways. Review a definition of each competency below as well as download supplemental materials to support and incorporate into your initiatives.",
+        "Looking for separate files for each competency? Review each one below to download its individual definition and icon set. Download support materials (all eight competencies included) Explore all eight career readiness competencies Equity + Inclusion (*The E&I competency is currently under review. Further details are below.) Proactively develop oneself and one&rsquo;s career through continual personal and professional learning, awareness of one&rsquo;s strengths and weaknesses, navigation of career opportunities, and networking to build relationships within and without one&rsquo;s organization. Show an awareness of own strengths and areas for development. Identify areas for continual growth while pursuing and applying feedback. Develop plans and goals for one&rsquo;s future career. Professionally advocate for oneself and others. Display curiosity; seek out opportunities to learn. Assume duties or positions that will help one progress professionally. Establish, maintain, and/or leverage relationships with people who can help one professionally. Seek and embrace development opportunities. Voluntarily participate in further education, training, or other events to support one&rsquo;s career. Clearly and effectively exchange information, ideas, facts, and perspectives with persons inside and outside of an organization. Understand the importance of and demonstrate verbal, written, and non-verbal/body language, abilities. Employ active listening, persuasion, and influencing skills.",
+        "Communicate in a clear and organized manner so that others can effectively understand. Frame communication with respect to diversity of learning styles, varied individual communication abilities, and cultural differences. Ask appropriate questions for specific information from supervisors, specialists, and others. Promptly inform relevant others when needing guidance with assigned tasks. Identify and respond to needs based upon an understanding of situational context and logical analysis of relevant information. Make decisions and solve problems using sound, inclusive reasoning and judgment. Gather and analyze information from a diverse set of sources and individuals to fully understand a problem. Proactively anticipate needs and prioritize action steps. Accurately summarize and interpret data with an awareness of personal biases that may impact outcomes. Effectively communicate actions and rationale, recognizing the diverse perspectives and lived experiences of stakeholders. Multi-task well in a fast-paced environment. The E&I competency is currently under review *. Further details are below. Demonstrate the awareness, attitude, knowledge, and skills required to equitably engage and include people from different cultures and backgrounds.. Engage in anti-oppressive practices that actively challenge the systems, structures, and policies of racism and inequity. Solicit and use feedback from multiple cultural perspectives to make inclusive and equity-minded decisions."
+      ],
+      "page_content_hash": "a2eac7e6179058ca33152490f0d46f42e3a2c60be9adcf2dcade2d6875119bd2",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "nace-career-readiness-resources",
+      "title": "Career Readiness Resources",
+      "publisher": "National Association of Colleges and Employers",
+      "url": "https://www.naceweb.org/career-readiness/resources",
+      "source_class": "career_framework",
+      "authority": "professional_association",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "career_identity",
+        "intern_life"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "workplace_uncertain"
+      ],
+      "series": [
+        "Close the Proof Gap",
+        "Internship Reality Check",
+        "Return Offer Signal Check"
+      ],
+      "use_for": "Locate assessment and reflection materials that turn broad competencies into observable behaviors.",
+      "evidence_boundary": "Third-party contributed materials require their own attribution and review before reuse.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:36.338Z",
+      "final_url": "https://www.naceweb.org/career-readiness/resources",
+      "http_status": 200,
+      "page_title": "Career Readiness Resources",
+      "summary": "Professional Development Professional Development Career Readiness What Is Career Readiness Career Development Featured Articles Talent Acquisition Featured Articles Public Policy & Legal Featured Articles With NACE&rsquo;s groundbreaking Competency Assessment Tool, you now have a way to assess students, job candidates, interns, and new hires&rsquo; proficiency in the NACE Competencies. With the assessment results, you&rsquo;re able to provide specific, actionable feedback that can be used to develop a clear and intentional career readiness plan, tailored to the job seeker&rsquo;s goals. Many of the materials provided here have been shared by NACE members. Please provide attribution to the original source if you use or adapt a resource. BAC Syllabus: Courtesy of University of Tampa Career ",
+      "chunks": [
+        "Professional Development Professional Development Career Readiness What Is Career Readiness Career Development Featured Articles Talent Acquisition Featured Articles Public Policy & Legal Featured Articles With NACE&rsquo;s groundbreaking Competency Assessment Tool, you now have a way to assess students, job candidates, interns, and new hires&rsquo; proficiency in the NACE Competencies. With the assessment results, you&rsquo;re able to provide specific, actionable feedback that can be used to develop a clear and intentional career readiness plan, tailored to the job seeker&rsquo;s goals. Many of the materials provided here have been shared by NACE members. Please provide attribution to the original source if you use or adapt a resource. BAC Syllabus: Courtesy of University of Tampa Career & Life Studies Syllabus: Courtesy of University of Delaware Career Readiness Competencies Flyer: Courtesy of University of Montana Career Readiness Mapping Journal: Courtesy of University of Tampa Career Readiness: Competencies for a Career-Ready Workforce Internship Evaluation: Courtesy of Bryant University NACE Career Readiness Competency Icon Set Professional Skills Self-Reflection Percent of colleges implementing career readiness competencies Percent of colleges implementing competencies institution-wide Percent of Gen Z experiential learners satisfied with their careers",
+        "Percent of business faculty who report that their institution has aligned career readiness competencies with experiential learning NACE believes in a world that is inclusive in approach and where opportunity and access exist for all."
+      ],
+      "page_content_hash": "3735df31efe138abe557fd534dfa7712d4560f62eb52aabfbb178850b6df384c",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "onet-online",
+      "title": "O*NET OnLine",
+      "publisher": "U.S. Department of Labor / National Center for O*NET Development",
+      "url": "https://www.onetonline.org/",
+      "source_class": "occupational_data",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "career_identity",
+        "resume_and_application"
+      ],
+      "audience_states": [
+        "role_uncertain",
+        "proof_gap"
+      ],
+      "series": [
+        "Close the Proof Gap",
+        "No Internship, Still Build Proof",
+        "Community College and Transfer Proof"
+      ],
+      "use_for": "Ground role, task, skill, technology, and related-occupation language in occupational data.",
+      "evidence_boundary": "Occupation-level descriptors do not establish the requirements of a specific opening.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:36.975Z",
+      "final_url": "https://www.onetonline.org/",
+      "http_status": 200,
+      "page_title": "O*NET OnLine",
+      "summary": "Type a title or code for matches Help OnLine Help About O*NET OnLine Desk Aid Job-Coding Guide Job Seeker Help Related Sites Home Find Occupations Bright Outlook Career Cluster Hot Technologies Industry Job Family Job Zone STEM All Occupations Advanced Searches Job Duties Professional Associations Related Activities Soft Skills Software Skills O*NET Data Occupational Requirements Work Activities Work Context Worker Requirements Software Skills Essential Skills Transferable Skills Knowledge Worker Characteristics Abilities Career Interest Types Specific Interest Areas Work Styles Crosswalks Military Education Occupation Handbook SOC DOT RAPIDS ESCO Share Facebook X LinkedIn Reddit Email Sites O*NET Interest Profiler My Next Move Mi Próximo Paso My Next Move for Veterans Resource Center O*NE",
+      "chunks": [
+        "Type a title or code for matches Help OnLine Help About O*NET OnLine Desk Aid Job-Coding Guide Job Seeker Help Related Sites Home Find Occupations Bright Outlook Career Cluster Hot Technologies Industry Job Family Job Zone STEM All Occupations Advanced Searches Job Duties Professional Associations Related Activities Soft Skills Software Skills O*NET Data Occupational Requirements Work Activities Work Context Worker Requirements Software Skills Essential Skills Transferable Skills Knowledge Worker Characteristics Abilities Career Interest Types Specific Interest Areas Work Styles Crosswalks Military Education Occupation Handbook SOC DOT RAPIDS ESCO Share Facebook X LinkedIn Reddit Email Sites O*NET Interest Profiler My Next Move Mi Próximo Paso My Next Move for Veterans Resource Center O*NET Web Services Partner sites Data Collection Program U.S. Department of Labor Related Sites Welcome to your tool for career exploration and job analysis! O*NET OnLine has detailed descriptions of the world of work for use by job seekers, workforce development and HR professionals, students, developers, researchers, and more! Find, search, or browse across 900+ occupations based on your goals and needs. Then use comprehensive reports to learn about requirements, characteristics, and available opportunities for your selected occupation. Take advantage of the customized OnLine Help feature available throughout the site. Or, use the available Desk Aid . Build your future with O*NET OnLine!",
+        "Bright Outlook occupations are expected to grow rapidly in the next several years, will have large numbers of job openings, or are new and emerging occupations. The National Career Clusters® Framework external site serves as an organizing tool for programs, curriculum design and instruction. Career Clusters contain occupations in the same field of work that require similar skills. They can help focus plans towards obtaining the necessary knowledge, competencies, and training for success in a particular career pathway. Hot technologies are software skills frequently included in employer job postings. Industries are broad groups of businesses or organizations with similar activities, products, or services. Occupations are included based on the percentage of workers employed in that industry. Job Families are groups of occupations based on work performed, skills, education, training, and credentials. Job Zones group occupations into one of five categories based on levels of education, experience, and training necessary to perform the occupation. Occupations are listed that require education in science, technology, engineering, and mathematics (STEM) disciplines. There are 1,016 occupation titles and codes within the current O*NET system. Find an occupation in the list Use your job duties to find occupations that perform similar work. The search uses the O*NET database of over 19,000 occupation-specific task statements.",
+        "Professional associations are a great source of additional information on jobs, specialties, and industries. They also serve as an excellent starting point for networking in your career of choice. Get seamless access to professional associations by searching the O*NET database of almost 3,000 organizations related to the occupations in the U.S. economy. Use activities performed across different types of jobs to find occupations. The search uses the O*NET database of over 2,000 detailed work activities performed across a small to moderate number of occupations. Many employers value workers with soft skills—interpersonal and thinking skills needed to interact successfully with people and to perform efficiently and effectively in the workplace. Find occupations using your current and/or future soft skills. Find occupations using specific programs and applications for work tasks. Learn about the technology and related skills needed to successfully perform in today’s world of work. Our O*NET information portal has data and tools for workforce professionals and developers, including: Find more options on the home page , or search the site: Stay up to date with product releases, new features, database updates, and other important O*NET project developments."
+      ],
+      "page_content_hash": "e041d51f3ff8944a9f02ebc51c90bb0b517b4ef131bebee63c1db548779d0f02",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "bls-how-to-find-a-job",
+      "title": "How to find a job",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "url": "https://www.bls.gov/ooh/how-to-find-a-job/",
+      "source_class": "occupational_data",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "career_identity",
+        "opportunity_alert",
+        "resume_and_application"
+      ],
+      "audience_states": [
+        "role_uncertain",
+        "late_or_urgent",
+        "overwhelmed"
+      ],
+      "series": [
+        "Application Leak Check",
+        "Opportunity Radar",
+        "Small Employer Radar"
+      ],
+      "use_for": "Connect job-search content to occupational outlook, wage, location, and preparation data.",
+      "evidence_boundary": "Labor-market aggregates do not predict an individual's outcome or verify a live vacancy.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:43.370Z",
+      "final_url": "https://www.bls.gov/ooh/how-to-find-a-job/",
+      "http_status": 200,
+      "page_title": "How to find a job : Occupational Outlook Handbook: : U.S. Bureau of Labor Statistics",
+      "summary": "An official website of the United States government Here is how you know The .gov means it's official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you're on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Search button Search: Release Calendar | Subscribe Employer Costs for Employee Compensation Wage Records from Unemployment Insurance State & Local Unemployment Rates Job Openings & Labor Turnover Survey Labor and Total Factor Productivity International Technical Cooperation Data Tools Data Retrieval Tools Top Picks, One Screen, Multi-Screen, and Maps Charts for Economic News Releases Emplo",
+      "chunks": [
+        "An official website of the United States government Here is how you know The .gov means it's official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you're on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Search button Search: Release Calendar | Subscribe Employer Costs for Employee Compensation Wage Records from Unemployment Insurance State & Local Unemployment Rates Job Openings & Labor Turnover Survey Labor and Total Factor Productivity International Technical Cooperation Data Tools Data Retrieval Tools Top Picks, One Screen, Multi-Screen, and Maps Charts for Economic News Releases Employment and Wages Data Viewer Industry Finder from the Quarterly Census of Employment and Wages Regions, States & Areas at a Glance Publications Latest Publications Economic Releases Latest Releases Pay & Benefits & Workplace Injuries Classroom K-12 Student & Teacher Resources The U.S. Bureau of Labor Statistics (BLS) can help you explore occupations, glimpse job outlook, and find wage data for where you live or work. BLS information includes detail on the education, training, and experience typically required for hundreds of occupations. Read on to discover a few of the ways you can use BLS data in your job search.",
+        "Learning about occupations is easy using the Occupational Outlook Handbook (OOH) . To help you get started, the OOH homepage has quick links to hot topics like the highest paying occupations and those with the fastest projected growth . You can also select different combinations of pay ranges, education and training requirements, and projections data for a list of occupations that meet your criteria. Understanding wages where you live and work The Occupational Employment and Wages Statistics (OEWS) program produces employment and wage estimates for occupations. These estimates are available for each occupation at the national, state, and metropolitan and nonmetropolitan area levels. You can use the OEWS Occupational Profiles to discover top-paying industries and geographic areas&mdash;or use OEWS estimates to explore the top-paying occupations for your area . How much could I be earning? Using OEWS data during salary negotiations ( HTML ) ( PDF ) Where are the jobs in my field? How OEWS can take the mystery out of your job search ( HTML ) ( PDF ) Uncovering occupational requirements The Occupational Requirement Survey (ORS) provides job-related information regarding physical demands; environmental conditions; education, training, and experience; and cognitive and mental requirements for jobs in the U.S. economy. Using U.S. Department of Labor resources",
+        "The U.S. Department of Labor (DOL) , the parent agency of BLS, offers additional information for jobseekers. For example, CareerOneStop Job Search resources can help with preparing a resume, networking, interviewing, negotiating salary, finding job openings, and more. Bureau of Labor Statistics, U.S. Department of Labor, Occupational Outlook Handbook , How to find a job, at [link redacted] (visited July 05, 2026 ). Last modified date: June 18, 2025 Privacy and Security Statement"
+      ],
+      "page_content_hash": "e7259b051116f4ac5a67537e1eb3a725da5d87309a93adcc682ac8b5b4e83a31",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "careeronestop-job-search",
+      "title": "Job Search",
+      "publisher": "CareerOneStop",
+      "url": "https://www.careeronestop.org/JobSearch/job-search.aspx",
+      "source_class": "job_search_guidance",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "resume_and_application",
+        "networking",
+        "interview",
+        "opportunity_alert"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "socially_uncertain",
+        "interview_uncertain",
+        "overwhelmed",
+        "late_or_urgent"
+      ],
+      "series": [
+        "Application Leak Check",
+        "Coffee Chat Without the Cringe",
+        "Opportunity Radar",
+        "Interview Process, Not Perfect Answers",
+        "Small Employer Radar"
+      ],
+      "use_for": "Ground job-search planning, networking, applications, interviews, salary, and local-help actions.",
+      "evidence_boundary": "General process guidance does not verify a specific employer, claim, or opportunity.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "failed",
+      "retrieved_at": "2026-07-17T23:19:43.615Z",
+      "final_url": null,
+      "http_status": 200,
+      "page_title": "",
+      "summary": "",
+      "chunks": [],
+      "page_content_hash": null,
+      "failure_reason": "insufficient_reviewed_text"
+    },
+    {
+      "resource_id": "careeronestop-resume-formatting",
+      "title": "Resume Guide: Formatting",
+      "publisher": "CareerOneStop",
+      "url": "https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx",
+      "source_class": "job_search_guidance",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "resume_and_application",
+        "ai_job_search"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "authenticity_uncertain"
+      ],
+      "series": [
+        "Close the Proof Gap",
+        "Application Leak Check",
+        "AI, But Keep It True"
+      ],
+      "use_for": "Ground readable resume structure, ATS-safe layout, and anti-gimmick guidance.",
+      "evidence_boundary": "Formatting guidance does not establish that any single ATS will parse or rank a resume in a particular way.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:43.815Z",
+      "final_url": "https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx",
+      "http_status": 200,
+      "page_title": "Formatting | Resume Guide | CareerOneStop",
+      "summary": "Sample resumes to help you create your best resume.",
+      "chunks": [
+        "Format your resume professionally to make a great impression. For the hiring managers, HR staff, and recruiters who read sometimes hundreds of resumes a day, resume formatting is a frequent source of frustration: applicants use too many different fonts, make punctuation errors, leave inconsistent and messy spacing, etc. How can you make sure reviewers who see your resume want to keep reading? Your resume should be easy to read, emphasize the most important information, and leave a positive impression of you, the applicant. Follow these detailed tips to format your resume like an expert: There are three basic resume styles, or formats: chronological, functional, and combination. Choose the style that will best feature your work experience and skills. A chronological format emphasizes your work history. It’s a good choice for those who have a solid work history and are staying in the same field. See chronological resume sample . A functional format emphasizes skills and experience, with little detail on work history. However, without a detailed work history, the resume may be misinterpreted by employers, or rejected by applicant tracking systems (ATS), used by many employers to screen applications. See functional resume sample .",
+        "A combination format works well for most people. The combination style includes a summary section at the top, may also have a skills section, but also includes a detailed work history. This format works well to highlight transferable skills from paid and unpaid work, refocus your experience for a career change, or minimize work gaps. See combination resume sample . Your resume layout should be clean and consistent. Since ATS systems scan resumes left to right, start with a simple, single-column layout so your resume is read accurately. Resume length should be 1-2 pages. Only use 2 pages if necessary due to your amount of experience. Use standard section headings like \"Work Experience,\" \"Education,\" and \"Skills\" so both human readers and ATS can quickly find information. Use the same amount of space before and after headings, between bullets, etc. for a clean, uniform look. Use 1-inch margins to allow for white space. Avoid using tables, text boxes, logos, columns, images, and graphics, as ATS may scramble the content. Avoid putting important information in the header or footer, since some ATS systems cannot read text placed inside these. Lines and borders may be used as long as they do not touch any text. Your font choice makes a big impact on the readability of your resume . Use standard, professional fonts for the best results.",
+        "If a font is not specified, use a basic font such as Calibri, Arial, Georgia, Garamond, or Times New Roman, with font size of 10 -12. Do not use extra spaces or special characters in your name. The font used for section headings can be a few points larger than other text. Use only one font throughout the resume, or choose a second font to use only for headings. More than that is distracting. The use of bold or all capital letters is fine but avoid or minimize the use of italics and underline. Keep your use of bold consistent and only for points of emphasis, such as your name, section headings, job title, and degree/credentials. Putting extra keywords in a white font on your resume will not \"trick\" an ATS. For dates, use the standard format MM/DD/YYYY or Month, YYYY; avoid abbreviations, such as ’19. Include the exact dates you began and ended each job, or number of years you used a particular skill, even if you must estimate it. An ATS may assign you a \"default\" time, such as 6 months, if you have not specified one. Spell out acronyms for readers who are not familiar with your field. For example, “CPA” is fine to use to stand in for “Certified Public Accountant”, but spell out very specific or unfamiliar terms e.g., \"Certified Information Systems Auditor (CISA)”. Using bullets to list details in each section helps to highlight key points and can make complex information easier to read."
+      ],
+      "page_content_hash": "e025d21950d303e15bf913cdb67f565fa743d9323d0284607156c7469c08f2b0",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "apprenticeship-career-seekers",
+      "title": "Career Seekers",
+      "publisher": "Apprenticeship.gov",
+      "url": "https://www.apprenticeship.gov/career-seekers",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "career_identity",
+        "resume_and_application"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "late_or_urgent",
+        "access_constrained",
+        "role_uncertain"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "No Internship, Still Build Proof",
+        "Can I Afford This Internship?",
+        "Small Employer Radar",
+        "Community College and Transfer Proof"
+      ],
+      "use_for": "Route students to paid work-based learning, mentors, progressive wages, and portable credentials.",
+      "evidence_boundary": "Availability, registration status, pay, and eligibility must be checked on each current listing.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:44.400Z",
+      "final_url": "https://www.apprenticeship.gov/career-seekers",
+      "http_status": 200,
+      "page_title": "Career Seekers | Apprenticeship.gov",
+      "summary": "With Apprenticeship.gov, you have a one stop source to find apprenticeship opportunities and learn about apprenticeship and its benefits.",
+      "chunks": [
+        "An official website of the United States government Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Career Seekers Information Become an Apprentice Tools Apprenticeship Job Finder Employers Information Explore Registered Apprenticeship Equal Employment Opportunity for Sponsors - Under Construction AI in Registered Apprenticeship Innovation Portal Tools Express Interest in Starting a Program Educators Information Educators in Apprenticeship Apprenticeship for Young People Resources Information Apprenticeship Industries Delivering Apprenticeships Virtually Fact Sheets, Videos, Research, and More Public Service Apprenticeship Programs Investments, Tax Credits, and Tuition Support Registered Apprenticeship Program Key Initiatives National Apprenticeship Week Program Registration Monthly “Shot Clock” Apprenticeship Tools Apprenticeship Job Finder Express Interest In Starting a Program for Employers About Us Office of Apprenticeship About Us Legislation, Regulations, and Guidance Jump Start Your Career Through Apprenticeship Click find an apprenticeship, search for an opportunity, and apply directly with the employer or the program sponsor. Career Seekers with Barriers to Employment Apprenticeships for Young People",
+        "When you're ready, you're ready. Why wait years to gain skills and unleash your potential when you can start now? Become an apprentice to get started in the career you're planning for, today. What is Registered Apprenticeship? Registered Apprenticeship is an industry-driven, high-quality career pathway where employers can develop and prepare their future workforce, and individuals can obtain paid work experience with a mentor, receive progressive wage increases, classroom instruction, and a portable, nationally-recognized credential. Earn a competitive wage from day one Gain knowledge from on-the-job learning and job-related classroom training Earn a portable credential within your industry Earn as you learn with a guaranteed wage increase as you develop new skills Receive an industry-recognized and nationally-portable credential Gain workplace-relevant skills in the field of your choice through on-the-job learning Apprenticeship opportunities are offered through an employer or the program sponsor. To become an apprentice, search for an opportunity using our Apprenticeship Job Finder and apply directly with the employer or the program sponsor. Questions about a specific opportunity? Contact the employer or the program sponsor for more information. If you are interested in seeking an apprenticeship but need more guidance, find an American Job Center near you . They help businesses find qualified workers and can help you obtain an apprenticeship to enhance your career.",
+        "Ready to jumpstart your career in a high demand field? Find your desired opportunity using the Apprenticeship Finder. Sign up for the Apprenticeship Newsletter Contact the Office of Apprenticeship Stay connected for important news and updates from Apprenticeship.gov NOTE: This video is not meant to be construed as an official U.S. Department of Labor endorsement of the company, its products, or services. THANK YOU FOR VISITING OUR WEBSITE You are exiting the Department of Labor’s web server. The Department of Labor does not endorse, takes no responsibility for, and exercises no control over the linked organization or its views, or contents, nor does it vouch for the accuracy or accessibility of the information contained on the destination server. The Department of Labor also cannot authorize the use of copyrighted materials contained in the linked websites. Users must request such authorization from the sponsor of the linked website. Thank you for visiting our site. Please click the link below to continue."
+      ],
+      "page_content_hash": "a56d0743d44ea01202d03afc661c56e905b16e965b4941bb7db51ed63c8d81d9",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "usajobs-students",
+      "title": "Students",
+      "publisher": "USAJOBS",
+      "url": "https://help.usajobs.gov/working-in-government/unique-hiring-paths/students",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "career_identity"
+      ],
+      "audience_states": [
+        "late_or_urgent",
+        "role_uncertain",
+        "proof_gap"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "No Internship, Still Build Proof",
+        "Small Employer Radar"
+      ],
+      "use_for": "Ground federal Pathways and other student opportunity discovery in the official hiring surface.",
+      "evidence_boundary": "Program descriptions do not mean a suitable vacancy is currently open; verify each announcement.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:44.849Z",
+      "final_url": "https://help.usajobs.gov/working-in-government/unique-hiring-paths/students",
+      "http_status": 200,
+      "page_title": "USAJOBS Help Center - Students",
+      "summary": "USAJOBS Help Center",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you've safely connected to the .gov website. Share sensitive information only on official, secure websites. Internships and other opportunities for students Pathways Internship Program The Pathways Internship Program is for current students in high school, college, graduate school or a qualifying career or technical education program (which may include Registered Apprenticeship Programs , Job Corps, AmeriCorps, and Peace Corps). Many federal agencies offer this internship program to introduce students to the agency’s work environment and help them explore possible careers in the federal government. This program is a great opportunity to get paid and gain valuable work experience while still in school. If you successfully complete the program, you may be eligible for a full-time position with the federal government after you graduate. Your internship may be part-time or full-time. Your internship work will relate to your academic or career goals and field of study. Each agency that participates in this program will sign an agreement with you outlining expectations. You must be enrolled or accepted for enrollment at least part-time in school or a qualifying career or technical educational program.",
+        "Please contact [email redacted] with any questions related to the Pathways Programs for students or contact the agency listed in the internship announcement for questions about a specific internship. You can also find answers to frequently asked questions about the Pathways program . CyberCorps Scholarship for Service (SFS) program The SFS program is for undergraduate and graduate students pursuing a degree in cybersecurity. SFS provides scholarships for up to three years of support to eligible students in return for a commitment to work for the federal government, in a position related to cybersecurity, after graduation. Learn more about the CyberCorps Scholarship for Service program . Department of Defense student opportunities The Department of Defense (DOD) offers internships, fellowships and apprenticeships for high school, undergraduate and graduate students. Learn more about student opportunities with the DOD . Department of State student internships The Department of State offers internships for undergraduate and graduate students. These internships may have you working in a foreign affairs environment at U.S. embassies or consulates around the world, bureaus in Washington D.C. or Department offices around the U.S. Learn more about the Department of State internships . NASA internships NASA offers several opportunities for high school and undergraduate students to work alongside with research scientists, engineers and other professionals.",
+        "Learn more about NASA internships . Defense Language and National Security Education Boren scholarships and fellowships The Boren Scholarships offer funds to undergraduate students to study abroad and learn less commonly taught languages in world regions that are important to U.S. interests. The Boren Fellowships are for graduate students to research. Learn more about the Boren Scholarships and Fellowships . Department of Energy Office of Science internships The Department of Energy (DOE) Office of Science has two STEM-related internship programs for undergraduate students. Learn more about the DOE community college internship . Learn more about the DOE undergraduate laboratory internship . Department of State Overseas Seasonal Hire Program This program offers job opportunities for high school and college students who are family members of a U.S. government employee assigned to an overseas post under Chief of Mission authority. Learn more about the Overseas Seasonal Hire Program . Why work for the federal government? You can make a difference in our nation and across the world in so many ways—combat climate change, help small businesses, rebuild America’s infrastructure, fight disease and more. Enjoy great benefits and competitive pay We offer flexible workplaces, generous leave, student loan repayment, medical insurance, flexible spending accounts and more. Work schedules and workplace flexibilities Hiring resources to get you started How does the application process work ?"
+      ],
+      "page_content_hash": "4da0144db50604a341447849ee83f5ecfea1df8ebbb6e97d6c5d588d83bc26b7",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "usajobs-recent-graduates",
+      "title": "Recent graduates",
+      "publisher": "USAJOBS",
+      "url": "https://help.usajobs.gov/working-in-government/unique-hiring-paths/recent-graduates",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "career_identity"
+      ],
+      "audience_states": [
+        "late_or_urgent",
+        "role_uncertain"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "Small Employer Radar"
+      ],
+      "use_for": "Route recent graduates to official Pathways and agency-specific public-service programs.",
+      "evidence_boundary": "Eligibility windows and current vacancies must be verified in the live announcement.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:45.675Z",
+      "final_url": "https://help.usajobs.gov/working-in-government/unique-hiring-paths/recent-graduates",
+      "http_status": 200,
+      "page_title": "USAJOBS Help Center - Recent graduates",
+      "summary": "USAJOBS Help Center",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you've safely connected to the .gov website. Share sensitive information only on official, secure websites. Find jobs for recent graduates Pathways Recent Graduates Program The Recent Graduates Program is for those who have graduated, within the past two years, from a qualifying educational institution or career or technical program. This program offers one to two-year developmental experiences in federal agencies. Many federal agencies participate in the Recent Graduates Program and post these opportunities on USAJOBS.gov. You must apply within two years of getting your degree or certificate. If you’re a veteran and you can’t apply due to service obligations, you have up to six years after getting your degree or certificate to apply. Please contact [email redacted] with any issues or questions related to the Pathways Programs for recent graduates or contact the agency listed in the job announcement for questions about a specific recent graduate job. You can also find answers to frequently asked questions about the Pathways Program . The Department of Defense recent graduate opportunities The Department of Defense (DOD) offers several programs and opportunities for recent graduates.",
+        "Learn more about recent graduate opportunities at the Department of Defense . The Department of State recent graduate opportunities The Department of State offers internships, fellowships and other opportunities for recent graduates. Learn more about recent graduate opportunities at the Department of State . The Department of Energy Science Undergraduate Laboratory Internship The Department of Energy (DOE) Office of Science offers a laboratory internship for undergraduates and recent graduates who have a STEM related degree. Learn more about the DOE undergraduate laboratory internship . Why work for the federal government? You can make a difference in our nation and across the world in so many ways. Federal employees work across a variety of career fields to innovate technology, solve national security issues, fight disease combat climate issues, rebuild America’s infrastructure, and more. Enjoy competitive benefits and pay We offer flexible workplaces, student loan repayment and forgiveness, health care benefits, flexible spending accounts, retirement, vacation and more. Work schedules and workplace flexibilities Hiring resources to get you started How do I write a resume for a federal job ? How does the application process work ? What do I need to know about the job announcement ? How is finding a job in the government different than the private sector ? What is the difference between eligibility and qualifications ? Do I need a background check or security clearance ?",
+        "How long does it take to get a federal job ? Peace Corps & AmeriCorps VISTA USAJOBS is a Opens in a new window United States Office of Personnel Management website. Opens in a new window About USAJOBS Opens in a new window Accessibility Opens in a new window Inspector general Opens in a new window No Fear Act Data Opens in a new window Privacy policy Opens in a new window Reports and publications Opens in a new window Terms and conditions"
+      ],
+      "page_content_hash": "e0e4da08e306aedd51bdb39c910c9c3d3fce33ac6a71e3cd489a509dbaa075a8",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "nsf-reu-students",
+      "title": "NSF REU: Information for Students",
+      "publisher": "U.S. National Science Foundation",
+      "url": "https://www.nsf.gov/funding/initiatives/reu/students",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "resume_and_application",
+        "career_identity"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "late_or_urgent",
+        "role_uncertain",
+        "access_constrained"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "No Internship, Still Build Proof",
+        "Can I Afford This Internship?",
+        "Community College and Transfer Proof"
+      ],
+      "use_for": "Ground undergraduate research opportunity discovery, stipend context, and direct-site application routing.",
+      "evidence_boundary": "Students apply to individual sites; eligibility, support, and deadlines vary and must be rechecked.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:45.927Z",
+      "final_url": "https://www.nsf.gov/funding/initiatives/reu/students",
+      "http_status": 200,
+      "page_title": "NSF REU: Information for Students - NSF Research Experiences for Undergraduates | NSF - U.S. National Science Foundation",
+      "summary": "The Research Experiences for Undergraduates (REU) program offers research opportunities to undergraduates in the research areas funded by the U.S. National Science Foundation.",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS. A lock ( ) or https:// means you've safely connected to the .gov website. Share sensitive information only on official, secure websites. Research Experiences for Undergraduates How to Apply Preparing Your Proposal Proposal & Award Policies & Procedures Guide (PAPPG) Additional Resources Research.gov Manage Your Award Getting Started Request a Change to Your Award Focus Areas Major Initiatives Artificial Intelligence Focus Areas Explore All Focus Areas News & Events News & Announcements About About NSF Careers at NSF Our Directorates & Offices How NSF Is Organized Computer & Information Science & Engineering (CISE) International Science & Engineering (OISE) Mathematical & Physical Sciences (MPS) Social, Behavioral & Economic Sciences (SBE) Technology, Innovation & Partnerships (TIP) National Center for Science & Engineering Statistics (NCSES) NSF REU: Information for Students NSF Research Experiences for Undergraduates Search the Directory of REU Sites The U.S. National Science Foundation Research Experiences for Undergraduates (NSF REU) program offers research opportunities to undergraduates in any of the research areas funded by NSF.",
+        "An REU Site typically involves a group of around 10 students who work on related research projects at a host institution based in the United States or sometimes at an international location. At each REU Site, students work closely with faculty and other senior researchers to: Build their knowledge and research skills. Learn about educational and career pathways in STEM. Through an REU Supplement (supplemental funding), faculty or other investigators who hold NSF research grants might also be able to support one or more students to conduct research related to the investigator's NSF-funded research project. Are you interested in other research opportunities outside the REU program? Explore NSF's Information for Undergraduates page. What kind of support is offered? REU participants receive competitive stipends and in many cases assistance with housing, meals and travel. Undergraduates (college and university students) pursuing an associate or bachelor's degree and who are U.S. citizens, permanent residents or U.S. nationals are eligible to apply. Individual REU opportunities may establish additional criteria that further restrict eligibility. To find existing REU Sites, visit the Directory of REU Sites . You can search by research area, location and keyword. Consult STEM faculty at your home college or university about the availability of REU Supplement opportunities.",
+        "You can also find many REU opportunities on the NSF Education and Training Application (ETAP) website. However, not all REU opportunities are advertised there, so you should also consult the Directory of REU Sites. For opportunities that are available on the ETAP website, you can prepare and submit your application there. Visit the Directory of REU Sites Visit the NSF Education and Training Application (ETAP) Explore other opportunities for undergraduates Students must apply directly to REU Sites and REU Supplement opportunities. NSF is not involved in the selection of students or the operation of the REU activities. The institutions and investigators that receive the NSF grants are responsible for managing their REU activities. Students must consult each REU Site or REU Supplement opportunity directly for information and application instructions: For REU Sites : Find websites and contact information for each REU Site in the Directory of REU Sites . For REU Supplements : Faculty and other investigators who have REU Supplement funding connected with their NSF research projects can provide information about how to apply for those opportunities. Application requirements vary for different REU opportunities. Often, they require a resume, statement of interest, transcript and reference letters."
+      ],
+      "page_content_hash": "3f5e2546ed97549e0e081fd6f6887dc989bdb7bb460b73257a70e19d70941c09",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "doe-suli",
+      "title": "Science Undergraduate Laboratory Internships",
+      "publisher": "U.S. Department of Energy Office of Science",
+      "url": "https://science.osti.gov/wdts/suli",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "resume_and_application",
+        "career_identity"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "late_or_urgent",
+        "role_uncertain",
+        "access_constrained"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "No Internship, Still Build Proof",
+        "Can I Afford This Internship?"
+      ],
+      "use_for": "Ground paid national-laboratory internship discovery and the actual application steps.",
+      "evidence_boundary": "Term dates, eligibility, laboratory participation, and application requirements are time-sensitive.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:46.523Z",
+      "final_url": "https://science.osti.gov/wdts/suli",
+      "http_status": 200,
+      "page_title": "Science Undergraduate Laboratory... | U.S. DOE Office of Science (SC)",
+      "summary": "The SULI program is sponsored and managed by the DOE Office of Science’s, Office of Workforce Development for Teachers and Scientists (WDTS) in collaboration with the DOE laboratories/facilities.",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you’ve safely connected to the .gov website. Share sensitive information only on official, secure websites. Scientific and Technical Information Laboratories Ames National Laboratory Brookhaven National Laboratory Fermi National Accelerator Laboratory Lawrence Berkeley National Laboratory Pacific Northwest National Laboratory Princeton Plasma Physics Laboratory SLAC National Accelerator Laboratory Thomas Jefferson National Accelerator Facility Science Features Science Highlights Universities Interactive Grants Map User Facilities User Facilities at a Glance Funding Office of Sponsored Activities Topical Funding Opportunity Awards Award Search / Public Abstracts Digital Research Data Management Acknowledgements of Federal Support Initiatives Artificial Intelligence for Science Biopreparedness Research Virtual Environment (BRaVE) National Virtual Biotechnology Laboratory (NVBL) Quantum Information Science (QIS) Programs Advanced Scientific Computing Research Biological and Environmental Research Workforce Development for Teachers and Scientists Small Business Innovation Research and Small Business Technology Transfer Isotope R&D and Production (IRP) Workforce Development for Teachers and Scientists (WDTS) Science Undergraduate Laboratory Internships (SULI)",
+        "Science Undergraduate Laboratory Internships (SULI) Navigation Science Undergraduate Laboratory Internships (SULI) Where Students Come To Change The World Program Announcements The Science Undergraduate Laboratory Internships (SULI) Program is now open for for applications for the Spring 2027 Term. Applications are due September 30, 2026 at 5:00pm ET. Click here to apply. SULI Application Assistance Workshops and Office hours Application Assistance Workshop-August 13, 2026 at 2:00 p.m. ET Cracking the code to a compliant SULI Application! Get ready to take the next step in your scientific journey! Our Application Assistance Workshop will break down the program requirements and share effective tips to ensure your application is compliant and ready to impress. Register here to secure your spot and power up your application. SULI Office Hours: September 9, September 16, & September 23, 2026 at 2:00 p.m. ET Got SULI questions? We&rsquo;ve got answers! Navigating the application process doesn't have to be a solo journey. Join the program office for our upcoming SULI Office Hours ! We&rsquo;ll be answering live questions about administrative steps, submission details, and everything in between. Both applicants and letter-of-recommendation writers are highly encouraged to attend. Register here to secure your spot and finish your application with confidence!",
+        "The Science Undergraduate Laboratory Internships (SULI) Program is now closed for for applications for the Fall 2026 Term. Review application status here . Are you an undergraduate student or recent graduate who is ready to use your major in a Science, Technology, Engineering, and Math (STEM) field or science policy to help make a difference in the world? Then the Science Undergraduate Laboratory Internship (SULI) is for you! When you join SULI, you&rsquo;ll be part of a Department of Energy (DOE) team that&rsquo;s working together to advance scientific impact and discovery. Expand your skills and knowledge at a DOE national laboratory using state-of-the-art facilities and advanced scientific instruments. Each year, students from around the country participate in SULI at one of the 17 participating DOE laboratories/facilities. In this comprehensive internship, you&rsquo;ll be mentored by a leading science expert who will guide you in a specific research area to gain maximum exposure to one of the many science and technology areas that underpin the U.S. Department of Energy&rsquo;s (DOE&rsquo;s) missions. This is an opportunity for you to enhance your professional network and develop your interests in state-of-the-art research facilities and to enhance your professional network."
+      ],
+      "page_content_hash": "e6466cfd15c9a12dfe2a79a098ff3f4a4468e8e516f654b38fe731367588b010",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "nasa-internships",
+      "title": "NASA Internship Programs",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/learning-resources/internship-programs/",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "career_identity"
+      ],
+      "audience_states": [
+        "late_or_urgent",
+        "role_uncertain",
+        "proof_gap"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "No Internship, Still Build Proof"
+      ],
+      "use_for": "Distinguish short-term OSTEM projects from Pathways employment and route to official application details.",
+      "evidence_boundary": "Deadlines, eligibility, program structure, and openings change by term and must be rechecked.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:47.421Z",
+      "final_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+      "http_status": 200,
+      "page_title": "NASA Internship Programs - NASA",
+      "summary": "NASA’s internship programs provide training, mentoring, and career development opportunities while working with the best science, engineering, financial, information technology and business minds in the world.",
+      "chunks": [
+        "NASA Study Finds Near-Earth Asteroid Is Actually Comet How NASA’s Artemis III Lander Test Will Pave Way for Moon Landings What’s Up: July 2026 Skywatching Tips from NASA Upcoming Launches and Landings The Search for Life in the Universe Biological & Physical Sciences Technology Transfer & Spinoffs Requests for Exhibits, Artifacts, Speakers & Flyovers NASA’s Psyche Mission Delivers Mars Flyby Data, Time-lapse Video NASA’s Webb Discovers Hidden Planet in Famous Star System NASA’s Perseverance Rover Reads Record of Ancient Mars Impacts Establishing a VTE Risk Score for Astronauts Algorithm NASA Seeks Industry Input on Second Phase of Commercial Space Stations NASA Seeks Volunteers for New Yearlong Simulated Moon, Mars Mission Amendment 62: New Opportunity: A.13 Accelerating Earth Solutions A Tide-Fueled Trove of Biodiversity in Guinea-Bissau NASA Study of Pristine Meteorite Adds to Story of Ancient Asteroids NASA’s Roman Telescope Will Spot Distant Black Holes That Shred Stars NASA’s Hubble Discovers First of Star Cluster’s Missing Black Holes NASA Uses Subscale Aircraft to Accelerate Flight Innovation NASA Study Points to Smoother Air Taxi Rides Ontario Wildfire Smoke Moves East Space Storm Solar Sail Sentinel (S5) Space Out This Summer with Variety of NASA STEM Activities La NASA anuncia la cobertura de la misión lunar Artemis II Agenda diaria de la misión a la Luna de Artemis II de la NASA La NASA refuerza Artemis: añade una misión y perfecciona su arquitectura general",
+        "At NASA, we explore the extraordinary every day and our work is more than just a profession—it’s a lifelong pursuit and a passion. NASA offers students challenging projects and on-the-job experiences, building confidence, essential technical skills, and career readiness, all essential for the nation’s workforce. NASA offers two major internship programs for students: Office of STEM Engagement (OSTEM) Internships and Pathways Internships. Both provide the chance to work with NASA experts and contribute to real missions. Although they operate differently, OSTEM and Pathways are connected parts of NASA’s workforce pipeline: &#8211; OSTEM builds technical skills and gives students hands‑on exposure to NASA missions. &#8211; Pathways offers a structured employment pipeline into civil service. Together, they help NASA grow a mission‑ready future workforce. NASA’s Office of STEM Engagement provides, annually, more than 2,000 students the opportunity to impact the agency’s mission through a hands-on internship. The Pathways program offers current students and recent graduates paid internships that are direct pipelines to full-time employment at NASA upon graduation. The majority of interns receive a paid stipend award, which is based on academic level and session duration. Interns will work with the guidance of mentors from NASA on agency projects.",
+        "NASA interns prepare for a successful entry into the nation’s workforce by learning key technical skills and career readiness competencies, while contributing to NASA’s mission. NASA interns typically work during the hours of 8 a.m. to 5 p.m., Monday &#8211; Friday, unless stated in the project description. NASA offers internships for non-STEM majors. Even if you are not a science or engineering student, you can get an internship at NASA! Paid internships that allow college-level students to contribute to the agency’s mission to advance science, technology, aeronautics, and space exploration. OSTEM Internships offer short‑term, hands‑on opportunities for students to work on real NASA projects. These experiences help to build technical and professional skills while learning from NASA mentors. Join our NASA team and gain valuable on-the-job experience, build your resume, and strengthen your career readiness. We offer three sessions annually, so visit our website often for opportunities. Spring 2027 Application Deadline: September 14, 2026 (11:59 p.m. ET) Summer 2027 Application Deadline: February 26, 2027 (11:59 p.m. ET) Fall 2027 Application Deadline: May 21, 2027 (11:59 p.m. ET) Paid internships that are direct pipelines to full-time employment at NASA upon graduation."
+      ],
+      "page_content_hash": "04df9f43a057a319a312e1d757b1e6c0ed6c40cdbb3b032ea802161b64c06d38",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "nih-summer-internship-program",
+      "title": "Summer Internship Program",
+      "publisher": "National Institutes of Health Office of Intramural Training and Education",
+      "url": "https://www.training.nih.gov/research-training/pb/sip/",
+      "source_class": "opportunity_directory",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "resume_and_application",
+        "networking",
+        "career_identity"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "late_or_urgent",
+        "socially_uncertain",
+        "role_uncertain"
+      ],
+      "series": [
+        "Opportunity Radar",
+        "Coffee Chat Without the Cringe",
+        "No Internship, Still Build Proof"
+      ],
+      "use_for": "Ground research-internship eligibility, materials, mentor outreach, and selection-process content.",
+      "evidence_boundary": "Program dates, eligibility, compensation, and individual investigator availability must be rechecked.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:47.760Z",
+      "final_url": "https://www.training.nih.gov/research-training/pb/sip/",
+      "http_status": 200,
+      "page_title": "Summer Internship Program (SIP) | Office of Intramural Training & Education at the National Institutes of Health",
+      "summary": "The NIH Summer Internship Program (SIP) offers research experience to high school, college, and graduate students.",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you’ve safely connected to the .gov website. Share sensitive information only on official, secure websites. Research Training Research Training Postbac Undergraduate Scholarship Program IRP policies for trainees and fellows Professional Skills Professional Skills Career readiness Ethics and responsible conduct Careers Careers Career counseling Career exploration & readiness Career counseling or educational advising Well-being Well-being Join webinars and lectures Becoming a Resilience Scientist Series Events Events Upcoming OITE events About OITE About OITE OITE overview Research Training Research Training Postbac Graduate Partnerships Program Postdoc Summer Internship Program Undergraduate Scholarship Program IRP policies for trainees and fellows Professional Skills Professional Skills Career readiness Communication Ethics and responsible conduct Teaching and mentoring Leadership and management Well-being and resilience Careers Careers Career counseling Educational advising Career exploration & readiness Online career resources Search job listings Post a job Book an appointment OITE Careers Blog Well-being Well-being Join webinars and lectures Get individual support Find a small group Connect with community",
+        "Events Events Upcoming OITE events Major OITE events Other Training at NIH About OITE About OITE OITE overview Staff directory Contact us College Students or Recent College Graduates Summer Internship Program (SIP) An opportunity for students in college, graduate, and professional school to perform a summer research internship in the Intramural Research Program at the NIH. Stipend and other compensation Contact NIH Principal Investigators This program is for college, graduate and professional students interested in exploring careers in research and healthcare. These are full-time research positions within one of the NIH Institutes and Centers (IC) in the NIH Intramural Research Program (IRP). Research groups are located on all NIH campuses, including the main campus in Bethesda, MD. Summer interns work in a research group directed by a Principal Investigator (PI). We offer research opportunities in the biomedical, behavioral, and social sciences with opportunities to explore basic, translational, and clinical research. Students interested in biology, engineering, epidemiology, psychology, mathematics, chemistry, pharmaceutical sciences, nursing, physics, computer science, bioinformatics, and other health-related fields are invited to apply. Summer interns may not work in administrative offices or outside of the NIH IRP. In addition to an intensive research experience, our summer interns have access to:",
+        "professional development programs focused on core competencies needed for success in healthcare, research, and other science careers. educational and career programming . a comprehensive well-being and resilience program . We also sponsor a Graduate and Professional School Fair in July and Summer Poster Day in early August, where our interns share their research with the NIH community. To apply for the NIH SIP and SIP subprograms in Summer 2027, you must be a U.S. citizen or permanent resident. In addition, you must be one of the following: 18 years old by September 30, 2027. If you are a graduating high school senior who will be 17 years old as of June 1, 2027 but will turn 18 by September 30, 2027, your permanent home address must be located within 40 miles of an NIH campus. enrolled at least half-time as a senior in high school at the time of application and have graduated high school before the start of the internship. enrolled at least half-time in an accredited community college, college, or university as an undergraduate, graduate, or professional school student at the time of application, accepted into an accredited graduate program for the fall semester with the expectation of attending at least half-time. High school graduates that have completed a single gap year and are starting community college or college in the fall, are also eligible to apply."
+      ],
+      "page_content_hash": "d399ecb0a83beb79948ce36f0d08f081b6cefa09eb3de4f0757dd384f4b519e4",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "ftc-job-scams",
+      "title": "Job Scams",
+      "publisher": "Federal Trade Commission",
+      "url": "https://consumer.ftc.gov/articles/job-scams",
+      "source_class": "rights_and_safety",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "job_search_stress"
+      ],
+      "audience_states": [
+        "safety_uncertain",
+        "late_or_urgent"
+      ],
+      "series": [
+        "Student Scam Check",
+        "Opportunity Radar"
+      ],
+      "use_for": "Ground recruiter, fee, fake-check, personal-information, and reporting red flags.",
+      "evidence_boundary": "A red flag supports caution and verification; it does not by itself prove fraud.",
+      "freshness_policy": "stable_reference",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:49.962Z",
+      "final_url": "https://consumer.ftc.gov/articles/job-scams",
+      "http_status": 200,
+      "page_title": "Job Scams | Consumer Advice",
+      "summary": "Scammers advertise jobs the same way honest employers do — online (in ads, on job sites, and social media), in newspapers, and sometimes on TV and radio. They promise you a job, but what they want is your money and your personal information. Here are some examples of jobs scams and advice on how to avoid them.",
+      "chunks": [
+        "An official website of the United States government The .gov means it’s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Show/hide Shopping and Donating menu items Shopping and Donating Make smart shopping decisions, know your rights, and solve problems when you shop or donate to charity. Are you getting health insurance? Show/hide Credit, Loans, and Debt menu items Credit, Loans, and Debt Learn about getting and using credit, borrowing money, and managing debt. Can you spot debt relief scams that target the military? Show/hide Jobs and Making Money menu items Jobs and Making Money What to know when you're looking for a job or more education, or considering a money-making opportunity or investment. Money-Making Opportunities and Investments With people losing big to investment scams, learn how to spot and avoid them Show/hide Unwanted Calls, Emails, and Texts menu items Unwanted Calls, Emails, and Texts What to do about unwanted calls, emails, and text messages that can be annoying, might be illegal, and are probably scams. View Unwanted Calls, Emails, and Texts Unwanted Emails, Texts, and Mail Ignore calls, texts, and emails threatening to arrest you for missing jury duty",
+        "Show/hide Identity Theft and Online Security menu items Identity Theft and Online Security How to protect your personal information and privacy, stay safe online, and help your kids do the same. View Identity Theft and Online Security How to spot fake rental listings during a military move Search Show/hide Search menu items Items per page [phone redacted]Filters Fulltext search Shopping and Donating Show/hide Shopping and Donating menu items Shopping Credit, Loans, and Debt Show/hide Credit, Loans, and Debt menu items Credit and Debt Jobs and Making Money Show/hide Jobs and Making Money menu items Money-Making Opportunities and Investments Unwanted Calls, Emails, and Texts Show/hide Unwanted Calls, Emails, and Texts menu items Unwanted Calls Identity Theft and Online Security Show/hide Identity Theft and Online Security menu items Identity Theft Scams Show/hide Scams menu items Gift Card Scams Government and Business Impersonators Scams Against Small Businesses What To Do If You Paid a Scammer Looking for a business opportunity? Before you get into any money-making program, read Multi-Level Marketing Businesses and Pyramid Schemes and When a Business Offer or Coaching Program Is a Scam to make sure you’re not getting into a bogus business opportunity or a scam.",
+        "Many people would like to make money working from home. Scammers know this, so they place ads, often online, claiming that they have jobs where you can make thousands of dollars a month working from home with little time and effort. The job could be anything from reshipping products to selling things to people you know . Sometimes the scammers try to get you interested by saying that you can be your own boss , start your own business, or set your own schedule. But instead of making money, you end up paying for starter kits, so-called training, or certifications that are useless. You might also find that your credit card is charged without your permission, or you get caught up in a fake check scam , where you deposit a check from your new employer, the employer then asks you to send some money back due to “overpayment,” but the check will ultimately bounce, and the bank will want you to repay the full amount of the fake check, while the scammers keep the real money you sent them. If someone offers you a job and claims that you can make a lot of money in a short period of time with little work, that’s almost certainly a scam."
+      ],
+      "page_content_hash": "77a482c25bbeb0e5e7ae4dd7034bb47638a0ac66a3c481a0beabc60ed3e56862",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "dol-flsa-internships",
+      "title": "Fact Sheet #71: Internship Programs Under the Fair Labor Standards Act",
+      "publisher": "U.S. Department of Labor Wage and Hour Division",
+      "url": "https://www.dol.gov/agencies/whd/fact-sheets/71-flsa-internships",
+      "source_class": "rights_and_safety",
+      "authority": "us_government",
+      "jurisdiction": "US_federal",
+      "semantic_topics": [
+        "opportunity_alert",
+        "intern_life"
+      ],
+      "audience_states": [
+        "access_constrained",
+        "workplace_uncertain"
+      ],
+      "series": [
+        "Can I Afford This Internship?",
+        "Internship Reality Check"
+      ],
+      "use_for": "Route unpaid-internship questions to the federal primary-beneficiary framework.",
+      "evidence_boundary": "The fact sheet is general information; legal status depends on facts, jurisdiction, and current law.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:51.291Z",
+      "final_url": "https://www.dol.gov/agencies/whd/fact-sheets/71-flsa-internships",
+      "http_status": 200,
+      "page_title": "Fact Sheet #71: Internship Programs Under The Fair Labor Standards Act | U.S. Department of Labor",
+      "summary": "An official website of the United States government. The .gov means it’s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Family and Medical Leave Act (FMLA) Employment of Workers With Disabilities Davis Bacon Prevailing Wage Survey For Employers Compliance Assistance Overview Small Business Compliance Help Administrator Interpretations, Opinion & Ruling Letters Payroll Audit Independent Determination (PAID) Program Compliance Assistance Toolkits New and Small Business Resources Interpretive Guidance Laws and Regulations Adminis",
+      "chunks": [
+        "An official website of the United States government. The .gov means it’s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Family and Medical Leave Act (FMLA) Employment of Workers With Disabilities Davis Bacon Prevailing Wage Survey For Employers Compliance Assistance Overview Small Business Compliance Help Administrator Interpretations, Opinion & Ruling Letters Payroll Audit Independent Determination (PAID) Program Compliance Assistance Toolkits New and Small Business Resources Interpretive Guidance Laws and Regulations Administrator Interpretations, Opinion and Ruling Letters State Laws State Minimum Wage Laws Resources for State and Local Governments UNITED STATES DEPARTMENT OF LABOR Fact Sheet #71: Internship Programs Under The Fair Labor Standards Act This fact sheet provides general information to help determine whether interns and students working for “for-profit” employers are entitled to minimum wages and overtime pay under the Fair Labor Standards Act (FLSA). 1 The Test for Unpaid Interns and Students",
+        "The extent to which the intern and the employer clearly understand that there is no expectation of compensation. Any promise of compensation, express or implied, suggests that the intern is an employee—and vice versa. The extent to which the internship provides training that would be similar to that which would be given in an educational environment, including the clinical and other hands-on training provided by educational institutions. The extent to which the internship is tied to the intern’s formal education program by integrated coursework or the receipt of academic credit. The extent to which the internship accommodates the intern’s academic commitments by corresponding to the academic calendar. The extent to which the internship’s duration is limited to the period in which the internship provides the intern with beneficial learning. The extent to which the intern’s work complements, rather than displaces, the work of paid employees while providing significant educational benefits to the intern. The extent to which the intern and the employer understand that the internship is conducted without entitlement to a paid job at the conclusion of the internship. Courts have described the “primary beneficiary test” as a flexible test, and no single factor is determinative. Accordingly, whether an intern or student is an employee under the FLSA necessarily depends on the unique circumstances of each case.",
+        "If analysis of these circumstances reveals that an intern or student is actually an employee, then he or she is entitled to both minimum wage and overtime pay under the FLSA. On the other hand, if the analysis confirms that the intern or student is not an employee, then he or she is not entitled to either minimum wage or overtime pay under the FLSA. 1 - The FLSA exempts certain people who volunteer to perform services for a state or local government agency or who volunteer for humanitarian purposes for non-profit food banks. WHD also recognizes an exception for individuals who volunteer their time, freely and without anticipation of compensation, for religious, charitable, civic, or humanitarian purposes to non-profit organizations. Unpaid internships for public sector and non-profit charitable organizations, where the intern volunteers without expectation of compensation, are generally permissible. 2 - E.g., Benjamin v. B & H Educ., Inc. , --- F.3d ---, 2017 WL [phone redacted], at *4-5 (9th Cir. Dec. 19, 2017); Glatt v. Fox Searchlight Pictures, Inc. , 811 F.3d 528, 536-37 (2d Cir. 2016); Schumann v. Collier Anesthesia , P.A., 803 F.3d 1199, [phone redacted]th Cir. 2015); see also Walling v. Portland Terminal Co. , 330 U.S. 148, [phone redacted]; Solis v. Laurelbrook Sanitarium & Sch., Inc. , 642 F.3d 518, 529 (6th Cir. 2011). Where to Obtain Additional Information"
+      ],
+      "page_content_hash": "345796451dbb7fae789027005e4dee3c4140f08415bb7557f2035f945b41fd78",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "uscis-practical-training",
+      "title": "Chapter 5 - Practical Training",
+      "publisher": "U.S. Citizenship and Immigration Services",
+      "url": "https://www.uscis.gov/node/92821",
+      "source_class": "work_authorization",
+      "authority": "us_government",
+      "jurisdiction": "US_federal",
+      "semantic_topics": [
+        "opportunity_alert",
+        "career_identity"
+      ],
+      "audience_states": [
+        "work_authorization_uncertain"
+      ],
+      "series": [
+        "CPT and OPT Question Router",
+        "Opportunity Radar"
+      ],
+      "use_for": "Route CPT, OPT, and STEM OPT questions to current USCIS guidance and a student's DSO.",
+      "evidence_boundary": "This catalog cannot provide legal advice or determine an individual's authorization or eligibility.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:52.000Z",
+      "final_url": "https://www.uscis.gov/policy-manual/volume-2-part-f-chapter-5",
+      "http_status": 200,
+      "page_title": "Chapter 5 - Practical Training | USCIS",
+      "summary": "A. GeneralPractical training (PT) is employment that is directly related to a student’s major area of study.",
+      "chunks": [
+        "Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you've safely connected to the .gov website. Share sensitive information only on official, secure websites. Family of Green Card Holders (Permanent Residents) Family of Refugees and Asylees Citizenship for Military Family Members Naturalization Through Military Service Temporary (Nonimmigrant) Workers I-9, Employment Eligibility Verification I-485, Application to Register Permanent Residence or Adjust Status I-765, Application for Employment Authorization I-90, Application to Replace Permanent Resident Card (Green Card) N-400, Application for Naturalization I-129F, Petition for Alien Fiancé(e) I-130, Petition for Alien Relative I-360, Petition for Amerasian, Widow(er), or Special Immigrant I-600, Petition to Classify Orphan as an Immediate Relative I-751, Petition to Remove Conditions on Residence I-129, Petition for a Nonimmigrant Worker I-140, Immigrant Petition for Alien Workers I-526, Immigrant Petition by Standalone Investor I-539, Application to Extend/Change Nonimmigrant Status I-589, Application for Asylum and for Withholding of Removal I-730, Refugee/Asylee Relative Petition I-821, Application for Temporary Protected Status Speeches, Statements, Testimony Educational Products for Educators Resources for Educational Programs Naturalization-Related Data and Statistics",
+        "Green Card Processes and Procedures After We Grant Your Green Card Employment Authorization Document Visa Availability and Priority Dates Green Card Eligibility Categories While Your Green Card Application Is Pending with USCIS Immigration and Nationality Act Class Action, Settlement Notices and Agreements Unlawful Presence and Inadmissibility Alien Registration Requirement Online Account and Technical Support Immigration and Citizenship Data Volume 1 - General Policies and Procedures Volume 2 - Nonimmigrants Part A - Nonimmigrant Policies and Procedures Part B - Diplomatic and International Organization Personnel (A, G) Part C - Visitors for Business or Tourism (B) Part D - Exchange Visitors (J) Part E - Cultural Visitors (Q) Part F - Students (F, M) Chapter 1 - Purpose and Background Chapter 2 - Eligibility Requirements Chapter 3 - Courses and Enrollment, Full Course of Study, and Reduced Course Load Chapter 5 - Practical Training Chapter 7 - Absences From the United States Chapter 8 - Change of Status, Extension of Stay, and Length of Stay Part G - Treaty Traders and Treaty Investors (E-1, E-2) Part H - Specialty Occupation Workers (H-1B, E-3) Part I - Temporary Agricultural and Nonagricultural Workers (H-2) Part K - Media Representatives (I) Part L - Intracompany Transferees (L) Part M - Nonimmigrants of Extraordinary Ability or Achievement (O) Part N - Athletes and Entertainers (P) Part O - Religious Workers (R) Part P - USMCA Professionals (TN)",
+        "Part Q - Nonimmigrants Intending to Adjust Status (K, V) Volume 3 - Humanitarian Protection and Parole Volume 4 - Refugees and Asylees Volume 7 - Adjustment of Status Volume 9 - Waivers and Other Forms of Relief Volume 10 - Employment Authorization Volume 11 - Travel and Identity Documents Volume 12 - Citizenship and Naturalization Practical training (PT) is employment that is directly related to a student’s major area of study. [1] F-1 students may engage in three types of PT: Curricular Practical Training (CPT); Optional Practical Training (OPT) (pre-completion or post-completion); and Science, Technology, Engineering, and Mathematics Optional Practical Training extension (STEM OPT). PT may be authorized for an F-1 student at a U.S. Immigration and Customs Enforcement (ICE) Student and Exchange Visitor Program (SEVP)-certified college, university, conservatory, or seminary, who has been lawfully enrolled, full-time, for one full academic year. Students may count time enrolled in a study abroad program toward the full academic year requirement, if the student spent at least one full academic term (that is, one semester, trimester, or quarter) enrolled in a full course of study in the United States prior to studying abroad. [2] Students in English language training programs are ineligible for PT. [3] M-1 students may engage in PT only after they complete their course of study. [4] B. F-1 Student Curricular Practical Training"
+      ],
+      "page_content_hash": "a59d183ce2aa5c4260ecd9e7299798213c07ef373709ed28662c790f87a97f5e",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "eeoc-job-applicants-ada",
+      "title": "Job Applicants and the ADA",
+      "publisher": "U.S. Equal Employment Opportunity Commission",
+      "url": "https://www.eeoc.gov/laws/guidance/job-applicants-and-ada",
+      "source_class": "rights_and_safety",
+      "authority": "us_government",
+      "jurisdiction": "US_federal",
+      "semantic_topics": [
+        "resume_and_application",
+        "interview"
+      ],
+      "audience_states": [
+        "access_constrained",
+        "socially_uncertain",
+        "interview_uncertain"
+      ],
+      "series": [
+        "Application Leak Check",
+        "Interview Process, Not Perfect Answers"
+      ],
+      "use_for": "Ground applicant accommodation and disability-disclosure boundaries in official guidance.",
+      "evidence_boundary": "General federal guidance is not legal advice and may not resolve state-law or case-specific questions.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:53.949Z",
+      "final_url": "https://www.eeoc.gov/laws/guidance/job-applicants-and-ada",
+      "http_status": 200,
+      "page_title": "Job Applicants and the ADA | U.S. Equal Employment Opportunity Commission",
+      "summary": "Introduction Title I of the Americans with Disabilities Act of 1990 (ADA) makes it unlawful for an employer to discriminate against a qualified applicant or employee with a disability. The ADA applies to private employers with 15 or more employees and to state and local government employers. The U.S. Equal Employment Opportunity Commission (EEOC) enforces the employment provisions of the ADA.",
+      "chunks": [
+        "An official website of the United States government Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you’ve safely connected to the .gov website. Share sensitive information only on official, secure websites. Kreyòl Ayisyen (Haitian Creole) The Commission and The General Counsel Employees & Job Applicants Employees & Applicants Filing a Charge of Discrimination National Origin Discrimination Employers / Small Business Employers / Small Business Small Business Resource Center Making an Employment Decision? Federal Sector Federal Agencies Management Directives & Federal Sector Guidance Federal Employees & Job Applicants Federal Sector Alternative Dispute Resolution This technical assistance document was issued upon approval of the Chair of the U.S. Equal Employment Opportunity Commission. The contents of this document do not have the force and effect of law and are not meant to bind the public in any way. This document is intended only to provide clarity to the public regarding existing requirements under the law or agency policies.",
+        "Title I of the Americans with Disabilities Act of 1990 (ADA) makes it unlawful for an employer to discriminate against a qualified applicant or employee with a disability. The ADA applies to private employers with 15 or more employees and to state and local government employers. The U.S. Equal Employment Opportunity Commission (EEOC) enforces the employment provisions of the ADA. The ADA defines an individual with a disability as a person who: (1) has a physical or mental impairment that substantially limits a major life activity, (2) has a record or history of a substantially limiting impairment, or (3) is regarded or perceived by an employer as having a substantially limiting impairment. An applicant with a disability, like all other applicants, must be able to meet the employer's requirements for the job, such as education, training, employment experience, skills, or licenses. In addition, an applicant with a disability must be able to perform the \"essential functions\" of the job the fundamental duties either on her own or with the help of \"reasonable accommodation.\" However, an employer does not have to provide a reasonable accommodation that will cause \"undue hardship,\" which is significant difficulty or expense.",
+        "This fact sheet addresses common questions about how the ADA protects applicants with disabilities. The information in this fact sheet also applies to applicants for federal employment, who are protected from discrimination by Section 501 of the Rehabilitation Act. Section 501's requirements are the same as those that apply to employers covered by the ADA. There are many other documents, some of which are listed at the end of this fact sheet, that provide more in-depth information about the employment rights of individuals with disabilities. Reasonable Accommodation for the Application Process Asking for Accommodation Discussing Disability with the Potential Employer Discussing Accommodation to Perform the Job Being \"Qualified\" for the Job Obtaining More Information about the ADA Filing a Charge of Discrimination Reasonable Accommodation for the Application Process 1. I have a disability and will need an accommodation for the job interview. Does the ADA require an employer to provide me with one? Yes. Employers are required to provide \"reasonable accommodation\" -- appropriate changes and adjustments -- to enable you to be considered for a job opening. Reasonable accommodation may also be required to enable you to perform a job, gain access to the workplace, and enjoy the \"benefits and privileges\" of employment available to employees without disabilities. An employer cannot refuse to consider you because you require a reasonable accommodation to compete for or perform a job."
+      ],
+      "page_content_hash": "9f037683329a0681a05afbafa0f07cf19e159802b126a1f2f694815d2f225c17",
+      "failure_reason": null
+    },
+    {
+      "resource_id": "dol-american-job-centers",
+      "title": "American Job Centers",
+      "publisher": "U.S. Department of Labor Employment and Training Administration",
+      "url": "https://www.dol.gov/agencies/eta/american-job-centers",
+      "source_class": "local_support",
+      "authority": "us_government",
+      "jurisdiction": "US",
+      "semantic_topics": [
+        "opportunity_alert",
+        "resume_and_application",
+        "networking",
+        "interview"
+      ],
+      "audience_states": [
+        "overwhelmed",
+        "access_constrained",
+        "socially_uncertain",
+        "proof_gap"
+      ],
+      "series": [
+        "Application Leak Check",
+        "Coffee Chat Without the Cringe",
+        "Rejection Reset",
+        "Small Employer Radar",
+        "Community College and Transfer Proof"
+      ],
+      "use_for": "Route students and recent graduates to local staff-assisted search, referral, placement, and specialized support.",
+      "evidence_boundary": "Services and eligibility vary locally; the center must confirm current availability.",
+      "freshness_policy": "verify_before_publish",
+      "verified_at": "2026-07-17T17:00:00.000Z",
+      "status": "current",
+      "retrieved_at": "2026-07-17T23:19:56.085Z",
+      "final_url": "https://www.dol.gov/agencies/eta/american-job-centers",
+      "http_status": 200,
+      "page_title": "American Job Centers | U.S. Department of Labor",
+      "summary": "An official website of the United States government. The .gov means it’s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Program Areas American Job Centers National Dislocated Worker Grants Workforce Innovation and Opportunity Act (WIOA) Policy and Directives Advisories and Directives Recovery-Ready Workplace Resource Hub ETA Program Offices Office of Apprenticeship Office of Foreign Labor Certification Office of Unemployment Insurance (1-877-S-2JOBS) Reemployment Services and Eligibility Assessment Grants Under the Workforce I",
+      "chunks": [
+        "An official website of the United States government. The .gov means it’s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure you’re on a federal government site. The site is secure. The https:// ensures that you are connecting to the official website and that any information you provide is encrypted and transmitted securely. Program Areas American Job Centers National Dislocated Worker Grants Workforce Innovation and Opportunity Act (WIOA) Policy and Directives Advisories and Directives Recovery-Ready Workplace Resource Hub ETA Program Offices Office of Apprenticeship Office of Foreign Labor Certification Office of Unemployment Insurance (1-877-S-2JOBS) Reemployment Services and Eligibility Assessment Grants Under the Workforce Innovation and Opportunity Act, the Employment Service offices are collocated with the approximately 2,300 American Job Centers nationwide.",
+        "The American Job Center network, part of the One-Stop system, provides universal access to an integrated array of labor exchange services so that workers, job seekers, and employers can find the services they need. The Wagner-Peyser Employment Service focuses on providing a variety of services including job search assistance, help getting a job referral, and placement assistance for job seekers. Additionally, re-employment services are available for unemployment insurance claimants, as well as recruitment services to employers with job openings. Services are delivered in one of three modes including self-service, facilitated self-help services and staff assisted service delivery approaches. The services offered to employers, in addition to referral of job seekers to available job openings, include assistance in development of job order requirements, matching job seeker experience with job requirements and skills, assisting employers with special recruitment needs, arranging job fairs, assisting employers analyze hard-to-fill job orders, assisting with job restructuring, and helping employers deal with layoffs. Job seekers who are veterans receive priority referrals to jobs and training as well as special employment services and assistance. In addition, the system provides specialized attention and service to individuals with disabilities, migrant and seasonal farm-workers, justice-involved individuals, youth, minorities, and older workers.",
+        "To find local Employment Service resources, using the CareerOneStop.org American Job Center Finder or call ETA's toll-free help line. Visit the American Job Center Finder. Call ETA's toll-free help line at 1-877-US-2JOBS (TTY: [phone redacted] Services are designed to meet local needs and may vary from state to state. Some services have eligibility requirements; be sure to check with your local American Job Center for details. Job seekers who are migrant and seasonal farmworkers (MSFW) receive qualitatively equivalent and quantitatively proportionate employment and training services as non-MSFWs. The Wagner-Peyser Act funds the Monitor Advocate System, whose primary responsibility is to ensure equity of service to MSFWs. Learn more about the Monitor Advocate System . Related Links Find local American Job Centers Graphics Style Guide for American Job Center Partners WIOA Fact Sheet: One-Stop Career Centers An agency within the U.S. Department of Labor 200 Constitution Ave NW Washington, DC [phone redacted]US-2JOBS [phone redacted]www.dol.gov Notification of EEO Violations U.S. Office of Special Counsel"
+      ],
+      "page_content_hash": "ffbed248edd99aed1cd11ea2da83837373328919f427fb82f6660b0280faf6a4",
+      "failure_reason": null
+    }
+  ],
+  "summary": {
+    "expected": 18,
+    "current": 17,
+    "failed": 1
+  }
+}

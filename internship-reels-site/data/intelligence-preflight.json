@@ -1,0 +1,51 @@
+{
+  "schema_version": "viralbench_intelligence_preflight_v1",
+  "generated_at": "2026-07-18T00:14:27.092Z",
+  "run_id": "evidence-quality-20260717230953",
+  "ready": true,
+  "live_required_for_provider_calls": true,
+  "scheduler_in_scope": false,
+  "baseline": {
+    "social_posts": 718,
+    "audience_signals": 97,
+    "official_resources": 18,
+    "expected_source_records": 833
+  },
+  "canary": {
+    "videos": 8,
+    "videos_by_platform": {
+      "instagram": 3,
+      "tiktok": 3,
+      "youtube_shorts": 2
+    },
+    "video_accounts": 8,
+    "video_maximum_estimate_usd": 3.627389,
+    "static_items": 6,
+    "static_by_content_type": {
+      "carousel_post": 3,
+      "image_post": 3
+    },
+    "static_accounts": 6,
+    "static_topics": 6,
+    "carousel_slide_limit": 5
+  },
+  "credentials": {
+    "apify_available": true,
+    "twelvelabs_available": true,
+    "gemini_available": true
+  },
+  "budget": {
+    "cap_usd": 25,
+    "allocations": {
+      "social_discovery": 5,
+      "audience_comment_research": 4,
+      "video_analysis": 7,
+      "static_analysis": 3,
+      "analysis_retries": 2,
+      "metric_rechecks": 2,
+      "reserve": 2
+    },
+    "planned_conservative_maximum_usd": 17.627389
+  },
+  "gaps": []
+}

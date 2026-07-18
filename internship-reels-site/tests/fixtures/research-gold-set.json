@@ -1,0 +1,47 @@
+[
+  {
+    "case_id": "audience-worries",
+    "query": "What are students worried about during internship searches?",
+    "expected_intent": "audience_need"
+  },
+  {
+    "case_id": "pay-and-housing",
+    "query": "What do students need around internship pay and housing costs?",
+    "expected_intent": "audience_need"
+  },
+  {
+    "case_id": "unpaid-internships",
+    "query": "What is the official guidance for unpaid internships?",
+    "expected_intent": "official_guidance"
+  },
+  {
+    "case_id": "cpt-opt",
+    "query": "What are the official CPT and OPT work authorization rules?",
+    "expected_intent": "official_guidance"
+  },
+  {
+    "case_id": "scams",
+    "query": "What official job scam and fraud guidance applies?",
+    "expected_intent": "official_guidance"
+  },
+  {
+    "case_id": "carousels",
+    "query": "Which carousel slide mechanics are present?",
+    "expected_intent": "creative_mechanics"
+  },
+  {
+    "case_id": "observed-velocity",
+    "query": "Which records have observed view velocity?",
+    "expected_intent": "observed_velocity"
+  },
+  {
+    "case_id": "owned-outcomes",
+    "query": "What are our owned campaign outcomes?",
+    "expected_intent": "owned_outcomes"
+  },
+  {
+    "case_id": "no-evidence",
+    "query": "Triangulate evidence about a nonexistent quantum banana internship policy.",
+    "expected_intent": "cross_source"
+  }
+]

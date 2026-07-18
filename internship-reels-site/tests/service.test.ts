@@ -10,7 +10,7 @@ import {
 import { MemoryAgentStateStore } from '../lib/state.js';
 import { validateCreativeJobManifest } from '../../packages/creative/job_schema.js';
 import { validateTractionExperimentManifest } from '../../src/traction-experiment.js';
-import { corpus } from './helpers.js';
+import { completeVectorIndex, corpus } from './helpers.js';
 
 class FakeGemini {
   embedCalls = 0;
@@ -127,8 +127,10 @@ test('disabled or failed providers return explicit retrieval-only evidence', asy
 
 test('public answers are evidence-validated and safely cached without storing the question', async () => {
   const fake = new FakeGemini();
+  const library = corpus();
   const service = new AgentService({
-    corpus: corpus(),
+    corpus: library,
+    vectorIndex: completeVectorIndex(library),
     enabled: true,
     store: new MemoryAgentStateStore(),
     gemini: fake as unknown as GeminiClient,
@@ -144,8 +146,10 @@ test('public answers are evidence-validated and safely cached without storing th
 
 test('operator generation exports schema-valid inert drafts only', async () => {
   const fake = new FakeGemini();
+  const library = corpus();
   const service = new AgentService({
-    corpus: corpus(),
+    corpus: library,
+    vectorIndex: completeVectorIndex(library),
     enabled: true,
     store: new MemoryAgentStateStore(),
     gemini: fake as unknown as GeminiClient,

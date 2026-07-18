@@ -12,6 +12,46 @@ export const PERFORMANCE_SIGNALS = [
 ] as const;
 export type PerformanceSignal = typeof PERFORMANCE_SIGNALS[number];
 
+export const EVIDENCE_TYPES = [
+  'social_post',
+  'audience_theme',
+  'official_source',
+  'owned_aggregate',
+] as const;
+export type EvidenceType = typeof EVIDENCE_TYPES[number];
+
+export const EVIDENCE_VISIBILITIES = ['public_reviewed', 'operator_provisional'] as const;
+export type EvidenceVisibility = typeof EVIDENCE_VISIBILITIES[number];
+
+export const REVIEW_METHODS = [
+  'deterministic_contract',
+  'provider_quality_gate',
+  'human_override',
+] as const;
+export type ReviewMethod = typeof REVIEW_METHODS[number];
+
+export const CONTENT_TYPES = [
+  'short_video',
+  'feed_video',
+  'carousel_post',
+  'image_post',
+  'audience_aggregate',
+  'official_guidance',
+  'owned_metric_aggregate',
+] as const;
+export type EvidenceContentType = typeof CONTENT_TYPES[number];
+
+export const QUERY_INTENTS = [
+  'audience_need',
+  'creative_mechanics',
+  'performance',
+  'observed_velocity',
+  'official_guidance',
+  'owned_outcomes',
+  'cross_source',
+] as const;
+export type QueryIntent = typeof QUERY_INTENTS[number];
+
 export interface AgentMetrics {
   views: number | null;
   likes: number | null;
@@ -31,13 +71,54 @@ export interface AgentAnalysis {
   cta: string;
   claims: string[];
   evidence_limitations: string[];
+  fragments?: Array<{
+    fragment_type: string;
+    start_sec: number | null;
+    end_sec: number | null;
+    summary: string;
+  }>;
 }
 
-export interface AgentDocument {
+export interface EvidenceProvenance {
+  source_kind: 'public_social' | 'public_audience' | 'official_primary' | 'owned_aggregate';
+  source_ids: string[];
+  publisher: string | null;
+  authority: string | null;
+  jurisdiction: string | null;
+  source_count: number;
+  independent_source_count: number;
+}
+
+export interface EvidenceFreshness {
+  status: 'current' | 'stale' | 'failed' | 'not_applicable';
+  retrieved_at: string | null;
+  verified_at: string | null;
+  content_hash: string | null;
+}
+
+export interface EvidenceMeasurement {
+  state: 'observed' | 'single_snapshot' | 'not_applicable' | 'not_connected';
+  observation_count: number;
+  observation_window_hours: number | null;
+  comparison_method: string | null;
+}
+
+interface EvidenceDocumentBase {
   document_id: string;
   item_id: string;
-  kind: 'library_item' | 'analyzed_post';
-  platform: SocialPlatform;
+  evidence_type: EvidenceType;
+  visibility: EvidenceVisibility;
+  review_method: ReviewMethod;
+  content_type: EvidenceContentType;
+  topic_tags: string[];
+  audience_states: string[];
+  confidence: string;
+  confidence_score: number;
+  provenance: EvidenceProvenance;
+  freshness: EvidenceFreshness;
+  measurement: EvidenceMeasurement;
+  kind: 'library_item' | 'analyzed_post' | 'aggregated_signal' | 'official_resource' | 'owned_data';
+  platform: SocialPlatform | null;
   platform_post_id: string;
   canonical_url: string;
   account_handle: string;
@@ -49,7 +130,6 @@ export interface AgentDocument {
   age_bucket: string | null;
   comparison_percentile: number | null;
   comparison_group_size: number | null;
-  confidence: string;
   metrics: AgentMetrics;
   analysis: AgentAnalysis | null;
   evidence_limitations: string[];
@@ -57,26 +137,65 @@ export interface AgentDocument {
   content_hash: string;
 }
 
+export interface SocialEvidenceDocument extends EvidenceDocumentBase {
+  evidence_type: 'social_post';
+  platform: SocialPlatform;
+}
+
+export interface AudienceEvidenceDocument extends EvidenceDocumentBase {
+  evidence_type: 'audience_theme';
+  platform: null;
+}
+
+export interface OfficialEvidenceDocument extends EvidenceDocumentBase {
+  evidence_type: 'official_source';
+  platform: null;
+}
+
+export interface OwnedEvidenceDocument extends EvidenceDocumentBase {
+  evidence_type: 'owned_aggregate';
+  platform: null;
+}
+
+export type EvidenceDocument =
+  | SocialEvidenceDocument
+  | AudienceEvidenceDocument
+  | OfficialEvidenceDocument
+  | OwnedEvidenceDocument;
+
+// Kept as an additive compatibility alias for existing callers.
+export type AgentDocument = EvidenceDocument;
+
 export interface AgentCorpus {
-  schema_version: 'viralbench_agent_corpus_v1';
+  schema_version: 'viralbench_evidence_corpus_v2';
   generated_at: string;
   index_version: string;
+  visibility: EvidenceVisibility;
   source_manifest: {
     library_generated_at: string | null;
     dashboard_generated_at: string | null;
     library_items: number;
     dashboard_records: number;
+    audience_signals: number;
+    audience_documents: number;
+    official_resources: number;
+    owned_connection_state: 'not_connected' | 'partial' | 'connected';
     deduplicated_documents: number;
+    public_reviewed_documents: number;
+    operator_provisional_documents: number;
+    by_evidence_type: Record<string, number>;
     skipped_rows: number;
     skipped_by_reason: Record<string, number>;
     redactions: string[];
   };
-  documents: AgentDocument[];
+  documents: EvidenceDocument[];
 }
 
 export interface AgentFilters {
   platforms?: SocialPlatform[];
   signals?: PerformanceSignal[];
+  evidence_types?: EvidenceType[];
+  content_types?: EvidenceContentType[];
   date_from?: string;
   date_to?: string;
 }
@@ -89,7 +208,7 @@ export interface VectorManifestEntry {
 
 export interface VectorManifest {
   schema_version: 'viralbench_agent_vectors_v1';
-  model: 'gemini-embedding-2';
+  model: 'gemini-embedding-2' | 'viralbench-local-hash-v1';
   dimension: 768;
   index_version: string;
   generated_at: string;
@@ -105,26 +224,47 @@ export interface LoadedVectorIndex {
 export interface AgentEvidence {
   evidence_id: string;
   item_id: string;
+  evidence_type: EvidenceType;
+  visibility: EvidenceVisibility;
+  review_method: ReviewMethod;
+  content_type: EvidenceContentType;
   title: string;
   snippet: string;
   source_url: string;
-  platform: SocialPlatform;
+  platform: SocialPlatform | null;
   account_handle: string;
   posted_at: string | null;
   observed_at: string | null;
   signal: PerformanceSignal;
   age_bucket: string | null;
   comparison_percentile: number | null;
+  confidence: number;
+  freshness_status: EvidenceFreshness['status'];
+  measurement_state: EvidenceMeasurement['state'];
+  source_count: number;
+  independent_source_count: number;
   metrics: AgentMetrics;
   evidence_limitations: string[];
   retrieval_relevance: number;
-  rank_sources: Array<'lexical' | 'vector' | 'cohort'>;
+  rank_sources: Array<'lexical' | 'vector' | 'cohort' | 'intent'>;
+}
+
+export interface RetrievalCoverage {
+  considered: Record<EvidenceType, number>;
+  returned: Record<EvidenceType, number>;
+  public_reviewed: number;
+  operator_provisional: number;
+  current_sources: number;
+  stale_sources: number;
+  measurement_gaps: string[];
 }
 
 export interface RetrievalResult {
   evidence: AgentEvidence[];
   query_mode: 'relevance' | 'cohort_performance';
+  query_intent: QueryIntent;
   vector_used: boolean;
+  coverage: RetrievalCoverage;
 }
 
 export interface ResearchFinding {
@@ -141,6 +281,8 @@ export interface ResearchAnswer {
   followups: string[];
   model: string | null;
   index_version: string;
+  query_intent: QueryIntent;
+  coverage: RetrievalCoverage;
 }
 
 export interface MarketingConcept {
@@ -174,6 +316,8 @@ export interface MarketingBrief {
   limitations: string[];
   model: string;
   index_version: string;
+  query_intent: QueryIntent;
+  coverage: RetrievalCoverage;
   downloads: {
     markdown: string;
     json: Record<string, unknown>;

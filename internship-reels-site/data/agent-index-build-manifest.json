@@ -1,43 +1,126 @@
 {
-  "schema_version": "viralbench_agent_index_build_v1",
-  "generated_at": "2026-07-17T21:38:34.989Z",
-  "index_version": "daa79400c1bf2336813a",
+  "schema_version": "viralbench_agent_index_build_v2",
+  "generated_at": "2026-07-17T23:45:24.790Z",
+  "index_versions": {
+    "public": "5fde72280725925f5ccc",
+    "operator": "9582c4b50724509c67ea"
+  },
   "sources": {
     "library": {
       "path": "library.json",
-      "sha256": "8dc688968e408b4846fa60acab3bc4cd47f79c52b19979c12fd4e9cd089302e1",
-      "bytes": 950611
+      "sha256": "b4f27f05a25caf8a7b7dab3e6087825ecfb4963ad58f6edc9b0993a6668d431f",
+      "bytes": 3391447
     },
     "dashboard": {
       "path": "twelvelabs-dashboard-data.js",
-      "sha256": "e2ff31648b0b252362e5954d22f04eadd4bd8c96ca71ffb329410f83689d8264",
+      "sha256": "416d1d13b1f89aa063da37ed6af1fc96d39432c807da49992afb8d2b4f4cb466",
       "bytes": 103411
+    },
+    "audience": [
+      {
+        "path": "../../../Viral-Bench/.semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-audience-signals.json",
+        "sha256": "c37d0af2e9727ff54a5a99aded13de77168de46cf1e9a6cceea1ace57f976c67",
+        "bytes": 16604
+      },
+      {
+        "path": "../../../Viral-Bench/.semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-comment-signals.json",
+        "sha256": "f43239e404befd5b76ffdf9381ee981f0c86a2e8951fb6e7b0efdc9d09f6d24f",
+        "bytes": 45433
+      },
+      {
+        "path": "data/audience-comment-refresh.json",
+        "sha256": "290c1dc012d34f81a2b66b1021e2f5eecfc94645e5a66d141cc487a4a4fef6e7",
+        "bytes": 56193
+      }
+    ],
+    "analysis": [
+      {
+        "path": "../../../Viral-Bench/.semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-multimodal.json",
+        "sha256": "89f5fc242386b11c9a2ae4600e8c57a46ccda703dff33d44f8480f138e7f128c",
+        "bytes": 180593
+      },
+      {
+        "path": "../../../Viral-Bench/.semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-multimodal-deep.json",
+        "sha256": "89cbd08490a6a31405a49fe1932ae6838d9d18c69bd46114df8438f08ac74013",
+        "bytes": 94547
+      },
+      {
+        "path": "data/mixed-media-video-analysis.json",
+        "sha256": "4e1ebb2103c8aae5a346980e0a4e88a064db2324f9aa063291f707df51a624aa",
+        "bytes": 139885
+      },
+      {
+        "path": "data/mixed-media-static-analysis.json",
+        "sha256": "8090e0f17d5dbf41971f026fd6155ce02b1f9a80e3597d3113030bc504aa191d",
+        "bytes": 20078
+      }
+    ],
+    "official": {
+      "path": "data/official-sources.json",
+      "sha256": "8da8c01a35630aa19993a1cb1e62f2522831ae7d2c190fdb97101443693f768d",
+      "bytes": 99570
+    },
+    "owned": {
+      "path": "data/owned-evidence.json",
+      "sha256": "ef8b8ac079b4f8c6df3836f95dadd07ec9d3566a0dc5e57c9e3fa1c9c71dbc7f",
+      "bytes": 550
     }
   },
   "outputs": {
-    "corpus": {
+    "public_corpus": {
+      "path": "data/agent-corpus-public.json",
+      "sha256": "a3597cfe723dcdeb8158e71ba712e8ebcfea525f2e058e72608470ddc12e5c27",
+      "bytes": 3527414
+    },
+    "operator_corpus": {
+      "path": "data/agent-corpus-operator.json",
+      "sha256": "92eb6688e10fb1d24090216845155cddfb0b16eaeb4986eaf7070fe6d344c5fb",
+      "bytes": 3550889
+    },
+    "compatibility_corpus": {
       "path": "data/agent-corpus.json",
-      "sha256": "0a4860504b8855ec8c5e509bd535543d068e32aa07214f3b06d2a966c66c9935",
-      "bytes": 1433737
+      "sha256": "a3597cfe723dcdeb8158e71ba712e8ebcfea525f2e058e72608470ddc12e5c27",
+      "bytes": 3527414
     },
     "vector_manifest": {
       "path": "data/agent-vectors.json",
-      "sha256": "b37c706958e835ee810b5fe3a294128a2660bf453e741731e72c1a7cd5ff2376",
-      "bytes": 227
+      "sha256": "c2536c4285988e5c71f9a2330375e1bd943564dcb9ec74c410a5eb5413053d2a",
+      "bytes": 157574
     },
     "vector_binary": {
       "path": "data/agent-vectors.bin",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "bytes": 0
+      "sha256": "667f9f7baaf4058b038e991e8473fd10155fe3210fc0e49d2fa505159114b3c5",
+      "bytes": 2632704
     }
   },
   "reconciliation": {
-    "documents": 568,
-    "vectors": 0,
-    "vector_coverage": 0,
-    "vector_coverage_state": "absent_not_requested",
-    "vectors_required": false,
+    "source_records": {
+      "social_posts": 812,
+      "audience_signals": 113,
+      "official_resources": 18,
+      "owned_connection_state": "not_connected"
+    },
+    "public_documents": 848,
+    "operator_documents": 857,
+    "vectors": 857,
+    "public_vectors": 848,
+    "public_vector_coverage": 1,
+    "operator_vector_coverage": 1,
+    "public_vector_coverage_state": "complete",
+    "operator_vector_coverage_state": "complete",
+    "vectors_required": true,
     "skipped_rows": 0,
-    "skipped_by_reason": {}
+    "skipped_by_reason": {},
+    "public_by_evidence_type": {
+      "audience_theme": 4,
+      "official_source": 17,
+      "social_post": 827
+    },
+    "operator_by_evidence_type": {
+      "audience_theme": 11,
+      "official_source": 18,
+      "owned_aggregate": 1,
+      "social_post": 827
+    }
   }
 }

@@ -1,0 +1,22 @@
+{
+  "schema_version": "viralbench_owned_evidence_v1",
+  "generated_at": "2026-07-17T23:20:02.147Z",
+  "connection_state": "not_connected",
+  "source_rows": 0,
+  "aggregates": [],
+  "privacy": {
+    "aggregate_only": true,
+    "minimum_bucket_count": 5,
+    "prohibited_fields": [
+      "resume_text",
+      "name",
+      "email",
+      "message",
+      "user_id",
+      "application_history"
+    ]
+  },
+  "measurement_gaps": [
+    "No privacy-safe owned aggregate export is connected; absence is not interpreted as zero demand or performance."
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "batch_id": "viralbench-evidence-quality-upgrade-20260717",
+  "purpose": "identity_redacted_public_comment_research",
+  "publishing_in_scope": false,
+  "selected_posts": [
+    {
+      "candidate_id": "live:tiktok:7586091282162814222:tiktok-competitor-profiles-popular",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@externhq/video/7586091282162814222"
+    },
+    {
+      "candidate_id": "apify:kcIeq9zARMs4LUUwe:item:59:c37278160c",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992"
+    },
+    {
+      "candidate_id": "apify:HDYTKotNtvX8ayhqC:item:67:3c4ab0098b",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332"
+    },
+    {
+      "candidate_id": "live:tiktok:7544973919770479903:tiktok-competitor-profiles-popular",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@externhq/video/7544973919770479903"
+    },
+    {
+      "candidate_id": "live:tiktok:7138472018504076586:tiktok-competitor-profiles-popular",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@joinhandshake/video/7138472018504076586"
+    },
+    {
+      "candidate_id": "apify:kcIeq9zARMs4LUUwe:item:14:32eae7f638",
+      "platform": "tiktok",
+      "canonical_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006"
+    },
+    {
+      "candidate_id": "live:instagram:DWc3GgxDekQ:instagram-access-safety-ai-popular-search",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/DWc3GgxDekQ/"
+    },
+    {
+      "candidate_id": "live:instagram:Dax9yRczAKN:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/Dax9yRczAKN/"
+    },
+    {
+      "candidate_id": "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/DZYPMbbStI6/"
+    },
+    {
+      "candidate_id": "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/DWovI44EmgR/"
+    },
+    {
+      "candidate_id": "live:instagram:DaqUHbNzf9y:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/DaqUHbNzf9y/"
+    },
+    {
+      "candidate_id": "live:instagram:DWVZtC6DYoe:instagram-access-safety-ai-popular-search",
+      "platform": "instagram",
+      "canonical_url": "https://www.instagram.com/p/DWVZtC6DYoe/"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:tKzKPxZupow:youtube-competitor-brands-recent",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/tKzKPxZupow"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:Cx3zR1rqZB4:youtube-proof-process-recent-search",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/Cx3zR1rqZB4"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:j6frOqANURA:youtube-access-safety-ai-recent-search",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/j6frOqANURA"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:A7CknuKv4P8:youtube-competitor-brands-recent",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/A7CknuKv4P8"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:pqnEwDI6oxc:youtube-proof-process-recent-search",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/pqnEwDI6oxc"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:O4ImC_xDAjk:youtube-competitor-brands-recent",
+      "platform": "youtube_shorts",
+      "canonical_url": "https://www.youtube.com/shorts/O4ImC_xDAjk"
+    }
+  ],
+  "run_specs": [
+    {
+      "id": "tiktok-comments-mixed-pool",
+      "platform": "tiktok",
+      "actor_id": "clockworks/tiktok-comments-scraper",
+      "input": {
+        "postURLs": [
+          "https://www.tiktok.com/@externhq/video/7586091282162814222",
+          "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+          "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+          "https://www.tiktok.com/@externhq/video/7544973919770479903",
+          "https://www.tiktok.com/@joinhandshake/video/7138472018504076586",
+          "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006"
+        ],
+        "commentsPerPost": 25,
+        "maxRepliesPerComment": 2
+      },
+      "max_charge_usd": 1,
+      "max_items": 450,
+      "provider_cohort": "mixed"
+    },
+    {
+      "id": "instagram-comments-high-engagement",
+      "platform": "instagram",
+      "actor_id": "apify/instagram-scraper",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/p/DWc3GgxDekQ/",
+          "https://www.instagram.com/p/Dax9yRczAKN/",
+          "https://www.instagram.com/p/DZYPMbbStI6/",
+          "https://www.instagram.com/p/DWovI44EmgR/",
+          "https://www.instagram.com/p/DaqUHbNzf9y/",
+          "https://www.instagram.com/p/DWVZtC6DYoe/"
+        ],
+        "resultsType": "comments",
+        "resultsLimit": 5,
+        "isNewestComments": false,
+        "includeNestedComments": false
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 30,
+      "provider_cohort": "high_engagement"
+    },
+    {
+      "id": "instagram-comments-recent",
+      "platform": "instagram",
+      "actor_id": "apify/instagram-scraper",
+      "input": {
+        "directUrls": [
+          "https://www.instagram.com/p/DWc3GgxDekQ/",
+          "https://www.instagram.com/p/Dax9yRczAKN/",
+          "https://www.instagram.com/p/DZYPMbbStI6/",
+          "https://www.instagram.com/p/DWovI44EmgR/",
+          "https://www.instagram.com/p/DaqUHbNzf9y/",
+          "https://www.instagram.com/p/DWVZtC6DYoe/"
+        ],
+        "resultsType": "comments",
+        "resultsLimit": 5,
+        "isNewestComments": true,
+        "includeNestedComments": false
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 30,
+      "provider_cohort": "recent"
+    },
+    {
+      "id": "youtube-comments-high-engagement",
+      "platform": "youtube_shorts",
+      "actor_id": "streamers/youtube-comments-scraper",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.youtube.com/shorts/tKzKPxZupow"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/Cx3zR1rqZB4"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/j6frOqANURA"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/A7CknuKv4P8"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/pqnEwDI6oxc"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/O4ImC_xDAjk"
+          }
+        ],
+        "maxComments": 5,
+        "sortCommentsBy": "TOP_COMMENTS"
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 30,
+      "provider_cohort": "high_engagement"
+    },
+    {
+      "id": "youtube-comments-recent",
+      "platform": "youtube_shorts",
+      "actor_id": "streamers/youtube-comments-scraper",
+      "input": {
+        "startUrls": [
+          {
+            "url": "https://www.youtube.com/shorts/tKzKPxZupow"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/Cx3zR1rqZB4"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/j6frOqANURA"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/A7CknuKv4P8"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/pqnEwDI6oxc"
+          },
+          {
+            "url": "https://www.youtube.com/shorts/O4ImC_xDAjk"
+          }
+        ],
+        "maxComments": 5,
+        "sortCommentsBy": "NEWEST_FIRST"
+      },
+      "max_charge_usd": 0.75,
+      "max_items": 30,
+      "provider_cohort": "recent"
+    }
+  ],
+  "total_max_charge_usd": 4,
+  "privacy": {
+    "persist_commenter_usernames": false,
+    "persist_raw_comment_text": false,
+    "persist_comment_ids": false
+  }
+}

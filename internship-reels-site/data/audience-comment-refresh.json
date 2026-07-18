@@ -1,0 +1,1321 @@
+{
+  "schema_version": 1,
+  "batch_id": "viralbench-evidence-quality-upgrade-20260717",
+  "generated_at": "2026-07-17T23:18:59.567Z",
+  "selected_posts": 18,
+  "selected_posts_by_platform": {
+    "instagram": 6,
+    "tiktok": 6,
+    "youtube_shorts": 6
+  },
+  "collected_comment_rows": 191,
+  "retained_identity_free_signals": 71,
+  "counts_by_theme": {
+    "access_compensation_and_cost": 9,
+    "career_direction": 1,
+    "general_early_career_uncertainty": 56,
+    "international_work_authorization": 3,
+    "resume_and_proof": 1,
+    "starting_without_formal_experience": 1
+  },
+  "counts_by_platform": {
+    "instagram": 6,
+    "tiktok": 48,
+    "youtube_shorts": 17
+  },
+  "runs": [
+    {
+      "id": "tiktok-comments-mixed-pool",
+      "platform": "tiktok",
+      "actor_id": "clockworks/tiktok-comments-scraper",
+      "run_id": "6pIC7LkArdzhm3dOF",
+      "status": "completed",
+      "max_charge_usd": 1,
+      "actual_cost_usd": 0.145,
+      "conservative_spend_usd": 0.145,
+      "item_count": 116,
+      "error": null
+    },
+    {
+      "id": "instagram-comments-high-engagement",
+      "platform": "instagram",
+      "actor_id": "apify/instagram-scraper",
+      "run_id": "4bj88cur8G6TVjbII",
+      "status": "completed",
+      "max_charge_usd": 0.75,
+      "actual_cost_usd": 0.0648,
+      "conservative_spend_usd": 0.0648,
+      "item_count": 25,
+      "error": null
+    },
+    {
+      "id": "instagram-comments-recent",
+      "platform": "instagram",
+      "actor_id": "apify/instagram-scraper",
+      "run_id": "zscB7whqaP2jHuLOy",
+      "status": "completed",
+      "max_charge_usd": 0.75,
+      "actual_cost_usd": 0.0675,
+      "conservative_spend_usd": 0.0675,
+      "item_count": 25,
+      "error": null
+    },
+    {
+      "id": "youtube-comments-high-engagement",
+      "platform": "youtube_shorts",
+      "actor_id": "streamers/youtube-comments-scraper",
+      "run_id": "gSJ0eflOYMcPQzg3Z",
+      "status": "completed",
+      "max_charge_usd": 0.75,
+      "actual_cost_usd": 0.03,
+      "conservative_spend_usd": 0.03,
+      "item_count": 14,
+      "error": null
+    },
+    {
+      "id": "youtube-comments-recent",
+      "platform": "youtube_shorts",
+      "actor_id": "streamers/youtube-comments-scraper",
+      "run_id": "082byowbQHjBZ7dSl",
+      "status": "completed",
+      "max_charge_usd": 0.75,
+      "actual_cost_usd": 0.032,
+      "conservative_spend_usd": 0.032,
+      "item_count": 15,
+      "error": null
+    }
+  ],
+  "costs": {
+    "currency": "USD",
+    "lane_cap_usd": 4,
+    "actual_cost_usd_reported": 0.3393,
+    "conservative_spend_usd": 0.3393,
+    "remaining_ceiling_usd": 3.6607
+  },
+  "signals": [
+    {
+      "signal_id": "audience:e8d3e71361d340c8",
+      "source_url": "https://www.tiktok.com/@joinhandshake/video/7138472018504076586",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2022-10-26T22:12:53.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:ae4a77c042788ff1",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-21T21:14:45.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:a531c7afdbf018a8",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-22T08:44:36.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:3e017dadae015f72",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-23T12:59:01.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:34c0242b4a3c35e8",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-24T23:53:07.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:6ec6860f1e3f3e5c",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-27T08:13:39.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:83f1fdb0db4b0ed8",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-10T16:27:55.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:f59cd80eefa2ca48",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-10T11:19:59.000Z",
+      "audience_segment": "college_student",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:cef36466118a1f8f",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-05T04:58:52.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:0411c810e3ba40bb",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-04T13:30:21.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:6cbd35817e7e9bf0",
+      "source_url": "https://www.tiktok.com/@msrob.s/video/7653644857348525332",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-03T14:56:58.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:34eab21913e4ec91",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-09T02:08:10.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:45bba3cf2a03f5bb",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-17T02:58:39.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:4c8d55f11ecb2f9c",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-19T21:29:25.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:53b5349731f470b5",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-14T00:53:50.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:06ebb4b5a81ce13a",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-10-13T03:50:41.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:b164b143f7e45f28",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-05-23T17:48:16.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:27e4d7fe24c1d0c4",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-02-22T21:49:09.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:e81e3fcb244188d8",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-25T00:30:51.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:5cf251dac6635e43",
+      "source_url": "https://www.tiktok.com/@externhq/video/7544973919770479903",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-14T21:15:24.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:9c695010b775b415",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-21T20:58:13.000Z",
+      "audience_segment": "college_student",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:0b20d2acab5d5097",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-23T04:05:51.000Z",
+      "audience_segment": "college_student",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:be0f3666d7bb80fb",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-24T10:56:30.000Z",
+      "audience_segment": "college_student",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:e77c70bd28f9f8a1",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-20T17:35:12.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:8e976c1895631089",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-23T07:16:07.000Z",
+      "audience_segment": "college_student",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:daee4e6714627e27",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-02-08T02:14:56.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:952350504a2aab7a",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-02-03T18:19:50.000Z",
+      "audience_segment": "college_student",
+      "theme": "access_compensation_and_cost",
+      "paraphrased_need": "Students need to understand whether the full financial cost of an internship is workable, not only whether the role sounds prestigious.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:5c6f7c3d56f058d3",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-02-02T14:00:28.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:5e39ebeaeef78ff1",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-02-01T12:15:39.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:99425c4004aa57d8",
+      "source_url": "https://www.tiktok.com/@swag_money_garfield/video/7597494752891637006",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-31T02:55:21.000Z",
+      "audience_segment": "international_student",
+      "theme": "international_work_authorization",
+      "paraphrased_need": "International students need clear routing to official work-authorization guidance and their school official without receiving improvised legal advice.",
+      "confidence": 0.7,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "international_work_authorization",
+        "access_compensation_and_cost"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:ebb8129c9e0166fc",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-30T03:12:17.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:92945a40dbf52f80",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-30T06:21:09.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:bfccfccaff4af8ed",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-02T03:15:02.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "career_direction",
+      "paraphrased_need": "Students and recent graduates need a practical way to narrow roles and industries without pretending one major determines one career.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "career_direction"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:ce0302b887cc1106",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-04T04:02:58.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:9764aab3a790f6d9",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2025-12-30T23:38:07.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:ae26ecc9c2fb222d",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-14T19:50:18.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:6b8da7e94f24ac59",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-13T06:39:32.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:475d57a5931743a1",
+      "source_url": "https://www.tiktok.com/@externhq/video/7586091282162814222",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-01-12T17:24:20.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:c7dc6e05bccc4501",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-07T21:43:29.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:35b1a122bf1636c7",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-08T02:29:04.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:51e77f1296d91c03",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-08T03:50:04.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:a88852f3f3e0cec1",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-08T02:43:15.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:1ef3e14cff99cd57",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-10T03:39:20.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:08364dcbb772b1f7",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-15T03:04:42.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:0a58331c48f104bb",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-08T01:52:14.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:1ab41eb9a48a62d4",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-07-06T09:20:22.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:45440fca448f591f",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-22T02:44:50.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:8a574897149596f3",
+      "source_url": "https://www.tiktok.com/@abriann.n/video/7648642378705865992",
+      "source_type": "public_comment",
+      "community": "tiktok_comment",
+      "published_at": "2026-06-14T22:53:41.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:4ad8f56831cad440",
+      "source_url": "https://www.instagram.com/p/DZYPMbbStI6/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-06-13T06:52:57.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "starting_without_formal_experience",
+      "paraphrased_need": "Students without formal experience need help turning real coursework, projects, campus work, and responsibilities into truthful evidence.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "starting_without_formal_experience"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:78bb7e24704c99a9",
+      "source_url": "https://www.instagram.com/p/DWc3GgxDekQ/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-04-23T01:41:06.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:8bdd042e0406aa84",
+      "source_url": "https://www.instagram.com/p/DWc3GgxDekQ/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-04-17T05:00:01.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:64805ed1dc2a895e",
+      "source_url": "https://www.instagram.com/p/DWovI44EmgR/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-04-02T23:55:39.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:bc8f2855dea036f8",
+      "source_url": "https://www.instagram.com/p/DWovI44EmgR/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-04-02T16:48:59.000Z",
+      "audience_segment": "college_student",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:41f9ed57529a89db",
+      "source_url": "https://www.instagram.com/p/DWovI44EmgR/",
+      "source_type": "public_comment",
+      "community": "instagram_comment",
+      "published_at": "2026-04-17T08:06:41.000Z",
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:9b88b1ee61f5f3c5",
+      "source_url": "https://www.youtube.com/shorts/pqnEwDI6oxc",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:7df63673b2dd5dfa",
+      "source_url": "https://www.youtube.com/shorts/pqnEwDI6oxc",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:b8cece372854b04a",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:8c8734d193faca16",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:7479fdb7faba2538",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "international_student",
+      "theme": "international_work_authorization",
+      "paraphrased_need": "International students need clear routing to official work-authorization guidance and their school official without receiving improvised legal advice.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "international_work_authorization"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:04eac792acb06ca7",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "college_student",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:b96a8ce691d62cdf",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:532d91e9150f2ea0",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:55f3452488b3d8f5",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "international_student",
+      "theme": "international_work_authorization",
+      "paraphrased_need": "International students need clear routing to official work-authorization guidance and their school official without receiving improvised legal advice.",
+      "confidence": 0.8,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "international_work_authorization"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:a643500b9b8b6a19",
+      "source_url": "https://www.youtube.com/shorts/tKzKPxZupow",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:8d299d67c775cf8a",
+      "source_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:88868a72d3018f21",
+      "source_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:60e7952a1b779369",
+      "source_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "resume_and_proof",
+      "paraphrased_need": "Students want specific feedback on whether their resume demonstrates relevant proof instead of listing generic responsibilities.",
+      "confidence": 0.7,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "resume_and_proof",
+        "rejection_and_wellbeing",
+        "ai_truthfulness_and_differentiation",
+        "career_direction"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:9bdc718d1adefe34",
+      "source_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:9ef85fbca11e2272",
+      "source_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:eeee474038041b23",
+      "source_url": "https://www.youtube.com/shorts/j6frOqANURA",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    },
+    {
+      "signal_id": "audience:c8cd7747c6e6ec73",
+      "source_url": "https://www.youtube.com/shorts/Cx3zR1rqZB4",
+      "source_type": "public_comment",
+      "community": "youtube_shorts_comment",
+      "published_at": null,
+      "audience_segment": "unspecified_early_career",
+      "theme": "general_early_career_uncertainty",
+      "paraphrased_need": "Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes.",
+      "confidence": 0.55,
+      "classification_version": "audience_theme_rules_v1",
+      "candidate_themes": [
+        "general_early_career_uncertainty"
+      ],
+      "human_override": null,
+      "identity_redacted": true
+    }
+  ],
+  "measurement_gaps": [
+    "Provider external calls made: 53."
+  ],
+  "privacy": {
+    "usernames_persisted": false,
+    "profile_urls_persisted": false,
+    "raw_comment_text_persisted": false,
+    "comment_ids_persisted": false,
+    "identity_redacted_before_persistence": true
+  },
+  "redactions": [
+    "credential values are never serialized"
+  ]
+}

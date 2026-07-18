@@ -2,19 +2,26 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import type {
   AgentCorpus,
-  AgentDocument,
   AgentEvidence,
+  LoadedVectorIndex,
+  SocialEvidenceDocument,
   SocialPlatform,
 } from '../lib/types.js';
 
 export function document(
   id: string,
-  overrides: Partial<AgentDocument> = {},
-): AgentDocument {
+  overrides: Partial<SocialEvidenceDocument> = {},
+): SocialEvidenceDocument {
   const platform: SocialPlatform = overrides.platform ?? 'tiktok';
   return {
     document_id: `evidence:${platform}:${id}`,
     item_id: `${platform}:post:${id}`,
+    evidence_type: 'social_post',
+    visibility: 'public_reviewed',
+    review_method: 'provider_quality_gate',
+    content_type: 'short_video',
+    topic_tags: ['resume_and_application'],
+    audience_states: ['proof_gap'],
     kind: 'analyzed_post',
     platform,
     platform_post_id: id,
@@ -29,6 +36,28 @@ export function document(
     comparison_percentile: 0.5,
     comparison_group_size: 20,
     confidence: 'observed',
+    confidence_score: 0.9,
+    provenance: {
+      source_kind: 'public_social',
+      source_ids: [`source-${id}`],
+      publisher: null,
+      authority: 'public_social_snapshot',
+      jurisdiction: null,
+      source_count: 1,
+      independent_source_count: 1,
+    },
+    freshness: {
+      status: 'not_applicable',
+      retrieved_at: '2026-07-02T00:00:00.000Z',
+      verified_at: null,
+      content_hash: null,
+    },
+    measurement: {
+      state: 'observed',
+      observation_count: 2,
+      observation_window_hours: 24,
+      comparison_method: 'within_platform_content_type_and_age_bucket',
+    },
     metrics: {
       views: 1_000,
       likes: 100,
@@ -55,17 +84,25 @@ export function document(
   };
 }
 
-export function corpus(documents: AgentDocument[] = [document('alpha'), document('beta')]): AgentCorpus {
+export function corpus(documents: SocialEvidenceDocument[] = [document('alpha'), document('beta')]): AgentCorpus {
   return {
-    schema_version: 'viralbench_agent_corpus_v1',
+    schema_version: 'viralbench_evidence_corpus_v2',
     generated_at: '2026-07-17T00:00:00.000Z',
     index_version: 'test-index',
+    visibility: 'public_reviewed',
     source_manifest: {
       library_generated_at: '2026-07-17T00:00:00.000Z',
       dashboard_generated_at: '2026-07-17T00:00:00.000Z',
       library_items: documents.length,
       dashboard_records: documents.length,
+      audience_signals: 0,
+      audience_documents: 0,
+      official_resources: 0,
+      owned_connection_state: 'not_connected',
       deduplicated_documents: documents.length,
+      public_reviewed_documents: documents.length,
+      operator_provisional_documents: 0,
+      by_evidence_type: { social_post: documents.length },
       skipped_rows: 0,
       skipped_by_reason: {},
       redactions: [],
@@ -74,11 +111,38 @@ export function corpus(documents: AgentDocument[] = [document('alpha'), document
   };
 }
 
+export function completeVectorIndex(library: AgentCorpus): LoadedVectorIndex {
+  return {
+    manifest: {
+      schema_version: 'viralbench_agent_vectors_v1',
+      model: 'gemini-embedding-2',
+      dimension: 768,
+      index_version: library.index_version,
+      generated_at: library.generated_at,
+      count: library.documents.length,
+      entries: library.documents.map((item, index) => ({
+        document_id: item.document_id,
+        content_hash: item.content_hash,
+        offset: index * 768,
+      })),
+    },
+    vectors: new Map(library.documents.map((item) => {
+      const vector = new Float32Array(768);
+      vector[0] = 1;
+      return [item.document_id, vector];
+    })),
+  };
+}
+
 export function evidence(id = 'alpha'): AgentEvidence {
   const item = document(id);
   return {
     evidence_id: item.document_id,
     item_id: item.item_id,
+    evidence_type: item.evidence_type,
+    visibility: item.visibility,
+    review_method: item.review_method,
+    content_type: item.content_type,
     title: item.analysis!.hook_pattern,
     snippet: item.analysis!.beat_pattern,
     source_url: item.canonical_url,
@@ -89,6 +153,11 @@ export function evidence(id = 'alpha'): AgentEvidence {
     signal: item.signal,
     age_bucket: item.age_bucket,
     comparison_percentile: item.comparison_percentile,
+    confidence: item.confidence_score,
+    freshness_status: item.freshness.status,
+    measurement_state: item.measurement.state,
+    source_count: item.provenance.source_count,
+    independent_source_count: item.provenance.independent_source_count,
     metrics: item.metrics,
     evidence_limitations: item.evidence_limitations,
     retrieval_relevance: 1,

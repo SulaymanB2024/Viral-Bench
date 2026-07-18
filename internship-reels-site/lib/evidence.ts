@@ -33,7 +33,7 @@ export function validateResearchOutput(input: unknown, evidence: AgentEvidence[]
     claim: requiredText(finding.claim, `findings[${index}].claim`, 1_000),
     evidence_ids: evidenceIds(finding.evidence_ids, `findings[${index}].evidence_ids`, evidence),
   }));
-  if (!findings.length || findings.length > 6) throw new Error('findings must contain 1 to 6 entries.');
+  if (!findings.length || findings.length > 8) throw new Error('findings must contain 1 to 8 entries.');
   const result = {
     answer,
     findings,

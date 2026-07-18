@@ -9,3 +9,4 @@ semantic_corpus.sqlite
 .ops/creative_loops/
 trend_outputs/
 .ops/harness/
+.ops/intelligence-run-once/

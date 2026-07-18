@@ -1,8 +1,8 @@
 {
   "schema_version": "viralbench_evidence_corpus_v2",
   "generated_at": "2026-07-17T23:19:56.085Z",
-  "index_version": "5fde72280725925f5ccc",
-  "visibility": "public_reviewed",
+  "index_version": "9582c4b50724509c67ea",
+  "visibility": "operator_provisional",
   "source_manifest": {
     "library_generated_at": "2026-07-17T23:19:31.098Z",
     "dashboard_generated_at": "2026-07-17T21:50:40.147Z",
@@ -14,12 +14,13 @@
     "owned_connection_state": "not_connected",
     "skipped_rows": 0,
     "skipped_by_reason": {},
-    "deduplicated_documents": 848,
+    "deduplicated_documents": 857,
     "public_reviewed_documents": 848,
-    "operator_provisional_documents": 0,
+    "operator_provisional_documents": 9,
     "by_evidence_type": {
-      "audience_theme": 4,
-      "official_source": 17,
+      "audience_theme": 11,
+      "official_source": 18,
+      "owned_aggregate": 1,
       "social_post": 827
     },
     "redactions": [
@@ -31,6 +32,283 @@
     ]
   },
   "documents": [
+    {
+      "document_id": "evidence:audience:049a27f0886f1519ffcb",
+      "item_id": "audience-theme:internship_performance",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "internship_performance"
+      ],
+      "audience_states": [
+        "college_student"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:0dd523de395dd883",
+          "audience:ff8cb6b9e9b27fb6"
+        ],
+        "publisher": "r/internships",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 2,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-07-16T21:40:49.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 2,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students need help understanding feedback, workplace norms, contribution, and return-offer signals after an internship begins.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-16T21:40:49.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 2,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 2 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students need help understanding feedback, workplace norms, contribution, and return-offer signals after an internship begins. internship_performance college_student",
+      "content_hash": "bf07cf85533fcea66979655f953cd993c478be93fc312983db43012dfcb5dfe1"
+    },
+    {
+      "document_id": "evidence:audience:089bd017f11e6ceab783",
+      "item_id": "audience-theme:application_silence_and_volume",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "application_silence_and_volume"
+      ],
+      "audience_states": [
+        "college_student"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:0b1ac9b722bd1ea9"
+        ],
+        "publisher": "r/internships",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-07-16T22:43:30.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students applying repeatedly without responses need a bounded way to inspect targeting, evidence, timing, and process quality.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-16T22:43:30.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students applying repeatedly without responses need a bounded way to inspect targeting, evidence, timing, and process quality. application_silence_and_volume college_student",
+      "content_hash": "7843320d3b000be7babc6db17ca1b9065f32651617ce4569f5cadcd5008dc19b"
+    },
+    {
+      "document_id": "evidence:audience:1c3aa91b5eb2351739c6",
+      "item_id": "audience-theme:career_direction",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "career_direction"
+      ],
+      "audience_states": [
+        "unspecified_early_career"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:bfccfccaff4af8ed"
+        ],
+        "publisher": "tiktok_comment",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-01-02T03:15:02.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students and recent graduates need a practical way to narrow roles and industries without pretending one major determines one career.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-01-02T03:15:02.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students and recent graduates need a practical way to narrow roles and industries without pretending one major determines one career. career_direction unspecified_early_career",
+      "content_hash": "ff527b7875058edca943337941aa4f1c568b266aa72d9409576742163ac9aca0"
+    },
+    {
+      "document_id": "evidence:audience:1f8f451c62cb10267319",
+      "item_id": "audience-theme:rejection_and_wellbeing",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "rejection_and_wellbeing"
+      ],
+      "audience_states": [
+        "college_student"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:[phone redacted]c88be7"
+        ],
+        "publisher": "r/internships",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-07-16T22:24:51.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students need job-search guidance that acknowledges rejection fatigue while separating market conditions from controllable next steps.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-16T22:24:51.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students need job-search guidance that acknowledges rejection fatigue while separating market conditions from controllable next steps. rejection_and_wellbeing college_student",
+      "content_hash": "491d0f44d331260cda40edce7a13ff4399e77c558bdc2eb5c4bbb3070a082a06"
+    },
     {
       "document_id": "evidence:audience:4098c7d0ec585ab1ff67",
       "item_id": "audience-theme:resume_and_proof",
@@ -112,6 +390,75 @@
       ],
       "search_text": "audience theme audience aggregate Students want specific feedback on whether their resume demonstrates relevant proof instead of listing generic responsibilities. resume_and_proof college_student recent_graduate unspecified_early_career first_generation_or_access",
       "content_hash": "ef1ccb88b649748a0e8dfff73779da18af207e58c973ca631caf11dadc281e3e"
+    },
+    {
+      "document_id": "evidence:audience:434558ed62978224b882",
+      "item_id": "audience-theme:interview_preparation",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "interview_preparation"
+      ],
+      "audience_states": [
+        "college_student"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:fe08b[phone redacted]b54c"
+        ],
+        "publisher": "r/internships",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-07-16T22:31:21.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students need repeatable interview practice that improves structure and reflection without memorizing perfect answers.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-16T22:31:21.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students need repeatable interview practice that improves structure and reflection without memorizing perfect answers. interview_preparation college_student",
+      "content_hash": "3b8fefc1458c2a01c903989ad1726df1e9b8b9a8b30e63e2cecadec51d94bde7"
     },
     {
       "document_id": "evidence:audience:69562952d2d4644c6547",
@@ -253,6 +600,75 @@
       ],
       "search_text": "audience theme audience aggregate Early-career job seekers need one specific, evidence-based next action instead of broad reassurance or guaranteed outcomes. general_early_career_uncertainty college_student unspecified_early_career",
       "content_hash": "26a37ec2ab9f9a60f6b4c8dd2ba0aa42250823f28eb81ce487543e1168e4eafa"
+    },
+    {
+      "document_id": "evidence:audience:7c4e0ad7087d92b636f3",
+      "item_id": "audience-theme:starting_without_formal_experience",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "starting_without_formal_experience"
+      ],
+      "audience_states": [
+        "unspecified_early_career"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:4ad8f56831cad440"
+        ],
+        "publisher": "instagram_comment",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-06-13T06:52:57.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students without formal experience need help turning real coursework, projects, campus work, and responsibilities into truthful evidence.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-06-13T06:52:57.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students without formal experience need help turning real coursework, projects, campus work, and responsibilities into truthful evidence. starting_without_formal_experience unspecified_early_career",
+      "content_hash": "d2900b122c9d7b5492325bed3b7cd11eb4cddc77deba75a6b73ef672f2585030"
     },
     {
       "document_id": "evidence:audience:b8f0adb27558e6922578",
@@ -408,6 +824,75 @@
       ],
       "search_text": "audience theme audience aggregate International students need clear routing to official work-authorization guidance and their school official without receiving improvised legal advice. international_work_authorization international_student",
       "content_hash": "9cfb0e0f51eff273bb5e1038d6fc5ef17e7d9b87e5808f0d5f8578de5abdd122"
+    },
+    {
+      "document_id": "evidence:audience:f9d5677b955c1d57ae3b",
+      "item_id": "audience-theme:networking_and_outreach",
+      "evidence_type": "audience_theme",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "audience_aggregate",
+      "topic_tags": [
+        "networking_and_outreach"
+      ],
+      "audience_states": [
+        "college_student"
+      ],
+      "confidence": "high",
+      "confidence_score": 0.8,
+      "provenance": {
+        "source_kind": "public_audience",
+        "source_ids": [
+          "audience:ce0bef9fa5dee17e"
+        ],
+        "publisher": "r/internships",
+        "authority": "identity_safe_public_signal",
+        "jurisdiction": null,
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "current",
+        "retrieved_at": "2026-07-16T19:58:10.000Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 1,
+        "observation_window_hours": null,
+        "comparison_method": "identity_safe_theme_aggregation"
+      },
+      "kind": "aggregated_signal",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "[link redacted]",
+      "account_handle": "",
+      "source_expression": "Students need low-pressure outreach language and a clear follow-up boundary that does not treat every contact as a referral request.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-16T19:58:10.000Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": 1,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "Audience signals are identity-safe paraphrases, not survey prevalence estimates.",
+        "This theme contains 1 observations from 1 independent public source pages.",
+        "The privacy minimum of five observations is not met; this theme is operator-only."
+      ],
+      "search_text": "audience theme audience aggregate Students need low-pressure outreach language and a clear follow-up boundary that does not treat every contact as a referral request. networking_and_outreach college_student",
+      "content_hash": "97756878cda58b0011e8cf6e73247e6820131f9a53338071c7ab65810d218cdc"
     },
     {
       "document_id": "evidence:instagram:C_gZ-PjCgye",
@@ -33537,6 +34022,81 @@
       "content_hash": "40f47b526f8cf109d9adbbfe72dc08f0ee8a7ed745e9613c84d7fc88a1462135"
     },
     {
+      "document_id": "evidence:official:careeronestop-job-search",
+      "item_id": "official:careeronestop-job-search",
+      "evidence_type": "official_source",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "official_guidance",
+      "topic_tags": [
+        "resume_and_application",
+        "networking",
+        "interview",
+        "opportunity_alert"
+      ],
+      "audience_states": [
+        "proof_gap",
+        "socially_uncertain",
+        "interview_uncertain",
+        "overwhelmed",
+        "late_or_urgent"
+      ],
+      "confidence": "authoritative_failed",
+      "confidence_score": 0.1,
+      "provenance": {
+        "source_kind": "official_primary",
+        "source_ids": [
+          "careeronestop-job-search"
+        ],
+        "publisher": "CareerOneStop",
+        "authority": "us_government",
+        "jurisdiction": "US",
+        "source_count": 1,
+        "independent_source_count": 1
+      },
+      "freshness": {
+        "status": "failed",
+        "retrieved_at": "2026-07-17T23:19:43.615Z",
+        "verified_at": "2026-07-17T17:00:00.000Z",
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_applicable",
+        "observation_count": 0,
+        "observation_window_hours": null,
+        "comparison_method": null
+      },
+      "kind": "official_resource",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "https://www.careeronestop.org/JobSearch/job-search.aspx",
+      "account_handle": "CareerOneStop",
+      "source_expression": "Ground job-search planning, networking, applications, interviews, salary, and local-help actions.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": "2026-07-17T23:19:43.615Z",
+      "signal": "analyzed",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": null,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "General process guidance does not verify a specific employer, claim, or opportunity.",
+        "Official source status is failed; do not use it for public guidance."
+      ],
+      "search_text": "official source official guidance CareerOneStop Ground job-search planning, networking, applications, interviews, salary, and local-help actions. resume_and_application networking interview opportunity_alert proof_gap socially_uncertain interview_uncertain overwhelmed late_or_urgent",
+      "content_hash": "2088f358c3b982c51197865cd3c2673b272970f67e5aa4f659609433e9885a87"
+    },
+    {
       "document_id": "evidence:official:careeronestop-resume-formatting",
       "item_id": "official:careeronestop-resume-formatting",
       "evidence_type": "official_source",
@@ -34588,6 +35148,69 @@
       ],
       "search_text": "official source official guidance U.S. Citizenship and Immigration Services Chapter 5 - Practical Training | USCIS A. GeneralPractical training (PT) is employment that is directly related to a student’s major area of study. Official websites use .gov A .gov website belongs to an official government organization in the United States. Secure .gov websites use HTTPS A lock ( ) or https:// means you've safely connected to the .gov website. Share sensitive information only on official, secure websites. Family of Green Card Holders (Permanent Residents) Family of Refugees and Asylees Citizenship for Military Family Members Naturalization Through Military Service Temporary (Nonimmigrant) Workers I-9, Employment Eligibility Verification I-485, Application to Register Permanent Residence or Adjust Status I-765, Application for Employment Authorization I-90, Application to Replace Permanent Resident Card (Green Card) N-400, Application for Naturalization I-129F, Petition for Alien Fiancé(e) I-130, Petition for Alien Relative I-360, Petition for Amerasian, Widow(er), or Special Immigrant I-600, Petition to Classify Orphan as an Immediate Relative I-751, Petition to Remove Conditions on Residence I-129, Petition for a Nonimmigrant Worker I-140, Immigrant Petition for Alien Workers I-526, Immigrant Petition by Standalone Investor I-539, Application to Extend/Change Nonimmigrant Status I-589, Application for Asylum and for Withholding of Removal I-730, Refugee/Asylee Relative Petition I-821, Application for Temporary Protected Status Speeches, Statements, Testimony Educational Products for Educators Resources for Educational Programs Naturalization-Related Data and Statistics Green Card Processes and Procedures After We Grant Your Green Card Employment Authorization Document Visa Availability and Priority Dates Green Card Eligibility Categories While Your Green Card Application Is Pending with USCIS Immigration and Nationality Act Class Action, Settlement Notices and Agreements Unlawful Presence and Inadmissibility Alien Registration Requirement Online Account and Technical Support Immigration and Citizenship Data Volume 1 - General Policies and Procedures Volume 2 - Nonimmigrants Part A - Nonimmigrant Policies and Procedures Part B - Diplomatic and International Organization Personnel (A, G) Part C - Visitors for Business or Tourism (B) Part D - Exchange Visitors (J) Part E - Cultural Visitors (Q) Part F - Students (F, M) Chapter 1 - Purpose and Background Chapter 2 - Eligibility Requirements Chapter 3 - Courses and Enrollment, Full Course of Study, and Reduced Course Load Chapter 5 - Practical Training Chapter 7 - Absences From the United States Chapter 8 - Change of Status, Extension of Stay, and Length of Stay Part G - Treaty Traders and Treaty Investors (E-1, E-2) Part H - Specialty Occupation Workers (H-1B, E-3) Part I - Temporary Agricultural and Nonagricultural Workers (H-2) Part K - Media Representatives (I) Part L - Intracompany Transferees (L) Part M - Nonimmigrants of Extraordinary Ability or Achievement (O) Part N - Athletes and Entertainers (P) Part O - Religious Workers (R) Part P - USMCA Professionals (TN) Part Q - Nonimmigrants Intending to Adjust Status (K, V) Volume 3 - Humanitarian Protection and Parole Volume 4 - Refugees and Asylees Volume 7 - Adjustment of Status Volume 9 - Waivers and Other Forms of Relief Volume 10 - Employment Authorization Volume 11 - Travel and Identity Documents Volume 12 - Citizenship and Naturalization Practical training (PT) is employment that is directly related to a student’s major area of study. [1] F-1 students may engage in three types of PT: Curricular Practical Training (CPT); Optional Practical Training (OPT) (pre-completion or post-completion); and Science, Technology, Engineering, and Mathematics Optional Practical Training extension (STEM OPT). PT may be authorized for an F-1 student at a U.S. Immigration and Customs Enforcement (ICE) Student and Exchange Visitor Program (SEVP)-certified college, university, conservatory, or seminary, who has been lawfully enrolled, full-time, for one full academic year. Students may count time enrolled in a study abroad program toward the full academic year requirement, if the student spent at least one full academic term (that is, one semester, trimester, or quarter) enrolled in a full course of study in the United States prior to studying abroad. [2] Students in English language training programs are ineligible for PT. [3] M-1 students may engage in PT only after they complete their course of study. [4] B. F-1 Student Curricular Practical Training opportunity_alert career_identity work_authorization_uncertain",
       "content_hash": "70dbaae96b9ab023f7941004475aabfbfc5ea4a1b542301712c047527844ef48"
+    },
+    {
+      "document_id": "evidence:owned:not-connected",
+      "item_id": "owned:not-connected",
+      "evidence_type": "owned_aggregate",
+      "visibility": "operator_provisional",
+      "review_method": "deterministic_contract",
+      "content_type": "owned_metric_aggregate",
+      "topic_tags": [
+        "owned_outcomes"
+      ],
+      "audience_states": [],
+      "confidence": "not_connected",
+      "confidence_score": 0,
+      "provenance": {
+        "source_kind": "owned_aggregate",
+        "source_ids": [],
+        "publisher": "Internships.com",
+        "authority": "owned_measurement",
+        "jurisdiction": null,
+        "source_count": 0,
+        "independent_source_count": 0
+      },
+      "freshness": {
+        "status": "failed",
+        "retrieved_at": "2026-07-17T23:20:02.147Z",
+        "verified_at": null,
+        "content_hash": null
+      },
+      "measurement": {
+        "state": "not_connected",
+        "observation_count": 0,
+        "observation_window_hours": null,
+        "comparison_method": null
+      },
+      "kind": "owned_data",
+      "platform": null,
+      "platform_post_id": "",
+      "canonical_url": "",
+      "account_handle": "",
+      "source_expression": "Owned marketing outcomes are not connected.",
+      "hashtags": [],
+      "posted_at": null,
+      "last_observed_at": null,
+      "signal": "insufficient_data",
+      "age_bucket": null,
+      "comparison_percentile": null,
+      "comparison_group_size": null,
+      "metrics": {
+        "views": null,
+        "likes": null,
+        "comments": null,
+        "shares": null,
+        "saves": null,
+        "engagement_rate": null,
+        "observed_view_velocity_per_hour": null
+      },
+      "analysis": null,
+      "evidence_limitations": [
+        "No privacy-safe owned aggregate export is connected; absence must not be interpreted as zero performance or demand."
+      ],
+      "search_text": "owned aggregate owned metric aggregate Owned marketing outcomes are not connected. owned_outcomes",
+      "content_hash": "64a771add1637f850d79b5a8d8344654d1904e8cb71b773f33cf624cb9b2f51c"
     },
     {
       "document_id": "evidence:tiktok:6806296744133954822",

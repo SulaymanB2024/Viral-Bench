@@ -32,7 +32,7 @@ export function createBriefHandler(options: BriefRouteOptions = {}) {
       requireJson(request);
       await requireOperatorSession(request, store, env);
       const input = parseOperatorBrief(bodyRecord(request));
-      const result = await (options.service ?? createDefaultAgentService(env)).marketingBrief(input);
+      const result = await (options.service ?? createDefaultAgentService(env, 'operator')).marketingBrief(input);
       sendJson(response, 200, result);
     } catch (error) {
       handleApiError(response, error);
