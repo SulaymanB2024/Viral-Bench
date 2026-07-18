@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { assertEvidenceSafe, validateResearchOutput } from '../lib/evidence.js';
+import {
+  assertEvidenceSafe,
+  normalizeResearchOutput,
+  validateResearchOutput,
+} from '../lib/evidence.js';
 import type { GeminiClient } from '../lib/gemini.js';
 import { AgentService } from '../lib/service.js';
 import { MemoryAgentStateStore } from '../lib/state.js';
@@ -100,6 +104,35 @@ test('research findings enforce repeated-record and audience-theme citation scop
     }, [audience]),
     /paraphrased audience theme/,
   );
+});
+
+test('research normalization bounds audience-theme claims and removes unavailable followups', () => {
+  const audience = {
+    ...evidence('audience'),
+    evidence_type: 'audience_theme' as const,
+    content_type: 'audience_aggregate' as const,
+    platform: null,
+    title: 'General early career uncertainty',
+  };
+  const normalized = normalizeResearchOutput({
+    answer: 'The reviewed records frame uncertainty with a concrete next action.',
+    findings: [{
+      claim: 'Early-career seekers prioritize one specific action.',
+      evidence_ids: [audience.evidence_id],
+    }],
+    limitations: [],
+    followups: [
+      'Which format has the highest retention?',
+      'Which hook differences appear across the cited records?',
+    ],
+  }, [audience]);
+
+  const validated = validateResearchOutput(normalized, [audience]);
+  assert.equal(
+    validated.findings[0]?.claim,
+    'One paraphrased audience theme names general early career uncertainty as context.',
+  );
+  assert.deepEqual(validated.followups, ['Which hook differences appear across the cited records?']);
 });
 
 test('public research repairs one validation-rejected Gemini response', async () => {

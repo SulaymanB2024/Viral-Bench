@@ -9,6 +9,7 @@ import {
 } from './agent-diagnostics.js';
 import { stableHash } from './corpus.js';
 import {
+  normalizeResearchOutput,
   validateMarketingOutput,
   validateResearchOutput,
   type ValidatedMarketingOutput,
@@ -42,7 +43,7 @@ const DAY_MS = 24 * 60 * 60 * 1_000;
 const MINUTE_MS = 60 * 1_000;
 const PUBLIC_CACHE_SECONDS = 24 * 60 * 60;
 const PUBLIC_RESEARCH_EVIDENCE_LIMIT = 12;
-export const RESEARCH_SYNTHESIS_VERSION = 'v3';
+export const RESEARCH_SYNTHESIS_VERSION = 'v4';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {
@@ -211,11 +212,11 @@ export class AgentService {
           )),
         }),
       );
-      let generated = await generate(prompt);
+      let generated = normalizeResearchOutput(await generate(prompt), hybrid.evidence);
       let validated: ValidatedResearchOutput;
       try {
         validated = validateResearchOutput(generated, hybrid.evidence);
-      } catch {
+      } catch (error) {
         const repairQuota = await this.#runResearchStage('state_rate_limit', () => (
           this.#consumePublicGenerationQuota()
         ));
@@ -230,6 +231,7 @@ export class AgentService {
           prompt,
           '',
           'Validation repair:',
+          `The previous response failed this check: ${validationFailureMessage(error)}`,
           'Return a completely new response from the same evidence package.',
           'Use cautious observational language and exact evidence IDs only.',
           'Keep the answer direct and concrete; name the actual mechanics in the strongest matching records.',
@@ -245,6 +247,7 @@ export class AgentService {
           'Paraphrase every source; never reproduce a sequence of twelve or more source words.',
           'Do not compare raw view rankings across platforms.',
         ].join('\n').slice(0, 48_000));
+        generated = normalizeResearchOutput(generated, hybrid.evidence);
         validated = await this.#runResearchStage('output_validation', () => (
           validateResearchOutput(generated, hybrid.evidence)
         ));
@@ -422,6 +425,12 @@ export class AgentService {
     }
     return null;
   }
+}
+
+function validationFailureMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message.replace(/\s+/g, ' ').slice(0, 300)
+    : 'The evidence validation contract was not satisfied.';
 }
 
 export function parseResearchQuery(input: Record<string, unknown>): ResearchQueryInput {

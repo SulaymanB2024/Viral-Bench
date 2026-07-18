@@ -12,12 +12,13 @@ const NEGATED_CAUSAL_OVERCLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do 
 const NEGATED_GUARANTEE_NOUN = /\b(?:no|not|rather than|without|does not constitute|doesn't constitute|cannot constitute)\s+(?:a\s+)?guarantee\b/gi;
 const CROSS_PLATFORM_RANK = /\b(highest|most|best|top)\b.{0,45}\bviews?\b.{0,45}\b(across|overall|all platforms?)\b/i;
 const UNMEASURED_EFFECTIVENESS = /\b(?:most|more|highly)\s+effective\b|\beffective at\b|\bconsistent(?:ly)?\b|\bconversion rates?\b/i;
-const UNSUPPORTED_GENERALIZATION = /\b(?:frequently|often|typically|generally)\b|\b(?:audiences?|seekers?|students?)\s+(?:demonstrate|show|have)\s+(?:a\s+)?preference\b/i;
+const UNSUPPORTED_GENERALIZATION = /\b(?:frequently|often|typically|generally)\b|\b(?:audiences?|seekers?|students?)\s+(?:(?:demonstrate|show|have)\s+(?:a\s+)?preference|prioritize|prefer|need|want)\b/i;
 const UNMEASURED_STATE_CHANGE = /\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/i;
 const NEGATED_STATE_CHANGE = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:reduce|resolve|eliminate)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
 const NEGATED_STATE_CHANGE_CLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:prove|show|establish|confirm)\s+that\b[^.!?]{0,120}\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
 const UNMEASURED_AUDIENCE_EFFECT = /\b(?:helps?|enables?|allows?)\s+(?:viewers?|users?|audiences?|seekers?)\s+(?:to\s+)?(?:move|transition)\b|\b(?:resolves?|solves?)\s+(?:it|the\s+(?:problem|issue|obstacle))\b/i;
 const MULTI_RECORD_CLAIM = /\b(?:several|multiple)\s+(?:cited\s+)?records?\b|\bacross\s+(?:the\s+)?(?:cited\s+)?records?\b|\brepeated pattern\b/i;
+const UNANSWERABLE_FOLLOWUP = /\b(?:conversion|retention|user surveys?|most frequently|often|typically|generally|consistently)\b/i;
 
 export interface ValidatedResearchOutput {
   answer: string;
@@ -33,6 +34,28 @@ export interface ValidatedMarketingOutput {
   experiment: MarketingBrief['experiment'];
   claim_risks: MarketingBrief['claim_risks'];
   limitations: string[];
+}
+
+export function normalizeResearchOutput(input: unknown, evidence: AgentEvidence[]): unknown {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return input;
+  const value = input as UnknownRecord;
+  const evidenceById = new Map(evidence.map((item) => [item.evidence_id, item]));
+  const findings = Array.isArray(value.findings)
+    ? value.findings.map((item) => normalizeAudienceThemeFinding(item, evidenceById))
+    : value.findings;
+  const candidateFollowups = Array.isArray(value.followups)
+    ? value.followups.filter((item): item is string => (
+      typeof item === 'string' && item.trim().length > 0 && !UNANSWERABLE_FOLLOWUP.test(item)
+    ))
+    : value.followups;
+  const followups = Array.isArray(candidateFollowups) && candidateFollowups.length === 0
+    ? ['Which hook and format differences appear across the cited records?']
+    : candidateFollowups;
+  return {
+    ...value,
+    findings,
+    followups,
+  };
 }
 
 export function validateResearchOutput(input: unknown, evidence: AgentEvidence[]): ValidatedResearchOutput {
@@ -52,6 +75,30 @@ export function validateResearchOutput(input: unknown, evidence: AgentEvidence[]
   };
   assertEvidenceSafe(result, evidence);
   return result;
+}
+
+function normalizeAudienceThemeFinding(
+  input: unknown,
+  evidenceById: Map<string, AgentEvidence>,
+): unknown {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return input;
+  const finding = input as UnknownRecord;
+  if (!Array.isArray(finding.evidence_ids)) return input;
+  const cited = finding.evidence_ids
+    .filter((id): id is string => typeof id === 'string')
+    .map((id) => evidenceById.get(id))
+    .filter((item): item is AgentEvidence => Boolean(item));
+  if (!cited.length || cited.some((item) => item.evidence_type !== 'audience_theme')) return input;
+  const labels = [...new Set(cited.map((item) => (
+    normalizedTokens(item.title).slice(0, 8).join(' ')
+  )).filter(Boolean))];
+  const context = labels.length ? labels.join('; ') : 'an audience tension';
+  return {
+    ...finding,
+    claim: cited.length === 1
+      ? `One paraphrased audience theme names ${context} as context.`
+      : `The cited paraphrased audience themes include ${context}.`,
+  };
 }
 
 export function validateMarketingOutput(input: unknown, evidence: AgentEvidence[]): ValidatedMarketingOutput {

@@ -129,7 +129,7 @@ export const RESEARCH_RESPONSE_SCHEMA: Record<string, unknown> = {
         properties: {
           claim: {
             type: 'string',
-            description: 'One specific, non-overlapping observation that explains what the cited records show and why it answers the question.',
+            description: 'One specific, non-overlapping observation that explains what the cited records show and why it answers the question. For audience-theme-only evidence, use: "One paraphrased audience theme names [theme] as context." Never infer what a population prioritizes, prefers, needs, or wants.',
           },
           evidence_ids: { type: 'array', minItems: 1, items: { type: 'string' } },
         },
@@ -216,6 +216,7 @@ export function researchSystemInstruction(): string {
     'Distinguish a repeated pattern from a single example. Use source counts and evidence families only as supplied.',
     'Use bounded quantity language such as "one record" or "several cited records"; do not say often, typically, generally, or consistently.',
     'Audience themes are privacy-safe paraphrased signals, not measured preferences or prevalence estimates.',
+    'For a finding supported only by audience-theme evidence, write: "One paraphrased audience theme names [theme] as context." Do not infer what seekers prioritize, prefer, need, or want.',
     'Describe how a post frames or presents uncertainty; do not say the post reduces, resolves, or eliminates a user state.',
     'Do not say a tactic helps, enables, or allows viewers to move or transition, or that a tool resolves their problem.',
     'Prefer current, higher-confidence, independently supported, and more relevant records.',
