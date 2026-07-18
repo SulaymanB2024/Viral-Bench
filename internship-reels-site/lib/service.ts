@@ -42,7 +42,7 @@ const DAY_MS = 24 * 60 * 60 * 1_000;
 const MINUTE_MS = 60 * 1_000;
 const PUBLIC_CACHE_SECONDS = 24 * 60 * 60;
 const PUBLIC_RESEARCH_EVIDENCE_LIMIT = 12;
-export const RESEARCH_SYNTHESIS_VERSION = 'v2';
+export const RESEARCH_SYNTHESIS_VERSION = 'v3';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {
@@ -237,6 +237,7 @@ export class AgentService {
           'Do not say effective, successful, consistent, converting, or conversion rate without owned outcome evidence.',
           'Use "one record" or "several cited records", not often, typically, generally, preference, or prevalence.',
           'Say the post frames or presents uncertainty, not that it reduces, resolves, or eliminates a user state.',
+          'Do not say a tactic helps, enables, or allows viewers to move or transition, or that a tool resolves their problem.',
           'Any repeated or multiple-record claim must cite at least two distinct evidence IDs.',
           'Name an audience theme as a paraphrased theme rather than a measured population preference.',
           'Make followups answerable from the reviewed corpus; do not ask for unavailable surveys or conversions.',

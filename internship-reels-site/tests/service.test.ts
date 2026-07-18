@@ -268,7 +268,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
-  assert.match(store.cacheReadKeys[0] ?? '', /^research:v2:/);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v3:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 

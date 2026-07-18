@@ -16,6 +16,7 @@ const UNSUPPORTED_GENERALIZATION = /\b(?:frequently|often|typically|generally)\b
 const UNMEASURED_STATE_CHANGE = /\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/i;
 const NEGATED_STATE_CHANGE = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:reduce|resolve|eliminate)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
 const NEGATED_STATE_CHANGE_CLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:prove|show|establish|confirm)\s+that\b[^.!?]{0,120}\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
+const UNMEASURED_AUDIENCE_EFFECT = /\b(?:helps?|enables?|allows?)\s+(?:viewers?|users?|audiences?|seekers?)\s+(?:to\s+)?(?:move|transition)\b|\b(?:resolves?|solves?)\s+(?:it|the\s+(?:problem|issue|obstacle))\b/i;
 const MULTI_RECORD_CLAIM = /\b(?:several|multiple)\s+(?:cited\s+)?records?\b|\bacross\s+(?:the\s+)?(?:cited\s+)?records?\b|\brepeated pattern\b/i;
 
 export interface ValidatedResearchOutput {
@@ -115,6 +116,9 @@ export function assertEvidenceSafe(output: unknown, evidence: AgentEvidence[]): 
   }
   if (UNMEASURED_STATE_CHANGE.test(unnegatedAssertiveText)) {
     throw new Error('Output contains an unmeasured audience-state change.');
+  }
+  if (UNMEASURED_AUDIENCE_EFFECT.test(unnegatedAssertiveText)) {
+    throw new Error('Output contains an unmeasured audience effect.');
   }
   if (CROSS_PLATFORM_RANK.test(text)) throw new Error('Output contains a prohibited cross-platform raw-view ranking.');
   if (containsLongSourceCopy(text, evidence)) throw new Error('Output reproduces a long source phrase.');

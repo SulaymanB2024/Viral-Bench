@@ -53,6 +53,18 @@ test('evidence safety rejects unsupported frequency and audience preference lang
       followups: ['Which tools are typically present in the reviewed records?'],
     }, []),
   );
+  assert.throws(
+    () => assertEvidenceSafe({
+      answer: 'This structure helps viewers move from uncertainty to action.',
+    }, []),
+    /unmeasured audience effect/,
+  );
+  assert.throws(
+    () => assertEvidenceSafe({
+      findings: ['The post presents a tool to resolve it.'],
+    }, []),
+    /unmeasured audience effect/,
+  );
 });
 
 test('research findings enforce repeated-record and audience-theme citation scope', () => {

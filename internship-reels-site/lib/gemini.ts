@@ -217,6 +217,7 @@ export function researchSystemInstruction(): string {
     'Use bounded quantity language such as "one record" or "several cited records"; do not say often, typically, generally, or consistently.',
     'Audience themes are privacy-safe paraphrased signals, not measured preferences or prevalence estimates.',
     'Describe how a post frames or presents uncertainty; do not say the post reduces, resolves, or eliminates a user state.',
+    'Do not say a tactic helps, enables, or allows viewers to move or transition, or that a tool resolves their problem.',
     'Prefer current, higher-confidence, independently supported, and more relevant records.',
     'Use 2 to 5 non-overlapping findings; use fewer when the package is narrow.',
     'Omit a single-example finding when it is tangential to the question or weaker than a repeated pattern.',
