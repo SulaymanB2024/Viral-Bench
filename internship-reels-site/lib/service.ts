@@ -12,6 +12,7 @@ import {
   validateMarketingOutput,
   validateResearchOutput,
   type ValidatedMarketingOutput,
+  type ValidatedResearchOutput,
 } from './evidence.js';
 import {
   evidencePrompt,
@@ -168,28 +169,58 @@ export class AgentService {
         );
       }
 
-      const generated = await this.#runResearchStage('gemini_generate', () => this.#gemini!.generateJson({
-        model: 'gemini-3.1-flash-lite',
-        systemInstruction: researchSystemInstruction(),
-        prompt: [
-          'Question:',
-          input.question,
-          '',
-          'Active filters:',
-          JSON.stringify(input.filters ?? {}),
-          '',
-          'Reviewed evidence package:',
-          evidencePrompt(hybrid.evidence, 40_000),
-        ].join('\n').slice(0, 48_000),
-        responseSchema: RESEARCH_RESPONSE_SCHEMA,
-        maxOutputTokens: 1_400,
-        beforeRetry: () => this.#runResearchStage('state_rate_limit', () => (
+      const prompt = [
+        'Question:',
+        input.question,
+        '',
+        'Active filters:',
+        JSON.stringify(input.filters ?? {}),
+        '',
+        'Reviewed evidence package:',
+        evidencePrompt(hybrid.evidence, 40_000),
+      ].join('\n').slice(0, 48_000);
+      const generate = (generationPrompt: string) => this.#runResearchStage(
+        'gemini_generate',
+        () => this.#gemini!.generateJson({
+          model: 'gemini-3.1-flash-lite',
+          systemInstruction: researchSystemInstruction(),
+          prompt: generationPrompt,
+          responseSchema: RESEARCH_RESPONSE_SCHEMA,
+          maxOutputTokens: 1_400,
+          beforeRetry: () => this.#runResearchStage('state_rate_limit', () => (
+            this.#consumePublicGenerationQuota()
+          )),
+        }),
+      );
+      let generated = await generate(prompt);
+      let validated: ValidatedResearchOutput;
+      try {
+        validated = validateResearchOutput(generated, hybrid.evidence);
+      } catch {
+        const repairQuota = await this.#runResearchStage('state_rate_limit', () => (
           this.#consumePublicGenerationQuota()
-        )),
-      }));
-      const validated = await this.#runResearchStage('output_validation', () => (
-        validateResearchOutput(generated, hybrid.evidence)
-      ));
+        ));
+        if (!repairQuota) {
+          return retrievalOnlyResearch(
+            hybrid,
+            this.#corpus.index_version,
+            'The first synthesis did not pass the evidence gate and repair capacity is exhausted.',
+          );
+        }
+        generated = await generate([
+          prompt,
+          '',
+          'Validation repair:',
+          'Return a completely new response from the same evidence package.',
+          'Use cautious observational language and exact evidence IDs only.',
+          'Do not use prove, cause, guarantee, ensure, always works, or "will increase/drive/deliver/produce", even in negations or limitations.',
+          'Paraphrase every source; never reproduce a sequence of twelve or more source words.',
+          'Do not compare raw view rankings across platforms.',
+        ].join('\n').slice(0, 48_000));
+        validated = await this.#runResearchStage('output_validation', () => (
+          validateResearchOutput(generated, hybrid.evidence)
+        ));
+      }
       const answer: ResearchAnswer = {
         mode: 'generated',
         ...validated,
