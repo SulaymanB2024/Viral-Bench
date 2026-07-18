@@ -31,6 +31,8 @@ export interface AgentStateStore {
   isSessionRevoked(jti: string): Promise<boolean>;
 }
 
+let localMemoryStore: MemoryAgentStateStore | null = null;
+
 export class RedisAgentStateStore implements AgentStateStore {
   readonly #redis: Redis;
   readonly #namespace: string;
@@ -80,8 +82,21 @@ export function createAgentStateStore(
 ): AgentStateStore | null {
   const url = env.UPSTASH_REDIS_REST_URL?.trim() || env.KV_REST_API_URL?.trim();
   const token = env.UPSTASH_REDIS_REST_TOKEN?.trim() || env.KV_REST_API_TOKEN?.trim();
-  if (!url || !token) return null;
-  return new RedisAgentStateStore(new Redis({ url, token }));
+  if (url && token) return new RedisAgentStateStore(new Redis({ url, token }));
+  if (!localAgentStateEnabled(env)) return null;
+  localMemoryStore ??= new MemoryAgentStateStore();
+  return localMemoryStore;
+}
+
+export function localAgentStateEnabled(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  const explicitlyEnabled = env.AGENT_LOCAL_STATE?.toLowerCase() === 'true';
+  const productionRuntime = (
+    env.NODE_ENV?.toLowerCase() === 'production'
+    || env.VERCEL_ENV?.toLowerCase() === 'production'
+  );
+  return explicitlyEnabled && !productionRuntime;
 }
 
 export class MemoryAgentStateStore implements AgentStateStore {

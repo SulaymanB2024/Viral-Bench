@@ -14,6 +14,9 @@ import {
   createDefaultAgentService,
   parseResearchQuery,
 } from '../../lib/service.js';
+import { localAgentStateEnabled } from '../../lib/state.js';
+
+const LOCAL_IP_HASH_SECRET = 'viralbench-local-development-ip-hash-secret-v1';
 
 interface ResearchRouteOptions {
   service?: AgentService;
@@ -28,7 +31,10 @@ export function createResearchQueryHandler(options: ResearchRouteOptions = {}) {
       requireAllowedOrigin(request, env);
       requireJson(request);
       const input = parseResearchQuery(bodyRecord(request));
-      const secret = env.AGENT_IP_HASH_SECRET?.trim();
+      const secret = (
+        env.AGENT_IP_HASH_SECRET?.trim()
+        || (localAgentStateEnabled(env) ? LOCAL_IP_HASH_SECRET : '')
+      );
       const ipHash = secret && secret.length >= 32
         ? hashIpAddress(requestIp(request.headers), secret)
         : null;
