@@ -277,7 +277,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
-  assert.match(store.cacheReadKeys[0] ?? '', /^research:v7:/);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v8:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 
@@ -387,6 +387,13 @@ test('evidence gate rejects unsupported performance and response attribution', (
     }, reviewedEvidence),
     /outcome-likelihood/i,
   );
+  assert.throws(
+    () => assertEvidenceSafe({
+      answer: 'Several records perform in the 80th percentile within their cohorts by using direct hooks.',
+      findings: [],
+    }, reviewedEvidence),
+    /cohort standing/i,
+  );
 });
 
 test('research normalization bounds unsupported frequency and audience claims', () => {
@@ -416,6 +423,35 @@ test('research normalization bounds unsupported frequency and audience claims', 
     'the cited paraphrased audience theme frames a concrete next step.',
   );
   assert.equal(validated.findings[0]?.claim, 'Creators use a direct alternative.');
+});
+
+test('research normalization separates cohort standing from observed mechanics', () => {
+  const performanceEvidence = [{
+    ...evidence('performance'),
+    comparison_percentile: 0.85,
+  }];
+  const normalized = normalizeResearchOutput({
+    answer: 'Several records perform in the 80th percentile within their cohorts by using direct hooks.',
+    findings: [{
+      claim: 'One record ranks in its cohort by employing a list format.',
+      evidence_ids: [performanceEvidence[0]!.evidence_id],
+    }],
+    limitations: [],
+    followups: ['Which format appears most commonly in the corpus?'],
+  }, performanceEvidence);
+  const validated = validateResearchOutput(normalized, performanceEvidence);
+  assert.equal(
+    validated.answer,
+    'Several records perform in the 80th percentile within their cohorts; the cited records use direct hooks.',
+  );
+  assert.equal(
+    validated.findings[0]?.claim,
+    'One record ranks in its cohort; the cited records use a list format.',
+  );
+  assert.deepEqual(
+    validated.followups,
+    ['Which hook and format differences appear across the cited records?'],
+  );
 });
 
 test('operator generation exports schema-valid inert drafts only', async () => {
