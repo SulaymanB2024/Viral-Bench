@@ -2,7 +2,7 @@
   "schema_version": "twelvelabs_dashboard_manifest_v1",
   "dashboard_kind": "competitor_creative_research",
   "owned_marketing_data_state": "not_connected",
-  "generated_at": "2026-07-17T21:50:40.147Z",
+  "generated_at": "2026-07-18T00:17:43.316Z",
   "sources": {
     "media_manifest": {
       "path": ".semantic-artifacts/competitor-content/reports/internship-us-content-expansion-20260716-media.json",
