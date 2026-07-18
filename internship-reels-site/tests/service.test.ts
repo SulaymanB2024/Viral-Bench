@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import type { GeminiClient } from '../lib/gemini.js';
+import type { ResearchFailureDiagnostic } from '../lib/agent-diagnostics.js';
+import { GeminiRequestError, type GeminiClient } from '../lib/gemini.js';
 import {
   AgentService,
   parseOperatorBrief,
@@ -16,6 +17,8 @@ class FakeGemini {
   embedCalls = 0;
   generateCalls = 0;
   fail = false;
+  generateError: Error | null = null;
+  generatedOutput: unknown | null = null;
 
   async embedText(): Promise<number[]> {
     this.embedCalls += 1;
@@ -26,6 +29,8 @@ class FakeGemini {
   async generateJson(options: { model: string }): Promise<unknown> {
     this.generateCalls += 1;
     if (this.fail) throw new Error('provider unavailable');
+    if (this.generateError) throw this.generateError;
+    if (this.generatedOutput) return this.generatedOutput;
     if (options.model === 'gemini-3.5-flash') {
       return {
         summary: 'Use a practical student tension as the starting point for a controlled draft.',
@@ -86,6 +91,43 @@ class FakeGemini {
   }
 }
 
+type StateFailure = 'cache_read' | 'rate_limit' | 'cache_write';
+
+class FailingStateStore extends MemoryAgentStateStore {
+  readonly #failure: StateFailure;
+
+  constructor(failure: StateFailure) {
+    super();
+    this.#failure = failure;
+  }
+
+  override async getJson<T>(key: string): Promise<T | null> {
+    if (this.#failure === 'cache_read') throw new Error('state-token-marker');
+    return await super.getJson<T>(key);
+  }
+
+  override async rateLimit(key: string, limit: number, windowMs: number) {
+    if (this.#failure === 'rate_limit') throw new Error('state-token-marker');
+    return await super.rateLimit(key, limit, windowMs);
+  }
+
+  override async setJson(key: string, value: unknown, ttlSeconds: number): Promise<void> {
+    if (this.#failure === 'cache_write') throw new Error('state-token-marker');
+    await super.setJson(key, value, ttlSeconds);
+  }
+}
+
+function localVectorIndex(library = corpus()) {
+  const index = completeVectorIndex(library);
+  return {
+    ...index,
+    manifest: {
+      ...index.manifest,
+      model: 'viralbench-local-hash-v1' as const,
+    },
+  };
+}
+
 test('input contracts reject URL/contact ingestion and unsupported filters', () => {
   assert.throws(
     () => parseResearchQuery({ question: 'Analyze https://example.com/post' }),
@@ -123,6 +165,81 @@ test('disabled or failed providers return explicit retrieval-only evidence', asy
   const failedResult = await failed.research({ question: 'resume internship hook' }, 'ip-hash');
   assert.equal(failedResult.mode, 'retrieval_only');
   assert.match(failedResult.limitations.join(' '), /unavailable/i);
+});
+
+test('research diagnostics classify failures without recording prompts or provider details', async () => {
+  const library = corpus();
+  const cases: Array<{
+    expectedStage: ResearchFailureDiagnostic['stage'];
+    expectedClass: ResearchFailureDiagnostic['failure_class'];
+    store: MemoryAgentStateStore;
+    gemini: FakeGemini;
+    expectedStatus?: number;
+  }> = [];
+
+  cases.push({
+    expectedStage: 'state_cache_read',
+    expectedClass: 'state_unavailable',
+    store: new FailingStateStore('cache_read'),
+    gemini: new FakeGemini(),
+  });
+  cases.push({
+    expectedStage: 'state_rate_limit',
+    expectedClass: 'state_unavailable',
+    store: new FailingStateStore('rate_limit'),
+    gemini: new FakeGemini(),
+  });
+  const providerFailure = new FakeGemini();
+  providerFailure.generateError = new GeminiRequestError(403, false);
+  cases.push({
+    expectedStage: 'gemini_generate',
+    expectedClass: 'gemini_http',
+    expectedStatus: 403,
+    store: new MemoryAgentStateStore(),
+    gemini: providerFailure,
+  });
+  const invalidOutput = new FakeGemini();
+  invalidOutput.generatedOutput = {
+    answer: 'A valid-looking response with an invalid evidence reference.',
+    findings: [{ claim: 'A bounded observation.', evidence_ids: ['evidence:outside:package'] }],
+    limitations: [],
+    followups: [],
+  };
+  cases.push({
+    expectedStage: 'output_validation',
+    expectedClass: 'validation_rejected',
+    store: new MemoryAgentStateStore(),
+    gemini: invalidOutput,
+  });
+  cases.push({
+    expectedStage: 'state_cache_write',
+    expectedClass: 'state_unavailable',
+    store: new FailingStateStore('cache_write'),
+    gemini: new FakeGemini(),
+  });
+
+  for (const scenario of cases) {
+    const diagnostics: ResearchFailureDiagnostic[] = [];
+    const service = new AgentService({
+      corpus: library,
+      vectorIndex: localVectorIndex(library),
+      enabled: true,
+      store: scenario.store,
+      gemini: scenario.gemini as unknown as GeminiClient,
+      diagnosticLogger: (diagnostic) => diagnostics.push(diagnostic),
+    });
+    const result = await service.research({
+      question: 'resume internship hook PRIVATE_PROMPT_MARKER',
+    }, 'ip-hash');
+
+    assert.equal(result.mode, 'retrieval_only');
+    assert.equal(diagnostics.length, 1);
+    assert.equal(diagnostics[0]?.stage, scenario.expectedStage);
+    assert.equal(diagnostics[0]?.failure_class, scenario.expectedClass);
+    assert.equal(diagnostics[0]?.provider_status, scenario.expectedStatus);
+    const observable = JSON.stringify({ diagnostics, result });
+    assert.doesNotMatch(observable, /PRIVATE_PROMPT_MARKER|state-token-marker/);
+  }
 });
 
 test('public answers are evidence-validated and safely cached without storing the question', async () => {

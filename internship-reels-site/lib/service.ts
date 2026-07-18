@@ -1,6 +1,12 @@
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
+import {
+  logResearchFailure,
+  reportResearchFailure,
+  type AgentDiagnosticLogger,
+  type ResearchFailureStage,
+} from './agent-diagnostics.js';
 import { stableHash } from './corpus.js';
 import {
   validateMarketingOutput,
@@ -55,6 +61,13 @@ interface AgentServiceOptions {
   store?: AgentStateStore | null;
   gemini?: GeminiClient | null;
   enabled?: boolean;
+  diagnosticLogger?: AgentDiagnosticLogger | null;
+}
+
+class ResearchStageError extends Error {
+  constructor(readonly stage: ResearchFailureStage) {
+    super(`Research stage failed: ${stage}`);
+  }
 }
 
 export class AgentService {
@@ -63,6 +76,7 @@ export class AgentService {
   readonly #store: AgentStateStore | null;
   readonly #gemini: GeminiClient | null;
   readonly #enabled: boolean;
+  readonly #diagnosticLogger: AgentDiagnosticLogger | null;
 
   constructor(options: AgentServiceOptions) {
     this.#corpus = options.corpus;
@@ -70,6 +84,7 @@ export class AgentService {
     this.#store = options.store ?? null;
     this.#gemini = options.gemini ?? null;
     this.#enabled = options.enabled ?? false;
+    this.#diagnosticLogger = options.diagnosticLogger ?? null;
   }
 
   async research(input: ResearchQueryInput, ipHash: string | null): Promise<ResearchAnswer> {
@@ -102,12 +117,16 @@ export class AgentService {
     })}`;
 
     try {
-      const cached = await this.#store!.getJson<ResearchAnswer>(cacheKey);
+      const cached = await this.#runResearchStage('state_cache_read', () => (
+        this.#store!.getJson<ResearchAnswer>(cacheKey)
+      ));
       if (isCachedResearchAnswer(cached, this.#corpus.index_version)) {
         return { ...cached, mode: 'cached' };
       }
 
-      const ipQuota = await this.#store!.rateLimit(`public:ip:${ipHash}:day`, 5, DAY_MS);
+      const ipQuota = await this.#runResearchStage('state_rate_limit', () => (
+        this.#store!.rateLimit(`public:ip:${ipHash}:day`, 5, DAY_MS)
+      ));
       if (!ipQuota.allowed) {
         return retrievalOnlyResearch(
           lexical,
@@ -115,7 +134,9 @@ export class AgentService {
           `Daily uncached-question limit reached. Retrieval remains available until ${ipQuota.reset_at}.`,
         );
       }
-      const generationQuota = await this.#consumePublicGenerationQuota();
+      const generationQuota = await this.#runResearchStage('state_rate_limit', () => (
+        this.#consumePublicGenerationQuota()
+      ));
       if (!generationQuota) {
         return retrievalOnlyResearch(
           lexical,
@@ -123,7 +144,7 @@ export class AgentService {
           'Public generation capacity is temporarily exhausted; showing deterministic retrieval.',
         );
       }
-      const queryVector = await this.#queryVector(input.question);
+      const queryVector = await this.#researchQueryVector(input.question);
       if (!queryVector) {
         return retrievalOnlyResearch(
           lexical,
@@ -147,7 +168,7 @@ export class AgentService {
         );
       }
 
-      const generated = await this.#gemini!.generateJson({
+      const generated = await this.#runResearchStage('gemini_generate', () => this.#gemini!.generateJson({
         model: 'gemini-3.1-flash-lite',
         systemInstruction: researchSystemInstruction(),
         prompt: [
@@ -162,9 +183,13 @@ export class AgentService {
         ].join('\n').slice(0, 48_000),
         responseSchema: RESEARCH_RESPONSE_SCHEMA,
         maxOutputTokens: 1_400,
-        beforeRetry: () => this.#consumePublicGenerationQuota(),
-      });
-      const validated = validateResearchOutput(generated, hybrid.evidence);
+        beforeRetry: () => this.#runResearchStage('state_rate_limit', () => (
+          this.#consumePublicGenerationQuota()
+        )),
+      }));
+      const validated = await this.#runResearchStage('output_validation', () => (
+        validateResearchOutput(generated, hybrid.evidence)
+      ));
       const answer: ResearchAnswer = {
         mode: 'generated',
         ...validated,
@@ -174,7 +199,9 @@ export class AgentService {
         query_intent: hybrid.query_intent,
         coverage: hybrid.coverage,
       };
-      await this.#store!.setJson(cacheKey, answer, PUBLIC_CACHE_SECONDS);
+      await this.#runResearchStage('state_cache_write', () => (
+        this.#store!.setJson(cacheKey, answer, PUBLIC_CACHE_SECONDS)
+      ));
       return answer;
     } catch {
       return retrievalOnlyResearch(
@@ -286,6 +313,20 @@ export class AgentService {
     return daily.allowed;
   }
 
+  async #researchQueryVector(value: string): Promise<number[] | null> {
+    if (this.#vectorIndex?.manifest.model === 'viralbench-local-hash-v1') {
+      return localHashEmbedding(value.slice(0, 8_000));
+    }
+    const embeddingQuota = await this.#runResearchStage('state_rate_limit', () => (
+      this.#consumeEmbeddingQuota()
+    ));
+    if (!embeddingQuota) return null;
+    return await this.#runResearchStage('gemini_embed', () => this.#gemini!.embedText(
+      value.slice(0, 8_000),
+      () => this.#runResearchStage('state_rate_limit', () => this.#consumeEmbeddingQuota()),
+    ));
+  }
+
   async #queryVector(value: string): Promise<number[] | null> {
     if (this.#vectorIndex?.manifest.model === 'viralbench-local-hash-v1') {
       return localHashEmbedding(value.slice(0, 8_000));
@@ -295,6 +336,19 @@ export class AgentService {
       value.slice(0, 8_000),
       () => this.#consumeEmbeddingQuota(),
     );
+  }
+
+  async #runResearchStage<T>(
+    stage: ResearchFailureStage,
+    operation: () => Promise<T> | T,
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      if (error instanceof ResearchStageError) throw error;
+      reportResearchFailure(this.#diagnosticLogger, stage, error);
+      throw new ResearchStageError(stage);
+    }
   }
 
   #availabilityLimitation(): string | null {
@@ -361,6 +415,7 @@ export function createDefaultAgentService(
     store: createAgentStateStore(env),
     gemini: apiKey ? new GeminiClient({ apiKey }) : null,
     enabled: env.AGENT_ENABLED?.toLowerCase() === 'true',
+    diagnosticLogger: logResearchFailure,
   });
 }
 
