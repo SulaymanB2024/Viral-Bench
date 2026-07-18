@@ -17,6 +17,8 @@ const UNMEASURED_STATE_CHANGE = /\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?
 const NEGATED_STATE_CHANGE = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:reduce|resolve|eliminate)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
 const NEGATED_STATE_CHANGE_CLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:prove|show|establish|confirm)\s+that\b[^.!?]{0,120}\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
 const UNMEASURED_AUDIENCE_EFFECT = /\b(?:helps?|enables?|allows?)\s+(?:viewers?|users?|audiences?|seekers?)\s+(?:to\s+)?(?:move|transition)\b|\b(?:resolves?|solves?)\s+(?:it|the\s+(?:problem|issue|obstacle))\b/i;
+const UNMEASURED_OUTCOME_LIFT = /\b(?:boost|improv|increas|rais)(?:e|es|ed|ing)\s+(?:the\s+)?(?:chance|likelihood|odds|probability)\b/i;
+const UNMEASURED_PERFORMANCE_ATTRIBUTION = /\b(?:achiev|earn|explain|produc|reach)(?:e|es|ed|ing)\s+[^.!?]{0,60}\b(?:cohort\s+)?(?:percentiles?|performance\s+(?:signals?|rankings?))\b[^.!?]{0,40}\b(?:because|by|due to|through)\b/i;
 const MULTI_RECORD_CLAIM = /\b(?:several|multiple)\s+(?:cited\s+)?records?\b|\bacross\s+(?:the\s+)?(?:cited\s+)?records?\b|\brepeated pattern\b/i;
 const UNANSWERABLE_FOLLOWUP = /\b(?:conversion|retention|user surveys?|most frequently|often|typically|generally|consistently)\b/i;
 
@@ -166,6 +168,12 @@ export function assertEvidenceSafe(output: unknown, evidence: AgentEvidence[]): 
   }
   if (UNMEASURED_AUDIENCE_EFFECT.test(unnegatedAssertiveText)) {
     throw new Error('Output contains an unmeasured audience effect.');
+  }
+  if (UNMEASURED_OUTCOME_LIFT.test(unnegatedAssertiveText)) {
+    throw new Error('Output contains an unmeasured outcome-likelihood claim.');
+  }
+  if (UNMEASURED_PERFORMANCE_ATTRIBUTION.test(unnegatedAssertiveText)) {
+    throw new Error('Output attributes cohort standing to an unmeasured content mechanism.');
   }
   if (CROSS_PLATFORM_RANK.test(text)) throw new Error('Output contains a prohibited cross-platform raw-view ranking.');
   if (containsLongSourceCopy(text, evidence)) throw new Error('Output reproduces a long source phrase.');

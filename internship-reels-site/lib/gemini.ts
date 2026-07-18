@@ -229,6 +229,7 @@ export function researchSystemInstruction(): string {
     'Claims about repeated or multiple records must cite at least two distinct evidence IDs.',
     'Never cite a record merely to fill a source-family quota, and omit tangential records.',
     'Do not call a tactic effective, successful, consistent, or converting unless owned outcome evidence directly measures that claim.',
+    'For performance records, state cohort standing and observed creative mechanics separately; never say a mechanic achieved, earned, or explains a percentile or increased response likelihood.',
     'Treat missing, failed, or unmeasured fields as evidence gaps, never as negative findings.',
     'Do not claim causality, guarantees, or universal winning formulas.',
     'Do not rank raw view counts across platforms. Cohort percentiles are within platform and age bucket.',

@@ -55,7 +55,7 @@ const GENERIC_RESEARCH_QUERY_TOKENS = new Set([
   'say',
   'source',
 ]);
-export const RESEARCH_SYNTHESIS_VERSION = 'v5';
+export const RESEARCH_SYNTHESIS_VERSION = 'v6';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {
@@ -205,6 +205,9 @@ export class AgentService {
         this.#corpus,
         input.question,
       );
+      const promptEvidence = hybrid.query_intent === 'official_guidance'
+        ? synthesisEvidence.slice(0, 4)
+        : synthesisEvidence;
 
       const prompt = [
         'Question:',
@@ -229,15 +232,24 @@ export class AgentService {
         '- Replace umbrella labels such as "actionable next step", "alternative solution", or "structured sequence" with the actual steps or examples when the evidence names them.',
         '- Name any directly supported test, method, or framework and summarize its concrete components without adopting unsupported outcome claims.',
         ...(hybrid.query_intent === 'performance'
-          ? ['- For performance questions, identify why examples qualify within their own platform, content type, and age cohort, including available cohort percentiles or signals.']
+          ? [
+              '- For performance questions, identify examples that qualify within their own platform, content type, and age cohort, including available cohort percentiles or signals.',
+              '- State cohort standing and mechanics separately; never say a mechanic achieved, earned, explains, or caused a percentile, signal, response, or outcome.',
+            ]
           : []),
         ...(hybrid.query_intent === 'official_guidance'
-          ? ['- For official guidance, lead with the governing named framework and the directly supported factors, then state the factual or jurisdictional boundary.']
+          ? [
+              '- For official guidance, lead with the governing named framework and summarize no more than four representative factors unless the question requests an exhaustive list.',
+              '- State the factual or jurisdictional boundary after the concrete guidance.',
+            ]
+          : []),
+        ...(hybrid.query_intent === 'audience_need'
+          ? ['- Use audience themes only as context; take any concrete next step from the cited social-post mechanics and name that step directly.']
           : []),
         '- Keep the answer concise, specific, and useful to a reader deciding what to do next.',
         '',
         'Reviewed evidence package:',
-        evidencePrompt(synthesisEvidence, 40_000),
+        evidencePrompt(promptEvidence, 40_000),
       ].join('\n').slice(0, 48_000);
       const generate = (generationPrompt: string) => this.#runResearchStage(
         'gemini_generate',
@@ -246,7 +258,7 @@ export class AgentService {
           systemInstruction: researchSystemInstruction(),
           prompt: generationPrompt,
           responseSchema: RESEARCH_RESPONSE_SCHEMA,
-          maxOutputTokens: 1_400,
+          maxOutputTokens: 1_800,
           beforeRetry: () => (
             bypassAppQuota
               ? Promise.resolve(true)
@@ -256,10 +268,10 @@ export class AgentService {
           ),
         }),
       );
-      let generated = normalizeResearchOutput(await generate(prompt), synthesisEvidence);
+      let generated = normalizeResearchOutput(await generate(prompt), promptEvidence);
       let validated: ValidatedResearchOutput;
       try {
-        validated = validateResearchOutput(generated, synthesisEvidence);
+        validated = validateResearchOutput(generated, promptEvidence);
       } catch (error) {
         const repairQuota = (
           bypassAppQuota
@@ -276,8 +288,6 @@ export class AgentService {
           );
         }
         generated = await generate([
-          prompt,
-          '',
           'Validation repair:',
           `The previous response failed this check: ${validationFailureMessage(error)}`,
           'Return a completely new response from the same evidence package.',
@@ -292,12 +302,15 @@ export class AgentService {
           'Name an audience theme as a paraphrased theme rather than a measured population preference.',
           'Make followups answerable from the reviewed corpus; do not ask for unavailable surveys or conversions.',
           'Do not use prove, cause, guarantee, ensure, always works, or "will increase/drive/deliver/produce", even in negations or limitations.',
+          'Do not say a content mechanic achieved, earned, explains, or caused a cohort percentile, performance signal, response likelihood, or outcome.',
           'Paraphrase every source; never reproduce a sequence of twelve or more source words.',
           'Do not compare raw view rankings across platforms.',
+          '',
+          prompt,
         ].join('\n').slice(0, 48_000));
-        generated = normalizeResearchOutput(generated, synthesisEvidence);
+        generated = normalizeResearchOutput(generated, promptEvidence);
         validated = await this.#runResearchStage('output_validation', () => (
-          validateResearchOutput(generated, synthesisEvidence)
+          validateResearchOutput(generated, promptEvidence)
         ));
       }
       const answer: ResearchAnswer = {

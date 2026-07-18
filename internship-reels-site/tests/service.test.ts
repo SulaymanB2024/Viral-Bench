@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import type { ResearchFailureDiagnostic } from '../lib/agent-diagnostics.js';
+import { assertEvidenceSafe } from '../lib/evidence.js';
 import { GeminiRequestError, type GeminiClient } from '../lib/gemini.js';
 import {
   AgentService,
@@ -185,6 +186,7 @@ test('research diagnostics classify failures without recording prompts or provid
     store: MemoryAgentStateStore;
     gemini: FakeGemini;
     expectedStatus?: number;
+    expectedValidationRule?: ResearchFailureDiagnostic['validation_rule'];
   }> = [];
 
   cases.push({
@@ -218,6 +220,7 @@ test('research diagnostics classify failures without recording prompts or provid
   cases.push({
     expectedStage: 'output_validation',
     expectedClass: 'validation_rejected',
+    expectedValidationRule: 'citation_scope',
     store: new MemoryAgentStateStore(),
     gemini: invalidOutput,
   });
@@ -247,6 +250,7 @@ test('research diagnostics classify failures without recording prompts or provid
     assert.equal(diagnostics[0]?.stage, scenario.expectedStage);
     assert.equal(diagnostics[0]?.failure_class, scenario.expectedClass);
     assert.equal(diagnostics[0]?.provider_status, scenario.expectedStatus);
+    assert.equal(diagnostics[0]?.validation_rule, scenario.expectedValidationRule);
     const observable = JSON.stringify({ diagnostics, result });
     assert.doesNotMatch(observable, /PRIVATE_PROMPT_MARKER|state-token-marker/);
   }
@@ -269,7 +273,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
-  assert.match(store.cacheReadKeys[0] ?? '', /^research:v5:/);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v6:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 
@@ -361,6 +365,24 @@ test('official synthesis context centers substantive query-matching guidance', (
   assert.match(expanded?.snippet ?? '', /primary beneficiary test/i);
   assert.ok((expanded?.snippet.length ?? 0) <= 2_400);
   assert.equal(officialEvidence.snippet, 'An official website of the United States government.');
+});
+
+test('evidence gate rejects unsupported performance and response attribution', () => {
+  const reviewedEvidence = [evidence('alpha'), evidence('beta')];
+  assert.throws(
+    () => assertEvidenceSafe({
+      answer: 'These examples achieve high cohort percentiles by using contrast-based hooks.',
+      findings: [],
+    }, reviewedEvidence),
+    /cohort standing/i,
+  );
+  assert.throws(
+    () => assertEvidenceSafe({
+      answer: 'The ladder sequence increases the likelihood of a response.',
+      findings: [],
+    }, reviewedEvidence),
+    /outcome-likelihood/i,
+  );
 });
 
 test('operator generation exports schema-valid inert drafts only', async () => {
