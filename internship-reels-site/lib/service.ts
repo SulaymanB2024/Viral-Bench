@@ -43,7 +43,19 @@ const DAY_MS = 24 * 60 * 60 * 1_000;
 const MINUTE_MS = 60 * 1_000;
 const PUBLIC_CACHE_SECONDS = 24 * 60 * 60;
 const PUBLIC_RESEARCH_EVIDENCE_LIMIT = 12;
-export const RESEARCH_SYNTHESIS_VERSION = 'v4';
+const OFFICIAL_SYNTHESIS_EXCERPT_LENGTH = 2_400;
+const GENERIC_RESEARCH_QUERY_TOKENS = new Set([
+  'answer',
+  'current',
+  'does',
+  'evidence',
+  'guidance',
+  'official',
+  'reviewed',
+  'say',
+  'source',
+]);
+export const RESEARCH_SYNTHESIS_VERSION = 'v5';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {
@@ -188,6 +200,11 @@ export class AgentService {
           'The reviewed corpus does not contain enough matching evidence for this question.',
         );
       }
+      const synthesisEvidence = researchSynthesisEvidence(
+        hybrid.evidence,
+        this.#corpus,
+        input.question,
+      );
 
       const prompt = [
         'Question:',
@@ -209,10 +226,18 @@ export class AgentService {
         '- Name 2 to 4 concrete mechanics or next steps when the evidence supports them.',
         '- Explain how those mechanics address the question; do not merely list records.',
         '- Separate repeated patterns from isolated examples.',
+        '- Replace umbrella labels such as "actionable next step", "alternative solution", or "structured sequence" with the actual steps or examples when the evidence names them.',
+        '- Name any directly supported test, method, or framework and summarize its concrete components without adopting unsupported outcome claims.',
+        ...(hybrid.query_intent === 'performance'
+          ? ['- For performance questions, identify why examples qualify within their own platform, content type, and age cohort, including available cohort percentiles or signals.']
+          : []),
+        ...(hybrid.query_intent === 'official_guidance'
+          ? ['- For official guidance, lead with the governing named framework and the directly supported factors, then state the factual or jurisdictional boundary.']
+          : []),
         '- Keep the answer concise, specific, and useful to a reader deciding what to do next.',
         '',
         'Reviewed evidence package:',
-        evidencePrompt(hybrid.evidence, 40_000),
+        evidencePrompt(synthesisEvidence, 40_000),
       ].join('\n').slice(0, 48_000);
       const generate = (generationPrompt: string) => this.#runResearchStage(
         'gemini_generate',
@@ -231,10 +256,10 @@ export class AgentService {
           ),
         }),
       );
-      let generated = normalizeResearchOutput(await generate(prompt), hybrid.evidence);
+      let generated = normalizeResearchOutput(await generate(prompt), synthesisEvidence);
       let validated: ValidatedResearchOutput;
       try {
-        validated = validateResearchOutput(generated, hybrid.evidence);
+        validated = validateResearchOutput(generated, synthesisEvidence);
       } catch (error) {
         const repairQuota = (
           bypassAppQuota
@@ -270,9 +295,9 @@ export class AgentService {
           'Paraphrase every source; never reproduce a sequence of twelve or more source words.',
           'Do not compare raw view rankings across platforms.',
         ].join('\n').slice(0, 48_000));
-        generated = normalizeResearchOutput(generated, hybrid.evidence);
+        generated = normalizeResearchOutput(generated, synthesisEvidence);
         validated = await this.#runResearchStage('output_validation', () => (
-          validateResearchOutput(generated, hybrid.evidence)
+          validateResearchOutput(generated, synthesisEvidence)
         ));
       }
       const answer: ResearchAnswer = {
@@ -464,6 +489,117 @@ function validationFailureMessage(error: unknown): string {
   return error instanceof Error
     ? error.message.replace(/\s+/g, ' ').slice(0, 300)
     : 'The evidence validation contract was not satisfied.';
+}
+
+export function researchSynthesisEvidence(
+  evidence: AgentEvidence[],
+  corpus: AgentCorpus,
+  question: string,
+): AgentEvidence[] {
+  const documents = new Map(corpus.documents.map((document) => [document.document_id, document]));
+  return evidence.map((item) => {
+    if (item.evidence_type !== 'official_source') return item;
+    const document = documents.get(item.evidence_id);
+    if (!document?.source_expression) return item;
+    return {
+      ...item,
+      snippet: queryAwareExcerpt(
+        document.source_expression,
+        question,
+        OFFICIAL_SYNTHESIS_EXCERPT_LENGTH,
+      ),
+    };
+  });
+}
+
+function queryAwareExcerpt(value: string, question: string, maxLength: number): string {
+  const compact = value.replace(/\s+/g, ' ').trim();
+  if (compact.length <= maxLength) return compact;
+  const terms = [...new Set(
+    tokenize(question).filter((token) => (
+      token.length >= 3 && !GENERIC_RESEARCH_QUERY_TOKENS.has(token)
+    )),
+  )];
+  const lower = compact.toLowerCase();
+  const positions = terms.flatMap((term) => {
+    const matches: number[] = [];
+    let offset = 0;
+    while (matches.length < 12) {
+      const index = lower.indexOf(term, offset);
+      if (index < 0) break;
+      matches.push(index);
+      offset = index + term.length;
+    }
+    return matches;
+  });
+  if (!positions.length) return `${compact.slice(0, maxLength - 1).trimEnd()}…`;
+
+  const contextBefore = Math.floor(maxLength * 0.16);
+  let bestStart = 0;
+  let bestScore = Number.NEGATIVE_INFINITY;
+  for (const position of positions) {
+    const rawStart = Math.max(0, Math.min(position - contextBefore, compact.length - maxLength));
+    const sentenceBoundary = Math.max(
+      compact.lastIndexOf('. ', rawStart),
+      compact.lastIndexOf('? ', rawStart),
+      compact.lastIndexOf('! ', rawStart),
+    );
+    const start = sentenceBoundary >= Math.max(0, rawStart - 220)
+      ? sentenceBoundary + 2
+      : rawStart;
+    const window = lower.slice(start, start + maxLength);
+    const queryScore = terms.reduce((score, term) => (
+      score + occurrenceCount(window, term) * (1 + Math.min(term.length, 10) / 10)
+    ), 0);
+    const frameworkScore = occurrenceCount(
+      window,
+      /\b(?:criteria|entitled|factor|framework|requirement|test)\b/g,
+    ) * 0.35;
+    const boilerplatePenalty = occurrenceCount(
+      window,
+      /official website|\.gov means|website is secure|sharing sensitive information/g,
+    ) * 0.5;
+    const score = queryScore + frameworkScore - boilerplatePenalty;
+    if (score > bestScore || (score === bestScore && start < bestStart)) {
+      bestScore = score;
+      bestStart = start;
+    }
+  }
+
+  let excerpt = compact.slice(bestStart, bestStart + maxLength);
+  const lastSentence = Math.max(
+    excerpt.lastIndexOf('. '),
+    excerpt.lastIndexOf('? '),
+    excerpt.lastIndexOf('! '),
+  );
+  if (lastSentence >= Math.floor(maxLength * 0.72)) {
+    excerpt = excerpt.slice(0, lastSentence + 1);
+  }
+  const namedFrameworkSentences = (
+    compact.match(/[^.!?]+(?:[.!?]+|$)/g) ?? []
+  ).map((sentence) => sentence.trim()).filter((sentence) => (
+    /\b(?:criteria|framework|test)\b/i.test(sentence)
+    && !/official website|\.gov means|website is secure|sharing sensitive information/i.test(sentence)
+  ));
+  for (const sentence of namedFrameworkSentences) {
+    if (excerpt.includes(sentence) || sentence.length > Math.floor(maxLength * 0.3)) continue;
+    const addition = ` ${sentence}`;
+    if (excerpt.length + addition.length <= maxLength - 2) {
+      excerpt += addition;
+      continue;
+    }
+    const targetLength = maxLength - addition.length - 3;
+    const precedingBoundary = excerpt.lastIndexOf('. ', targetLength);
+    excerpt = `${excerpt.slice(0, precedingBoundary > targetLength * 0.7 ? precedingBoundary + 1 : targetLength).trimEnd()}…${addition}`;
+  }
+  const prefix = bestStart > 0 ? '…' : '';
+  const suffix = bestStart + excerpt.length < compact.length ? '…' : '';
+  return `${prefix}${excerpt.trim()}${suffix}`.slice(0, maxLength);
+}
+
+function occurrenceCount(value: string, pattern: string | RegExp): number {
+  if (typeof pattern === 'string') return value.split(pattern).length - 1;
+  return [...value.matchAll(pattern)].length;
 }
 
 export function parseResearchQuery(input: Record<string, unknown>): ResearchQueryInput {

@@ -7,11 +7,12 @@ import {
   AgentService,
   parseOperatorBrief,
   parseResearchQuery,
+  researchSynthesisEvidence,
 } from '../lib/service.js';
 import { MemoryAgentStateStore } from '../lib/state.js';
 import { validateCreativeJobManifest } from '../../packages/creative/job_schema.js';
 import { validateTractionExperimentManifest } from '../../src/traction-experiment.js';
-import { completeVectorIndex, corpus } from './helpers.js';
+import { completeVectorIndex, corpus, evidence } from './helpers.js';
 
 class FakeGemini {
   embedCalls = 0;
@@ -268,7 +269,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
-  assert.match(store.cacheReadKeys[0] ?? '', /^research:v4:/);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v5:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 
@@ -313,6 +314,53 @@ test('operator research access bypasses app quotas and public cache', async () =
   assert.equal(firstOperator.mode, 'generated');
   assert.equal(secondOperator.mode, 'generated');
   assert.equal(fake.generateCalls, 7);
+});
+
+test('official synthesis context centers substantive query-matching guidance', () => {
+  const library = corpus();
+  const boilerplate = 'An official website of the United States government. The .gov means it is official. '.repeat(35);
+  const sourceExpression = [
+    boilerplate,
+    'The Test for Unpaid Interns and Students.',
+    'The extent to which the intern and employer understand there is no expectation of compensation is one factor.',
+    'Training similar to an educational environment is another factor.',
+    'Ties to formal coursework or academic credit are another factor.',
+    'Accommodation of academic commitments and a duration limited to beneficial learning are additional factors.',
+    'The work should complement rather than displace paid employees.',
+    'There is no entitlement to a paid job at the conclusion.',
+    'Courts describe the primary beneficiary test as flexible, and no single factor is determinative.',
+  ].join(' ');
+  const officialDocument = {
+    ...library.documents[0]!,
+    document_id: 'evidence:official:dol-flsa-internships',
+    item_id: 'official:dol-flsa-internships',
+    evidence_type: 'official_source' as const,
+    content_type: 'official_guidance' as const,
+    kind: 'official_resource' as const,
+    platform: null,
+    source_expression: sourceExpression,
+    search_text: sourceExpression,
+    analysis: null,
+  };
+  const officialEvidence = {
+    ...evidence('dol-flsa-internships'),
+    evidence_id: officialDocument.document_id,
+    item_id: officialDocument.item_id,
+    evidence_type: 'official_source' as const,
+    content_type: 'official_guidance' as const,
+    platform: null,
+    snippet: 'An official website of the United States government.',
+  };
+
+  const [expanded] = researchSynthesisEvidence(
+    [officialEvidence],
+    { ...library, documents: [officialDocument] },
+    'What does official guidance say about unpaid internships and compensation?',
+  );
+  assert.match(expanded?.snippet ?? '', /expectation of compensation/i);
+  assert.match(expanded?.snippet ?? '', /primary beneficiary test/i);
+  assert.ok((expanded?.snippet.length ?? 0) <= 2_400);
+  assert.equal(officialEvidence.snippet, 'An official website of the United States government.');
 });
 
 test('operator generation exports schema-valid inert drafts only', async () => {
