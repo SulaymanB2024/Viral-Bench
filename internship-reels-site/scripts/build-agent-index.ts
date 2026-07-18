@@ -52,6 +52,15 @@ async function main(): Promise<void> {
     officialInput,
     ownedInput,
   });
+  const socialDocumentCount = completeCorpus.documents.filter((document) => (
+    document.evidence_type === 'social_post'
+  )).length;
+  if (socialDocumentCount !== completeCorpus.source_manifest.library_items) {
+    throw new Error(
+      `Social retrieval cardinality mismatch: ${socialDocumentCount} documents for `
+      + `${completeCorpus.source_manifest.library_items} library posts.`,
+    );
+  }
   const publicCorpus = createCorpusView(completeCorpus, 'public_reviewed');
   const operatorCorpus = createCorpusView(completeCorpus, 'operator_provisional');
   fs.mkdirSync(dataDirectory, { recursive: true });
@@ -194,6 +203,7 @@ async function main(): Promise<void> {
       vectors_required: requireVectors || requirePublicVectors,
       skipped_rows: completeCorpus.source_manifest.skipped_rows,
       skipped_by_reason: completeCorpus.source_manifest.skipped_by_reason,
+      social_document_count: socialDocumentCount,
       public_by_evidence_type: publicCorpus.source_manifest.by_evidence_type,
       operator_by_evidence_type: operatorCorpus.source_manifest.by_evidence_type,
     },

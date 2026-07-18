@@ -42,6 +42,7 @@ test('shared navigation behavior owns active state and accessible mobile menu co
   assert.match(script, /setAttribute\('aria-expanded'/);
   assert.match(script, /event\.key === 'Escape'/);
   assert.match(script, /restoreFocus: true/);
+  assert.doesNotMatch(script, /site-status/, 'primary navigation should not inject status indicators');
 
   const styles = readSiteFile('styles.css');
   assert.match(styles, /min-height: 44px/);
@@ -70,11 +71,17 @@ test('work hub and permanent redirects preserve the public route contract', () =
   assert.match(work, /src="\/work\.js"/);
   const refreshStatus = JSON.parse(readSiteFile('data/pipeline-refresh.json')) as {
     schema_version: string;
-    budget: { max_total_usd: number };
+    budget: {
+      max_total_usd: number;
+      max_apify_usd: number;
+      max_twelvelabs_usd: number;
+    };
     schedule: { timezone: string; weekdays: string[] };
   };
-  assert.equal(refreshStatus.schema_version, 'viralbench_pipeline_refresh_v1');
-  assert.equal(refreshStatus.budget.max_total_usd, 5);
+  assert.equal(refreshStatus.schema_version, 'viralbench_pipeline_refresh_v2');
+  assert.equal(refreshStatus.budget.max_total_usd, 9);
+  assert.equal(refreshStatus.budget.max_apify_usd, 5);
+  assert.equal(refreshStatus.budget.max_twelvelabs_usd, 4);
   assert.equal(refreshStatus.schedule.timezone, 'America/Chicago');
   assert.deepEqual(refreshStatus.schedule.weekdays, ['Monday', 'Thursday']);
 

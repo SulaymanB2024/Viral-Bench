@@ -73,6 +73,23 @@ test('audience themes deduplicate by signal id and enforce a privacy bucket of f
   assert.equal(createCorpusView(result, 'public_reviewed').documents.length, 1);
 });
 
+test('analysis fragments never create retrieval documents without a canonical social post', () => {
+  const corpus = buildAgentCorpus({
+    generated_at: '2026-07-17T00:00:00Z',
+    items: [socialItem('canonical', 'short_video', null)],
+  }, {
+    records: [{
+      candidate_id: 'analysis-only',
+      platform: 'instagram',
+      platform_post_id: 'not-in-library',
+      canonical_url: 'https://www.instagram.com/p/not-in-library/',
+      strategy: { data: { opening: { observed_words: 'Analysis-only wording' } } },
+    }],
+  });
+  assert.equal(corpus.documents.filter((item) => item.evidence_type === 'social_post').length, 1);
+  assert.equal(corpus.source_manifest.skipped_by_reason['dashboard:analysis_without_library_post'], 1);
+});
+
 test('official, owned, velocity, carousel, and cross-source routing stays intent-specific', () => {
   const audience = Array.from({ length: 5 }, (_, index) => audienceSignal(`aud-${index}`, 'internship-guidance'));
   const corpus = buildAgentCorpus({
@@ -206,6 +223,8 @@ test('release sanitizer strips server fields and detects blocked public content'
   assert.equal(first.release_hash, hashPublicRelease(root));
   fs.writeFileSync(path.join(root, 'index.html'), '<h1>Changed public output</h1>');
   assert.notEqual(scanPublicRelease(root).release_hash, first.release_hash);
+  fs.writeFileSync(path.join(root, 'index.html'), '<script src="/missing.js"></script>');
+  assert.ok(scanPublicRelease(root).findings.some((item) => item.rule === 'missing_local_asset:/missing.js'));
   fs.mkdirSync(path.join(root, 'lib'));
   fs.writeFileSync(path.join(root, 'lib/private.js'), 'const path = "/Users/private/source";');
   const failed = scanPublicRelease(root);

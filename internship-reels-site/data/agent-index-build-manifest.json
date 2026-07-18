@@ -1,19 +1,19 @@
 {
   "schema_version": "viralbench_agent_index_build_v2",
-  "generated_at": "2026-07-17T23:45:24.790Z",
+  "generated_at": "2026-07-18T00:40:08.069Z",
   "index_versions": {
-    "public": "5fde72280725925f5ccc",
-    "operator": "9582c4b50724509c67ea"
+    "public": "9850fe6b300a11a86b97",
+    "operator": "2c2ef268632146f2824f"
   },
   "sources": {
     "library": {
       "path": "library.json",
-      "sha256": "b4f27f05a25caf8a7b7dab3e6087825ecfb4963ad58f6edc9b0993a6668d431f",
-      "bytes": 3391447
+      "sha256": "0e70e3508c046115ce1f12dd6e7c146329a67eadb553b819b919cbf27b4bca25",
+      "bytes": 4562002
     },
     "dashboard": {
       "path": "twelvelabs-dashboard-data.js",
-      "sha256": "416d1d13b1f89aa063da37ed6af1fc96d39432c807da49992afb8d2b4f4cb466",
+      "sha256": "525a5cf3cb2a651fa5404c162c75da5938cac30f025c5f869739dface627dfbc",
       "bytes": 103411
     },
     "audience": [
@@ -69,58 +69,61 @@
   "outputs": {
     "public_corpus": {
       "path": "data/agent-corpus-public.json",
-      "sha256": "a3597cfe723dcdeb8158e71ba712e8ebcfea525f2e058e72608470ddc12e5c27",
-      "bytes": 3527414
+      "sha256": "8e1336e67f598ca1771c74070ff5d3359c127a1fcc8e0e2bec1b617a053a7d92",
+      "bytes": 4426063
     },
     "operator_corpus": {
       "path": "data/agent-corpus-operator.json",
-      "sha256": "92eb6688e10fb1d24090216845155cddfb0b16eaeb4986eaf7070fe6d344c5fb",
-      "bytes": 3550889
+      "sha256": "a4eccf54312dc3d3621c41bcbe7c6b00a63749d58f6c82d31a7033823ccb9b82",
+      "bytes": 4449538
     },
     "compatibility_corpus": {
       "path": "data/agent-corpus.json",
-      "sha256": "a3597cfe723dcdeb8158e71ba712e8ebcfea525f2e058e72608470ddc12e5c27",
-      "bytes": 3527414
+      "sha256": "8e1336e67f598ca1771c74070ff5d3359c127a1fcc8e0e2bec1b617a053a7d92",
+      "bytes": 4426063
     },
     "vector_manifest": {
       "path": "data/agent-vectors.json",
-      "sha256": "c2536c4285988e5c71f9a2330375e1bd943564dcb9ec74c410a5eb5413053d2a",
-      "bytes": 157574
+      "sha256": "178968bc046970d147e6fe6c5a18209f98182bbf9657d2d91e7fa8b7c30271c6",
+      "bytes": 199100
     },
     "vector_binary": {
       "path": "data/agent-vectors.bin",
-      "sha256": "667f9f7baaf4058b038e991e8473fd10155fe3210fc0e49d2fa505159114b3c5",
-      "bytes": 2632704
+      "sha256": "ed6b04209e32500646aed3645387a0d1ea2f13498987895e65b46b8cdcce9d93",
+      "bytes": 3323904
     }
   },
   "reconciliation": {
     "source_records": {
-      "social_posts": 812,
+      "social_posts": 1052,
       "audience_signals": 113,
       "official_resources": 18,
       "owned_connection_state": "not_connected"
     },
-    "public_documents": 848,
-    "operator_documents": 857,
-    "vectors": 857,
-    "public_vectors": 848,
+    "public_documents": 1073,
+    "operator_documents": 1082,
+    "vectors": 1082,
+    "public_vectors": 1073,
     "public_vector_coverage": 1,
     "operator_vector_coverage": 1,
     "public_vector_coverage_state": "complete",
     "operator_vector_coverage_state": "complete",
     "vectors_required": true,
-    "skipped_rows": 0,
-    "skipped_by_reason": {},
+    "skipped_rows": 23,
+    "skipped_by_reason": {
+      "dashboard:analysis_without_library_post": 23
+    },
+    "social_document_count": 1052,
     "public_by_evidence_type": {
       "audience_theme": 4,
       "official_source": 17,
-      "social_post": 827
+      "social_post": 1052
     },
     "operator_by_evidence_type": {
       "audience_theme": 11,
       "official_source": 18,
       "owned_aggregate": 1,
-      "social_post": 827
+      "social_post": 1052
     }
   }
 }

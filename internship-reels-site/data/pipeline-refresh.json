@@ -1,8 +1,8 @@
 {
-  "schema_version": "viralbench_pipeline_refresh_v1",
+  "schema_version": "viralbench_pipeline_refresh_v2",
   "status": "partial",
-  "updated_at": "2026-07-17T22:38:28.597Z",
-  "last_completed_at": "2026-07-17T22:38:28.597Z",
+  "updated_at": "2026-07-17T23:40:35.704Z",
+  "last_completed_at": "2026-07-17T23:40:35.704Z",
   "schedule": {
     "timezone": "America/Chicago",
     "local_time": "09:17",
@@ -14,194 +14,197 @@
   },
   "budget": {
     "currency": "USD",
-    "max_total_usd": 5,
-    "max_apify_usd": 1,
+    "max_total_usd": 9,
+    "max_apify_usd": 5,
     "max_twelvelabs_usd": 4,
-    "actual_or_conservative_usd": 1.015219
+    "apify_discovery_ceiling_usd": 4.5,
+    "apify_selected_url_ceiling_usd": 0.5,
+    "actual_or_conservative_usd": 3.604452,
+    "apify_actual_or_conservative_usd": 2.676,
+    "twelvelabs_actual_or_conservative_usd": 0.928452,
+    "prior_attempts_actual_or_conservative_usd": 0.430906
   },
   "source": {
-    "request_id": "internship-category-creators-expansion-20260716",
-    "manifest_path": ".ops/url_intake_requests/internship-category-creators-expansion-20260716.json",
-    "requested_urls": 10
+    "request_id": "scheduled-internship-broad-discovery-v1-2026-07-17-codex-selection",
+    "manifest_path": ".ops/url_intake_requests/scheduled-codex-current.json",
+    "requested_urls": 10,
+    "discovery_research_id": "scheduled-internship-broad-discovery-v1",
+    "discovery_rows": 370,
+    "discovery_runs": 8,
+    "discovery_failures": 2
   },
   "providers": {
     "apify": {
       "state": "completed",
       "accepted_posts": 10,
-      "actual_or_conservative_usd": 0.051
+      "actual_or_conservative_usd": 2.676,
+      "discovery_actual_or_conservative_usd": 2.5931,
+      "selected_attempts_actual_or_conservative_usd": 0.0829
     },
     "twelvelabs": {
       "state": "partial",
-      "analyzed_videos": 9,
-      "analysis_coverage": 0.9,
-      "actual_or_conservative_usd": 0.964219,
+      "analyzed_videos": 8,
+      "analysis_coverage": 0.8,
+      "actual_or_conservative_usd": 0.928452,
       "models": [
         "marengo3.0",
         "pegasus1.5"
-      ]
+      ],
+      "recovery_attempts": 1
     }
   },
   "results": {
     "posts_ingested": 10,
-    "semantic_items_written": 377,
-    "external_calls_made": 151,
-    "library_unique_items": 563,
-    "library_observations": 741
+    "semantic_items_written": 224,
+    "external_calls_made": 153,
+    "library_unique_items": 841,
+    "library_observations": 1059,
+    "broad_discovery_rows": 370,
+    "broad_library_unique_items": 841,
+    "broad_library_observations": 1059
   },
   "analyses": [
     {
-      "canonical_url": "https://www.tiktok.com/@imellagonzales/video/7599931965780856095",
-      "platform": "tiktok",
-      "platform_post_id": "7599931965780856095",
-      "duration_sec": 63.2,
-      "hook": "If you can't pass a behavioral interview in 2026, just cheat, but not in the way you think.",
-      "cta": "Follow and comment 'MAP' to receive the behavioral skill map.",
-      "style": [
-        "Direct address to the camera",
-        "Confident and engaging tone",
-        "Use of text overlays and images to emphasize points"
-      ],
-      "evidence_limitations": [
-        "The video does not provide specific details on how to create the skill map.",
-        "The effectiveness of the method is based on the speaker's personal experience."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@davis_engineering/video/7601983531174169870",
-      "platform": "tiktok",
-      "platform_post_id": "7601983531174169870",
-      "duration_sec": 79.1,
-      "hook": "When it comes to interviewing for internships, there are going to be questions that you will be asked in almost every single interview, regardless of your major, and it's important that you answer them correctly.",
-      "cta": "Thank you.",
-      "style": [
-        "Informative",
-        "Direct",
-        "Conversational"
-      ],
-      "evidence_limitations": [
-        "No visual evidence of specific internship interview scenarios.",
-        "No visual evidence of the speaker's qualifications or experience."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@selfmademillennial/video/7614191897598381326",
-      "platform": "tiktok",
-      "platform_post_id": "7614191897598381326",
-      "duration_sec": 128.7,
-      "hook": "How do you get hired from a job fair? Here is the exact script you should say when you walk up to the table.",
-      "cta": "Follow the script to stand out at job fairs.",
-      "style": [
-        "Podcast-style setting",
-        "Professional atmosphere",
-        "Text overlays to highlight key points"
-      ],
-      "evidence_limitations": [
-        "The video does not provide visual examples of job fairs or company representatives."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@lifewithsummeranisa/video/7623920155076087060",
-      "platform": "tiktok",
-      "platform_post_id": "7623920155076087060",
-      "duration_sec": 47.6,
-      "hook": "If you don't have experience yet, you're probably not getting the summer internship.",
-      "cta": "Check the link in my bio for more information.",
+      "canonical_url": "https://www.instagram.com/p/Da21HSVN_1k/",
+      "platform": "instagram",
+      "platform_post_id": "Da21HSVN_1k",
+      "duration_sec": 36,
+      "hook": "Intro trip hunting in 2026 is brutal. Especially as an engineering student.",
+      "cta": "Click the link in my bio and check it out today.",
       "style": [
         "Direct address",
-        "Text overlays",
-        "Personal endorsement"
+        "Problem-solution structure",
+        "Informative"
       ],
       "evidence_limitations": [
-        "No visual evidence of the Extern platform interface or specific project examples.",
-        "Limited information on the application process or success rates of externships."
+        "No visual evidence of the platform's interface or listings.",
+        "No visual evidence of the speaker's identity or credentials."
       ]
     },
     {
-      "canonical_url": "https://www.tiktok.com/@imellagonzales/video/7628495619035909407",
-      "platform": "tiktok",
-      "platform_post_id": "7628495619035909407",
-      "duration_sec": 48.1,
-      "hook": "Your first meeting with your intern manager could literally set you up to fail unless you ask the right question.",
-      "cta": "Follow and comment doc for more information.",
+      "canonical_url": "https://www.instagram.com/p/Da3F7iZzfY2/",
+      "platform": "instagram",
+      "platform_post_id": "Da3F7iZzfY2",
+      "duration_sec": 35.3,
+      "hook": "Tell me about yourself",
+      "cta": "Read the caption for more",
       "style": [
+        "Educational",
         "Informative",
-        "Engaging",
-        "Direct-to-camera"
-      ],
-      "evidence_limitations": [
-        "The analysis is based on the provided transcript and visual evidence. Some details may be inferred from the context."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@retiredd1yapparumaysa/video/7631197403009387806",
-      "platform": "tiktok",
-      "platform_post_id": "7631197403009387806",
-      "duration_sec": 9.6,
-      "hook": "when im still shocked my pepsi interview went well but this is how much prep i did for it.",
-      "cta": "No call to action present in the video.",
-      "style": [
-        "Screen recording",
-        "Text overlay"
-      ],
-      "evidence_limitations": [
-        "The video does not show any human faces or mouth movements.",
-        "The audio content is unrelated to the visual content."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@rachelinarealway/video/7639392724139003167",
-      "platform": "tiktok",
-      "platform_post_id": "7639392724139003167",
-      "duration_sec": 97.6,
-      "hook": "If you're a summer intern and you're working in finance or consulting, please do not wear designer items to work.",
-      "cta": "Put away the Van Cleef at the office when you're a summer intern.",
-      "style": [
-        "Direct address",
-        "Walking and talking",
-        "Informative",
-        "Advisory"
-      ],
-      "evidence_limitations": [
-        "No specific visual evidence of designer items being worn by interns.",
-        "No direct visual evidence of senior finance professionals' backgrounds."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@fakewasian777/video/7647741660478147871",
-      "platform": "tiktok",
-      "platform_post_id": "7647741660478147871",
-      "duration_sec": 82.4,
-      "hook": "The most underrated thing that you can do to get an internship is a project.",
-      "cta": "Create a personalized project to enhance your internship application.",
-      "style": [
-        "Direct address to the camera",
-        "Informative and conversational tone",
-        "Use of hand gestures for emphasis"
-      ],
-      "evidence_limitations": [
-        "The video does not provide visual evidence of the speaker's project or its results.",
-        "The video does not show any specific examples of personalized projects beyond the speaker's anecdote."
-      ]
-    },
-    {
-      "canonical_url": "https://www.tiktok.com/@birdtart01/video/7651771589461150989",
-      "platform": "tiktok",
-      "platform_post_id": "7651771589461150989",
-      "duration_sec": 18.8,
-      "hook": "10 out of 10 questions to ask at a networking event",
-      "cta": "Follow for more career side quests",
-      "style": [
-        "Informative",
-        "Engaging",
         "Professional"
       ],
       "evidence_limitations": [
-        "No specific timestamps for each tip provided in the transcript",
-        "Visual evidence does not specify exact timing of each inset video scene"
+        "Visual evidence is limited to text overlays and basic visual cues."
+      ]
+    },
+    {
+      "canonical_url": "https://www.instagram.com/p/DaygU7YSFA5/",
+      "platform": "instagram",
+      "platform_post_id": "DaygU7YSFA5",
+      "duration_sec": 41,
+      "hook": "I just found out I've been appointed fake jobs this entire time.",
+      "cta": "Stop wasting your time on applications for jobs that don't exist.",
+      "style": [
+        "Informative",
+        "Persuasive",
+        "Fast-paced"
+      ],
+      "evidence_limitations": [
+        "No visual evidence of the actual JobWrite AI's Intern List website interface",
+        "No visual evidence of the specific job sectors mentioned"
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@buyout_boy/video/7634214368535645453",
+      "platform": "tiktok",
+      "platform_post_id": "7634214368535645453",
+      "duration_sec": 6.7,
+      "hook": "3 reasons interns don't get return offers (that have nothing to do with the work)",
+      "cta": "No call to action observed",
+      "style": [
+        "Minimalist",
+        "Text-overlay focused"
+      ],
+      "evidence_limitations": [
+        "No audio transcript provided",
+        "Limited visual context due to single static shot"
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@birdtart01/video/7650950928962555149",
+      "platform": "tiktok",
+      "platform_post_id": "7650950928962555149",
+      "duration_sec": 22.1,
+      "hook": "10/10 summer projects for your career",
+      "cta": "Follow for more side quests",
+      "style": [
+        "Informative",
+        "Fast-paced",
+        "Visual-heavy"
+      ],
+      "evidence_limitations": [
+        "No audio transcript provided for precise speech analysis",
+        "Visual evidence is limited to described scenes"
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@juss_whitney/video/7656050756583345429",
+      "platform": "tiktok",
+      "platform_post_id": "7656050756583345429",
+      "duration_sec": 36.2,
+      "hook": "Slavery did not end. It was rebranded into internships.",
+      "cta": "Do comment what you think.",
+      "style": [
+        "Direct address to the camera",
+        "Conversational tone",
+        "Use of hand gestures",
+        "Text overlay for emphasis"
+      ],
+      "evidence_limitations": [
+        "No visual evidence of specific companies or internships is provided.",
+        "The claim about internships being a rebranded form of slavery is not visually supported."
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@steph.dcreator/video/7658342164237126920",
+      "platform": "tiktok",
+      "platform_post_id": "7658342164237126920",
+      "duration_sec": 12.2,
+      "hook": "Let's go IT hunting",
+      "cta": "No explicit call to action",
+      "style": [
+        "Fast-paced",
+        "Relatable",
+        "Frustrating"
+      ],
+      "evidence_limitations": [
+        "Limited visual context beyond the described scenes",
+        "No additional audio cues beyond the woman's frustration"
+      ]
+    },
+    {
+      "canonical_url": "https://www.tiktok.com/@dylanthompson2/video/7659083433703902495",
+      "platform": "tiktok",
+      "platform_post_id": "7659083433703902495",
+      "duration_sec": 53.4,
+      "hook": "Three things I did during my freshman year of mechanical engineering that got me a Fortune 500 internship.",
+      "cta": "Be persistent and show that you are actively seeking new opportunities.",
+      "style": [
+        "Informative",
+        "Personal",
+        "Direct-to-camera"
+      ],
+      "evidence_limitations": [
+        "No visual evidence of the speaker's personal projects or research opportunities.",
+        "No visual evidence of the speaker's networking activities."
       ]
     }
   ],
   "evidence_boundaries": [
+    "Apify first collects a broad public surface; Codex then allocates the separate TwelveLabs budget to a smaller documented subset.",
+    "The 5 USD Apify cap includes both broad discovery and selected-item media retrieval.",
+    "Codex selection is constrained by novelty, platform coverage, account concentration, and explicit evidence rationales.",
+    "Failed publication attempts remain in cumulative provider accounting; a recovery run never resets the budget.",
     "The scheduled job reads only the approved public URLs in the committed intake manifest.",
     "Costs are provider-reported actuals when available and conservative estimates otherwise.",
     "Partial means every requested URL reconciled and at least 80% received TwelveLabs analysis; it does not mean complete analysis coverage.",
@@ -209,7 +212,144 @@
     "Credentials, downloaded media, raw provider payloads, and the semantic database are not published."
   ],
   "errors": [
-    "twelvelabs:speech[5] must have a valid timestamp range within the video duration."
+    "twelvelabs:visible_proof[9] must have a valid timestamp range within the video duration.",
+    "twelvelabs:TwelveLabs asset create:media_url_not_accessible:Cannot access the media URL '[provider media URL]"
   ],
-  "measurement_gaps": []
+  "measurement_gaps": [],
+  "orchestration": {
+    "decided_by": "codex_automation",
+    "decided_at": "2026-07-17T23:36:00.000Z",
+    "selection_strategy": "Recover the failed media-coverage gate without widening provider budgets: retain the six TikTok and Instagram candidates that already proved retrievable, replace the unavailable Instagram asset and the three metadata-only YouTube rows with four current, strategically distinct TikTok and Instagram videos, and preserve two-platform coverage with unique accounts.",
+    "eligible_video_candidates": 192,
+    "selected_videos": 10,
+    "newly_selected_videos": 10,
+    "selected_by_platform": {
+      "instagram": 4,
+      "tiktok": 6
+    },
+    "recovery_attempts": 1,
+    "selections": [
+      {
+        "canonical_url": "https://www.instagram.com/p/DaygU7YSFA5/",
+        "why_now": "This retrievable breakout candidate frames fake and ghost jobs as a concrete risk and contrasts third-party listings with direct company applications.",
+        "dimensions": [
+          "breakout_signal",
+          "cross_platform_contrast"
+        ],
+        "platform": "instagram",
+        "account_handle": "ks3cured",
+        "signal": "breakout_candidate",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.instagram.com/p/DanLwW7hxE1/",
+        "why_now": "The thirty-minutes-a-day interview-preparation promise is useful for examining pacing, visible proof, and how the call to action supports the claim.",
+        "dimensions": [
+          "breakout_signal",
+          "novel_format"
+        ],
+        "platform": "instagram",
+        "account_handle": "internshala",
+        "signal": "breakout_candidate",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.instagram.com/p/Da21HSVN_1k/",
+        "why_now": "An engineering student narrates tab-switching fatigue before presenting a consolidated internship feed, adding a current problem-solution and sponsored-claim case.",
+        "dimensions": [
+          "breakout_signal",
+          "coverage_gap"
+        ],
+        "platform": "instagram",
+        "account_handle": "rstephen.04",
+        "signal": "breakout_candidate",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.instagram.com/p/Da3F7iZzfY2/",
+        "why_now": "The tell-me-about-yourself elimination framing offers a structured interview-answer contrast and a clear opportunity to inspect visible story-building guidance.",
+        "dimensions": [
+          "coverage_gap",
+          "cross_platform_contrast"
+        ],
+        "platform": "instagram",
+        "account_handle": "careerflow.ai",
+        "signal": "promising",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@juss_whitney/video/7656050756583345429",
+        "why_now": "This high-engagement argument about unpaid internships and replacement labor broadens the corpus beyond tactics into compensation and access constraints.",
+        "dimensions": [
+          "breakout_signal",
+          "high_engagement_outlier",
+          "coverage_gap"
+        ],
+        "platform": "tiktok",
+        "account_handle": "juss_whitney",
+        "signal": "breakout_candidate",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@birdtart01/video/7650950928962555149",
+        "why_now": "A practical alternative for students without a summer internship can show how a creator turns anxiety into specific project actions.",
+        "dimensions": [
+          "coverage_gap",
+          "cross_platform_contrast"
+        ],
+        "platform": "tiktok",
+        "account_handle": "birdtart01",
+        "signal": "promising",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@dylanthompson2/video/7659083433703902495",
+        "why_now": "The freshman-to-Fortune-500 narrative supplies a concrete experience-building sequence to compare with tool-led and fear-led hooks.",
+        "dimensions": [
+          "coverage_gap",
+          "cross_platform_contrast"
+        ],
+        "platform": "tiktok",
+        "account_handle": "dylanthompson2",
+        "signal": "baseline",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@buyout_boy/video/7634214368535645453",
+        "why_now": "Return-offer behavior is underrepresented, and this candidate promises three non-work reasons that may expose a distinct list-and-warning structure.",
+        "dimensions": [
+          "coverage_gap",
+          "novel_format"
+        ],
+        "platform": "tiktok",
+        "account_handle": "buyout_boy",
+        "signal": "baseline",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@himdemetrii/video/7663224031193206046",
+        "why_now": "A current day-in-the-life college-intern video adds an experiential format that can reveal pacing and proof patterns missing from advice-heavy candidates.",
+        "dimensions": [
+          "novel_format",
+          "cross_platform_contrast"
+        ],
+        "platform": "tiktok",
+        "account_handle": "himdemetrii",
+        "signal": "promising",
+        "previously_analyzed": false
+      },
+      {
+        "canonical_url": "https://www.tiktok.com/@steph.dcreator/video/7658342164237126920",
+        "why_now": "The concise hundred-applications-without-results setup captures application-volume frustration and supplies a high-emotion contrast to prescriptive job-search content.",
+        "dimensions": [
+          "coverage_gap",
+          "cross_platform_contrast"
+        ],
+        "platform": "tiktok",
+        "account_handle": "steph.dcreator",
+        "signal": "baseline",
+        "previously_analyzed": false
+      }
+    ]
+  }
 }

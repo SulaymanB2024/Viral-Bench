@@ -26,8 +26,10 @@ const STATIC_FILES = [
   'site-navigation.js',
   'ask.js',
   'operator.js',
+  'work.js',
   'ads.js',
   'ads-data.js',
+  'twelvelabs-dashboard-data.js',
 ] as const;
 
 export interface ReleasePrivacyReport {
@@ -143,6 +145,14 @@ export function scanPublicRelease(root: string): ReleasePrivacyReport {
     if (!isTextFile(file)) continue;
     const text = contents.toString('utf8');
     const relative = path.relative(root, file);
+    if (path.extname(file).toLowerCase() === '.html') {
+      for (const reference of localAssetReferences(text)) {
+        const target = path.join(root, reference.replace(/^\.?\//, ''));
+        if (!fs.existsSync(target)) {
+          findings.push({ file: relative, rule: `missing_local_asset:${reference}` });
+        }
+      }
+    }
     if (/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i.test(text)) {
       findings.push({ file: relative, rule: 'email_address' });
     }
@@ -187,6 +197,18 @@ export function scanPublicRelease(root: string): ReleasePrivacyReport {
     blocked_paths_absent: absent,
     passed: findings.length === 0 && absent.length === blockedPaths.length,
   };
+}
+
+function localAssetReferences(html: string): string[] {
+  const references = [
+    ...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi),
+    ...html.matchAll(/<link\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi),
+  ].map((match) => (match[1] ?? '').split(/[?#]/)[0] ?? '').filter((reference) => (
+    reference
+    && !/^(?:https?:|data:|mailto:|#)/i.test(reference)
+    && !reference.includes('${')
+  ));
+  return [...new Set(references)].sort();
 }
 
 export function hashPublicRelease(root: string, files = walk(root)): string {

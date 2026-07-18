@@ -1,14 +1,14 @@
 {
   "schema_version": "viralbench_intelligence_run_manifest_v1",
-  "generated_at": "2026-07-18T00:30:13.173Z",
+  "generated_at": "2026-07-18T00:41:31.431Z",
   "status": "passed",
   "gates": [
     {
       "id": "source_records_reconcile",
       "passed": true,
       "observed": {
-        "social_posts": 812,
-        "total_source_records": 943
+        "social_posts": 1052,
+        "total_source_records": 1183
       }
     },
     {
@@ -18,6 +18,14 @@
         "conservative_usd": 18.681168,
         "actual_reported_usd": 1.5555,
         "actual_complete": false
+      }
+    },
+    {
+      "id": "social_post_document_cardinality",
+      "passed": true,
+      "observed": {
+        "source_posts": 1052,
+        "social_documents": 1052
       }
     },
     {
@@ -34,15 +42,15 @@
       "passed": true,
       "observed": {
         "state": "complete",
-        "vectors": 848,
-        "documents": 848
+        "vectors": 1073,
+        "documents": 1073
       }
     },
     {
       "id": "public_visibility_boundary",
       "passed": true,
       "observed": {
-        "public_documents": 848
+        "public_documents": 1073
       }
     },
     {

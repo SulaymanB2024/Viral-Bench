@@ -17,6 +17,7 @@ import type {
   LiveCandidateReport,
 } from './internship-live-reconciliation';
 import type { SelectionLedger } from './internship-research-batch';
+import { createBaselineDiscoveryReport } from './scheduled-semantic-refresh';
 import {
   analyzeStaticCanary,
   selectStaticCanary,
@@ -105,6 +106,7 @@ interface RunnerPaths {
   sourceRoot: string;
   sourceReports: string;
   sourceDiscovery: string;
+  sourceLibraryBaseline: string;
   dataRoot: string;
   stateRoot: string;
   ledger: string;
@@ -294,7 +296,7 @@ async function main(): Promise<void> {
 
 function buildPreflight(paths: RunnerPaths): PreflightReport {
   assertSourceSurface(paths);
-  const discoveryFiles = listJson(paths.sourceDiscovery);
+  const discoveryFiles = baselineDiscoveryFiles(paths);
   const library = buildViralContentLibrary({
     discoveryFiles,
     sqlitePath: path.join(paths.sourceRoot, '.semantic-artifacts/competitor-content/semantic_corpus.sqlite'),
@@ -381,6 +383,7 @@ async function runRefresh(paths: RunnerPaths, preflight: PreflightReport, resume
   const checkpoint = loadCheckpoint(paths, preflight.run_id, resume);
   checkpoint.live_execution_authorized = true;
   const ledger = loadLedger(paths, checkpoint.run_id, resume);
+  if (resume) invalidateDerivedPhasesIfSourceChanged(paths, checkpoint);
   writeCheckpoint(paths, checkpoint);
   writeLedger(paths, ledger);
 
@@ -1005,6 +1008,7 @@ function buildAcceptanceManifest(
   const index = readJson<UnknownRecord>(path.join(paths.dataRoot, 'agent-index-build-manifest.json'));
   const reconciliation = recordOrEmpty(index.reconciliation);
   const sourceRecords = recordOrEmpty(reconciliation.source_records);
+  const operatorByEvidenceType = recordOrEmpty(reconciliation.operator_by_evidence_type);
   const official = readJson<OfficialSourceReport>(paths.official);
   const quality = readJson<UnknownRecord>(paths.qualityReport);
   const privacy = readJson<UnknownRecord>(path.join(paths.dataRoot, 'release-privacy-report.json'));
@@ -1029,6 +1033,15 @@ function buildAcceptanceManifest(
         conservative_usd: ledger.conservative_spend_usd,
         actual_reported_usd: ledger.actual_cost_usd_reported,
         actual_complete: ledger.actual_cost_complete,
+      },
+    },
+    {
+      id: 'social_post_document_cardinality',
+      passed: number(reconciliation.social_document_count) === number(sourceRecords.social_posts)
+        && number(operatorByEvidenceType.social_post) === number(sourceRecords.social_posts),
+      observed: {
+        source_posts: number(sourceRecords.social_posts),
+        social_documents: number(reconciliation.social_document_count),
       },
     },
     {
@@ -1104,12 +1117,64 @@ function buildLibraryFromAvailableDiscovery(paths: RunnerPaths): ViralContentLib
   });
 }
 
+export function libraryEvidenceFingerprint(library: ViralContentLibrary): string {
+  const evidence = library.items.map((item) => ({
+    item_id: item.item_id,
+    platform: item.platform,
+    content_type: item.content_type,
+    platform_post_id: item.platform_post_id,
+    canonical_url: item.canonical_url,
+    account_handle: item.account_handle,
+    caption: item.caption,
+    hashtags: item.hashtags,
+    posted_at: item.posted_at,
+    observations: item.observations,
+    provenance: item.provenance,
+  })).sort((left, right) => left.item_id.localeCompare(right.item_id));
+  return crypto.createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
+}
+
+function invalidateDerivedPhasesIfSourceChanged(
+  paths: RunnerPaths,
+  checkpoint: RunnerCheckpoint,
+): void {
+  if (checkpoint.phases.source_rebuild?.status !== 'completed') return;
+  const currentPath = path.join(paths.siteRoot, 'library.json');
+  if (!fs.existsSync(currentPath)) return;
+  const current = readJson<ViralContentLibrary>(currentPath);
+  const candidate = buildLibraryFromAvailableDiscovery(paths);
+  if (libraryEvidenceFingerprint(current) === libraryEvidenceFingerprint(candidate)) return;
+  const now = new Date().toISOString();
+  for (const name of ['source_rebuild', 'corpus_and_vectors', 'static_release', 'acceptance_manifest']) {
+    const phaseValue = checkpoint.phases[name];
+    if (!phaseValue) continue;
+    phaseValue.status = 'pending';
+    phaseValue.updated_at = now;
+    phaseValue.failure_code = null;
+  }
+  checkpoint.updated_at = now;
+}
+
 function availableDiscoveryFiles(paths: RunnerPaths): string[] {
   return [
-    ...listJson(paths.sourceDiscovery),
+    ...baselineDiscoveryFiles(paths),
     ...(fs.existsSync(paths.socialRefresh) ? [paths.socialRefresh] : []),
     ...(fs.existsSync(paths.metricRefresh) ? [paths.metricRefresh] : []),
   ];
+}
+
+function baselineDiscoveryFiles(paths: RunnerPaths): string[] {
+  const files = listJson(paths.sourceDiscovery);
+  const sourceLibrary = path.join(paths.sourceRoot, 'internship-reels-site/library.json');
+  if (!fs.existsSync(sourceLibrary)) return files;
+  fs.mkdirSync(paths.stateRoot, { recursive: true });
+  const library = readJson<ViralContentLibrary>(sourceLibrary);
+  const fingerprint = libraryEvidenceFingerprint(library).slice(0, 20);
+  writeJson(
+    paths.sourceLibraryBaseline,
+    createBaselineDiscoveryReport(library, `evidence-quality-source-baseline-${fingerprint}`, 0),
+  );
+  return uniqueStrings([paths.sourceLibraryBaseline, ...files]);
 }
 
 function oldEnoughRecheckConfig(library: ViralContentLibrary): RecheckConfig {
@@ -1271,6 +1336,7 @@ function resolvePaths(sourceRootOption: string | undefined): RunnerPaths {
     sourceRoot,
     sourceReports: path.join(sourceRoot, '.semantic-artifacts/competitor-content/reports'),
     sourceDiscovery: path.join(sourceRoot, '.semantic-artifacts/competitor-content/discovery'),
+    sourceLibraryBaseline: path.join(stateRoot, 'source-library-baseline.json'),
     dataRoot,
     stateRoot,
     ledger: path.join(dataRoot, 'provider-spend-ledger.json'),

@@ -1,0 +1,94 @@
+{
+  "schema_version": "viralbench_internship_core_competitors_v1",
+  "generated_at": "2026-07-17T20:00:00.000Z",
+  "scope": "Established internship and early-career competitors already represented in the Viral-Bench public content corpus.",
+  "evidence_note": "Official product URLs were rechecked on 2026-07-17. Social locators are reconciled to handles observed in the local public-content corpus and must not be treated as owned-performance data.",
+  "competitors": [
+    {
+      "name": "Handshake",
+      "category": "early_career_marketplace",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://joinhandshake.com/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/joinhandshake/",
+        "tiktok": "https://www.tiktok.com/@joinhandshake"
+      }
+    },
+    {
+      "name": "Simplify",
+      "category": "ai_job_search_platform",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://simplify.jobs/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/simplify.jobs/",
+        "tiktok": "https://www.tiktok.com/@joinsimplify"
+      }
+    },
+    {
+      "name": "RippleMatch",
+      "category": "early_career_matching",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://ripplematch.com/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/ripplematch/",
+        "tiktok": "https://www.tiktok.com/@ripplematch"
+      }
+    },
+    {
+      "name": "WayUp",
+      "category": "early_career_marketplace",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://www.wayup.com/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/wayup/",
+        "tiktok": "https://www.tiktok.com/@wayup"
+      }
+    },
+    {
+      "name": "Extern",
+      "category": "experiential_learning",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://www.extern.com/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/externhq/",
+        "tiktok": "https://www.tiktok.com/@externhq"
+      }
+    },
+    {
+      "name": "Parker Dewey",
+      "category": "micro_internships",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://www.parkerdewey.com/",
+      "known_socials": {
+        "tiktok": "https://www.tiktok.com/@microinternships"
+      }
+    },
+    {
+      "name": "Forage",
+      "category": "virtual_job_simulations",
+      "status": "active_verified",
+      "content_priority": 2,
+      "official_url": "https://www.theforage.com/",
+      "known_socials": {
+        "tiktok": "https://www.tiktok.com/@theforage"
+      }
+    },
+    {
+      "name": "Virtual Internships",
+      "category": "remote_internship_programs",
+      "status": "active_verified",
+      "content_priority": 1,
+      "official_url": "https://www.virtualinternships.com/",
+      "known_socials": {
+        "instagram": "https://www.instagram.com/virtualinternships/",
+        "tiktok": "https://www.tiktok.com/@virtual_internships"
+      }
+    }
+  ]
+}

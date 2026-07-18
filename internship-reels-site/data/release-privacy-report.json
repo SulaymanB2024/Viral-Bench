@@ -1,11 +1,11 @@
 {
   "schema_version": "viralbench_release_privacy_scan_v1",
-  "generated_at": "2026-07-18T00:29:54.260Z",
+  "generated_at": "2026-07-18T00:41:27.712Z",
   "output_directory": "public",
-  "files": 43,
-  "bytes": 85294957,
-  "release_hash": "9b6964220a5d3f4b182a74aca079c76e6cc53229bfb43bc3cf8518174fbec075",
-  "sanitized_library_items": 812,
+  "files": 45,
+  "bytes": 86013858,
+  "release_hash": "e36620dac0977015ccb7bd7a286a4ace7724fb8fef2557a9dacedde4ca092fe2",
+  "sanitized_library_items": 1052,
   "findings": [],
   "blocked_paths_absent": [
     "lib",

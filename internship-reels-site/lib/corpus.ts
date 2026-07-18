@@ -199,6 +199,10 @@ export function buildAgentCorpus(
     const key = documentKey(platform, platformPostId);
     const existing = documents.get(key);
     const socialExisting = existing?.evidence_type === 'social_post' ? existing : null;
+    if (!socialExisting) {
+      skip('dashboard', 'analysis_without_library_post');
+      continue;
+    }
     const strategy = optionalRecord(optionalRecord(item.strategy)?.data);
     const analysis = analysisFromRecord(strategy, item);
     const metrics = optionalRecord(item.metrics);
@@ -212,12 +216,12 @@ export function buildAgentCorpus(
     ]);
 
     const merged = finalizeDocument({
-      document_id: socialExisting?.document_id ?? `evidence:${platform}:${platformPostId}`,
-      item_id: socialExisting?.item_id ?? (text(item.candidate_id) || `${platform}:post:${platformPostId}`),
+      document_id: socialExisting.document_id,
+      item_id: socialExisting.item_id,
       evidence_type: 'social_post',
       visibility: quality?.passed === false ? 'operator_provisional' : 'public_reviewed',
       review_method: qualityPassed ? 'provider_quality_gate' : 'deterministic_contract',
-      content_type: socialExisting?.content_type ?? 'short_video',
+      content_type: socialExisting.content_type,
       topic_tags: uniqueStrings([
         ...(socialExisting?.topic_tags ?? []),
         nullableText(item.chosen_pillar) ?? '',

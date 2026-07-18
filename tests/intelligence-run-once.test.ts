@@ -6,6 +6,7 @@ import test from 'node:test';
 
 import {
   createProviderSpendLedger,
+  libraryEvidenceFingerprint,
   reserveProviderCall,
   settleProviderCall,
 } from '../src/intelligence-run-once';
@@ -59,6 +60,45 @@ test('provider ledger reserves declared ceilings and fails closed by lane and to
   });
   assert.equal(ledger.conservative_spend_usd, 23);
   assert.equal(ledger.actual_cost_complete, false);
+});
+
+test('library evidence fingerprints ignore build time but detect concurrent source evidence', () => {
+  const item = {
+    item_id: 'instagram:post:one',
+    platform: 'instagram',
+    content_type: 'image_post',
+    platform_post_id: 'one',
+    canonical_url: 'https://www.instagram.com/p/one/',
+    account_handle: 'creator',
+    caption: 'Internship evidence',
+    hashtags: ['internship'],
+    posted_at: '2026-07-17T00:00:00Z',
+    observations: [{
+      captured_at: '2026-07-17T01:00:00Z',
+      views: null,
+      likes: 5,
+      comments: 1,
+      shares: null,
+      saves: null,
+    }],
+    provenance: {
+      source_reports: ['source'],
+      source_runs: ['run'],
+      discovery_modes: ['search'],
+      source_queries: ['internship'],
+    },
+  };
+  const first = { generated_at: '2026-07-17T02:00:00Z', items: [item] } as unknown as ViralContentLibrary;
+  const rebuilt = { ...first, generated_at: '2026-07-18T02:00:00Z' };
+  const expanded = {
+    ...rebuilt,
+    items: [
+      item,
+      { ...item, item_id: 'instagram:post:two', platform_post_id: 'two' },
+    ],
+  } as unknown as ViralContentLibrary;
+  assert.equal(libraryEvidenceFingerprint(first), libraryEvidenceFingerprint(rebuilt));
+  assert.notEqual(libraryEvidenceFingerprint(first), libraryEvidenceFingerprint(expanded));
 });
 
 test('video canary enforces eight items, balanced platforms, and one item per account', () => {

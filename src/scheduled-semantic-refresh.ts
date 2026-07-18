@@ -262,6 +262,7 @@ export function redactPublicPipelineText(value: unknown, maxLength = 500): strin
     .replace(/\b(?:apify_api_[A-Za-z0-9_-]+|tlk_[A-Za-z0-9_-]+|AIza[A-Za-z0-9_-]+|sk-[A-Za-z0-9_-]+)\b/g, '[REDACTED]')
     .replace(/\bBearer\s+[^\s,;]+/gi, 'Bearer [REDACTED]')
     .replace(/((?:api[_ -]?key|token|authorization)\s*[:=]\s*)[^\s,;]+/gi, '$1[REDACTED]')
+    .replace(/https:\/\/[^\s'"]*(?:cdninstagram\.com|fbcdn\.net)[^\s'"]*/gi, '[provider media URL]')
     .replace(/\/Users\/[^/\s]+\/[^\s]*/g, '[local path]')
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
     .replace(/\s+/g, ' ')

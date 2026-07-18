@@ -29,7 +29,31 @@
     <section class="library-intro">
       <h1>Research library.</h1>
       <div class="library-intro-copy">
-        <p><strong id="introUnique">563 videos</strong> across Instagram, TikTok, and YouTube Shorts. Ranked within platform and age cohorts.</p>
+        <p><strong id="introUnique">841 public posts</strong> across Instagram, TikTok, and YouTube Shorts. Ranked within platform and age cohorts.</p>
+      </div>
+    </section>
+
+    <section class="library-summary" aria-label="Library status">
+      <div class="library-summary-item">
+        <span class="library-summary-mark" aria-hidden="true"></span>
+        <span class="library-summary-copy">
+          <strong id="summaryReviewed">841</strong>
+          <span>Tracked posts</span>
+        </span>
+      </div>
+      <div class="library-summary-item">
+        <span class="library-summary-mark" aria-hidden="true"></span>
+        <span class="library-summary-copy">
+          <strong id="summaryPlatforms">3</strong>
+          <span>Platforms</span>
+        </span>
+      </div>
+      <div class="library-summary-item library-summary-item--wide">
+        <span class="library-summary-mark" aria-hidden="true"></span>
+        <span class="library-summary-copy">
+          <strong>Normalized ranking</strong>
+          <span>Within platform and age cohorts</span>
+        </span>
       </div>
     </section>
 
@@ -246,7 +270,9 @@
 
     function renderSummary() {
       const { summary } = state.data;
-      document.querySelector('#introUnique').textContent = `${integer.format(summary.unique_items)} videos`;
+      document.querySelector('#introUnique').textContent = `${integer.format(summary.unique_items)} public posts`;
+      document.querySelector('#summaryReviewed').textContent = integer.format(summary.unique_items);
+      document.querySelector('#summaryPlatforms').textContent = integer.format(Object.keys(summary.by_platform).length);
     }
 
     function filteredItems() {
@@ -281,7 +307,7 @@
       const items = filteredItems();
       const visible = items.slice(0, state.limit);
       syncViewUrl();
-      document.querySelector('#resultCount').textContent = `${integer.format(items.length)} matching videos · showing ${integer.format(visible.length)}`;
+      document.querySelector('#resultCount').textContent = `${integer.format(items.length)} matching posts · showing ${integer.format(visible.length)}`;
       document.querySelector('#loadMore').hidden = visible.length >= items.length;
 
       if (!visible.length) {
