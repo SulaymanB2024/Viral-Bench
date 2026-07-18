@@ -1,0 +1,138 @@
+{
+  "schema_version": "viralbench_source_verification_overlay_v1",
+  "generated_at": "2026-07-17T23:35:53.000Z",
+  "scope": "Current-state verification for source-registry entries that were queued, merely collectable, or access-limited.",
+  "privacy_boundary": "RSS checks retain transport metadata, entry counts, and response hashes only. Raw community text, usernames, and author identifiers are not retained.",
+  "verification_policy": {
+    "observed": "The configured source returned a current official page or a parseable public feed during this run.",
+    "access_limited_rate_limited": "The configured source returned an explicit rate-limit response; it remains a measurement gap rather than an empty source.",
+    "connection_required": "The source requires owned account access or supplied first-party data and cannot be inferred from public competitor evidence."
+  },
+  "verifications": [
+    {
+      "source_id": "jobright",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://jobright.ai/",
+      "evidence_summary": "Current official product page returned and describes an AI job-search platform with job matching, application, resume, and career-copilot features."
+    },
+    {
+      "source_id": "uconnect",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://www.gouconnect.com/",
+      "evidence_summary": "Current official product page returned and describes an all-in-one virtual career-center platform."
+    },
+    {
+      "source_id": "aftercollege",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://www.aftercollege.com/",
+      "evidence_summary": "The current official AfterCollege site returned successfully."
+    },
+    {
+      "source_id": "teal",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://www.tealhq.com/",
+      "evidence_summary": "Current official product page returned and describes resume and job-search tools."
+    },
+    {
+      "source_id": "huntr",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://huntr.co/",
+      "evidence_summary": "Current official product page returned and describes job tracking, resume, and application-management tools."
+    },
+    {
+      "source_id": "final-round-ai",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "official_page_review",
+      "evidence_url": "https://www.finalroundai.com/",
+      "evidence_summary": "Current official product page returned and describes an AI interview-assistance product."
+    },
+    {
+      "source_id": "reddit-internships",
+      "status": "observed",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "public_rss_transport_check",
+      "evidence_url": "https://www.reddit.com/r/internships/new/.rss?limit=25",
+      "http_status": 200,
+      "content_type": "application/atom+xml; charset=UTF-8",
+      "response_bytes": 43785,
+      "entry_count": 25,
+      "response_sha256": "36d12224fb8d833cf20079cc27abea7cc2216035c7c3b33a2bca5d09e79968c8",
+      "evidence_summary": "The configured public feed returned 25 Atom entries. Only transport metadata and a response hash were retained."
+    },
+    {
+      "source_id": "reddit-college",
+      "status": "access_limited_rate_limited",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "public_rss_transport_check",
+      "evidence_url": "https://www.reddit.com/r/college/search.rss?q=internship%20OR%20job&restrict_sr=on&sort=new&t=year&limit=25",
+      "http_status": 429,
+      "entry_count": 0,
+      "evidence_summary": "The configured public feed returned HTTP 429 during the bounded verification pass."
+    },
+    {
+      "source_id": "reddit-careerguidance",
+      "status": "access_limited_rate_limited",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "public_rss_transport_check",
+      "evidence_url": "https://www.reddit.com/r/careerguidance/search.rss?q=internship%20OR%20recent%20graduate&restrict_sr=on&sort=new&t=year&limit=25",
+      "http_status": 429,
+      "entry_count": 0,
+      "evidence_summary": "The configured public feed returned HTTP 429 during the bounded verification pass."
+    },
+    {
+      "source_id": "reddit-resumes",
+      "status": "access_limited_rate_limited",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "public_rss_transport_check",
+      "evidence_url": "https://www.reddit.com/r/resumes/search.rss?q=internship%20OR%20college%20student&restrict_sr=on&sort=new&t=year&limit=25",
+      "http_status": 429,
+      "entry_count": 0,
+      "evidence_summary": "The configured public feed returned HTTP 429 during the bounded verification pass."
+    },
+    {
+      "source_id": "reddit-cscareerquestions",
+      "status": "access_limited_rate_limited",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "public_rss_transport_check",
+      "evidence_url": "https://www.reddit.com/r/cscareerquestions/search.rss?q=internship%20OR%20new%20grad&restrict_sr=on&sort=new&t=year&limit=25",
+      "http_status": 429,
+      "entry_count": 0,
+      "evidence_summary": "The configured public feed returned HTTP 429 during the bounded verification pass."
+    },
+    {
+      "source_id": "future-search-console",
+      "status": "connection_required",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "evidence_domain_review",
+      "evidence_url": "https://search.google.com/search-console/about",
+      "evidence_summary": "Internships.com Search Console data requires an authorized owned-data connection and must not be inferred from public sources."
+    },
+    {
+      "source_id": "owned-product-events",
+      "status": "connection_required",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "evidence_domain_review",
+      "evidence_url": "schemas/owned-research-events.schema.json",
+      "evidence_summary": "The privacy-safe interface exists, but no owned event aggregates have been supplied."
+    },
+    {
+      "source_id": "owned-social-analytics",
+      "status": "connection_required",
+      "checked_at": "2026-07-17T23:35:53.000Z",
+      "verification_method": "evidence_domain_review",
+      "evidence_url": "schemas/owned-research-events.schema.json",
+      "evidence_summary": "The privacy-safe interface exists, but no owned social analytics have been supplied."
+    }
+  ]
+}
