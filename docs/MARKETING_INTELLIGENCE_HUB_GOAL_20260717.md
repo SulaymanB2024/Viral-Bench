@@ -23,7 +23,7 @@ Make Viral-Bench the marketing team's canonical operating surface for internship
 - 32 active competitors have known social accounts; 16 currently reconcile to collected content, including all 8 established competitors.
 - 841 unique public posts and 1,059 observations across Instagram, TikTok, and YouTube Shorts from 566 normalized accounts.
 - 161 posts have repeated captures; 161 currently expose an observed velocity field.
-- 5 generated multimodal reports and 8 latest scheduled TwelveLabs analyses exist; all 8 scheduled analyses and 4 generated reports reconcile to current library posts, covering 4 of 86 viral queue items and 2 of 18 priority competitors that currently have collected content.
+- 73 historical semantic analysis rows reconcile to 68 distinct current posts; 5 generated multimodal reports and 8 latest scheduled TwelveLabs analyses add current report lineage. Together they cover 15 of 86 viral queue items and 9 of 18 priority competitors that currently have collected content.
 - The checked-in v2 library exposes 22 carousels, 21 images, 263 feed videos, and 535 short videos.
 - Owned marketing performance is explicitly `not_connected`; no competitor metric is allowed to fill that gap.
 - The last published refresh is `partial` because 8 of 10 Codex-selected videos completed deep analysis after a bounded recovery attempt.

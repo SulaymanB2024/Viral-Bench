@@ -158,6 +158,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
       analyses: [],
     },
     semantic_counts: { video_analyses: 1 },
+    semantic_analysis_assets: [],
     generated_at: generatedAt,
     ...overrides,
   };
@@ -210,6 +211,27 @@ test('reconciles published scheduled analyses into deep-analysis coverage', () =
   assert.equal(hub.inventory.analysis.generated_video_reports, 0);
   assert.equal(hub.inventory.analysis.scheduled_analysis_records, 1);
   assert.equal(hub.inventory.analysis.scheduled_analyses_reconciled_to_library, 1);
+  assert.equal(hub.headline.deep_analysis_queue_coverage, 1);
+  assert.equal(hub.inventory.analysis.priority_competitor_analysis_coverage, 0.5);
+  assert.equal(hub.queues.viral_analysis[0]?.analyzed, true);
+});
+
+test('reconciles historical semantic asset identities into deep-analysis coverage', () => {
+  const base = fixture();
+  const hub = buildMarketingIntelligenceHub({
+    ...base,
+    video_reports: { generated_at: base.generated_at, reports: {} },
+    pipeline_refresh: {
+      updated_at: base.generated_at,
+      status: 'partial',
+      providers: { twelvelabs: { analysis_coverage: 0.8 } },
+      analyses: [],
+    },
+    semantic_analysis_assets: [{ video_asset_id: 'instagram:post:POST1:video' }],
+  });
+
+  assert.equal(hub.inventory.analysis.semantic_analysis_distinct_assets, 1);
+  assert.equal(hub.inventory.analysis.semantic_analysis_posts_reconciled_to_library, 1);
   assert.equal(hub.headline.deep_analysis_queue_coverage, 1);
   assert.equal(hub.inventory.analysis.priority_competitor_analysis_coverage, 0.5);
   assert.equal(hub.queues.viral_analysis[0]?.analyzed, true);

@@ -109,6 +109,8 @@ export interface MarketingIntelligenceHub {
       reports_reconciled_to_library: number;
       scheduled_analysis_records: number;
       scheduled_analyses_reconciled_to_library: number;
+      semantic_analysis_distinct_assets: number;
+      semantic_analysis_posts_reconciled_to_library: number;
       priority_competitors_with_content: number;
       priority_competitors_with_deep_analysis: number;
       priority_competitor_analysis_coverage: number | null;
@@ -234,6 +236,7 @@ export interface MarketingIntelligenceInputs {
     social_comments?: number;
     semantic_items?: number;
   };
+  semantic_analysis_assets?: Array<{ video_asset_id: string }>;
   source_paths?: Partial<Record<HubSourceId, string>>;
   generated_at?: string;
 }
@@ -331,9 +334,11 @@ export function buildMarketingIntelligenceHub(
   const reports = Object.values(reportsRecord).map((entry) => recordOrEmpty(entry));
   const refresh = recordOrEmpty(input.pipeline_refresh);
   const scheduledAnalyses = arrayOrEmpty(refresh.analyses).map((entry) => recordOrEmpty(entry));
+  const semanticAnalysisAssets = input.semantic_analysis_assets ?? [];
   const analyzedPostIds = new Set<string>();
   let reconciledReportCount = 0;
   let reconciledScheduledAnalysisCount = 0;
+  const reconciledSemanticPostIds = new Set<string>();
   const libraryPostIds = contentItems
     .map((item) => item.platform_post_id)
     .filter(Boolean)
@@ -360,6 +365,17 @@ export function buildMarketingIntelligenceHub(
     if (!matched) continue;
     analyzedPostIds.add(matched.platform_post_id);
     reconciledScheduledAnalysisCount += 1;
+  }
+  for (const analysis of semanticAnalysisAssets) {
+    const identity = semanticAssetIdentity(analysis.video_asset_id);
+    if (!identity) continue;
+    const matched = contentItems.find((item) => (
+      item.platform === identity.platform
+      && item.platform_post_id === identity.platform_post_id
+    ));
+    if (!matched) continue;
+    analyzedPostIds.add(matched.platform_post_id);
+    reconciledSemanticPostIds.add(matched.platform_post_id);
   }
 
   const accountsByPlatform = new Map<string, {
@@ -494,6 +510,13 @@ export function buildMarketingIntelligenceHub(
     `${reconciledScheduledAnalysisCount} of ${scheduledAnalyses.length} scheduled TwelveLabs analyses reconcile to the current content library.`,
     'Preserve canonical_url, platform, and platform_post_id in every published scheduled analysis.',
   ));
+  const distinctSemanticAssets = new Set(semanticAnalysisAssets.map((row) => row.video_asset_id));
+  if (reconciledSemanticPostIds.size < distinctSemanticAssets.size) issues.push(issue(
+    'medium',
+    'semantic_analysis_reconciliation_gap',
+    `${reconciledSemanticPostIds.size} of ${distinctSemanticAssets.size} distinct semantic video assets reconcile to the current content library.`,
+    'Preserve platform and platform post ID in semantic video_asset_id values and retain matching library lineage.',
+  ));
   if (ownedConnection !== 'connected') issues.push(issue(
     ownedConnection === 'not_connected' ? 'critical' : 'medium',
     'owned_performance_not_connected',
@@ -612,6 +635,8 @@ export function buildMarketingIntelligenceHub(
         reports_reconciled_to_library: reconciledReportCount,
         scheduled_analysis_records: scheduledAnalyses.length,
         scheduled_analyses_reconciled_to_library: reconciledScheduledAnalysisCount,
+        semantic_analysis_distinct_assets: distinctSemanticAssets.size,
+        semantic_analysis_posts_reconciled_to_library: reconciledSemanticPostIds.size,
         priority_competitors_with_content: priorityObserved.length,
         priority_competitors_with_deep_analysis: priorityAnalyzed.length,
         priority_competitor_analysis_coverage: priorityCompetitorAnalysisCoverage,
@@ -647,7 +672,7 @@ export function buildMarketingIntelligenceHub(
       'Observed velocity requires repeated captures; lifetime views divided by post age is only a lifetime proxy.',
       'Performance comparisons are valid only within compatible platform, content-type, and age cohorts.',
       'Viral ranking is descriptive and cannot establish that a hook, format, creator, or edit caused distribution.',
-      'Deep-analysis coverage reconciles both generated video reports and the latest published scheduled TwelveLabs analysis records.',
+      'Deep-analysis coverage reconciles generated video reports, the latest published scheduled TwelveLabs records, and semantic video-analysis asset identities.',
       'Missing providers, failed fetches, and uncollected competitors remain visible measurement gaps.',
       'Null owned metrics remain null until privacy-safe owned facts are connected.',
     ],
@@ -1111,6 +1136,7 @@ export function loadMarketingIntelligenceInputs(options: {
     video_reports: optionalJson('video_reports'),
     pipeline_refresh: optionalJson('pipeline_refresh'),
     semantic_counts: fs.existsSync(databasePath) ? readSemanticCounts(databasePath) : undefined,
+    semantic_analysis_assets: fs.existsSync(databasePath) ? readSemanticAnalysisAssets(databasePath) : undefined,
     source_paths: sourcePaths,
     generated_at: options.generated_at,
   };
@@ -1350,6 +1376,22 @@ function artifactSources(hub: MarketingIntelligenceHub): Array<Record<string, un
     jsonSource('video-reports', 'Generated video analysis reports', pathFor('video_reports')),
     jsonSource('pipeline-refresh', 'Latest pipeline refresh status', pathFor('pipeline_refresh')),
     {
+      id: 'semantic-database',
+      label: 'Semantic video analysis corpus',
+      path: pathFor('semantic_database'),
+      query: {
+        engine: 'SQLite',
+        language: 'sql',
+        executed_at: hub.generated_at,
+        sql: 'SELECT video_asset_id FROM video_analyses ORDER BY video_asset_id, analysis_id;',
+        description: 'Reads the stable semantic video asset identities used to reconcile historical deep analyses to current library posts.',
+        tables_used: ['video_analyses'],
+        metric_definitions: [
+          'Semantic analysis post coverage = distinct semantic video assets reconciled by platform and platform post ID / distinct semantic video assets.',
+        ],
+      },
+    },
+    {
       id: 'source-reconciliation',
       label: 'Registry and source-verification reconciliation',
       query: {
@@ -1386,10 +1428,11 @@ function artifactSources(hub: MarketingIntelligenceHub): Array<Record<string, un
         executed_at: hub.generated_at,
         sql: `SELECT queues.viral_analysis FROM read_json_auto('${hubDatasetPath}');`,
         description: 'Matches generated multimodal report candidate identifiers to current library posts, viral queue items, and reconciled competitor accounts.',
-        tables_used: [hubDatasetPath, pathFor('content_library'), pathFor('video_reports'), pathFor('core_competitors'), pathFor('competitor_universe')],
+        tables_used: [hubDatasetPath, pathFor('content_library'), pathFor('video_reports'), pathFor('pipeline_refresh'), pathFor('semantic_database'), pathFor('core_competitors'), pathFor('competitor_universe')],
         filters: [
           'Only current high-signal analysis queue items',
           'Identifier match must resolve to a current library post',
+          'Historical semantic analysis identities must match both platform and platform post ID',
           'Competitor analysis requires an observed priority competitor account',
           'One unanalyzed candidate per competitor, ranked by signal, compatible-cohort percentile, observed velocity, and recency',
         ],
@@ -1454,6 +1497,37 @@ function readSemanticCounts(databasePath: string): MarketingIntelligenceInputs['
     }).trim();
     return [table, Number(output)];
   }));
+}
+
+function readSemanticAnalysisAssets(
+  databasePath: string,
+): NonNullable<MarketingIntelligenceInputs['semantic_analysis_assets']> {
+  const output = execFileSync('sqlite3', [
+    '-json',
+    databasePath,
+    'SELECT video_asset_id FROM video_analyses ORDER BY video_asset_id, analysis_id;',
+  ], { encoding: 'utf8' }).trim();
+  if (!output) return [];
+  const rows = JSON.parse(output) as unknown;
+  if (!Array.isArray(rows)) throw new Error('Semantic video analysis identity query returned a non-array payload.');
+  return rows.map((entry, index) => {
+    const row = object(entry, `semantic video analysis ${index}`);
+    const videoAssetId = text(row.video_asset_id);
+    if (!videoAssetId) throw new Error(`semantic video analysis ${index} is missing video_asset_id`);
+    return { video_asset_id: videoAssetId };
+  });
+}
+
+function semanticAssetIdentity(value: string): {
+  platform: string;
+  platform_post_id: string;
+} | null {
+  const match = /^(instagram|tiktok|youtube_shorts):post:([^:]+):video$/.exec(value);
+  if (!match) return null;
+  return {
+    platform: match[1],
+    platform_post_id: match[2],
+  };
 }
 
 function socialHandle(value: unknown): string {
