@@ -1,0 +1,1187 @@
+{
+  "schema_version": "viralbench_discovery_seed_catalog_v1",
+  "generated_at": "2026-07-18T12:00:00.000Z",
+  "allocation": {
+    "target_total": 40,
+    "internship_early_career": 28,
+    "broader_job_search": 12
+  },
+  "source_route_lineage": [
+    {
+      "route": "competitor_profile",
+      "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "hashtag",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "keyword",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "popular_reels",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "mention",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "creator_adjacency",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "audio",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "youtube_query",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://www.instagram.com/reels/",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    },
+    {
+      "route": "official_trend",
+      "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+      "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en",
+      "observed_at": "2026-07-18T12:00:00.000Z"
+    }
+  ],
+  "seeds": [
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_4542ddc65c17687bcb20",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "internshala",
+      "evidence_url": "https://www.instagram.com/internshala/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/internshala/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_819d36040181b1d3db68",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "jobright.ai",
+      "evidence_url": "https://www.instagram.com/jobright.ai/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/jobright.ai/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_3677b6f6c1271b8a659f",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "riipennetworks",
+      "evidence_url": "https://www.instagram.com/riipennetworks/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/riipennetworks/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_28690218b367afd30980",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "acadiumofficial",
+      "evidence_url": "https://www.instagram.com/acadiumofficial/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/acadiumofficial/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_e7cc2fac00b37c4ff6a2",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "theinterngroup",
+      "evidence_url": "https://www.instagram.com/theinterngroup/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/theinterngroup/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_9ceba389e7b59d203544",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "capitalplacement",
+      "evidence_url": "https://www.instagram.com/capitalplacement/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/capitalplacement/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_bede442d326156ed8156",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "cieestudyabroad",
+      "evidence_url": "https://www.instagram.com/cieestudyabroad/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/cieestudyabroad/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_1e396c6ccc307036c196",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "aiesecglobal",
+      "evidence_url": "https://www.instagram.com/aiesecglobal/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/aiesecglobal/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_0f1d961db02a83f1fe31",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "magnetmehq",
+      "evidence_url": "https://www.instagram.com/magnetmehq/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/magnetmehq/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_2dd2a3b1750a8c0c0ec5",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "seekgradau",
+      "evidence_url": "https://www.instagram.com/seekgradau/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/seekgradau/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_db138ba6f178c189b51d",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "brightnetwork",
+      "evidence_url": "https://www.instagram.com/brightnetwork/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/brightnetwork/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_d2b895f4b2e3c971cb01",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "standout.search",
+      "evidence_url": "https://www.instagram.com/standout.search/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/standout.search/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_a09de5b155ad8915d57e",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "collegerecruiter.com",
+      "evidence_url": "https://www.tiktok.com/@collegerecruiter.com",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@collegerecruiter.com",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_7f9e1683ae1e7322605b",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "jobright.ai",
+      "evidence_url": "https://www.tiktok.com/@jobright.ai",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@jobright.ai",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_a490e3423c601e78319c",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "capitalplacement",
+      "evidence_url": "https://www.tiktok.com/@capitalplacement",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@capitalplacement",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_9a43a95a70649c673ffd",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "theinterngroupint",
+      "evidence_url": "https://www.tiktok.com/@theinterngroupint",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@theinterngroupint",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_e8b9c73ca5d984f30b5c",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "cieestudyabroad",
+      "evidence_url": "https://www.tiktok.com/@cieestudyabroad",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@cieestudyabroad",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_d98df7c36c85515a60a5",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "magnet.me",
+      "evidence_url": "https://www.tiktok.com/@magnet.me",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@magnet.me",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_d4f3f8d729189c890179",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "careerflow.ai",
+      "evidence_url": "https://www.instagram.com/careerflow.ai/",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/careerflow.ai/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_4a32287d6138ba7e23eb",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "teal_hq",
+      "evidence_url": "https://www.instagram.com/teal_hq",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/teal_hq",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_2d84044024792a469d1c",
+      "scope": "broader_job_search",
+      "platform": "tiktok",
+      "source_type": "competitor_profile",
+      "locator": "teal_hq",
+      "evidence_url": "https://www.tiktok.com/@teal_hq",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.tiktok.com/@teal_hq",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_6ad185d261ac8d10622f",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "competitor_profile",
+      "locator": "finalround_ai",
+      "evidence_url": "https://www.instagram.com/finalround_ai",
+      "confidence": "high",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/INTERNSHIP_COMPETITOR_UNIVERSE_20260716.md",
+        "source_url": "https://www.instagram.com/finalround_ai",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_80f85c6e5a909feba33f",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "hashtag",
+      "locator": "internships",
+      "evidence_url": "https://www.instagram.com/explore/tags/internships/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/explore/tags/internships/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_fda0f3373b3036a8d383",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "hashtag",
+      "locator": "internshiptips",
+      "evidence_url": "https://www.instagram.com/explore/tags/internshiptips/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/explore/tags/internshiptips/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_8228e4dbc27078eed3e8",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "popular_reels",
+      "locator": "internship application tips",
+      "evidence_url": "https://www.instagram.com/reels/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/reels/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_bfa1525a1fa32a7f76ad",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "popular_reels",
+      "locator": "summer internship",
+      "evidence_url": "https://www.instagram.com/reels/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/reels/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_b04d398fd0918bf1fd01",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "keyword",
+      "locator": "internships 2027",
+      "evidence_url": "https://www.tiktok.com/search?q=internships%202027",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.tiktok.com/search?q=internships%202027",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_fd3cb3f4afab7d8c5ec8",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "creator_adjacency",
+      "locator": "internship advice creators",
+      "evidence_url": "https://www.tiktok.com/search?q=internship%20advice%20creators",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.tiktok.com/search?q=internship%20advice%20creators",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_2c179f9419379370708e",
+      "scope": "internship_early_career",
+      "platform": "instagram",
+      "source_type": "audio",
+      "locator": "internship advice original audio",
+      "evidence_url": "https://www.instagram.com/reels/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/reels/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_6b60c074a55a8a4de5e9",
+      "scope": "internship_early_career",
+      "platform": "youtube_shorts",
+      "source_type": "youtube_query",
+      "locator": "internship tips shorts",
+      "evidence_url": "https://www.youtube.com/results?search_query=internship%20tips%20shorts",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.youtube.com/results?search_query=internship%20tips%20shorts",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_93744fa6a384e6e88997",
+      "scope": "internship_early_career",
+      "platform": "tiktok",
+      "source_type": "official_trend",
+      "locator": "internship trends",
+      "evidence_url": "https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en",
+      "confidence": "medium",
+      "verification_state": "access_limited",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Official access surface is recorded as an access-limited evaluation target; no UI or API collection was attempted."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "access_limited",
+        "reason": "Access is optional/manual and no current authorization permits a UI, API, login, CAPTCHA, verification, region, or terms-gated collection path."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_e31fedd7e1f4f3bf9124",
+      "scope": "internship_early_career",
+      "platform": "google_trends",
+      "source_type": "official_trend",
+      "locator": "internship search interest",
+      "evidence_url": "https://trends.google.com/trends/",
+      "confidence": "medium",
+      "verification_state": "access_limited",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://trends.google.com/trends/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Official access surface is recorded as an access-limited evaluation target; no UI or API collection was attempted."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "access_limited",
+        "reason": "Access is optional/manual and no current authorization permits a UI, API, login, CAPTCHA, verification, region, or terms-gated collection path."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_8436a8fbba1726394f47",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "hashtag",
+      "locator": "jobsearchtips",
+      "evidence_url": "https://www.instagram.com/explore/tags/jobsearchtips/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/explore/tags/jobsearchtips/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_d7f1b74a441cc7e6a289",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "hashtag",
+      "locator": "resumetips",
+      "evidence_url": "https://www.instagram.com/explore/tags/resumetips/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/explore/tags/resumetips/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_731bb0f0313fdbdaa54c",
+      "scope": "broader_job_search",
+      "platform": "tiktok",
+      "source_type": "keyword",
+      "locator": "entry level job search",
+      "evidence_url": "https://www.tiktok.com/search?q=entry%20level%20job%20search",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.tiktok.com/search?q=entry%20level%20job%20search",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_4bc63a192dd2dec91000",
+      "scope": "broader_job_search",
+      "platform": "tiktok",
+      "source_type": "mention",
+      "locator": "interview tips",
+      "evidence_url": "https://www.tiktok.com/search?q=interview%20tips",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.tiktok.com/search?q=interview%20tips",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_a601aa18cc1c45e9488c",
+      "scope": "broader_job_search",
+      "platform": "instagram",
+      "source_type": "creator_adjacency",
+      "locator": "career coach creators",
+      "evidence_url": "https://www.instagram.com/reels/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.instagram.com/reels/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_a7c91e719334dd204a91",
+      "scope": "broader_job_search",
+      "platform": "tiktok",
+      "source_type": "audio",
+      "locator": "interview advice audio",
+      "evidence_url": "https://www.tiktok.com/music/",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.tiktok.com/music/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_b111436c550e096f0398",
+      "scope": "broader_job_search",
+      "platform": "youtube_shorts",
+      "source_type": "youtube_query",
+      "locator": "job search tips shorts",
+      "evidence_url": "https://www.youtube.com/results?search_query=job%20search%20tips%20shorts",
+      "confidence": "medium",
+      "verification_state": "candidate_pending_registry_review",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://www.youtube.com/results?search_query=job%20search%20tips%20shorts",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Public discovery locator retained as a draft candidate only; registry review is still required."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "requires_registry_review",
+        "reason": "Draft discovery candidate; separate registry review and a separately approved collection manifest are required."
+      }
+    },
+    {
+      "schema_version": "viralbench_discovery_seed_v1",
+      "seed_id": "seed_v1_3f81f2f570e388ee1d26",
+      "scope": "broader_job_search",
+      "platform": "google_trends",
+      "source_type": "official_trend",
+      "locator": "job search interest",
+      "evidence_url": "https://trends.google.com/trends/",
+      "confidence": "medium",
+      "verification_state": "access_limited",
+      "verified_at": "2026-07-18T12:00:00.000Z",
+      "provenance": {
+        "source_document": "docs/VIRAL_CONTENT_LIBRARY_EXPANSION_20260717.md",
+        "source_url": "https://trends.google.com/trends/",
+        "observed_at": "2026-07-18T12:00:00.000Z",
+        "note": "Official access surface is recorded as an access-limited evaluation target; no UI or API collection was attempted."
+      },
+      "public_data": {
+        "classification": "public_only",
+        "contains_private_data": false,
+        "contains_contact_data": false,
+        "declaration": "This seed retains only public discovery metadata and no private-account material or personal contact data."
+      },
+      "collection": {
+        "readiness": "access_limited",
+        "reason": "Access is optional/manual and no current authorization permits a UI, API, login, CAPTCHA, verification, region, or terms-gated collection path."
+      }
+    }
+  ]
+}

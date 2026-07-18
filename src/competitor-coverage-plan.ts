@@ -44,6 +44,8 @@ export interface CompetitorCoveragePlanInputs {
   discovery_manifest: unknown;
   discovery_report: unknown;
   pipeline_refresh: unknown;
+  discovery_seed_manifest?: unknown;
+  discovery_seed_manifest_path?: string;
   source_paths?: Partial<Record<CoveragePlanSourceId, string>>;
   generated_at?: string;
 }
@@ -107,6 +109,7 @@ export interface CompetitorCoverageOperationsPlan {
     taxonomy_normalization_competitors: number;
     no_eligible_video_competitors: number;
     unattributed_configured_targets: number;
+    discovery_seed_candidates_for_registry_review: number;
   };
   completion_contract: {
     collection: string;
@@ -164,6 +167,15 @@ export interface CompetitorCoverageOperationsPlan {
       prior_runs: Array<{ run_id: string; state: PriorRunState }>;
       reason: string;
     }>;
+    discovery_seed_review: Array<{
+      seed_id: string;
+      platform: SupportedPlatform;
+      handle: string;
+      evidence_url: string;
+      confidence: 'high' | 'medium' | 'low';
+      reason: string;
+      registry_state: 'candidate_pending_registry_review';
+    }>;
   };
   analysis: {
     planning_capacity_basis: {
@@ -185,7 +197,7 @@ export interface CompetitorCoverageOperationsPlan {
     no_eligible_video: unknown[];
   };
   source_lineage: Array<{
-    source_id: CoveragePlanSourceId;
+    source_id: CoveragePlanSourceId | 'discovery_seed_manifest';
     path: string;
     generated_at: string | null;
     grain: string;
@@ -262,6 +274,9 @@ export function buildCompetitorCoveragePlan(
     array(sourceCandidatesArtifact.competitors, 'source candidate competitors'),
     profileByName,
   );
+  const discoverySeedReview = input.discovery_seed_manifest === undefined
+    ? []
+    : normalizeDiscoverySeedReview(input.discovery_seed_manifest);
   const configured = configuredTargets(discoveryManifest, discoveryReport);
   const collectionQueue = array(
     object(profilesArtifact.queues, 'profile queues').collection,
@@ -496,6 +511,7 @@ export function buildCompetitorCoveragePlan(
       taxonomy_normalization_competitors: taxonomyNormalization.length,
       no_eligible_video_competitors: noEligibleVideo.length,
       unattributed_configured_targets: unattributed.length,
+      discovery_seed_candidates_for_registry_review: discoverySeedReview.length,
     },
     completion_contract: {
       collection: 'Every priority competitor has reconciled current public content or a reviewed access-limited/no-public-source state with dated evidence.',
@@ -529,6 +545,7 @@ export function buildCompetitorCoveragePlan(
       prior_profile_runs: configured.runs,
       monitoring_recovery: monitoringRecovery,
       unattributed_configured_targets: unattributed,
+      discovery_seed_review: discoverySeedReview,
     },
     analysis: {
       planning_capacity_basis: {
@@ -547,6 +564,8 @@ export function buildCompetitorCoveragePlan(
       discoveryManifest,
       discoveryReport,
       pipelineRefresh,
+      input.discovery_seed_manifest,
+      input.discovery_seed_manifest_path,
     ),
     quality: { issues },
     evidence_boundaries: [
@@ -585,6 +604,13 @@ export function loadCompetitorCoveragePlanInputs(options: {
     discovery_manifest: readJson(path.resolve(root, sourcePaths.discovery_manifest)),
     discovery_report: readJson(path.resolve(root, sourcePaths.discovery_report)),
     pipeline_refresh: readJson(path.resolve(root, sourcePaths.pipeline_refresh)),
+    discovery_seed_manifest: optionalJson(
+      path.resolve(root, '.ops/competitor_research/internship-discovery-acquisition-draft-v1-20260718.json'),
+    ),
+    discovery_seed_manifest_path: fs.existsSync(path.resolve(
+      root,
+      '.ops/competitor_research/internship-discovery-acquisition-draft-v1-20260718.json',
+    )) ? '.ops/competitor_research/internship-discovery-acquisition-draft-v1-20260718.json' : undefined,
     source_paths: sourcePaths,
     generated_at: options.generated_at,
   };
@@ -725,6 +751,46 @@ function normalizeSourceCandidateReviews(
     }
   }
   return new Map(reviews.map((review) => [review.competitor, review]));
+}
+
+function normalizeDiscoverySeedReview(value: unknown): CompetitorCoverageOperationsPlan['collection']['discovery_seed_review'] {
+  const artifact = object(value, 'discovery seed manifest');
+  if (text(artifact.schema_version) !== 'viralbench_discovery_acquisition_draft_v1') {
+    throw new Error('Discovery seed manifest has an unsupported schema_version');
+  }
+  if (artifact.external_calls_authorized !== false || artifact.source_registry_mutation_authorized !== false) {
+    throw new Error('Discovery seed manifest must preserve zero external-call and registry-mutation authority');
+  }
+  const candidates = array(artifact.registry_review_candidates, 'discovery seed registry review candidates')
+    .map((entry, index) => {
+      const row = object(entry, `discovery seed registry review candidate ${index}`);
+      const platform = text(row.platform);
+      if (!SUPPORTED_PLATFORMS.has(platform as SupportedPlatform)) {
+        throw new Error(`Discovery seed registry review candidate ${index} uses unsupported platform: ${platform}`);
+      }
+      const confidence = text(row.confidence);
+      if (!['high', 'medium', 'low'].includes(confidence)) {
+        throw new Error(`Discovery seed registry review candidate ${index} has invalid confidence`);
+      }
+      if (text(row.verification_state) !== 'candidate_pending_registry_review') {
+        throw new Error(`Discovery seed registry review candidate ${index} must remain pending registry review`);
+      }
+      return {
+        seed_id: requiredText(row.seed_id, `discovery seed registry review candidate ${index} seed_id`),
+        platform: platform as SupportedPlatform,
+        handle: requiredText(row.handle, `discovery seed registry review candidate ${index} handle`),
+        evidence_url: requiredHttpsUrl(row.evidence_url, `discovery seed registry review candidate ${index} evidence_url`),
+        confidence: confidence as 'high' | 'medium' | 'low',
+        reason: requiredText(row.reason, `discovery seed registry review candidate ${index} reason`),
+        registry_state: 'candidate_pending_registry_review' as const,
+      };
+    });
+  ensureUnique(candidates.map((candidate) => candidate.seed_id), 'discovery seed registry review seed_id');
+  return candidates.sort((left, right) => (
+    left.platform.localeCompare(right.platform)
+    || normalizeHandle(left.handle).localeCompare(normalizeHandle(right.handle))
+    || left.seed_id.localeCompare(right.seed_id)
+  ));
 }
 
 function configuredTargets(
@@ -939,6 +1005,8 @@ function sourceLineage(
   manifest: JsonRecord,
   report: JsonRecord,
   refresh: JsonRecord,
+  discoverySeedManifest: unknown,
+  discoverySeedManifestPath: string | undefined,
 ): CompetitorCoverageOperationsPlan['source_lineage'] {
   const row = (
     sourceId: CoveragePlanSourceId,
@@ -952,13 +1020,23 @@ function sourceLineage(
     grain,
     authoritative_for: authoritativeFor,
   });
-  return [
+  const lineage: CompetitorCoverageOperationsPlan['source_lineage'] = [
     row('profiles', profiles, 'one competitor profile plus explicit work queues', 'competitor identity, current coverage, evidence quality, and next action'),
     row('source_candidates', sourceCandidates, 'one bounded public-web source review per unresolved competitor', 'review candidates and explicit inconclusive source searches'),
     row('discovery_manifest', manifest, 'one configured provider run', 'configured profile targets and charge ceilings'),
     row('discovery_report', report, 'one completed run plus itemized failures', 'latest execution outcomes and reported/conservative cost'),
     row('pipeline_refresh', refresh, 'one published scheduled cycle', 'current cycle caps, analysis throughput, and provider state'),
   ];
+  if (discoverySeedManifest !== undefined && discoverySeedManifestPath) {
+    lineage.push({
+      source_id: 'discovery_seed_manifest',
+      path: discoverySeedManifestPath,
+      generated_at: sourceTimestamp(object(discoverySeedManifest, 'discovery seed manifest')),
+      grain: 'one public discovery seed candidate',
+      authoritative_for: 'draft-only discovery candidates awaiting registry review',
+    });
+  }
+  return lineage;
 }
 
 function compareCollectionTasks(left: CollectionTask, right: CollectionTask): number {
@@ -1079,6 +1157,10 @@ function round(value: number, digits = 6): number {
 
 function readJson(filePath: string): unknown {
   return JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+}
+
+function optionalJson(filePath: string): unknown | undefined {
+  return fs.existsSync(filePath) ? readJson(filePath) : undefined;
 }
 
 function object(value: unknown, label: string): JsonRecord {

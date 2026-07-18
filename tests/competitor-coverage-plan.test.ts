@@ -322,3 +322,37 @@ test('derives deterministic generated_at from the freshest source', () => {
 
   assert.equal(plan.generated_at, '2026-07-18T01:00:00.000Z');
 });
+
+test('keeps draft discovery candidates outside reviewed collection identities', () => {
+  const input = fixture();
+  input.discovery_seed_manifest = {
+    schema_version: 'viralbench_discovery_acquisition_draft_v1',
+    external_calls_authorized: false,
+    source_registry_mutation_authorized: false,
+    registry_review_candidates: [{
+      seed_id: 'seed_v1_candidate',
+      platform: 'instagram',
+      handle: 'newcandidate',
+      evidence_url: 'https://www.instagram.com/newcandidate/',
+      confidence: 'high',
+      verification_state: 'candidate_pending_registry_review',
+      reason: 'Public evidence requires the normal registry review.',
+    }],
+  };
+  const plan = buildCompetitorCoveragePlan(input);
+
+  assert.deepEqual(plan.collection.discovery_seed_review, [{
+    seed_id: 'seed_v1_candidate',
+    platform: 'instagram',
+    handle: 'newcandidate',
+    evidence_url: 'https://www.instagram.com/newcandidate/',
+    confidence: 'high',
+    reason: 'Public evidence requires the normal registry review.',
+    registry_state: 'candidate_pending_registry_review',
+  }]);
+  assert.equal(plan.summary.discovery_seed_candidates_for_registry_review, 1);
+  assert.equal(
+    plan.collection.tasks.some((task) => task.handle === 'newcandidate'),
+    false,
+  );
+});
