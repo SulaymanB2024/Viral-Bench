@@ -107,6 +107,8 @@ export interface MarketingIntelligenceHub {
       matched_queue_items: number;
       generated_video_reports: number;
       reports_reconciled_to_library: number;
+      scheduled_analysis_records: number;
+      scheduled_analyses_reconciled_to_library: number;
       priority_competitors_with_content: number;
       priority_competitors_with_deep_analysis: number;
       priority_competitor_analysis_coverage: number | null;
@@ -327,8 +329,11 @@ export function buildMarketingIntelligenceHub(
 
   const reportsRecord = recordOrEmpty(recordOrEmpty(input.video_reports).reports);
   const reports = Object.values(reportsRecord).map((entry) => recordOrEmpty(entry));
+  const refresh = recordOrEmpty(input.pipeline_refresh);
+  const scheduledAnalyses = arrayOrEmpty(refresh.analyses).map((entry) => recordOrEmpty(entry));
   const analyzedPostIds = new Set<string>();
   let reconciledReportCount = 0;
+  let reconciledScheduledAnalysisCount = 0;
   const libraryPostIds = contentItems
     .map((item) => item.platform_post_id)
     .filter(Boolean)
@@ -342,6 +347,19 @@ export function buildMarketingIntelligenceHub(
         break;
       }
     }
+  }
+  for (const analysis of scheduledAnalyses) {
+    const platform = text(analysis.platform);
+    const platformPostId = text(analysis.platform_post_id);
+    const canonicalUrl = text(analysis.canonical_url);
+    const matched = contentItems.find((item) => (
+      platformPostId
+      && item.platform_post_id === platformPostId
+      && (!platform || item.platform === platform)
+    )) ?? contentItems.find((item) => canonicalUrl && item.canonical_url === canonicalUrl);
+    if (!matched) continue;
+    analyzedPostIds.add(matched.platform_post_id);
+    reconciledScheduledAnalysisCount += 1;
   }
 
   const accountsByPlatform = new Map<string, {
@@ -409,7 +427,6 @@ export function buildMarketingIntelligenceHub(
   const ownedDimensions = recordOrEmpty(ownedDashboard.dimensions);
   const ownedFacts = recordOrEmpty(ownedDashboard.facts);
   const ownedQuality = recordOrEmpty(ownedDashboard.quality);
-  const refresh = recordOrEmpty(input.pipeline_refresh);
   const refreshProviders = recordOrEmpty(refresh.providers);
   const refreshTwelveLabs = recordOrEmpty(refreshProviders.twelvelabs);
 
@@ -470,6 +487,12 @@ export function buildMarketingIntelligenceHub(
     'video_report_reconciliation_gap',
     `${reconciledReportCount} of ${reports.length} generated video reports reconcile to the current content library.`,
     'Preserve the source platform post ID in every generated report so library refreshes can retain analysis lineage.',
+  ));
+  if (reconciledScheduledAnalysisCount < scheduledAnalyses.length) issues.push(issue(
+    'medium',
+    'scheduled_analysis_reconciliation_gap',
+    `${reconciledScheduledAnalysisCount} of ${scheduledAnalyses.length} scheduled TwelveLabs analyses reconcile to the current content library.`,
+    'Preserve canonical_url, platform, and platform_post_id in every published scheduled analysis.',
   ));
   if (ownedConnection !== 'connected') issues.push(issue(
     ownedConnection === 'not_connected' ? 'critical' : 'medium',
@@ -587,6 +610,8 @@ export function buildMarketingIntelligenceHub(
         matched_queue_items: matchedQueueItems,
         generated_video_reports: reports.length,
         reports_reconciled_to_library: reconciledReportCount,
+        scheduled_analysis_records: scheduledAnalyses.length,
+        scheduled_analyses_reconciled_to_library: reconciledScheduledAnalysisCount,
         priority_competitors_with_content: priorityObserved.length,
         priority_competitors_with_deep_analysis: priorityAnalyzed.length,
         priority_competitor_analysis_coverage: priorityCompetitorAnalysisCoverage,
@@ -622,6 +647,7 @@ export function buildMarketingIntelligenceHub(
       'Observed velocity requires repeated captures; lifetime views divided by post age is only a lifetime proxy.',
       'Performance comparisons are valid only within compatible platform, content-type, and age cohorts.',
       'Viral ranking is descriptive and cannot establish that a hook, format, creator, or edit caused distribution.',
+      'Deep-analysis coverage reconciles both generated video reports and the latest published scheduled TwelveLabs analysis records.',
       'Missing providers, failed fetches, and uncollected competitors remain visible measurement gaps.',
       'Null owned metrics remain null until privacy-safe owned facts are connected.',
     ],

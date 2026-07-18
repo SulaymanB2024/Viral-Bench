@@ -155,6 +155,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
       updated_at: generatedAt,
       status: 'completed',
       providers: { twelvelabs: { analysis_coverage: 1 } },
+      analyses: [],
     },
     semantic_counts: { video_analyses: 1 },
     generated_at: generatedAt,
@@ -177,6 +178,7 @@ test('reconciles source, competitor, viral, analysis, and owned-performance cove
   assert.equal(hub.inventory.sources.verification_overrides_applied, 2);
   assert.equal(hub.inventory.competitors.with_observed_content, 2);
   assert.equal(hub.inventory.analysis.reports_reconciled_to_library, 1);
+  assert.equal(hub.inventory.analysis.scheduled_analyses_reconciled_to_library, 0);
   assert.equal(hub.inventory.analysis.priority_competitor_analysis_coverage, 0.5);
   assert.equal(hub.queues.priority_competitor_analysis_gaps.length, 1);
   assert.equal(hub.queues.priority_competitor_analysis_queue.length, 1);
@@ -186,6 +188,31 @@ test('reconciles source, competitor, viral, analysis, and owned-performance cove
   assert.equal(hub.queues.priority_competitor_gaps.length, 2);
   assert.equal(hub.queues.viral_analysis[0]?.analyzed, true);
   assert.ok(hub.quality.issues.some((issue) => issue.code === 'owned_performance_not_connected'));
+});
+
+test('reconciles published scheduled analyses into deep-analysis coverage', () => {
+  const base = fixture();
+  const hub = buildMarketingIntelligenceHub({
+    ...base,
+    video_reports: { generated_at: base.generated_at, reports: {} },
+    pipeline_refresh: {
+      updated_at: base.generated_at,
+      status: 'partial',
+      providers: { twelvelabs: { analysis_coverage: 0.8 } },
+      analyses: [{
+        canonical_url: 'https://www.instagram.com/reel/POST1/',
+        platform: 'instagram',
+        platform_post_id: 'POST1',
+      }],
+    },
+  });
+
+  assert.equal(hub.inventory.analysis.generated_video_reports, 0);
+  assert.equal(hub.inventory.analysis.scheduled_analysis_records, 1);
+  assert.equal(hub.inventory.analysis.scheduled_analyses_reconciled_to_library, 1);
+  assert.equal(hub.headline.deep_analysis_queue_coverage, 1);
+  assert.equal(hub.inventory.analysis.priority_competitor_analysis_coverage, 0.5);
+  assert.equal(hub.queues.viral_analysis[0]?.analyzed, true);
 });
 
 test('keeps public intelligence and owned performance as separate sourced cards', () => {
