@@ -8,6 +8,7 @@ import type {
 type UnknownRecord = Record<string, unknown>;
 
 const CAUSAL_OVERCLAIM = /\b(proves? that|causes?|guarantees?|ensures?|will (?:increase|drive|deliver|produce)|always works?)\b/i;
+const NEGATED_CAUSAL_OVERCLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to|rather than)\s+(?:(?:directly|necessarily|reasonably|reliably)\s+)?(?:proves? that|causes?|guarantees?|ensures?|always works?)\b/gi;
 const CROSS_PLATFORM_RANK = /\b(highest|most|best|top)\b.{0,45}\bviews?\b.{0,45}\b(across|overall|all platforms?)\b/i;
 
 export interface ValidatedResearchOutput {
@@ -84,7 +85,10 @@ export function validateMarketingOutput(input: unknown, evidence: AgentEvidence[
 
 export function assertEvidenceSafe(output: unknown, evidence: AgentEvidence[]): void {
   const text = collectStrings(output).join(' ');
-  if (CAUSAL_OVERCLAIM.test(text)) throw new Error('Output contains unsupported causal or guaranteed language.');
+  const unnegatedText = text.replace(NEGATED_CAUSAL_OVERCLAIM, '');
+  if (CAUSAL_OVERCLAIM.test(unnegatedText)) {
+    throw new Error('Output contains unsupported causal or guaranteed language.');
+  }
   if (CROSS_PLATFORM_RANK.test(text)) throw new Error('Output contains a prohibited cross-platform raw-view ranking.');
   if (containsLongSourceCopy(text, evidence)) throw new Error('Output reproduces a long source phrase.');
 }
