@@ -36,6 +36,7 @@ export interface ReleasePrivacyReport {
   output_directory: 'public';
   files: number;
   bytes: number;
+  release_hash: string;
   sanitized_library_items: number;
   findings: Array<{ file: string; rule: string }>;
   blocked_paths_absent: string[];
@@ -180,6 +181,7 @@ export function scanPublicRelease(root: string): ReleasePrivacyReport {
     output_directory: 'public',
     files: files.length,
     bytes,
+    release_hash: hashPublicRelease(root, files),
     sanitized_library_items: 0,
     findings,
     blocked_paths_absent: absent,
@@ -187,9 +189,22 @@ export function scanPublicRelease(root: string): ReleasePrivacyReport {
   };
 }
 
+export function hashPublicRelease(root: string, files = walk(root)): string {
+  const hash = createHash('sha256');
+  for (const file of files) {
+    hash.update(path.relative(root, file).split(path.sep).join('/'));
+    hash.update('\0');
+    hash.update(fs.readFileSync(file));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
 function build(): ReleasePrivacyReport {
   fs.rmSync(outputDirectory, { recursive: true, force: true });
   fs.mkdirSync(outputDirectory, { recursive: true });
+  const library = buildPublicLibrary(JSON.parse(fs.readFileSync(path.join(siteDirectory, 'library.json'), 'utf8')));
+  const publicGeneratedAt = record(library, 'public library').generated_at;
   for (const relative of STATIC_FILES) {
     if (relative === 'analysis.html') {
       atomicWrite(
@@ -206,14 +221,13 @@ function build(): ReleasePrivacyReport {
     path.join(outputDirectory, 'data/video-ai-reports.js'),
     `window.__VIRALBENCH_VIDEO_AI_REPORTS__ = ${JSON.stringify({
       schema_version: 'viralbench_public_analysis_summaries_v2',
-      generated_at: new Date().toISOString(),
+      generated_at: publicGeneratedAt,
       reports: {},
       evidence_boundary: 'Exact source speech, on-screen wording, provider identifiers, and reusable creator text are server-side only.',
     })};\n`,
     0o644,
   );
 
-  const library = buildPublicLibrary(JSON.parse(fs.readFileSync(path.join(siteDirectory, 'library.json'), 'utf8')));
   atomicWrite(path.join(outputDirectory, 'library.json'), `${JSON.stringify(library, null, 2)}\n`, 0o644);
   const report = scanPublicRelease(outputDirectory);
   report.sanitized_library_items = array(record(library, 'public library').items).length;
@@ -445,6 +459,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     bytes: report.bytes,
     sanitized_library_items: report.sanitized_library_items,
     privacy_scan_passed: report.passed,
-    release_hash: createHash('sha256').update(JSON.stringify(report)).digest('hex'),
+    release_hash: report.release_hash,
   }, null, 2)}\n`);
 }

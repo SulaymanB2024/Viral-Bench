@@ -11,6 +11,7 @@ import { localHashEmbedding, loadVectorIndex, serializeVectors } from '../lib/ve
 import {
   buildPublicAnalysisHtml,
   buildPublicLibrary,
+  hashPublicRelease,
   scanPublicRelease,
 } from '../scripts/build-static-site.js';
 import { fetchOfficialSources } from '../scripts/fetch-official-sources.js';
@@ -198,7 +199,13 @@ test('release sanitizer strips server fields and detects blocked public content'
 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'viralbench-public-'));
   fs.writeFileSync(path.join(root, 'index.html'), '<h1>Safe public output</h1>');
-  assert.equal(scanPublicRelease(root).passed, true);
+  const first = scanPublicRelease(root);
+  const second = scanPublicRelease(root);
+  assert.equal(first.passed, true);
+  assert.equal(first.release_hash, second.release_hash);
+  assert.equal(first.release_hash, hashPublicRelease(root));
+  fs.writeFileSync(path.join(root, 'index.html'), '<h1>Changed public output</h1>');
+  assert.notEqual(scanPublicRelease(root).release_hash, first.release_hash);
   fs.mkdirSync(path.join(root, 'lib'));
   fs.writeFileSync(path.join(root, 'lib/private.js'), 'const path = "/Users/private/source";');
   const failed = scanPublicRelease(root);

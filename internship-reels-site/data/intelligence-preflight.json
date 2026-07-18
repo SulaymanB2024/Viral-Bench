@@ -1,6 +1,6 @@
 {
   "schema_version": "viralbench_intelligence_preflight_v1",
-  "generated_at": "2026-07-18T00:22:32.504Z",
+  "generated_at": "2026-07-18T00:30:13.145Z",
   "run_id": "evidence-quality-20260717230953",
   "ready": true,
   "live_required_for_provider_calls": true,

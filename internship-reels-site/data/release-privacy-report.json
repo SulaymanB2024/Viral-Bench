@@ -1,9 +1,10 @@
 {
   "schema_version": "viralbench_release_privacy_scan_v1",
-  "generated_at": "2026-07-18T00:22:16.592Z",
+  "generated_at": "2026-07-18T00:29:54.260Z",
   "output_directory": "public",
   "files": 43,
   "bytes": 85294957,
+  "release_hash": "9b6964220a5d3f4b182a74aca079c76e6cc53229bfb43bc3cf8518174fbec075",
   "sanitized_library_items": 812,
   "findings": [],
   "blocked_paths_absent": [
