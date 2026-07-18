@@ -1,0 +1,2719 @@
+{
+  "schema_version": 2,
+  "batch_id": "internship-us-content-expansion-20260716",
+  "generated_at": "2026-07-17T23:40:15.053Z",
+  "analysis_profile": "successful_content_deep_clone_v1",
+  "target": 8,
+  "minimum_success_percentile": 0,
+  "maximum_duration_sec": 90,
+  "language_filter": {
+    "required_language": "English",
+    "evidence_source": "existing_multimodal_speech_and_on_screen_text",
+    "eligible_candidates": 8
+  },
+  "eligible": 8,
+  "analyzed": 8,
+  "reused_records": 0,
+  "invalidated_cached_records": 0,
+  "newly_analyzed": 7,
+  "conservative_maximum_estimate_usd": 3.627388,
+  "preflight_maximum_estimate_usd": 3.627389,
+  "usage_pricing_estimate_usd": 0.524774,
+  "actual_charge_reported_by_provider": false,
+  "external_calls_made": 256,
+  "cohort": [
+    {
+      "candidate_id": "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool",
+      "rank": 1,
+      "platform": "instagram",
+      "success_percentile": 0.9333,
+      "complexity_score": 0.9
+    },
+    {
+      "candidate_id": "live:youtube_shorts:j6frOqANURA:youtube-access-safety-ai-recent-search",
+      "rank": 2,
+      "platform": "youtube_shorts",
+      "success_percentile": 0.9136,
+      "complexity_score": 0.7555
+    },
+    {
+      "candidate_id": "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search",
+      "rank": 3,
+      "platform": "instagram",
+      "success_percentile": 0.9091,
+      "complexity_score": 0.9123
+    },
+    {
+      "candidate_id": "live:instagram:DaqUHbNzf9y:instagram-competitor-profiles-recent-and-popular-pool",
+      "rank": 4,
+      "platform": "instagram",
+      "success_percentile": 0.8667,
+      "complexity_score": 0.7724
+    },
+    {
+      "candidate_id": "live:youtube_shorts:A7CknuKv4P8:youtube-competitor-brands-recent",
+      "rank": 5,
+      "platform": "youtube_shorts",
+      "success_percentile": 0.8636,
+      "complexity_score": 0.7644
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:23:b6c5caf55a",
+      "rank": 6,
+      "platform": "tiktok",
+      "success_percentile": 0.8558,
+      "complexity_score": 0.7694
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:44:5345c0172a",
+      "rank": 7,
+      "platform": "tiktok",
+      "success_percentile": 0.851,
+      "complexity_score": 0.7566
+    },
+    {
+      "candidate_id": "apify:M8RZqDylmFhpGKowL:item:34:6edc55959c",
+      "rank": 8,
+      "platform": "tiktok",
+      "success_percentile": 0.8269,
+      "complexity_score": 0.7208
+    }
+  ],
+  "records": [
+    {
+      "candidate_id": "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "platform_post_id": "DZYPMbbStI6",
+      "canonical_url": "https://www.instagram.com/p/DZYPMbbStI6/",
+      "chosen_pillar": "competitor_product",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "cccdcc6eed1f8d4ad27d8561db5bb7e186f3c3c12953bb44a33346c6ade0c0a4",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "ab9894d17f29ae7d6e96bd8a7c5b1b7168bad317115ac39349f7bd597c1a596f",
+          "media_bytes": 7653350,
+          "media_duration_sec": 60.65,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 1,
+        "success_percentile": 0.9333,
+        "complexity_score": 0.9,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5abaf525a60b8656728cd5",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 2,
+            "observed_words": "hi i just learned there are more applicants on linkedin than there are actual jobs posted",
+            "observed_visual": "A woman holding a laptop",
+            "mechanism": "Statement of a surprising fact about job applications on LinkedIn"
+          },
+          "content_arc": {
+            "audience_problem": "Too many applicants on LinkedIn compared to actual job postings",
+            "progression": "Explanation of companies moving away from LinkedIn, introduction of Jobright, highlighting features, and showing examples",
+            "payoff": "Access to hidden job postings and auto-fill application features"
+          },
+          "cta": {
+            "observed_words": "comment hidden",
+            "requested_action": "Comment 'hidden' to receive a link to Jobright"
+          },
+          "claims": [
+            {
+              "observed_claim": "Jobright has over 2 million users",
+              "evidence_status": "spoken"
+            },
+            {
+              "observed_claim": "Jobright pulls over 400,000 listings daily from 200,000 company career pages",
+              "evidence_status": "spoken"
+            },
+            {
+              "observed_claim": "Jobright's hidden jobs filter shows roles not listed on LinkedIn or Indeed",
+              "evidence_status": "spoken"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Surprising fact or statistic to grab attention",
+            "beat_pattern": "Problem identification, solution introduction, feature highlighting, example demonstration",
+            "payoff_pattern": "Call to action with a specific instruction to engage"
+          },
+          "evidence_limitations": [
+            "No visual evidence of the Jobright platform interface or user statistics",
+            "No independent verification of the number of job listings or users"
+          ]
+        },
+        "provider_generation_id": "6928dce0-f58a-4dcd-a2fd-605e6f3cbce6",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 19203,
+          "output_tokens": 444
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abb0a25a60b8656728cdd",
+        "provider_generation_id": "2f1f4275-935d-48c2-bd8d-2cd8e7d74bd7",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 58675,
+          "output_tokens": 6596
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject gestures with laptop.",
+                "on_screen_text_exact": "learned, LinkedIn",
+                "visual_description": "A woman in a blue top and white shorts stands in a room, holding a laptop and gesturing while speaking."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject gestures.",
+                "on_screen_text_exact": "actual, which, explains",
+                "visual_description": "The woman continues speaking, gesturing with her hands, with a text overlay about LinkedIn data."
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 6,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject gestures.",
+                "on_screen_text_exact": "companies, got, spam",
+                "visual_description": "The woman continues speaking, gesturing with her hands, with a text overlay about AI-generated resumes."
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 8,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject gestures.",
+                "on_screen_text_exact": "hundreds, robo, so",
+                "visual_description": "The woman continues speaking, gesturing with her hands, with text overlays about robo applications."
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 10,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject sits down.",
+                "on_screen_text_exact": "a, lot, quietly",
+                "visual_description": "The woman sits down at a desk with a laptop and a whiteboard in the background."
+              }
+            },
+            {
+              "start_time": 10,
+              "end_time": 12,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "posting, altogether, started",
+                "visual_description": "The woman is seated at the desk, typing on her laptop."
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 14,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "opening, their, which",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about company websites."
+              }
+            },
+            {
+              "start_time": 14,
+              "end_time": 16,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "is, why, Jobright",
+                "visual_description": "The woman continues typing on her laptop, with the Jobright logo appearing on screen."
+              }
+            },
+            {
+              "start_time": 16,
+              "end_time": 18,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "now, has, 2",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright users."
+              }
+            },
+            {
+              "start_time": 18,
+              "end_time": 20,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "million, users, it",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's user base."
+              }
+            },
+            {
+              "start_time": 20,
+              "end_time": 22,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "goes, directly, to",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's direct access to company pages."
+              }
+            },
+            {
+              "start_time": 22,
+              "end_time": 24,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "company, career, pages",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about company career pages."
+              }
+            },
+            {
+              "start_time": 24,
+              "end_time": 26,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "so, you, don't",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about avoiding recycled listings."
+              }
+            },
+            {
+              "start_time": 26,
+              "end_time": 28,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "have, to, see",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about fresh listings."
+              }
+            },
+            {
+              "start_time": 28,
+              "end_time": 30,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "it, pulls, over",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's daily listings."
+              }
+            },
+            {
+              "start_time": 30,
+              "end_time": 32,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "400,000, listings, every",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's listing volume."
+              }
+            },
+            {
+              "start_time": 32,
+              "end_time": 34,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "day, from, 200,000",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's company sources."
+              }
+            },
+            {
+              "start_time": 34,
+              "end_time": 36,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "company, career, pages",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about company career pages."
+              }
+            },
+            {
+              "start_time": 36,
+              "end_time": 38,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "not, recycled, not",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about fresh listings."
+              }
+            },
+            {
+              "start_time": 38,
+              "end_time": 40,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "reposted, fresh, but",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about fresh listings."
+              }
+            },
+            {
+              "start_time": 40,
+              "end_time": 42,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "here's, where, it's",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's usefulness."
+              }
+            },
+            {
+              "start_time": 42,
+              "end_time": 44,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "actually, useful, there's",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about Jobright's usefulness."
+              }
+            },
+            {
+              "start_time": 44,
+              "end_time": 46,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "a, hidden, jobs",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 46,
+              "end_time": 48,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "filter, roles, that",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 48,
+              "end_time": 50,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "are, not, on",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 50,
+              "end_time": 52,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "LinkedIn, or, Indeed",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 52,
+              "end_time": 54,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "at, all, which",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 54,
+              "end_time": 56,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "are, posted, just",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 56,
+              "end_time": 58,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "very, recently, and",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            },
+            {
+              "start_time": 58,
+              "end_time": 60.5,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot, subject types on laptop.",
+                "on_screen_text_exact": "have, very, little",
+                "visual_description": "The woman continues typing on her laptop, with text overlays about hidden jobs filter."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "hi i just learned there are more applicants on linkedin than there are actual jobs posted which explains a lot"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 6,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "see it turns out companies got tired of getting spanned with hundreds of robo applications"
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 10,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "so a lot of them stopped quietly posting on linkedin altogether and started opening on their actual website"
+              }
+            },
+            {
+              "start_time": 10,
+              "end_time": 14,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "which is why a platform called job right now has over 2 million users"
+              }
+            },
+            {
+              "start_time": 14,
+              "end_time": 18,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "it goes directly to company career pages so you don't have to see it"
+              }
+            },
+            {
+              "start_time": 18,
+              "end_time": 22,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "pulls over 400 000 listings every day from 200 000 company career pages"
+              }
+            },
+            {
+              "start_time": 22,
+              "end_time": 26,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "not recycled not reposted fresh but here's where it's actually useful"
+              }
+            },
+            {
+              "start_time": 26,
+              "end_time": 30,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "there's a hidden jobs filter roles that are not on linkedin or indeed at all"
+              }
+            },
+            {
+              "start_time": 30,
+              "end_time": 34,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "which are posted just very recently and have very little applicants"
+              }
+            },
+            {
+              "start_time": 34,
+              "end_time": 38,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "and most people don't even realize this exists see for example there's this devops role at trans market group"
+              }
+            },
+            {
+              "start_time": 38,
+              "end_time": 42,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "posted a few hours ago with less than 25 applicants there's also this analyst role at cgi"
+              }
+            },
+            {
+              "start_time": 42,
+              "end_time": 46,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "also not even on linkedin yet but my favorite part is that it auto fills applications"
+              }
+            },
+            {
+              "start_time": 46,
+              "end_time": 50,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "and it can tailor your resume per job in one click and as someone who's gone through the job search grind"
+              }
+            },
+            {
+              "start_time": 50,
+              "end_time": 54,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "i genuinely wish i I had this earlier anyways guys it is free so just comment hidden"
+              }
+            },
+            {
+              "start_time": 54,
+              "end_time": 60.5,
+              "metadata": {
+                "delivery": "Casual, conversational tone",
+                "music_and_sound": "none",
+                "speech_exact": "and I'll send you the link"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "The woman is centered in the frame, with text overlays appearing sequentially. The background is a bedroom setting.",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of a LinkedIn press release is overlaid on the video, partially obscuring the woman.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 6,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of a DealBook newsletter article is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 8,
+              "metadata": {
+                "attention_device": "gesture",
+                "layout_and_motion": "The woman is back in full view, gesturing with her hands.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 10,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman sits down at a desk with a laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 10,
+              "end_time": 12,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman is typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 14,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 14,
+              "end_time": 16,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "The Jobright logo appears on screen.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 16,
+              "end_time": 22,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 22,
+              "end_time": 24,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A text box with information about Jobright's job inventory is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 24,
+              "end_time": 30,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 30,
+              "end_time": 32,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of the Jobright website is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 32,
+              "end_time": 36,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 36,
+              "end_time": 38,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of the Jobright website is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 38,
+              "end_time": 40,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 40,
+              "end_time": 42,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of the Jobright website is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 42,
+              "end_time": 44,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of a LinkedIn search is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 44,
+              "end_time": 46,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 46,
+              "end_time": 48,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of the Jobright website is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 48,
+              "end_time": 50,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of a LinkedIn search is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 50,
+              "end_time": 52,
+              "metadata": {
+                "attention_device": "proof insert",
+                "layout_and_motion": "A screenshot of the Jobright website is overlaid on the video.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 52,
+              "end_time": 58,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "The woman continues typing on her laptop.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 58,
+              "end_time": 60.5,
+              "metadata": {
+                "attention_device": "gesture",
+                "layout_and_motion": "The woman looks at the camera and gestures with her hand.",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 30,
+          "audio_beats": 15,
+          "editing_beats": 23
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          }
+        },
+        "visual_coverage_ratio": 0.9975,
+        "max_visual_gap_sec": 0.15,
+        "audio_coverage_ratio": 0.9975,
+        "max_audio_gap_sec": 0.15,
+        "editing_coverage_ratio": 0.9975,
+        "max_editing_gap_sec": 0.15,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 30,
+          "audio_beats": 15,
+          "editing_beats": 23
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9975,
+            "max_gap_sec": 0.15
+          }
+        },
+        "visual_coverage_ratio": 0.9975,
+        "max_visual_gap_sec": 0.15,
+        "audio_coverage_ratio": 0.9975,
+        "max_audio_gap_sec": 0.15,
+        "editing_coverage_ratio": 0.9975,
+        "max_editing_gap_sec": 0.15,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.590614,
+      "usage_pricing_estimate_usd": 0.170865,
+      "external_calls_made": 28
+    },
+    {
+      "candidate_id": "live:youtube_shorts:j6frOqANURA:youtube-access-safety-ai-recent-search",
+      "platform": "youtube_shorts",
+      "platform_post_id": "j6frOqANURA",
+      "canonical_url": "https://www.youtube.com/shorts/j6frOqANURA",
+      "chosen_pillar": "contrast_outlier",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "c2058d5753ce788ca35ba199db49ad57f582f697bf922f5935b1a22f15944c70",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "f275e2e0cc22473c9c90c072c86ae8089fab1511c2b7bc9d3c426db202f32224",
+          "media_bytes": 861632,
+          "media_duration_sec": 8.21,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 2,
+        "success_percentile": 0.9136,
+        "complexity_score": 0.7555,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5ab8fef7d012275363fdb7",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 2,
+            "observed_words": "Ungatekeeping the 3 sites that got me a $55/h 2026 summer internship",
+            "observed_visual": "Selfie-style shot of a young woman outdoors, wearing a cap and polo shirt",
+            "mechanism": "Text overlay establishing the premise"
+          },
+          "content_arc": {
+            "audience_problem": "Difficulty in finding high-paying internships",
+            "progression": "Sequentially revealing three specific websites used for job hunting with ratings and descriptors",
+            "payoff": "Securing a $55/hour summer internship for 2026"
+          },
+          "cta": {
+            "observed_words": "none",
+            "requested_action": "none"
+          },
+          "claims": [
+            {
+              "observed_claim": "Utilizing these three specific platforms directly resulted in securing a high-paying ($55/hour) summer internship for the year 2026.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Gatekeeping reversal, positioning the creator as a helpful insider",
+            "beat_pattern": "Listicle format with sequential presentation of tools",
+            "payoff_pattern": "Problem -> Solution -> Proof structure"
+          },
+          "evidence_limitations": [
+            "Limited to visual evidence from the video",
+            "No audio or speech analysis provided",
+            "No context on the creator's background or experience"
+          ]
+        },
+        "provider_generation_id": "6ff57004-9612-4698-9efa-4ce7df2deeac",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 2116,
+          "output_tokens": 258
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5ab90b68ddb6ab84cfed2c",
+        "provider_generation_id": "261f1e09-fa11-4575-ae14-eee759416e8f",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 7414,
+          "output_tokens": 953
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 3,
+              "metadata": {
+                "camera_and_motion": "Selfie-style shot, handheld camera with slight movement as the subject walks.",
+                "on_screen_text_exact": "Ungatekeeping the 3 sites that got me a $55/h 2026 summer internship (white text, centered at top)",
+                "visual_description": "A young woman wearing a grey polo shirt and a black baseball cap is walking outdoors in a grassy area. She is looking at the camera and speaking."
+              }
+            },
+            {
+              "start_time": 3,
+              "end_time": 5,
+              "metadata": {
+                "camera_and_motion": "Static shot of a laptop screen.",
+                "on_screen_text_exact": "1. Linkedin.com 6/10 Good for networking (white text, bottom center)",
+                "visual_description": "A close-up shot of a laptop screen displaying a LinkedIn job search page. The search bar shows '2026 New Grad/Intern Jobs'."
+              }
+            },
+            {
+              "start_time": 5,
+              "end_time": 8.2,
+              "metadata": {
+                "camera_and_motion": "Static shot of a laptop screen.",
+                "on_screen_text_exact": "3. Jobright.ai 9/10 best job hunting tool (white text, bottom center)",
+                "visual_description": "A close-up shot of a laptop screen displaying the Jobright.ai website, showing a list of job postings with company logos and details."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 8.2,
+              "metadata": {
+                "delivery": "none",
+                "music_and_sound": "none",
+                "speech_exact": "none"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Selfie-style shot with text overlay at the top center",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Screen recording of LinkedIn with text overlay at the bottom center",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 6,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Screen recording of Internship.com with text overlay at the bottom center",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 8.2,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Screen recording of Jobbright.ai with text overlay at the bottom center",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 1,
+          "editing_beats": 4
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          }
+        },
+        "visual_coverage_ratio": 0.9988,
+        "max_visual_gap_sec": 0.01,
+        "audio_coverage_ratio": 0.9988,
+        "max_audio_gap_sec": 0.01,
+        "editing_coverage_ratio": 0.9988,
+        "max_editing_gap_sec": 0.01,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 1,
+          "editing_beats": 4
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9988,
+            "max_gap_sec": 0.01
+          }
+        },
+        "visual_coverage_ratio": 0.9988,
+        "max_visual_gap_sec": 0.01,
+        "audio_coverage_ratio": 0.9988,
+        "max_audio_gap_sec": 0.01,
+        "editing_coverage_ratio": 0.9988,
+        "max_editing_gap_sec": 0.01,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.411969,
+      "usage_pricing_estimate_usd": 0.025065,
+      "external_calls_made": 12
+    },
+    {
+      "candidate_id": "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search",
+      "platform": "instagram",
+      "platform_post_id": "DWovI44EmgR",
+      "canonical_url": "https://www.instagram.com/p/DWovI44EmgR/",
+      "chosen_pillar": "contrast_outlier",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "d25771d505d3212a4e293675cebb8371e708879230a157a2026033a2ef2db10b",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "1a2298981d1d0506e0361b347b08ee5222962e8f9276adcd7bf345ab026745eb",
+          "media_bytes": 5484800,
+          "media_duration_sec": 37.57,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 1,
+        "success_percentile": 0.9091,
+        "complexity_score": 0.9123,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5abd25f7d0122753640864",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 37.5,
+            "observed_words": "If you haven't gotten a summer internship yet, you need to hear this.",
+            "observed_visual": "A young man sits at a desk, looking directly at the camera. Text overlay reads: 'NO SUMMER INTERNSHIP? (Why you shouldn't stress)'.",
+            "mechanism": "Direct address with text overlay hook."
+          },
+          "content_arc": {
+            "audience_problem": "Anxiety about not securing a summer internship.",
+            "progression": "Debunking the myth of summer-only internships and presenting fall/spring options as strategic alternatives.",
+            "payoff": "Reassurance that alternative internship timelines are viable and valuable."
+          },
+          "cta": {
+            "observed_words": "Use this summer to build skills network and use the step-by-step process I have on my page. Then go online on securing a fall internship",
+            "requested_action": "Build skills, network, and secure a fall internship using the speaker's process."
+          },
+          "claims": [
+            {
+              "observed_claim": "Fall and spring internships are just as valuable as summer internships.",
+              "evidence_status": "spoken"
+            },
+            {
+              "observed_claim": "Fall and spring internships are less competitive and easier to land.",
+              "evidence_status": "spoken"
+            },
+            {
+              "observed_claim": "Employers do not care when you intern, only that you have the experience.",
+              "evidence_status": "spoken"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Urgent question or statement targeting a specific audience pain point.",
+            "beat_pattern": "Problem identification -> Alternative solution presentation -> Actionable advice.",
+            "payoff_pattern": "Reframing the problem as an opportunity and providing a clear next step."
+          },
+          "evidence_limitations": [
+            "No visual evidence of the speaker's page or process is shown.",
+            "Claims about competitiveness and employer preferences are not visually substantiated."
+          ]
+        },
+        "provider_generation_id": "34023c10-ad8a-4963-83ab-d2e07a3a6869",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 12810,
+          "output_tokens": 496
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abd3f68ddb6ab84cff741",
+        "provider_generation_id": "1abc4ece-5df5-4435-90d6-ab8ac3bb75c6",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 39496,
+          "output_tokens": 5229
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "A young man with curly brown hair and a dark blue hoodie sits at a wooden table, gesturing with his hands as he speaks directly to the camera. The background is a plain white wall."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man continues to speak, using hand gestures to emphasize his points. His facial expressions are engaged and direct."
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 6,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man maintains eye contact with the camera, his hands moving expressively as he explains his point."
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 8,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's gestures become more pronounced as he continues his explanation, his facial expressions reflecting the importance of his message."
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 10,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man continues to speak directly to the camera, his hands moving in sync with his words."
+              }
+            },
+            {
+              "start_time": 10,
+              "end_time": 12,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's expression remains focused and engaging as he delivers his advice."
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 14,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man continues to gesture with his hands, emphasizing the benefits of fall and spring internships."
+              }
+            },
+            {
+              "start_time": 14,
+              "end_time": 16,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's hands move expressively as he explains the advantages of alternative internship options."
+              }
+            },
+            {
+              "start_time": 16,
+              "end_time": 18,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man maintains a consistent and reassuring demeanor as he continues his advice."
+              }
+            },
+            {
+              "start_time": 18,
+              "end_time": 20,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's gestures become more emphatic as he encourages viewers to keep trying."
+              }
+            },
+            {
+              "start_time": 20,
+              "end_time": 22,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's expression remains positive and encouraging as he continues to speak."
+              }
+            },
+            {
+              "start_time": 22,
+              "end_time": 24,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's hands move in a calming manner as he reassures viewers that not getting a summer internship is not the end of the world."
+              }
+            },
+            {
+              "start_time": 24,
+              "end_time": 26,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man continues to offer advice, his gestures and expressions conveying confidence and support."
+              }
+            },
+            {
+              "start_time": 26,
+              "end_time": 28,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's hands move in a way that suggests building and networking as he advises viewers on how to use their summer."
+              }
+            },
+            {
+              "start_time": 28,
+              "end_time": 30,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man continues to speak with conviction, his gestures reinforcing his message about securing a fall internship."
+              }
+            },
+            {
+              "start_time": 30,
+              "end_time": 32,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's expression remains focused and encouraging as he explains why employers don't care when you intern."
+              }
+            },
+            {
+              "start_time": 32,
+              "end_time": 34,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man's gestures become more emphatic as he emphasizes the importance of having an internship experience."
+              }
+            },
+            {
+              "start_time": 34,
+              "end_time": 37.5,
+              "metadata": {
+                "camera_and_motion": "Static medium shot, no camera movement.",
+                "on_screen_text_exact": "NO SUMMER INTERNSHIP? (Why you shouldn't stress) at the top center in white text with black outline. Subtitles at the bottom center in white text with black outline.",
+                "visual_description": "The man concludes his advice with a final encouraging gesture and a smile."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "If you haven't gotten a summer internship yet,"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "you need to hear this. There's actually one secret"
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 6,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "that almost no college students get told. Everyone thinks it's"
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 8,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "summer internship or bust. That's just not true."
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 10,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "There are fall and spring internships that are honestly just as valuable."
+              }
+            },
+            {
+              "start_time": 10,
+              "end_time": 12,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "A lot of cases they're actually better because they're less competitive,"
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 14,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "so they're easier to land,"
+              }
+            },
+            {
+              "start_time": 14,
+              "end_time": 16,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "and you can usually get school credit or have them as part of a co op program."
+              }
+            },
+            {
+              "start_time": 16,
+              "end_time": 18,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "You're not falling behind, you're actually just taking a different path."
+              }
+            },
+            {
+              "start_time": 18,
+              "end_time": 20,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "So if you don't have something for summer right now,"
+              }
+            },
+            {
+              "start_time": 20,
+              "end_time": 22,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "keep trying. But if you actually end up not getting one,"
+              }
+            },
+            {
+              "start_time": 22,
+              "end_time": 24,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "then it's not the end of the world. This summer to build skills,"
+              }
+            },
+            {
+              "start_time": 24,
+              "end_time": 26,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "network and use the step by step process I have on my page."
+              }
+            },
+            {
+              "start_time": 26,
+              "end_time": 28,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "Then go all in on securing a fall internship"
+              }
+            },
+            {
+              "start_time": 28,
+              "end_time": 30,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "because employers don't care when you enter your eventual full time job"
+              }
+            },
+            {
+              "start_time": 30,
+              "end_time": 32,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "will care that you actually did it and you can speak to it."
+              }
+            },
+            {
+              "start_time": 32,
+              "end_time": 37.5,
+              "metadata": {
+                "delivery": "calm, direct address",
+                "music_and_sound": "none",
+                "speech_exact": "All you need is one. So lock in and best of luck!"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Static shot with centered captions and title overlay",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 37.5,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Static shot with centered captions and title overlay",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 18,
+          "audio_beats": 17,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          }
+        },
+        "visual_coverage_ratio": 0.9981,
+        "max_visual_gap_sec": 0.07,
+        "audio_coverage_ratio": 0.9981,
+        "max_audio_gap_sec": 0.07,
+        "editing_coverage_ratio": 0.9981,
+        "max_editing_gap_sec": 0.07,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 18,
+          "audio_beats": 17,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9981,
+            "max_gap_sec": 0.07
+          }
+        },
+        "visual_coverage_ratio": 0.9981,
+        "max_visual_gap_sec": 0.07,
+        "audio_coverage_ratio": 0.9981,
+        "max_audio_gap_sec": 0.07,
+        "editing_coverage_ratio": 0.9981,
+        "max_editing_gap_sec": 0.07,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.511988,
+      "usage_pricing_estimate_usd": 0.116074,
+      "external_calls_made": 21
+    },
+    {
+      "candidate_id": "live:youtube_shorts:A7CknuKv4P8:youtube-competitor-brands-recent",
+      "platform": "youtube_shorts",
+      "platform_post_id": "A7CknuKv4P8",
+      "canonical_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "chosen_pillar": "competitor_product",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "e3d731cc02256e620d70c9cf6bee5e50f33bc2c725ba851b88efdf5d3bb0b3a9",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "4598f6c72c8cf4bb57042045d7d0aa58c5f9c079eb7c9ba68cfe1e91a29122a3",
+          "media_bytes": 770117,
+          "media_duration_sec": 12.07,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 5,
+        "success_percentile": 0.8636,
+        "complexity_score": 0.7644,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5aba7ef7d01227536407d7",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 1,
+            "observed_words": "The job market is cooked 💀😂",
+            "observed_visual": "Close-up of a hand holding a bottle.",
+            "mechanism": "Text overlay"
+          },
+          "content_arc": {
+            "audience_problem": "The job market is difficult.",
+            "progression": "Using an AI tool during a video interview.",
+            "payoff": "Success in landing interviews."
+          },
+          "cta": {
+            "observed_words": "none",
+            "requested_action": "none"
+          },
+          "claims": [
+            {
+              "observed_claim": "The AI tool helps the user land interviews by providing answers.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Highlighting a relatable problem with a humorous or dramatic statement.",
+            "beat_pattern": "Problem -> Process -> Proof",
+            "payoff_pattern": "Implied success or solution to the problem."
+          },
+          "evidence_limitations": [
+            "No audio transcript provided for the video content.",
+            "Visual evidence is limited to text overlays and brief scene descriptions."
+          ]
+        },
+        "provider_generation_id": "f2fbfe8b-80e9-4e64-9565-e248364699ee",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 2700,
+          "output_tokens": 304
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5aba8ef7d01227536407da",
+        "provider_generation_id": "31ad2c35-1a3f-41e7-a914-76387907eec0",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 9166,
+          "output_tokens": 920
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "camera_and_motion": "Close-up, handheld camera movement following the hand's action.",
+                "on_screen_text_exact": "The job market is cooked 💀😂 (centered, white text with black outline)",
+                "visual_description": "A close-up shot of a person's hand holding a white bottle with a brown cap. The hand unscrews the cap and then moves towards a laptop on a desk."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 5,
+              "metadata": {
+                "camera_and_motion": "Medium shot, handheld camera movement panning from the laptop to the phone.",
+                "on_screen_text_exact": "The job market is cooked 💀😂 (centered, white text with black outline)",
+                "visual_description": "The camera pans to reveal a laptop displaying a video call with a man. A smartphone is placed next to the laptop, showing an app interface. The person's hand is visible near the laptop."
+              }
+            },
+            {
+              "start_time": 5,
+              "end_time": 12.074376,
+              "metadata": {
+                "camera_and_motion": "Close-up, handheld camera movement focusing on the phone screen.",
+                "on_screen_text_exact": "She lands every interview like this 🤯 (centered, white text with black outline), AutoApply.com (on phone screen), Do you have experience in a fast-paced work environment? (on phone screen), Answer: Absolutely. I've had extensive experience working in fast-paced environments, particularly during my time at... (on phone screen), It gives her every answer she needs 🤯 (centered, white text with black outline)",
+                "visual_description": "The camera zooms in on the smartphone screen, which displays the AutoApply.com app. The app shows a question and a suggested answer. The laptop screen with the video call is still visible in the background."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "delivery": "Fast-paced, instructional tone",
+                "music_and_sound": "none",
+                "speech_exact": "Paste, move, and open."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 12.074376,
+              "metadata": {
+                "delivery": "Professional, confident tone",
+                "music_and_sound": "none",
+                "speech_exact": "Well, first of all, thank you so much for your question. Absolutely. I've had significant experience working in a fast-paced environment, particularly"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Static shot of hands and laptop, text overlay 'The job market is cooked' with emojis.",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 5,
+              "metadata": {
+                "attention_device": "reveal",
+                "layout_and_motion": "Zoom into laptop screen showing video call, text overlay changes to 'She lands every interview like this'.",
+                "transition_in": "zoom"
+              }
+            },
+            {
+              "start_time": 5,
+              "end_time": 12.074376,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Phone screen appears next to laptop, text overlay changes to 'It gives her every answer she needs'.",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 2,
+          "editing_beats": 3
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          },
+          "audio_beats": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          },
+          "editing_beats": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          }
+        },
+        "visual_coverage_ratio": 1,
+        "max_visual_gap_sec": 0,
+        "audio_coverage_ratio": 1,
+        "max_audio_gap_sec": 0,
+        "editing_coverage_ratio": 1,
+        "max_editing_gap_sec": 0,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 2,
+          "editing_beats": 3
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          },
+          "audio_beats": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          },
+          "editing_beats": {
+            "coverage_ratio": 1,
+            "max_gap_sec": 0
+          }
+        },
+        "visual_coverage_ratio": 1,
+        "max_visual_gap_sec": 0,
+        "audio_coverage_ratio": 1,
+        "max_audio_gap_sec": 0,
+        "editing_coverage_ratio": 1,
+        "max_editing_gap_sec": 0,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.425118,
+      "usage_pricing_estimate_usd": 0.032676,
+      "external_calls_made": 12
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:23:b6c5caf55a",
+      "platform": "tiktok",
+      "platform_post_id": "7662313973680721160",
+      "canonical_url": "https://www.tiktok.com/@akira.a/video/7662313973680721160",
+      "chosen_pillar": "student_problem_creator",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "1bd0da477a39640e0b0d41d8aa33609f3e361c99d8edd94a0321d7dbf56fc2d6",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "b0694435988587f5697c17e99b3907d2ebf3fe470e2f573a40a0d9f5c61a0363",
+          "media_bytes": 932809,
+          "media_duration_sec": 11.38,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 6,
+        "success_percentile": 0.8558,
+        "complexity_score": 0.7694,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5aba9c5488381aa19ab2b5",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 11.4,
+            "observed_words": "none",
+            "observed_visual": "Creator in red top holding a drink.",
+            "mechanism": "Self-recorded walking shot at night with on-screen text overlay."
+          },
+          "content_arc": {
+            "audience_problem": "The rhetorical question about withdrawing from a postgraduate internship due to burnout.",
+            "progression": "The static text overlay remains throughout the clip, posing the rhetorical question.",
+            "payoff": "The creator's decision to withdraw from the internship due to burnout."
+          },
+          "cta": {
+            "observed_words": "none",
+            "requested_action": "none"
+          },
+          "claims": [
+            {
+              "observed_claim": "The creator states they withdrew from a postgraduate internship because they were 'too Burnt out.'",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "A single, static rhetorical question overlay used to frame a personal career decision.",
+            "beat_pattern": "Static text overlay remains throughout the clip.",
+            "payoff_pattern": "The creator's decision to withdraw from the internship due to burnout."
+          },
+          "evidence_limitations": [
+            "The video is a single, static shot with no additional narrative development or call to action."
+          ]
+        },
+        "provider_generation_id": "95ecf7bd-9196-4851-9d10-5650b7652f8c",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 5081,
+          "output_tokens": 339
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abaa85488381aa19ab2b6",
+        "provider_generation_id": "6d8e5844-e7c0-42a5-be80-5088a08a61a6",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 16309,
+          "output_tokens": 1084
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 3,
+              "metadata": {
+                "camera_and_motion": "Selfie-style, handheld, slight sway; subject holds a drink.",
+                "on_screen_text_exact": "How many aura points did I lose when I chose to take a break and withdraw from Post Graduate Internship because I'm too Burnt out. (centered, white text with black outline)",
+                "visual_description": "A young woman in a red one-shoulder top walks outdoors at night, holding a clear plastic cup with a straw. She looks at the camera while walking."
+              }
+            },
+            {
+              "start_time": 3,
+              "end_time": 6,
+              "metadata": {
+                "camera_and_motion": "Selfie-style, handheld, slight sway; subject holds a drink.",
+                "on_screen_text_exact": "How many aura points did I lose when I chose to take a break and withdraw from Post Graduate Internship because I'm too Burnt out. (centered, white text with black outline)",
+                "visual_description": "The woman continues walking, passing palm trees and a lit structure. She maintains eye contact with the camera."
+              }
+            },
+            {
+              "start_time": 6,
+              "end_time": 9,
+              "metadata": {
+                "camera_and_motion": "Selfie-style, handheld, slight sway; subject holds a drink.",
+                "on_screen_text_exact": "How many aura points did I lose when I chose to take a break and withdraw from Post Graduate Internship because I'm too Burnt out. (centered, white text with black outline)",
+                "visual_description": "The woman walks past a brightly lit storefront with outdoor seating. She continues to hold the drink and look at the camera."
+              }
+            },
+            {
+              "start_time": 9,
+              "end_time": 11.376009,
+              "metadata": {
+                "camera_and_motion": "Selfie-style, handheld, slight sway; subject holds a drink.",
+                "on_screen_text_exact": "How many aura points did I lose when I chose to take a break and withdraw from Post Graduate Internship because I'm too Burnt out. (centered, white text with black outline)",
+                "visual_description": "The woman continues walking past the storefront, maintaining her gaze on the camera while holding the drink."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 11.376009,
+              "metadata": {
+                "delivery": "none",
+                "music_and_sound": "none",
+                "speech_exact": "none"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 3,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Selfie-style shot with text overlay, slight camera shake",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 3,
+              "end_time": 11.376009,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "Selfie-style shot with text overlay, slight camera shake",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 4,
+          "audio_beats": 1,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          }
+        },
+        "visual_coverage_ratio": 0.9996,
+        "max_visual_gap_sec": 0,
+        "audio_coverage_ratio": 0.9996,
+        "max_audio_gap_sec": 0,
+        "editing_coverage_ratio": 0.9996,
+        "max_editing_gap_sec": 0,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 4,
+          "audio_beats": 1,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9996,
+            "max_gap_sec": 0
+          }
+        },
+        "visual_coverage_ratio": 0.9996,
+        "max_visual_gap_sec": 0,
+        "audio_coverage_ratio": 0.9996,
+        "max_audio_gap_sec": 0,
+        "editing_coverage_ratio": 0.9996,
+        "max_editing_gap_sec": 0,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.422768,
+      "usage_pricing_estimate_usd": 0.032826,
+      "external_calls_made": 12
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:44:5345c0172a",
+      "platform": "tiktok",
+      "platform_post_id": "7652285248578817298",
+      "canonical_url": "https://www.tiktok.com/@nics.studio_/video/7652285248578817298",
+      "chosen_pillar": "student_problem_creator",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "a6f8070252086418e19dfde41383283b04b275a77e860ae10240989ab44074e3",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "790aa2950003d659bf430305f9ca24fabee83438a68d4f115db684745ab8b47e",
+          "media_bytes": 248082,
+          "media_duration_sec": 10.01,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 7,
+        "success_percentile": 0.851,
+        "complexity_score": 0.7566,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5abab65488381aa19ab2b8",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 10,
+            "observed_words": "Resume for your OJT Application?",
+            "observed_visual": "Resume template for Brielle Nicole R. Garcia",
+            "mechanism": "Static full-screen display"
+          },
+          "content_arc": {
+            "audience_problem": "Need for a resume for an OJT application",
+            "progression": "Displaying a well-structured resume template",
+            "payoff": "Implicit encouragement to use or create a similar resume"
+          },
+          "cta": {
+            "observed_words": "none",
+            "requested_action": "none"
+          },
+          "claims": [
+            {
+              "observed_claim": "1-Page Resume",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "With Picture",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "Perfect for Internship/OJT",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "ATS - Friendly",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Need for a resume for an OJT application",
+            "beat_pattern": "Identify a common need or problem, Present a solution or tool, Highlight key benefits or features, Encourage adoption or use of the solution",
+            "payoff_pattern": "Implicit encouragement to use or create a similar resume"
+          },
+          "evidence_limitations": [
+            "No scene changes or animations observed",
+            "No additional visual elements introduced",
+            "No explicit call to action observed"
+          ]
+        },
+        "provider_generation_id": "248f0939-4463-49d0-a8d0-95bc027d6597",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 4868,
+          "output_tokens": 416
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abac768ddb6ab84cff6f3",
+        "provider_generation_id": "7fccbbcb-907f-4dba-aac3-c1b3c053db0c",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 15670,
+          "output_tokens": 1200
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "camera_and_motion": "static",
+                "on_screen_text_exact": "Resume for your OJT Application? Brielle Nicole R. Garcia, 09745297612 | brielle.garcia@gmail.com | Sta. Rosa, Laguna, Philippines, SUMMARY, EDUCATIONAL BACKGROUND, TERTIARY EDUCATION, SECONDARY EDUCATION, PRIMARY EDUCATION, LEADERSHIP, SKILLS, CHARACTER REFERENCES, Angelina S. Cuevas, PhD, Academic Supervisor, LPU - Laguna, Email Address: angelinacuevas@gmail.com, Contact Number: 09977378745, 1-Page Resume, With Picture, Perfect for Internship/OJT, ATS - Friendly",
+                "visual_description": "A static shot of a resume for Brielle Nicole R. Garcia, featuring a headshot, contact information, summary, educational background, leadership, skills, and character references."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "camera_and_motion": "static",
+                "on_screen_text_exact": "WE GOT YOU! Resume for your OJT Application? Brielle Nicole R. Garcia, 09745297612 | brielle.garcia@gmail.com | Sta. Rosa, Laguna, Philippines, SUMMARY, EDUCATIONAL BACKGROUND, TERTIARY EDUCATION, SECONDARY EDUCATION, PRIMARY EDUCATION, LEADERSHIP, SKILLS, CHARACTER REFERENCES, Angelina S. Cuevas, PhD, Academic Supervisor, LPU - Laguna, Email Address: angelinacuevas@gmail.com, Contact Number: 09977378745, 1-Page Resume, With Picture, Perfect for Internship/OJT, ATS - Friendly",
+                "visual_description": "The same resume is displayed, but now with the text 'WE GOT YOU!' overlaid in the center of the screen."
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 10,
+              "metadata": {
+                "camera_and_motion": "static",
+                "on_screen_text_exact": "Resume for your OJT Application? Brielle Nicole R. Garcia, 09745297612 | brielle.garcia@gmail.com | Sta. Rosa, Laguna, Philippines, SUMMARY, EDUCATIONAL BACKGROUND, TERTIARY EDUCATION, SECONDARY EDUCATION, PRIMARY EDUCATION, LEADERSHIP, SKILLS, CHARACTER REFERENCES, Angelina S. Cuevas, PhD, Academic Supervisor, LPU - Laguna, Email Address: angelinacuevas@gmail.com, Contact Number: 09977378745, 1-Page Resume, With Picture, Perfect for Internship/OJT, ATS - Friendly",
+                "visual_description": "The resume returns to its original state without the 'WE GOT YOU!' overlay."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2.8,
+              "metadata": {
+                "delivery": "Multiple speakers overlap, with varying emphasis and tone.",
+                "music_and_sound": "none",
+                "speech_exact": "Resume for your OJG application Resume to your OJG application. We'll be right back."
+              }
+            },
+            {
+              "start_time": 2.8,
+              "end_time": 4.8,
+              "metadata": {
+                "delivery": "Speaker change with a brief pause, followed by a clear and steady delivery.",
+                "music_and_sound": "none",
+                "speech_exact": "Thank you! Preparado."
+              }
+            },
+            {
+              "start_time": 4.8,
+              "end_time": 9.7,
+              "metadata": {
+                "delivery": "Single speaker with a consistent and clear delivery.",
+                "music_and_sound": "none",
+                "speech_exact": "Thank you. ¡Suscríbete!"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "Static resume layout with contact info, summary, and educational background sections.",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 4,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Animated text overlay 'WE GOT YOU!' appears over the resume.",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 10,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "Static resume layout returns after text overlay disappears.",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 3,
+          "editing_beats": 3
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.999,
+            "max_gap_sec": 0.01
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.969,
+            "max_gap_sec": 0.31
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.999,
+            "max_gap_sec": 0.01
+          }
+        },
+        "visual_coverage_ratio": 0.999,
+        "max_visual_gap_sec": 0.01,
+        "audio_coverage_ratio": 0.969,
+        "max_audio_gap_sec": 0.31,
+        "editing_coverage_ratio": 0.999,
+        "max_editing_gap_sec": 0.01,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 3,
+          "audio_beats": 3,
+          "editing_beats": 3
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.999,
+            "max_gap_sec": 0.01
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.969,
+            "max_gap_sec": 0.31
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.999,
+            "max_gap_sec": 0.01
+          }
+        },
+        "visual_coverage_ratio": 0.999,
+        "max_visual_gap_sec": 0.01,
+        "audio_coverage_ratio": 0.969,
+        "max_audio_gap_sec": 0.31,
+        "editing_coverage_ratio": 0.999,
+        "max_editing_gap_sec": 0.01,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.418101,
+      "usage_pricing_estimate_usd": 0.031606,
+      "external_calls_made": 12
+    },
+    {
+      "candidate_id": "apify:M8RZqDylmFhpGKowL:item:34:6edc55959c",
+      "platform": "tiktok",
+      "platform_post_id": "7662781489234414870",
+      "canonical_url": "https://www.tiktok.com/@nielshg_/video/7662781489234414870",
+      "chosen_pillar": "opportunity_access_safety",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "45189d11dc73989022241410ee48dcaa1c258f20a3415e75c0e657634e89fa44",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "ac05e575e0e059d7aebe991f9322e24b0f3d5b14bb08428dcccf46e7c0108401",
+          "media_bytes": 377903,
+          "media_duration_sec": 6.94,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 8,
+        "success_percentile": 0.8269,
+        "complexity_score": 0.7208,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5abad55488381aa19ab2c1",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 6.9,
+            "observed_words": "I uploaded my resume to Claude AI. 2 days later, I got an interview call.",
+            "observed_visual": "Close-up of a young man with messy hair, looking directly at the camera with a serious expression",
+            "mechanism": "Text overlay and direct eye contact"
+          },
+          "content_arc": {
+            "audience_problem": "Job search challenges",
+            "progression": "Using Claude AI to optimize the resume",
+            "payoff": "Receiving an interview call within 2 days"
+          },
+          "cta": {
+            "observed_words": "Read the caption 👇",
+            "requested_action": "Read the caption for more details"
+          },
+          "claims": [
+            {
+              "observed_claim": "I uploaded my resume to Claude AI. 2 days later, I got an interview call.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Direct eye contact and text overlay with a compelling claim",
+            "beat_pattern": "Problem -> Process -> Proof -> Action",
+            "payoff_pattern": "Encouraging viewers to read the caption for more details"
+          },
+          "evidence_limitations": [
+            "The video does not provide specific details about the prompts used or the exact process followed.",
+            "The effectiveness of the method is claimed but not demonstrated within the video itself."
+          ]
+        },
+        "provider_generation_id": "bf973a1f-6132-47fd-a0c9-8e58d909dab9",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 3349,
+          "output_tokens": 360
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abae725a60b8656728cd2",
+        "provider_generation_id": "edb9ded5-581a-40fc-b218-d74c35940b27",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 11113,
+          "output_tokens": 746
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "camera_and_motion": "Static camera, close-up framing of the subject's face.",
+                "on_screen_text_exact": "Claude logo + LinkedIn logo at top center; 'I uploaded my resume to Claude AI. 2 days later, I got an interview call.' in white text box center; 'Here are the 7 prompts I used' in white text box below; 'Read the caption 👇' in white text box at bottom.",
+                "visual_description": "A young man with light brown hair and a light blue t-shirt is shown in a close-up shot. He looks directly at the camera with a neutral expression. The background is a plain wall with a smoke detector visible. Text overlays and logos are present."
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 6.9,
+              "metadata": {
+                "camera_and_motion": "Static camera, medium shot framing of the subject.",
+                "on_screen_text_exact": "Claude logo + LinkedIn logo at top center; 'I uploaded my resume to Claude AI. 2 days later, I got an interview call.' in white text box center; 'Here are the 7 prompts I used' in white text box below; 'Read the caption 👇' in white text box at bottom.",
+                "visual_description": "The camera pulls back to a medium shot, revealing more of the man's upper body and the kitchen environment. He briefly looks to his right and then back at the camera, maintaining a neutral expression. The kitchen background includes white cabinets and a countertop with various items."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 6.9,
+              "metadata": {
+                "delivery": "none",
+                "music_and_sound": "none",
+                "speech_exact": "none"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 2,
+              "metadata": {
+                "attention_device": "text overlay",
+                "layout_and_motion": "static close-up shot with text overlay",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 2,
+              "end_time": 6.9,
+              "metadata": {
+                "attention_device": "gesture",
+                "layout_and_motion": "medium shot with text overlay",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 2,
+          "audio_beats": 1,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          }
+        },
+        "visual_coverage_ratio": 0.9942,
+        "max_visual_gap_sec": 0.04,
+        "audio_coverage_ratio": 0.9942,
+        "max_audio_gap_sec": 0.04,
+        "editing_coverage_ratio": 0.9942,
+        "max_editing_gap_sec": 0.04,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 2,
+          "audio_beats": 1,
+          "editing_beats": 2
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9942,
+            "max_gap_sec": 0.04
+          }
+        },
+        "visual_coverage_ratio": 0.9942,
+        "max_visual_gap_sec": 0.04,
+        "audio_coverage_ratio": 0.9942,
+        "max_audio_gap_sec": 0.04,
+        "editing_coverage_ratio": 0.9942,
+        "max_editing_gap_sec": 0.04,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.407642,
+      "usage_pricing_estimate_usd": 0.021805,
+      "external_calls_made": 13
+    },
+    {
+      "candidate_id": "live:instagram:DaqUHbNzf9y:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "platform_post_id": "DaqUHbNzf9y",
+      "canonical_url": "https://www.instagram.com/p/DaqUHbNzf9y/",
+      "chosen_pillar": "competitor_product",
+      "analysis_profile": "successful_content_deep_clone_v1",
+      "input_fingerprint": {
+        "schema_version": 1,
+        "fingerprint_sha256": "fa904fff7a4520bbccf9ad1d0231ea424031a3e3a54a6b3d1a8f1029806cd212",
+        "inputs": {
+          "analysis_profile": "successful_content_deep_clone_v1",
+          "contract_version": "deep_clone_contract_v2",
+          "provider_model": "pegasus1.5",
+          "media_sha256": "d88cb86386ffd7237bddc22382b347b3168217504bfde5284a552816160fa618",
+          "media_bytes": 1230331,
+          "media_duration_sec": 16.2,
+          "strategy_prompt_sha256": "800c75c3055243fd03c05facff2833edee135d077d0f7d7f85f5bead56afff44",
+          "strategy_schema_sha256": "3f61ad5a81c74d733f2bc4824acbb24fdf997783f3584dd96683960a814ad56b",
+          "segment_definitions_sha256": "56147dc03166dacb0e4c98bdfd76f554e923cf040a34ea00081f7e72b7829121",
+          "quality_contract_sha256": "ce0ff30872de63ef44f61cd6cf3d0ac7b9fd7954b23e224d629090a57183efb7"
+        }
+      },
+      "cohort": {
+        "rank": 3,
+        "success_percentile": 0.8667,
+        "complexity_score": 0.7724,
+        "comparison_method": "within_platform_and_age_bucket_percentile"
+      },
+      "provider_asset_id": "6a5abb8f64280805ba344f05",
+      "strategy": {
+        "data": {
+          "opening": {
+            "start_sec": 0,
+            "end_sec": 16.1,
+            "observed_words": "You're just trying to get one interview",
+            "observed_visual": "Soccer match with text overlay 'You're just trying to get one interview'",
+            "mechanism": "POV text overlay introducing the job search struggle"
+          },
+          "content_arc": {
+            "audience_problem": "Job search obstacles like ghost jobs, ATS filters, and auto-rejections",
+            "progression": "Dribbling past labeled defenders representing job search challenges",
+            "payoff": "Scoring a goal after overcoming all obstacles"
+          },
+          "cta": {
+            "observed_words": "none",
+            "requested_action": "none"
+          },
+          "claims": [],
+          "transferable_structure": {
+            "hook_pattern": "Relatable problem statement with visual metaphor",
+            "beat_pattern": "Sequential overcoming of labeled obstacles",
+            "payoff_pattern": "Success achieved after navigating challenges"
+          },
+          "evidence_limitations": [
+            "No audio transcript provided for analysis",
+            "No creator identity or branding information available",
+            "No shot order details beyond basic visual description"
+          ]
+        },
+        "provider_generation_id": "c7811278-8f4e-4699-b959-30184b331c22",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 6492,
+          "output_tokens": 292
+        }
+      },
+      "segmentation": {
+        "task_id": "6a5abb9f25a60b8656728cfd",
+        "provider_generation_id": "70e06491-1313-4a0a-8b97-1f5c48137355",
+        "finish_reason": "stop",
+        "usage": {
+          "input_tokens": 20542,
+          "output_tokens": 30951
+        },
+        "segments": {
+          "visual_shots": [
+            {
+              "start_time": 0,
+              "end_time": 4,
+              "metadata": {
+                "camera_and_motion": "Static wide shot, high angle, no camera movement.",
+                "on_screen_text_exact": "POV: You're just trying to get one interview (white text, top center).",
+                "visual_description": "A wide shot of a soccer field with players in blue and white uniforms. The ball is in play near the center circle."
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 8,
+              "metadata": {
+                "camera_and_motion": "Zoom in, tracking shot following the player in blue.",
+                "on_screen_text_exact": "POV: You're just trying to get one interview (white text, top center), Ghost Jobs (white text, center), ATS filters (white text, center).",
+                "visual_description": "A player in a blue uniform dribbles the ball forward, evading a defender in white. The camera zooms in to focus on the player's movement."
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 12,
+              "metadata": {
+                "camera_and_motion": "Tracking shot, following the player's run towards the goal.",
+                "on_screen_text_exact": "POV: You're just trying to get one interview (white text, top center), 500+ Applicants (white text, center), No Referral (white text, center), Auto-Rejection (white text, center).",
+                "visual_description": "The player in blue continues to dribble towards the goal, passing several defenders. The camera follows his movement closely."
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 16.1,
+              "metadata": {
+                "camera_and_motion": "Tracking shot, following the player as he scores the goal.",
+                "on_screen_text_exact": "POV: You're just trying to get one interview (white text, top center), 500+ Applicants (white text, center), Auto-Rejection (white text, center).",
+                "visual_description": "The player in blue shoots the ball past the goalkeeper and into the net, scoring a goal. The camera follows the ball's trajectory."
+              }
+            }
+          ],
+          "audio_beats": [
+            {
+              "start_time": 0,
+              "end_time": 16.1,
+              "metadata": {
+                "delivery": "Fast-paced, energetic commentary with repeated emphasis on player names.",
+                "music_and_sound": "Ambient stadium noise and crowd cheering.",
+                "speech_exact": "I a cap a la dreta per Xavi, assistència de Xavi, més cap a la dreta per Messi, Messi, Messi, Messi, Messi, Messi, Messi, Messi, i menys Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi, encara Messi"
+              }
+            }
+          ],
+          "editing_beats": [
+            {
+              "start_time": 0,
+              "end_time": 4,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Top caption 'POV: You're just trying to get one interview' with wide soccer field view",
+                "transition_in": "opening frame"
+              }
+            },
+            {
+              "start_time": 4,
+              "end_time": 8,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Sequential text overlays 'Ghost Jobs', 'ATS filters', '500+ Applicants', 'No Referral' with camera tracking Messi",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 8,
+              "end_time": 12,
+              "metadata": {
+                "attention_device": "text change",
+                "layout_and_motion": "Text overlay 'Auto-Rejection' appears as Messi dribbles past defenders",
+                "transition_in": "hard cut"
+              }
+            },
+            {
+              "start_time": 12,
+              "end_time": 16.1,
+              "metadata": {
+                "attention_device": "none",
+                "layout_and_motion": "Clean shot of goal celebration with no text overlays",
+                "transition_in": "hard cut"
+              }
+            }
+          ]
+        }
+      },
+      "retry_segmentation": null,
+      "first_pass_quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 4,
+          "audio_beats": 1,
+          "editing_beats": 4
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          }
+        },
+        "visual_coverage_ratio": 0.9938,
+        "max_visual_gap_sec": 0.1,
+        "audio_coverage_ratio": 0.9938,
+        "max_audio_gap_sec": 0.1,
+        "editing_coverage_ratio": 0.9938,
+        "max_editing_gap_sec": 0.1,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "quality": {
+        "passed": true,
+        "definition_counts": {
+          "visual_shots": 4,
+          "audio_beats": 1,
+          "editing_beats": 4
+        },
+        "definition_coverage": {
+          "visual_shots": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          },
+          "audio_beats": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          },
+          "editing_beats": {
+            "coverage_ratio": 0.9938,
+            "max_gap_sec": 0.1
+          }
+        },
+        "visual_coverage_ratio": 0.9938,
+        "max_visual_gap_sec": 0.1,
+        "audio_coverage_ratio": 0.9938,
+        "max_audio_gap_sec": 0.1,
+        "editing_coverage_ratio": 0.9938,
+        "max_editing_gap_sec": 0.1,
+        "missing_metadata_fields": [],
+        "retry_definition_ids": []
+      },
+      "retry_performed": false,
+      "maximum_estimated_cost_usd": 0.439188,
+      "usage_pricing_estimate_usd": 0.265859,
+      "external_calls_made": 143
+    }
+  ],
+  "measurement_gaps": [
+    "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search: cached analysis invalidated (quality gate not passed; quality retry remains required; audio_beats coverage incomplete)",
+    "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search: cached analysis invalidated (quality gate not passed; quality retry remains required; visual_shots coverage incomplete)",
+    "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search: deep analysis remained incomplete after focused quality retry",
+    "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool: cached analysis invalidated (quality gate not passed; quality retry remains required; audio_beats coverage incomplete)",
+    "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool: deep analysis remained incomplete after focused quality retry",
+    "live:instagram:DaqUHbNzf9y:instagram-competitor-profiles-recent-and-popular-pool: TwelveLabs segmentation response was truncated."
+  ],
+  "evidence_boundary": {
+    "success_is_observed_within_platform_and_age_bucket": true,
+    "performance_causation_claimed": false,
+    "structural_patterns_may_be_adapted": true,
+    "competitor_wording_footage_identity_or_branding_reusable": false,
+    "publishing_in_scope": false
+  },
+  "redactions": [
+    "credential values are never serialized"
+  ],
+  "retry_run_included": true
+}

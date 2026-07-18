@@ -118,7 +118,7 @@ export const RESEARCH_RESPONSE_SCHEMA: Record<string, unknown> = {
     findings: {
       type: 'array',
       minItems: 1,
-      maxItems: 6,
+      maxItems: 8,
       items: {
         type: 'object',
         additionalProperties: false,
@@ -220,6 +220,10 @@ export function marketingSystemInstruction(): string {
 export function evidencePrompt(evidence: AgentEvidence[], maxCharacters: number): string {
   const rows = evidence.map((item) => ({
     evidence_id: item.evidence_id,
+    evidence_type: item.evidence_type,
+    content_type: item.content_type,
+    visibility: item.visibility,
+    confidence: item.confidence,
     title: item.title,
     snippet: item.snippet,
     platform: item.platform,
@@ -231,6 +235,10 @@ export function evidencePrompt(evidence: AgentEvidence[], maxCharacters: number)
       comparison_percentile: item.comparison_percentile,
     },
     metrics: item.metrics,
+    freshness_status: item.freshness_status,
+    measurement_state: item.measurement_state,
+    source_count: item.source_count,
+    independent_source_count: item.independent_source_count,
     evidence_limitations: item.evidence_limitations,
   }));
   const serialized = JSON.stringify(rows);

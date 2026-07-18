@@ -1,0 +1,29 @@
+{
+  "schema_version": "viralbench_mixed_media_quality_v1",
+  "generated_at": "2026-07-17T23:45:02.806Z",
+  "video": {
+    "selected": 8,
+    "analyzed": 8,
+    "quality_passed": 8,
+    "by_platform": {
+      "instagram": 3,
+      "tiktok": 3,
+      "youtube_shorts": 2
+    },
+    "unique_accounts": 8
+  },
+  "static": {
+    "selected": 6,
+    "analyzed": 6,
+    "by_content_type": {
+      "carousel_post": 3,
+      "image_post": 3
+    },
+    "unique_accounts": 6,
+    "unique_topics": 6,
+    "maximum_carousel_slides": 5
+  },
+  "causal_claims_allowed": false,
+  "source_wording_reusable": false,
+  "passed": true
+}

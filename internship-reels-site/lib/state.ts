@@ -78,8 +78,8 @@ export class RedisAgentStateStore implements AgentStateStore {
 export function createAgentStateStore(
   env: NodeJS.ProcessEnv = process.env,
 ): AgentStateStore | null {
-  const url = env.UPSTASH_REDIS_REST_URL?.trim();
-  const token = env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  const url = env.UPSTASH_REDIS_REST_URL?.trim() || env.KV_REST_API_URL?.trim();
+  const token = env.UPSTASH_REDIS_REST_TOKEN?.trim() || env.KV_REST_API_TOKEN?.trim();
   if (!url || !token) return null;
   return new RedisAgentStateStore(new Redis({ url, token }));
 }

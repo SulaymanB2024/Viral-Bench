@@ -204,7 +204,7 @@ function renderBrief(data) {
     <p class="agent-section-label">Brief</p>
     <div class="agent-response-head">
       <span class="agent-mode">${escapeHtml(mode)}</span>
-      <span class="agent-index">Index ${escapeHtml(data.index_version || 'unknown')}</span>
+      <span class="agent-index">${escapeHtml((data.query_intent || 'cross_source').replaceAll('_', ' '))} · Index ${escapeHtml(data.index_version || 'unknown')}</span>
     </div>
     <p class="agent-answer">${escapeHtml(data.summary || '')}</p>
     ${data.audience_tension ? `<section class="agent-section"><p class="agent-section-label">Audience tension</p><p class="agent-support">${escapeHtml(data.audience_tension)}</p></section>` : ''}
@@ -242,7 +242,7 @@ function renderEvidence(item) {
     ? `<a class="evidence-link" href="${safeUrl(item.source_url)}" target="_blank" rel="noreferrer">Open source ↗</a>`
     : '';
   return `<details class="evidence-card">
-    <summary><span><span class="evidence-title">${escapeHtml(item.title || 'Reviewed source')}</span><span class="evidence-meta">${escapeHtml(platformLabel(item.platform))} · ${escapeHtml((item.signal || '').replaceAll('_', ' '))}</span></span></summary>
+    <summary><span><span class="evidence-title">${escapeHtml(item.title || 'Reviewed source')}</span><span class="evidence-meta">${escapeHtml(evidenceTypeLabel(item))} · ${escapeHtml((item.visibility || '').replaceAll('_', ' '))}</span></span></summary>
     <div class="evidence-body"><span class="evidence-id">${escapeHtml(item.evidence_id)}</span><p>${escapeHtml(item.snippet || '')}</p>${list(item.evidence_limitations)}${link}</div>
   </details>`;
 }
@@ -251,6 +251,13 @@ function list(items = []) {
   return items?.length
     ? `<ul class="agent-note-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
     : '<p class="agent-support">None returned.</p>';
+}
+
+function evidenceTypeLabel(item = {}) {
+  if (item.evidence_type === 'official_source') return 'Official source';
+  if (item.evidence_type === 'audience_theme') return 'Audience theme';
+  if (item.evidence_type === 'owned_aggregate') return 'Owned aggregate';
+  return platformLabel(item.platform);
 }
 
 function download(filename, content, type) {

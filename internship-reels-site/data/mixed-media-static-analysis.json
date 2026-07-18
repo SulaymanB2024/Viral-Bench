@@ -1,0 +1,422 @@
+{
+  "schema_version": "viralbench_static_analysis_v1",
+  "generated_at": "2026-07-17T23:45:02.288Z",
+  "target": 6,
+  "selected": 6,
+  "analyzed": 6,
+  "conservative_spend_usd": 4,
+  "actual_charge_reported_by_provider": false,
+  "external_calls_made": 29,
+  "records": [
+    {
+      "candidate_id": "instagram:post:Da0EcaikTSN",
+      "platform": "instagram",
+      "platform_post_id": "Da0EcaikTSN",
+      "canonical_url": "https://www.instagram.com/p/Da0EcaikTSN/",
+      "account_handle": "internshala",
+      "chosen_pillar": "general_early_career_uncertainty",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:40:45.468Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "If You're Feeling Stuck After UPSC/CAT/GATE",
+            "observed_visual": "A line-art illustration of a person looking frustrated at a computer screen against a solid blue background.",
+            "mechanism": "Direct address to a specific audience segment experiencing a common pain point."
+          },
+          "content_arc": {
+            "audience_problem": "Individuals who have invested significant time in competitive exam preparation and feel stagnant or uncertain about their career prospects.",
+            "progression": "The carousel breaks down the specific skill sets acquired during preparation for three distinct exams and maps them to relevant professional roles, followed by a step-by-step guide on transitioning to a new career.",
+            "payoff": "Validation of existing skills and a structured, actionable roadmap for career pivoting."
+          },
+          "cta": {
+            "observed_words": "None explicitly stated in the final slide.",
+            "requested_action": "The carousel ends on a process slide without a direct call to action or link to a platform."
+          },
+          "claims": [
+            {
+              "observed_claim": "You are already ready for these careers",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "Your analytical skills are already job-ready",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "You already think like a business professional",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "Your technical skills are already job-ready",
+              "evidence_status": "unsupported"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Identify a specific, high-stress audience segment and validate their frustration.",
+            "beat_pattern": "Categorize the audience into sub-groups and provide a tailored list of strengths and potential career paths for each.",
+            "payoff_pattern": "Provide a universal, simplified 5-step process to achieve the desired transition."
+          },
+          "evidence_limitations": [
+            "No data provided to support the claim that exam preparation equates to job readiness.",
+            "The transition steps are generalized and lack specific implementation details.",
+            "No testimonials or case studies provided to validate the career pivot success.",
+            "The content assumes a uniform skill set for all individuals preparing for the same exam.",
+            "The carousel lacks a clear conversion point or next step for the user."
+          ]
+        },
+        "provider_generation_id": "cr1aarP5F5mHz7IPiIixsAE",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "carousel_post",
+        "frames_reviewed": 5,
+        "input_hash": "3a45fe889890053a41184d473711b2cd9a6a29c92f76cdb4039acc785e6f76c7"
+      }
+    },
+    {
+      "candidate_id": "instagram:post:Da2zlE-DLRy",
+      "platform": "instagram",
+      "platform_post_id": "Da2zlE-DLRy",
+      "canonical_url": "https://www.instagram.com/p/Da2zlE-DLRy/",
+      "account_handle": "absoluteinternship",
+      "chosen_pillar": "networking",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:41:01.959Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "None",
+            "observed_visual": "A group of young adults holding a branded flag on a rooftop terrace with a prominent city landmark in the background.",
+            "mechanism": "Visual identification of community and location-based social proof."
+          },
+          "content_arc": {
+            "audience_problem": "Lack of visibility into the social and lifestyle aspects of professional programs.",
+            "progression": "The carousel transitions from posed group shots with branded materials to candid lifestyle shots of the venue at sunset and night.",
+            "payoff": "Demonstration of a curated, high-quality social experience associated with the program."
+          },
+          "cta": {
+            "observed_words": "None",
+            "requested_action": "None"
+          },
+          "claims": [
+            {
+              "observed_claim": "The program facilitates social networking and group activities.",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "The program operates in specific, desirable international locations.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "High-contrast group photo featuring brand identity and recognizable landmark.",
+            "beat_pattern": "Sequential slides alternating between structured group branding and atmospheric lifestyle context.",
+            "payoff_pattern": "Final slide reinforcing the brand presence in a social setting."
+          },
+          "evidence_limitations": [
+            "No explicit text or captions provided to clarify the context.",
+            "The carousel lacks a clear call to action.",
+            "The images do not provide information on the professional or educational value of the program.",
+            "The sample size of the group is small and may not represent the full program experience.",
+            "The visual evidence is limited to social events and does not show the work environment."
+          ]
+        },
+        "provider_generation_id": "hb1aatXwA6HxqtsPvM-pmQQ",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "carousel_post",
+        "frames_reviewed": 5,
+        "input_hash": "22dec8c0be130e23defe8a5eb5e07ccb78cb67361eb0db9c84734c5b8c2539c9"
+      }
+    },
+    {
+      "candidate_id": "instagram:post:Da1UDoDMiGO",
+      "platform": "instagram",
+      "platform_post_id": "Da1UDoDMiGO",
+      "canonical_url": "https://www.instagram.com/p/Da1UDoDMiGO/",
+      "account_handle": "externhq",
+      "chosen_pillar": "access_compensation_and_cost",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:41:15.555Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "Virtual Event, How to make money with social media",
+            "observed_visual": "Bold, high-contrast typography with a black header tag and alternating green and orange text colors.",
+            "mechanism": "Direct benefit-driven headline paired with a clear event categorization."
+          },
+          "content_arc": {
+            "audience_problem": "Uncertainty regarding income stability and the feasibility of transitioning to social media-based earnings.",
+            "progression": "The text transitions from a broad financial goal to specific questions about career replacement and future-dated implementation.",
+            "payoff": "The inclusion of a specific professional figure as a featured speaker to provide authority and guidance."
+          },
+          "cta": {
+            "observed_words": "None present in the visual.",
+            "requested_action": "Implicitly encourages attendance at the virtual event."
+          },
+          "claims": [
+            {
+              "observed_claim": "Social media can replace a full-time paycheck.",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "The featured speaker is an Influencer Marketing Manager.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Event type label + high-value financial outcome headline.",
+            "beat_pattern": "Problem-posing questions followed by professional credential validation.",
+            "payoff_pattern": "Association of a specific individual with the promised outcome."
+          },
+          "evidence_limitations": [
+            "No explicit call to action or registration link provided.",
+            "The claim regarding income replacement is speculative.",
+            "No social proof or testimonials included.",
+            "Lack of specific event date or time details.",
+            "The visual relies entirely on the authority of the featured speaker without providing context on their specific achievements."
+          ]
+        },
+        "provider_generation_id": "j71aatHmMsyLqtsP57jRmQg",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "image_post",
+        "frames_reviewed": 1,
+        "input_hash": "55180af9bf45dbb157aa808365d9aa766208b23dd19312f0119f55e18217067c"
+      }
+    },
+    {
+      "candidate_id": "instagram:post:Daw0egBz8A8",
+      "platform": "instagram",
+      "platform_post_id": "Daw0egBz8A8",
+      "canonical_url": "https://www.instagram.com/p/Daw0egBz8A8/",
+      "account_handle": "careerflow.ai",
+      "chosen_pillar": "interview_preparation",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:41:30.238Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "How to answer 'Tell me about yourself'",
+            "observed_visual": "Large bold headline at the top of a structured infographic.",
+            "mechanism": "Direct address of a common high-stakes professional pain point."
+          },
+          "content_arc": {
+            "audience_problem": "Difficulty articulating a concise and effective response to a standard interview question.",
+            "progression": "A five-step sequential framework followed by a summary of quick tips.",
+            "payoff": "A structured method for interview preparation that provides specific examples for each step."
+          },
+          "cta": {
+            "observed_words": "Use Careerflow.ai's Mock Interview Tool (link in bio) to prepare for your interview! Save it",
+            "requested_action": "Visit a link in the bio to use a specific tool and save the post for later reference."
+          },
+          "claims": [
+            {
+              "observed_claim": "Answering in 30-45 seconds is recommended.",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "The provided structure helps in preparing for interviews.",
+              "evidence_status": "unsupported"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Identify a specific, anxiety-inducing question or task.",
+            "beat_pattern": "Break the solution into a numbered, step-by-step list with actionable sub-points and concrete examples.",
+            "payoff_pattern": "Summarize key takeaways and direct the user to a specific resource or tool."
+          },
+          "evidence_limitations": [
+            "The effectiveness of the suggested response structure is not demonstrated.",
+            "No data is provided regarding the success rate of this specific interview technique.",
+            "The advice is generalized and may not apply to all industries or interview formats.",
+            "The visual format assumes a specific learning style preference.",
+            "The claim regarding time duration is presented as a best practice without external validation."
+          ]
+        },
+        "provider_generation_id": "nr1aap-eKfW0qtsP1e7-2AU",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "image_post",
+        "frames_reviewed": 1,
+        "input_hash": "c9957dbc3261bbce0c6c139fec697e06578e367e3eab93306814e357bd68c1a7"
+      }
+    },
+    {
+      "candidate_id": "instagram:post:Da0mRxLiYcr",
+      "platform": "instagram",
+      "platform_post_id": "Da0mRxLiYcr",
+      "canonical_url": "https://www.instagram.com/p/Da0mRxLiYcr/",
+      "account_handle": "joinhandshake",
+      "chosen_pillar": "resume_and_application",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:44:45.940Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "5 TIPS TO MAKE YOUR RESUME STAND OUT",
+            "observed_visual": "A hand holding a stack of papers against a gradient background with a neon green circle and highlight box.",
+            "mechanism": "Direct benefit-driven headline paired with a high-contrast visual element."
+          },
+          "content_arc": {
+            "audience_problem": "Job seekers struggling to get their resumes noticed by recruiters and automated systems.",
+            "progression": "A numbered list format providing specific, actionable advice for resume optimization.",
+            "payoff": "The promise of improved resume performance through tactical adjustments."
+          },
+          "cta": {
+            "observed_words": "None present in the provided slides.",
+            "requested_action": "None explicitly requested in the provided slides."
+          },
+          "claims": [
+            {
+              "observed_claim": "Start every bullet with a strong action verb",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "Quantify your impact wherever you can",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "Write for the robots",
+              "evidence_status": "unsupported"
+            },
+            {
+              "observed_claim": "Keep it one page",
+              "evidence_status": "unsupported"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Numbered list promise in the headline.",
+            "beat_pattern": "Single-point advice per slide with a highlighted key takeaway.",
+            "payoff_pattern": "Implied improvement in job application success."
+          },
+          "evidence_limitations": [
+            "No data or case studies provided to support the tips.",
+            "No source attribution for the claims.",
+            "The carousel is incomplete (only 4 of 5 tips shown).",
+            "No call to action or engagement prompt included.",
+            "Subjective advice presented as objective fact."
+          ]
+        },
+        "provider_generation_id": "X75aar7jC9Dgz7IPxaLo6Qs",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "carousel_post",
+        "frames_reviewed": 5,
+        "input_hash": "de076fcb25228856d3127e1ddf7e78e5b065449fedcd9d700921b573e7843667"
+      }
+    },
+    {
+      "candidate_id": "instagram:post:Cq_RQxQu2CE",
+      "platform": "instagram",
+      "platform_post_id": "Cq_RQxQu2CE",
+      "canonical_url": "https://www.instagram.com/p/Cq_RQxQu2CE/",
+      "account_handle": "gouconnect",
+      "chosen_pillar": "general_early_career_uncertainty",
+      "source_group": "mixed_media_static_canary",
+      "metric_snapshot_at": "2026-07-17T23:45:02.220Z",
+      "quality": {
+        "passed": true,
+        "review_method": "provider_quality_gate"
+      },
+      "cohort": {
+        "success_percentile": null,
+        "comparison_method": "within_platform_content_type_and_age_bucket_percentile"
+      },
+      "strategy": {
+        "data": {
+          "opening": {
+            "observed_words": "The Career Everywhere Podcast",
+            "observed_visual": "Bold, high-contrast typography set against a background of overlapping, multi-colored speech bubbles.",
+            "mechanism": "Visual hierarchy using distinct color blocks to isolate words, creating a puzzle-like reading experience."
+          },
+          "content_arc": {
+            "audience_problem": "The need for career-related information that is accessible and pervasive.",
+            "progression": "The design uses a repeating pattern of speech bubbles to suggest a continuous, ongoing conversation or dialogue.",
+            "payoff": "Establishes a brand identity centered on communication and professional discourse."
+          },
+          "cta": {
+            "observed_words": "from uConnect",
+            "requested_action": "Implicitly invites the viewer to associate the podcast with the uConnect brand."
+          },
+          "claims": [
+            {
+              "observed_claim": "The content is presented as a podcast.",
+              "evidence_status": "visible"
+            },
+            {
+              "observed_claim": "The brand behind the content is uConnect.",
+              "evidence_status": "visible"
+            }
+          ],
+          "transferable_structure": {
+            "hook_pattern": "Use of a high-contrast, multi-colored background to make text pop.",
+            "beat_pattern": "Fragmenting a title across multiple visual elements to encourage active reading.",
+            "payoff_pattern": "Placing the brand logo at the bottom as a subtle anchor."
+          },
+          "evidence_limitations": [
+            "The image does not contain specific episode details.",
+            "No information is provided regarding the podcast's subject matter or target demographic.",
+            "The effectiveness of the design is subjective and not measured here.",
+            "The image is a static graphic and does not demonstrate audio quality or content value.",
+            "No call to action for a specific platform or link is present."
+          ]
+        },
+        "provider_generation_id": "b75aao-hPM_lz7IPve-a4Qk",
+        "finish_reason": "STOP"
+      },
+      "static_analysis": {
+        "content_type": "image_post",
+        "frames_reviewed": 1,
+        "input_hash": "ec22767c7c6aa5e77646edb607d305744d43bed45da8490adac14be43aaaef39"
+      }
+    }
+  ],
+  "gaps": [
+    "instagram:post:C_v_aEDxEAK: Input buffer has corrupt header: glib: XML parse error: Error domain 1 code 76 on line 153 column 71 of data: Opening and ending tag mismatch: html line 1 and div",
+    "instagram:post:DaAyhnolny7: fetch failed"
+  ]
+}

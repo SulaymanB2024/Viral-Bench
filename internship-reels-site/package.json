@@ -6,7 +6,10 @@
   "scripts": {
     "agent:index": "tsx scripts/build-agent-index.ts",
     "agent:hash-password": "tsx scripts/hash-operator-password.ts",
+    "evidence:official": "tsx scripts/fetch-official-sources.ts",
+    "evidence:owned": "tsx scripts/import-owned-events.ts",
     "video-reports:build": "tsx scripts/build-video-ai-reports.ts",
+    "build": "tsx scripts/build-static-site.ts",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

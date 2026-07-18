@@ -1,0 +1,18 @@
+{
+  "schema_version": "viralbench_release_privacy_scan_v1",
+  "generated_at": "2026-07-18T00:41:27.712Z",
+  "output_directory": "public",
+  "files": 45,
+  "bytes": 86013858,
+  "release_hash": "e36620dac0977015ccb7bd7a286a4ace7724fb8fef2557a9dacedde4ca092fe2",
+  "sanitized_library_items": 1052,
+  "findings": [],
+  "blocked_paths_absent": [
+    "lib",
+    "tests",
+    "scripts",
+    "data/agent-corpus.json",
+    "package.json"
+  ],
+  "passed": true
+}

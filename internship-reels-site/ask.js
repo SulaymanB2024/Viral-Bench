@@ -22,7 +22,7 @@ form.addEventListener('submit', async (event) => {
   if (dateFrom) filters.date_from = dateFrom;
 
   setBusy(true);
-  result.innerHTML = '<p class="agent-section-label">Answer</p><div class="agent-loading"><strong>Searching 568 records</strong></div>';
+  result.innerHTML = '<p class="agent-section-label">Answer</p><div class="agent-loading"><strong>Searching reviewed evidence</strong></div>';
   if (window.matchMedia('(max-width: 1050px)').matches) {
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -80,7 +80,7 @@ function renderResearch(data) {
     <p class="agent-section-label">Answer</p>
     <div class="agent-response-head">
       <span class="agent-mode">${escapeHtml(mode)}</span>
-      <span class="agent-index">Index ${escapeHtml(data.index_version || 'unknown')}</span>
+      <span class="agent-index">${escapeHtml((data.query_intent || 'cross_source').replaceAll('_', ' '))} · Index ${escapeHtml(data.index_version || 'unknown')}</span>
     </div>
     ${modeNote}
     <p class="agent-answer">${escapeHtml(data.answer || '')}</p>
@@ -88,6 +88,10 @@ function renderResearch(data) {
     <section class="agent-section">
       <p class="agent-section-label">Evidence drawer · ${(data.evidence || []).length}</p>
       ${evidence || '<p class="agent-support">No matching evidence.</p>'}
+    </section>
+    <section class="agent-section">
+      <p class="agent-section-label">Coverage</p>
+      ${renderCoverage(data.coverage)}
     </section>
     <section class="agent-section">
       <p class="agent-section-label">Limitations</p>
@@ -109,7 +113,7 @@ function renderEvidence(item) {
     : '';
   return `<details class="evidence-card">
     <summary>
-      <span><span class="evidence-title">${escapeHtml(item.title || 'Reviewed source')}</span><span class="evidence-meta">${escapeHtml(platformLabel(item.platform))} · ${escapeHtml(signalLabel(item.signal))}${percentile}</span></span>
+      <span><span class="evidence-title">${escapeHtml(item.title || 'Reviewed source')}</span><span class="evidence-meta">${escapeHtml(evidenceTypeLabel(item))} · ${escapeHtml(signalLabel(item.signal))}${percentile}</span></span>
     </summary>
     <div class="evidence-body">
       <span class="evidence-id">${escapeHtml(item.evidence_id)}</span>
@@ -124,6 +128,15 @@ function list(items = []) {
   return items.length
     ? `<ul class="agent-note-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
     : '<p class="agent-support">None returned.</p>';
+}
+
+function renderCoverage(coverage = {}) {
+  const returned = Object.entries(coverage.returned || {}).filter(([, count]) => count > 0);
+  const families = returned.length
+    ? returned.map(([type, count]) => `${count} ${type.replaceAll('_', ' ')}`).join(' · ')
+    : 'No matching evidence family';
+  const gaps = list(coverage.measurement_gaps || []);
+  return `<p class="agent-support">${escapeHtml(families)}</p>${gaps}`;
 }
 
 function renderFollowups(items = []) {
@@ -148,6 +161,13 @@ function platformLabel(value = '') {
   if (value === 'youtube_shorts') return 'YouTube Shorts';
   if (value === 'tiktok') return 'TikTok';
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function evidenceTypeLabel(item = {}) {
+  if (item.evidence_type === 'official_source') return 'Official source';
+  if (item.evidence_type === 'audience_theme') return 'Audience theme';
+  if (item.evidence_type === 'owned_aggregate') return 'Owned aggregate';
+  return platformLabel(item.platform);
 }
 
 function ordinal(value) {

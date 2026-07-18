@@ -29,7 +29,7 @@ import type {
   SocialPlatform,
 } from './types.js';
 import { PERFORMANCE_SIGNALS, SOCIAL_PLATFORMS } from './types.js';
-import { loadVectorIndex } from './vectors.js';
+import { loadVectorIndex, localHashEmbedding } from './vectors.js';
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const MINUTE_MS = 60 * 1_000;
@@ -79,10 +79,17 @@ export class AgentService {
       filters: input.filters,
     });
     const unavailable = this.#availabilityLimitation();
-    if (unavailable) return retrievalOnlyResearch(lexical.evidence, this.#corpus.index_version, unavailable);
+    if (lexical.query_intent === 'owned_outcomes' && !lexical.evidence.length) {
+      return retrievalOnlyResearch(
+        lexical,
+        this.#corpus.index_version,
+        'Privacy-safe owned marketing aggregates are not connected; no owned outcome is inferred.',
+      );
+    }
+    if (unavailable) return retrievalOnlyResearch(lexical, this.#corpus.index_version, unavailable);
     if (!ipHash) {
       return retrievalOnlyResearch(
-        lexical.evidence,
+        lexical,
         this.#corpus.index_version,
         'Privacy-preserving request quota configuration is unavailable; showing reviewed retrieval only.',
       );
@@ -103,7 +110,7 @@ export class AgentService {
       const ipQuota = await this.#store!.rateLimit(`public:ip:${ipHash}:day`, 5, DAY_MS);
       if (!ipQuota.allowed) {
         return retrievalOnlyResearch(
-          lexical.evidence,
+          lexical,
           this.#corpus.index_version,
           `Daily uncached-question limit reached. Retrieval remains available until ${ipQuota.reset_at}.`,
         );
@@ -111,33 +118,30 @@ export class AgentService {
       const generationQuota = await this.#consumePublicGenerationQuota();
       if (!generationQuota) {
         return retrievalOnlyResearch(
-          lexical.evidence,
+          lexical,
           this.#corpus.index_version,
           'Public generation capacity is temporarily exhausted; showing deterministic retrieval.',
         );
       }
-      if (!(await this.#consumeEmbeddingQuota())) {
+      const queryVector = await this.#queryVector(input.question);
+      if (!queryVector) {
         return retrievalOnlyResearch(
-          lexical.evidence,
+          lexical,
           this.#corpus.index_version,
           'Embedding capacity is temporarily exhausted; showing deterministic lexical retrieval.',
         );
       }
-
-      const queryVector = await this.#gemini!.embedText(
-        input.question.slice(0, 8_000),
-        () => this.#consumeEmbeddingQuota(),
-      );
       const hybrid = retrieveEvidence({
         corpus: this.#corpus,
         query: input.question,
         filters: input.filters,
         vectorIndex: this.#vectorIndex,
         queryVector,
+        intent: lexical.query_intent,
       });
       if (!hybrid.evidence.length) {
         return retrievalOnlyResearch(
-          [],
+          hybrid,
           this.#corpus.index_version,
           'The reviewed corpus does not contain enough matching evidence for this question.',
         );
@@ -157,7 +161,7 @@ export class AgentService {
           evidencePrompt(hybrid.evidence, 40_000),
         ].join('\n').slice(0, 48_000),
         responseSchema: RESEARCH_RESPONSE_SCHEMA,
-        maxOutputTokens: 900,
+        maxOutputTokens: 1_400,
         beforeRetry: () => this.#consumePublicGenerationQuota(),
       });
       const validated = validateResearchOutput(generated, hybrid.evidence);
@@ -167,12 +171,14 @@ export class AgentService {
         evidence: hybrid.evidence,
         model: 'gemini-3.1-flash-lite',
         index_version: this.#corpus.index_version,
+        query_intent: hybrid.query_intent,
+        coverage: hybrid.coverage,
       };
       await this.#store!.setJson(cacheKey, answer, PUBLIC_CACHE_SECONDS);
       return answer;
     } catch {
       return retrievalOnlyResearch(
-        lexical.evidence,
+        lexical,
         this.#corpus.index_version,
         'Generation or shared quota state is unavailable; showing deterministic retrieval only.',
       );
@@ -183,7 +189,7 @@ export class AgentService {
     const query = `${input.topic} ${input.audience} ${input.objective}`;
     const lexical = retrieveEvidence({ corpus: this.#corpus, query });
     const unavailable = this.#availabilityLimitation();
-    if (unavailable) return retrievalOnlyMarketing(lexical.evidence, this.#corpus.index_version, unavailable);
+    if (unavailable) return retrievalOnlyMarketing(lexical, this.#corpus.index_version, unavailable);
 
     try {
       let model: 'gemini-3.5-flash' | 'gemini-3.1-flash-lite';
@@ -196,32 +202,30 @@ export class AgentService {
         beforeRetry = () => this.#consumePublicGenerationQuota();
       } else {
         return retrievalOnlyMarketing(
-          lexical.evidence,
+          lexical,
           this.#corpus.index_version,
           'Operator generation capacity is exhausted and no public-first fallback capacity remains.',
         );
       }
 
-      if (!(await this.#consumeEmbeddingQuota())) {
+      const queryVector = await this.#queryVector(query);
+      if (!queryVector) {
         return retrievalOnlyMarketing(
-          lexical.evidence,
+          lexical,
           this.#corpus.index_version,
           'Embedding capacity is temporarily exhausted; showing matching evidence only.',
         );
       }
-      const queryVector = await this.#gemini!.embedText(
-        query.slice(0, 8_000),
-        () => this.#consumeEmbeddingQuota(),
-      );
       const hybrid = retrieveEvidence({
         corpus: this.#corpus,
         query,
         vectorIndex: this.#vectorIndex,
         queryVector,
+        intent: lexical.query_intent,
       });
       if (!hybrid.evidence.length) {
         return retrievalOnlyMarketing(
-          [],
+          hybrid,
           this.#corpus.index_version,
           'The reviewed corpus does not contain enough matching evidence to draft a brief.',
         );
@@ -250,11 +254,13 @@ export class AgentService {
         evidence: hybrid.evidence,
         model,
         index_version: this.#corpus.index_version,
+        query_intent: hybrid.query_intent,
+        coverage: hybrid.coverage,
         downloads,
       };
     } catch {
       return retrievalOnlyMarketing(
-        lexical.evidence,
+        lexical,
         this.#corpus.index_version,
         'The provider response did not pass the evidence gate; showing matching evidence only.',
       );
@@ -264,7 +270,7 @@ export class AgentService {
   async #consumePublicGenerationQuota(): Promise<boolean> {
     const minute = await this.#store!.rateLimit('public:generation:minute', 10, MINUTE_MS);
     if (!minute.allowed) return false;
-    const daily = await this.#store!.rateLimit('public:generation:day', 450, DAY_MS);
+    const daily = await this.#store!.rateLimit('public:generation:day', 100, DAY_MS);
     return daily.allowed;
   }
 
@@ -276,14 +282,31 @@ export class AgentService {
   }
 
   async #consumeEmbeddingQuota(): Promise<boolean> {
-    const daily = await this.#store!.rateLimit('embedding:query:day', 700, DAY_MS);
+    const daily = await this.#store!.rateLimit('embedding:query:day', 150, DAY_MS);
     return daily.allowed;
+  }
+
+  async #queryVector(value: string): Promise<number[] | null> {
+    if (this.#vectorIndex?.manifest.model === 'viralbench-local-hash-v1') {
+      return localHashEmbedding(value.slice(0, 8_000));
+    }
+    if (!(await this.#consumeEmbeddingQuota())) return null;
+    return this.#gemini!.embedText(
+      value.slice(0, 8_000),
+      () => this.#consumeEmbeddingQuota(),
+    );
   }
 
   #availabilityLimitation(): string | null {
     if (!this.#enabled) return 'The research copilot is in staged rollout mode; showing reviewed retrieval only.';
     if (!this.#store) return 'Shared quota and session state is unavailable; showing reviewed retrieval only.';
     if (!this.#gemini) return 'Gemini synthesis is unavailable; showing reviewed retrieval only.';
+    if (
+      !this.#vectorIndex
+      || this.#corpus.documents.some((document) => !this.#vectorIndex!.vectors.has(document.document_id))
+    ) {
+      return 'Complete vector coverage is unavailable; showing deterministic retrieval without spending an embedding call.';
+    }
     return null;
   }
 }
@@ -317,9 +340,16 @@ export function parseOperatorBrief(input: Record<string, unknown>): OperatorBrie
   };
 }
 
-export function createDefaultAgentService(env: NodeJS.ProcessEnv = process.env): AgentService {
+export function createDefaultAgentService(
+  env: NodeJS.ProcessEnv = process.env,
+  audience: 'public' | 'operator' = 'public',
+): AgentService {
   const dataDirectory = fileURLToPath(new URL('../data/', import.meta.url));
-  const corpus = JSON.parse(fs.readFileSync(`${dataDirectory}agent-corpus.json`, 'utf8')) as AgentCorpus;
+  const corpusFile = audience === 'operator' ? 'agent-corpus-operator.json' : 'agent-corpus-public.json';
+  const corpusPath = fs.existsSync(`${dataDirectory}${corpusFile}`)
+    ? `${dataDirectory}${corpusFile}`
+    : `${dataDirectory}agent-corpus.json`;
+  const corpus = JSON.parse(fs.readFileSync(corpusPath, 'utf8')) as AgentCorpus;
   const vectorIndex = loadVectorIndex(
     `${dataDirectory}agent-vectors.json`,
     `${dataDirectory}agent-vectors.bin`,
@@ -398,12 +428,13 @@ function assertNoPersonalInput(value: string, field: string): void {
 }
 
 function retrievalOnlyResearch(
-  evidence: AgentEvidence[],
+  retrieval: ReturnType<typeof retrieveEvidence>,
   indexVersion: string,
   limitation: string,
 ): ResearchAnswer {
+  const { evidence } = retrieval;
   const findings = evidence.slice(0, 4).map((item) => ({
-    claim: `${platformLabel(item.platform)} record matched the question terms and carries the reviewed signal “${item.signal.replaceAll('_', ' ')}.”`,
+    claim: `${evidenceLabel(item)} matched the question under the reviewed ${item.evidence_type.replaceAll('_', ' ')} contract.`,
     evidence_ids: [item.evidence_id],
   }));
   return {
@@ -422,14 +453,17 @@ function retrievalOnlyResearch(
       : ['Broaden the wording or remove one filter.'],
     model: null,
     index_version: indexVersion,
+    query_intent: retrieval.query_intent,
+    coverage: retrieval.coverage,
   };
 }
 
 function retrievalOnlyMarketing(
-  evidence: AgentEvidence[],
+  retrieval: ReturnType<typeof retrieveEvidence>,
   indexVersion: string,
   limitation: string,
 ): MarketingBrief {
+  const { evidence } = retrieval;
   return {
     mode: 'retrieval_only',
     summary: evidence.length
@@ -452,6 +486,8 @@ function retrievalOnlyMarketing(
     ],
     model: 'retrieval-only',
     index_version: indexVersion,
+    query_intent: retrieval.query_intent,
+    coverage: retrieval.coverage,
     downloads: { markdown: '', json: {} },
   };
 }
@@ -723,12 +759,20 @@ function marketingMarkdown(
   ].join('\n');
 }
 
-function platformLabel(platform: SocialPlatform): string {
+function platformLabel(platform: SocialPlatform | null): string {
+  if (!platform) return 'Cross-source';
   return {
     instagram: 'Instagram',
     tiktok: 'TikTok',
     youtube_shorts: 'YouTube Shorts',
   }[platform];
+}
+
+function evidenceLabel(item: AgentEvidence): string {
+  if (item.evidence_type === 'official_source') return 'Official source';
+  if (item.evidence_type === 'audience_theme') return 'Audience theme';
+  if (item.evidence_type === 'owned_aggregate') return 'Owned aggregate';
+  return `${platformLabel(item.platform)} record`;
 }
 
 function isCachedResearchAnswer(value: ResearchAnswer | null, indexVersion: string): value is ResearchAnswer {

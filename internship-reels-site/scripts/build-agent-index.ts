@@ -3,13 +3,15 @@ import * as path from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-import { buildAgentCorpus, parseDashboardSnapshot } from '../lib/corpus.js';
+import { buildAgentCorpus, createCorpusView, parseDashboardSnapshot } from '../lib/corpus.js';
 import { GeminiClient } from '../lib/gemini.js';
-import { loadVectorIndex, serializeVectors } from '../lib/vectors.js';
+import { loadVectorIndex, localHashEmbedding, serializeVectors } from '../lib/vectors.js';
 
 const siteDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dataDirectory = path.join(siteDirectory, 'data');
-const corpusPath = path.join(dataDirectory, 'agent-corpus.json');
+const publicCorpusPath = path.join(dataDirectory, 'agent-corpus-public.json');
+const operatorCorpusPath = path.join(dataDirectory, 'agent-corpus-operator.json');
+const compatibilityCorpusPath = path.join(dataDirectory, 'agent-corpus.json');
 const manifestPath = path.join(dataDirectory, 'agent-vectors.json');
 const binaryPath = path.join(dataDirectory, 'agent-vectors.bin');
 const buildManifestPath = path.join(dataDirectory, 'agent-index-build-manifest.json');
@@ -22,24 +24,56 @@ interface MaintenanceState {
 }
 
 async function main(): Promise<void> {
-  const embed = process.argv.slice(2).includes('--embed');
-  const requireVectors = process.argv.slice(2).includes('--require-vectors');
-  const libraryPath = path.join(siteDirectory, 'library.json');
-  const dashboardPath = path.join(siteDirectory, 'twelvelabs-dashboard-data.js');
-  const library = JSON.parse(fs.readFileSync(libraryPath, 'utf8')) as unknown;
-  const dashboard = parseDashboardSnapshot(
-    fs.readFileSync(dashboardPath, 'utf8'),
+  const args = process.argv.slice(2);
+  const embed = args.includes('--embed');
+  const localVectors = args.includes('--local-vectors');
+  if (embed && localVectors) throw new Error('--embed and --local-vectors are mutually exclusive.');
+  const requireVectors = args.includes('--require-vectors');
+  const requirePublicVectors = args.includes('--require-public-vectors') || embed || localVectors;
+  const libraryPath = path.resolve(option(args, '--library') ?? path.join(siteDirectory, 'library.json'));
+  const dashboardPath = path.resolve(option(args, '--dashboard') ?? path.join(siteDirectory, 'twelvelabs-dashboard-data.js'));
+  const audiencePaths = options(args, '--audience').map((value) => path.resolve(value));
+  const analysisPaths = options(args, '--analysis').map((value) => path.resolve(value));
+  const officialPath = optionalExistingPath(
+    option(args, '--official') ?? path.join(dataDirectory, 'official-sources.json'),
   );
-  const corpus = buildAgentCorpus(library, dashboard);
+  const ownedPath = optionalExistingPath(
+    option(args, '--owned') ?? path.join(dataDirectory, 'owned-evidence.json'),
+  );
+  const library = JSON.parse(fs.readFileSync(libraryPath, 'utf8')) as unknown;
+  const dashboard = parseDashboardSnapshot(fs.readFileSync(dashboardPath, 'utf8'));
+  const audienceInputs = audiencePaths.map(readJson);
+  const analysisInputs = analysisPaths.map(readJson);
+  const officialInput = officialPath ? readJson(officialPath) : null;
+  const ownedInput = ownedPath ? readJson(ownedPath) : null;
+  const completeCorpus = buildAgentCorpus(library, dashboard, {
+    audienceInputs,
+    analysisInputs,
+    officialInput,
+    ownedInput,
+  });
+  const socialDocumentCount = completeCorpus.documents.filter((document) => (
+    document.evidence_type === 'social_post'
+  )).length;
+  if (socialDocumentCount !== completeCorpus.source_manifest.library_items) {
+    throw new Error(
+      `Social retrieval cardinality mismatch: ${socialDocumentCount} documents for `
+      + `${completeCorpus.source_manifest.library_items} library posts.`,
+    );
+  }
+  const publicCorpus = createCorpusView(completeCorpus, 'public_reviewed');
+  const operatorCorpus = createCorpusView(completeCorpus, 'operator_provisional');
   fs.mkdirSync(dataDirectory, { recursive: true });
 
   const previous = loadVectorIndex(manifestPath, binaryPath);
+  const vectorModel = localVectors ? 'viralbench-local-hash-v1' : 'gemini-embedding-2';
+  const canReusePrevious = previous?.manifest.model === vectorModel;
   const previousHashes = new Map(previous?.manifest.entries.map((entry) => [
     entry.document_id,
     entry.content_hash,
   ]) ?? []);
-  const vectors = corpus.documents.flatMap((document) => {
-    const prior = previous?.vectors.get(document.document_id);
+  const vectors = operatorCorpus.documents.flatMap((document) => {
+    const prior = canReusePrevious ? previous?.vectors.get(document.document_id) : null;
     return prior && previousHashes.get(document.document_id) === document.content_hash
       ? [{
           document_id: document.document_id,
@@ -50,10 +84,22 @@ async function main(): Promise<void> {
   });
   const reusedCount = vectors.length;
 
+  if (localVectors) {
+    const reusedIds = new Set(vectors.map((vector) => vector.document_id));
+    for (const document of operatorCorpus.documents) {
+      if (reusedIds.has(document.document_id)) continue;
+      vectors.push({
+        document_id: document.document_id,
+        content_hash: document.content_hash,
+        values: localHashEmbedding(document.search_text),
+      });
+    }
+  }
+
   if (embed) {
     const apiKey = process.env.GEMINI_API_KEY?.trim();
     if (!apiKey) throw new Error('GEMINI_API_KEY is required only when --embed is supplied.');
-    const changed = corpus.documents.filter((document) => (
+    const changed = operatorCorpus.documents.filter((document) => (
       previousHashes.get(document.document_id) !== document.content_hash
     ));
     const maintenance = loadMaintenanceState();
@@ -89,64 +135,91 @@ async function main(): Promise<void> {
   }
 
   const vectorById = new Map(vectors.map((vector) => [vector.document_id, vector]));
-  const ordered = corpus.documents.flatMap((document) => {
+  const ordered = operatorCorpus.documents.flatMap((document) => {
     const vector = vectorById.get(document.document_id);
     return vector ? [vector] : [];
   });
-  if (embed && ordered.length !== corpus.documents.length) {
+  const publicVectorCount = publicCorpus.documents.filter((document) => vectorById.has(document.document_id)).length;
+  if (requirePublicVectors && publicVectorCount !== publicCorpus.documents.length) {
     throw new Error(
-      `Embedding refresh incomplete: ${ordered.length}/${corpus.documents.length} documents have vectors.`,
+      `Required public vector coverage is incomplete: ${publicVectorCount}/${publicCorpus.documents.length} documents have vectors.`,
     );
   }
-  if (requireVectors && ordered.length !== corpus.documents.length) {
+  if (requireVectors && ordered.length !== operatorCorpus.documents.length) {
     throw new Error(
-      `Required vector coverage is incomplete: ${ordered.length}/${corpus.documents.length} documents have vectors.`,
+      `Required operator vector coverage is incomplete: ${ordered.length}/${operatorCorpus.documents.length} documents have vectors.`,
     );
   }
-  const vectorCoverageState = corpus.documents.length === 0
-    ? 'absent_no_documents'
-    : ordered.length === corpus.documents.length
-      ? 'complete'
-      : ordered.length === 0
-        ? 'absent_not_requested'
-        : 'partial_not_requested';
-  const serialized = serializeVectors(ordered, corpus.index_version, new Date().toISOString());
-  atomicWrite(corpusPath, `${JSON.stringify(corpus, null, 2)}\n`);
+  const publicVectorCoverageState = coverageState(publicCorpus.documents.length, publicVectorCount);
+  const operatorVectorCoverageState = coverageState(operatorCorpus.documents.length, ordered.length);
+  const serialized = serializeVectors(
+    ordered,
+    operatorCorpus.index_version,
+    new Date().toISOString(),
+    vectorModel,
+  );
+  atomicWrite(publicCorpusPath, `${JSON.stringify(publicCorpus, null, 2)}\n`);
+  atomicWrite(operatorCorpusPath, `${JSON.stringify(operatorCorpus, null, 2)}\n`);
+  atomicWrite(compatibilityCorpusPath, `${JSON.stringify(publicCorpus, null, 2)}\n`);
   atomicWrite(manifestPath, `${JSON.stringify(serialized.manifest, null, 2)}\n`);
   atomicWrite(binaryPath, serialized.binary);
   const buildManifest = {
-    schema_version: 'viralbench_agent_index_build_v1',
+    schema_version: 'viralbench_agent_index_build_v2',
     generated_at: new Date().toISOString(),
-    index_version: corpus.index_version,
+    index_versions: {
+      public: publicCorpus.index_version,
+      operator: operatorCorpus.index_version,
+    },
     sources: {
       library: fileDescriptor(libraryPath),
       dashboard: fileDescriptor(dashboardPath),
+      audience: audiencePaths.map(fileDescriptor),
+      analysis: analysisPaths.map(fileDescriptor),
+      official: officialPath ? fileDescriptor(officialPath) : null,
+      owned: ownedPath ? fileDescriptor(ownedPath) : null,
     },
     outputs: {
-      corpus: fileDescriptor(corpusPath),
+      public_corpus: fileDescriptor(publicCorpusPath),
+      operator_corpus: fileDescriptor(operatorCorpusPath),
+      compatibility_corpus: fileDescriptor(compatibilityCorpusPath),
       vector_manifest: fileDescriptor(manifestPath),
       vector_binary: fileDescriptor(binaryPath),
     },
     reconciliation: {
-      documents: corpus.documents.length,
+      source_records: {
+        social_posts: completeCorpus.source_manifest.library_items,
+        audience_signals: completeCorpus.source_manifest.audience_signals,
+        official_resources: completeCorpus.source_manifest.official_resources,
+        owned_connection_state: completeCorpus.source_manifest.owned_connection_state,
+      },
+      public_documents: publicCorpus.documents.length,
+      operator_documents: operatorCorpus.documents.length,
       vectors: ordered.length,
-      vector_coverage: corpus.documents.length
-        ? Math.round((ordered.length / corpus.documents.length) * 1_000_000) / 1_000_000
-        : null,
-      vector_coverage_state: vectorCoverageState,
-      vectors_required: requireVectors || embed,
-      skipped_rows: corpus.source_manifest.skipped_rows,
-      skipped_by_reason: corpus.source_manifest.skipped_by_reason,
+      public_vectors: publicVectorCount,
+      public_vector_coverage: ratio(publicVectorCount, publicCorpus.documents.length),
+      operator_vector_coverage: ratio(ordered.length, operatorCorpus.documents.length),
+      public_vector_coverage_state: publicVectorCoverageState,
+      operator_vector_coverage_state: operatorVectorCoverageState,
+      vectors_required: requireVectors || requirePublicVectors,
+      skipped_rows: completeCorpus.source_manifest.skipped_rows,
+      skipped_by_reason: completeCorpus.source_manifest.skipped_by_reason,
+      social_document_count: socialDocumentCount,
+      public_by_evidence_type: publicCorpus.source_manifest.by_evidence_type,
+      operator_by_evidence_type: operatorCorpus.source_manifest.by_evidence_type,
     },
   };
   atomicWrite(buildManifestPath, `${JSON.stringify(buildManifest, null, 2)}\n`);
   process.stdout.write(`${JSON.stringify({
     ok: true,
-    index_version: corpus.index_version,
-    documents: corpus.documents.length,
+    public_index_version: publicCorpus.index_version,
+    operator_index_version: operatorCorpus.index_version,
+    public_documents: publicCorpus.documents.length,
+    operator_documents: operatorCorpus.documents.length,
     vectors: ordered.length,
-    vector_coverage_state: vectorCoverageState,
-    vectors_required: requireVectors || embed,
+    public_vector_coverage_state: publicVectorCoverageState,
+    operator_vector_coverage_state: operatorVectorCoverageState,
+    vectors_required: requireVectors || requirePublicVectors,
+    vector_model: vectorModel,
     embedding_calls: embed ? ordered.length - reusedCount : 0,
     build_manifest: path.relative(siteDirectory, buildManifestPath),
   }, null, 2)}\n`);
@@ -179,6 +252,46 @@ function recordMaintenanceCall(state: MaintenanceState, estimatedTokens: number)
   trimMaintenanceState(state);
   state.calls.push({ at: Date.now(), estimated_tokens: estimatedTokens });
   atomicWrite(maintenancePath, `${JSON.stringify(state, null, 2)}\n`, 0o600);
+}
+
+function readJson(filePath: string): unknown {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8')) as unknown;
+}
+
+function optionalExistingPath(value: string): string | null {
+  const resolved = path.resolve(value);
+  return fs.existsSync(resolved) ? resolved : null;
+}
+
+function option(args: string[], name: string): string | undefined {
+  const index = args.indexOf(name);
+  if (index < 0) return undefined;
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) throw new Error(`${name} requires a value.`);
+  return value;
+}
+
+function options(args: string[], name: string): string[] {
+  const result: string[] = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] !== name) continue;
+    const value = args[index + 1];
+    if (!value || value.startsWith('--')) throw new Error(`${name} requires a value.`);
+    result.push(value);
+    index += 1;
+  }
+  return result;
+}
+
+function coverageState(total: number, count: number): string {
+  if (!total) return 'absent_no_documents';
+  if (count === total) return 'complete';
+  if (!count) return 'absent_not_requested';
+  return 'partial_not_requested';
+}
+
+function ratio(count: number, total: number): number | null {
+  return total ? Math.round((count / total) * 1_000_000) / 1_000_000 : null;
 }
 
 function fileDescriptor(filePath: string): { path: string; sha256: string; bytes: number } {

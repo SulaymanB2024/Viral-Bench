@@ -19,6 +19,7 @@
     "internship-finalize": "tsx src/internship-final-report.ts",
     "internship-media": "tsx src/internship-media-prep.ts",
     "internship-analyze": "tsx src/internship-multimodal-analysis.ts",
+    "intelligence:run-once": "tsx src/intelligence-run-once.ts",
     "twelvelabs-dashboard": "tsx src/twelvelabs-visual-demo.ts",
     "internship-site:build": "tsx src/internship-reels-site-build.ts",
     "internship-site:ads": "tsx src/internship-paid-ad-site-build.ts",

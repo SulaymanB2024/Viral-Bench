@@ -191,8 +191,8 @@ test('retrieval fuses lexical and positive vector candidates without outcome fie
     lexical.document_id,
     semantic.document_id,
   ]));
-  assert.deepEqual(result.evidence.find((item) => item.evidence_id === lexical.document_id)?.rank_sources, ['lexical']);
-  assert.deepEqual(result.evidence.find((item) => item.evidence_id === semantic.document_id)?.rank_sources, ['vector']);
+  assert.deepEqual(result.evidence.find((item) => item.evidence_id === lexical.document_id)?.rank_sources, ['lexical', 'intent']);
+  assert.deepEqual(result.evidence.find((item) => item.evidence_id === semantic.document_id)?.rank_sources, ['vector', 'intent']);
 });
 
 test('evidence gate rejects unknown IDs, causal language, copied source, and malformed briefs', () => {

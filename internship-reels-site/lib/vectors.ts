@@ -7,7 +7,7 @@ export function loadVectorIndex(manifestPath: string, binaryPath: string): Loade
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as VectorManifest;
   if (
     manifest.schema_version !== 'viralbench_agent_vectors_v1'
-    || manifest.model !== 'gemini-embedding-2'
+    || !['gemini-embedding-2', 'viralbench-local-hash-v1'].includes(manifest.model)
     || manifest.dimension !== 768
   ) {
     throw new Error('Agent vector manifest is incompatible.');
@@ -32,6 +32,7 @@ export function serializeVectors(
   vectors: Array<{ document_id: string; content_hash: string; values: number[] }>,
   indexVersion: string,
   generatedAt: string,
+  model: VectorManifest['model'] = 'gemini-embedding-2',
 ): { manifest: VectorManifest; binary: Buffer } {
   const dimension = 768;
   const binary = Buffer.alloc(vectors.length * dimension * 4);
@@ -52,7 +53,7 @@ export function serializeVectors(
   return {
     manifest: {
       schema_version: 'viralbench_agent_vectors_v1',
-      model: 'gemini-embedding-2',
+      model,
       dimension,
       index_version: indexVersion,
       generated_at: generatedAt,
@@ -61,4 +62,37 @@ export function serializeVectors(
     },
     binary,
   };
+}
+
+export function localHashEmbedding(value: string): number[] {
+  const dimension = 768;
+  const vector = Array.from({ length: dimension }, () => 0);
+  const tokens = value
+    .normalize('NFKD')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}_]+/gu, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 1)
+    .slice(0, 8_000);
+  const features = [
+    ...tokens,
+    ...tokens.slice(0, -1).map((token, index) => `${token}_${tokens[index + 1] ?? ''}`),
+  ];
+  for (const feature of features) {
+    const hash = fnv1a(feature);
+    const index = hash % dimension;
+    const sign = ((hash >>> 8) & 1) === 0 ? 1 : -1;
+    vector[index] = (vector[index] ?? 0) + sign;
+  }
+  const norm = Math.sqrt(vector.reduce((sum, item) => sum + item * item, 0));
+  return norm ? vector.map((item) => item / norm) : vector;
+}
+
+function fnv1a(value: string): number {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
 }

@@ -1,0 +1,200 @@
+{
+  "schema_version": "viralbench_mixed_media_selection_v1",
+  "generated_at": "2026-07-17T23:20:03.068Z",
+  "videos": [
+    {
+      "candidate_id": "live:instagram:DZYPMbbStI6:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "platform_post_id": "DZYPMbbStI6",
+      "account_handle": "jasssizzle",
+      "canonical_url": "https://www.instagram.com/p/DZYPMbbStI6/",
+      "cohort": "popular",
+      "normalized_performance_score": 0.9333,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/instagram-DZYPMbbStI6.mp4"
+    },
+    {
+      "candidate_id": "live:instagram:DWovI44EmgR:instagram-access-safety-ai-popular-search",
+      "platform": "instagram",
+      "platform_post_id": "DWovI44EmgR",
+      "account_handle": "taylorcgolden",
+      "canonical_url": "https://www.instagram.com/p/DWovI44EmgR/",
+      "cohort": "popular",
+      "normalized_performance_score": 0.9091,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/instagram-DWovI44EmgR.mp4"
+    },
+    {
+      "candidate_id": "live:instagram:DaqUHbNzf9y:instagram-competitor-profiles-recent-and-popular-pool",
+      "platform": "instagram",
+      "platform_post_id": "DaqUHbNzf9y",
+      "account_handle": "careerflow.ai",
+      "canonical_url": "https://www.instagram.com/p/DaqUHbNzf9y/",
+      "cohort": "popular",
+      "normalized_performance_score": 0.8667,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/instagram-DaqUHbNzf9y.mp4"
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:23:b6c5caf55a",
+      "platform": "tiktok",
+      "platform_post_id": "7662313973680721160",
+      "account_handle": "akira.a",
+      "canonical_url": "https://www.tiktok.com/@akira.a/video/7662313973680721160",
+      "cohort": "recent",
+      "normalized_performance_score": 0.8558,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7662313973680721160.mp4"
+    },
+    {
+      "candidate_id": "apify:YVyqJofldoSk0ZcA7:item:44:5345c0172a",
+      "platform": "tiktok",
+      "platform_post_id": "7652285248578817298",
+      "account_handle": "nics.studio_",
+      "canonical_url": "https://www.tiktok.com/@nics.studio_/video/7652285248578817298",
+      "cohort": "recent",
+      "normalized_performance_score": 0.851,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7652285248578817298.mp4"
+    },
+    {
+      "candidate_id": "apify:M8RZqDylmFhpGKowL:item:34:6edc55959c",
+      "platform": "tiktok",
+      "platform_post_id": "7662781489234414870",
+      "account_handle": "nielshg_",
+      "canonical_url": "https://www.tiktok.com/@nielshg_/video/7662781489234414870",
+      "cohort": "recent",
+      "normalized_performance_score": 0.8269,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/tiktok-7662781489234414870.mp4"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:j6frOqANURA:youtube-access-safety-ai-recent-search",
+      "platform": "youtube_shorts",
+      "platform_post_id": "j6frOqANURA",
+      "account_handle": "collegewithkell",
+      "canonical_url": "https://www.youtube.com/shorts/j6frOqANURA",
+      "cohort": "recent",
+      "normalized_performance_score": 0.9136,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/youtube_shorts-j6frOqANURA.mp4"
+    },
+    {
+      "candidate_id": "live:youtube_shorts:A7CknuKv4P8:youtube-competitor-brands-recent",
+      "platform": "youtube_shorts",
+      "platform_post_id": "A7CknuKv4P8",
+      "account_handle": "AutoApplier",
+      "canonical_url": "https://www.youtube.com/shorts/A7CknuKv4P8",
+      "cohort": "recent",
+      "normalized_performance_score": 0.8636,
+      "media_path": "/Users/sulaymanbowles/Projects/Viral-Bench/.semantic-artifacts/competitor-content/media/internship-us-20260716/youtube_shorts-A7CknuKv4P8.mp4"
+    }
+  ],
+  "static_items": [
+    {
+      "item_id": "instagram:post:Da0EcaikTSN",
+      "platform_post_id": "Da0EcaikTSN",
+      "account_handle": "internshala",
+      "canonical_url": "https://www.instagram.com/p/Da0EcaikTSN/",
+      "content_type": "carousel_post",
+      "topic": "general_early_career_uncertainty",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://scontent-bos5-1.cdninstagram.com/v/t51.82787-15/747839540_18470906305110773_3986629135620987670_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ig_cache_key=Mzk0MTc3ODk0NDkzNjczMzMwMQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=r8Vj_E_q2W8Q7kNvwGxE5PT&_nc_oc=AdoArG77x1RUqQXtdOQR9ImmRjNAJdRkWQOlpn-PQ9Ql_EXoq8cin3KFD8ibKno-ij0&_nc_zt=23&_nc_ht=scontent-bos5-1.cdninstagram.com&_nc_gid=N9ay6G_pO2U7MTBuklHg_Q&_nc_ss=7ca8c&oh=00_AQBfpdCgLpT4HNJQe5YVrCIKhHF-XnrLxtYmlcxTU1hfbA&oe=6A60467D",
+        "https://scontent-bos5-1.cdninstagram.com/v/t51.82787-15/747613069_18470906320110773_3295706597444490522_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ig_cache_key=Mzk0MTc3ODk0NDk0NTE0OTY3Mw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=kIidF_YNhlIQ7kNvwEetbN7&_nc_oc=AdoUgBnor7i_TYUvA14VD9HV2No6Oqjk5IQ1fHtMkIrErNh3ReOmBhPQYNRLEAA08vg&_nc_zt=23&_nc_ht=scontent-bos5-1.cdninstagram.com&_nc_gid=N9ay6G_pO2U7MTBuklHg_Q&_nc_ss=7ca8c&oh=00_AQAqArKCluCAzXGa2SxRq120D9CsoBTBR6duvdWdhpZNnw&oe=6A6046CB",
+        "https://scontent-bos5-1.cdninstagram.com/v/t51.82787-15/747177909_18470906323110773_7042843646883149220_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ig_cache_key=Mzk0MTc3ODk0NTA3MDk4NDgwNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=akMAkhNfLaEQ7kNvwFsI7iO&_nc_oc=Adq0h9zT80mei3l6bKooKsal6aLWp6ATUMV-5RXw7pwcAE3R6LBlUj0FVrWzCNYK-us&_nc_zt=23&_nc_ht=scontent-bos5-1.cdninstagram.com&_nc_gid=N9ay6G_pO2U7MTBuklHg_Q&_nc_ss=7ca8c&oh=00_AQAbOwr5lEvSSY1ihSJq28hvNIpj2s2tzlPT94uWrf2qXg&oe=6A606E24",
+        "https://scontent-bos5-1.cdninstagram.com/v/t51.82787-15/748016085_18470906335110773_6854226368765612250_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ig_cache_key=Mzk0MTc3ODk0NTExMjg2OTQyOA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=kDNza2i49IoQ7kNvwEAeusE&_nc_oc=Adqb-6ZAJGyFpZlpuHZhfE4Hd5aIkHjZuSwKKOyo3Y86sBmqkz07q4l3k9s_Tnag84k&_nc_zt=23&_nc_ht=scontent-bos5-1.cdninstagram.com&_nc_gid=N9ay6G_pO2U7MTBuklHg_Q&_nc_ss=7ca8c&oh=00_AQCxzm9xqIIKut5h97L8cBKAkKmRhRtp1PZyeYNtuh2-Pg&oe=6A603B75",
+        "https://scontent-bos5-1.cdninstagram.com/v/t51.82787-15/746909126_18470906344110773_2677817826467035160_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=105&ig_cache_key=Mzk0MTc3ODk0NDk4NzA0NDI4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTA4MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=3bLdYlRX7lAQ7kNvwFb3asP&_nc_oc=Adq4Da7MYSqDysP8wV2H6AQNaXuhOd-AlQIcTXYKRysiEXGtEbJuwDEOXaPL9GR38E4&_nc_zt=23&_nc_ht=scontent-bos5-1.cdninstagram.com&_nc_gid=N9ay6G_pO2U7MTBuklHg_Q&_nc_ss=7ca8c&oh=00_AQBypiLjbpo0qtC2Rnk9ZD7xQmIwOHiBBe4t5I0okBqE_g&oe=6A604A88"
+      ]
+    },
+    {
+      "item_id": "instagram:post:Da0mRxLiYcr",
+      "platform_post_id": "Da0mRxLiYcr",
+      "account_handle": "joinhandshake",
+      "canonical_url": "https://www.instagram.com/p/Da0mRxLiYcr/",
+      "content_type": "carousel_post",
+      "topic": "resume_and_application",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://scontent-lax3-2.cdninstagram.com/v/t51.82787-15/747643587_18479829958103367_2610033388802783702_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ig_cache_key=Mzk0MTk0MTk2NzU5MTU4MDQ4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMjE2MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=8rQObcyg02kQ7kNvwH6LqJS&_nc_oc=Adpn6B6gybnfzIPCTxsviMQ0G_CyATMpbX5h1xpOJr6_iWYNexZRvznV_JccpxM99TgJgcPvdn85wycd9P9n4CJI&_nc_zt=23&_nc_ht=scontent-lax3-2.cdninstagram.com&_nc_gid=v6_m9a3YKHgNKWaRXI5lxQ&_nc_ss=72689&oh=00_AQAtBxbzlSJUzrYudddDfC6xtf8crdrYHF33CxoZYmzENA&oe=6A5F2925",
+        "https://scontent-lax3-2.cdninstagram.com/v/t51.82787-15/746503620_18479829967103367_8457017779919749972_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ig_cache_key=Mzk0MTk0MTk3MTE5MDQ4Mjc5OA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMjE2MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=tWGROD1Ta-EQ7kNvwEcBC3-&_nc_oc=AdrqJkmGyJp3O9EHi8UnufT-4e7wNcir2qGtJXhREEQ-KVcGgCV6LgnawWltq-ro7RiutmlbzhSZ1J_59QdSqi3Y&_nc_zt=23&_nc_ht=scontent-lax3-2.cdninstagram.com&_nc_gid=v6_m9a3YKHgNKWaRXI5lxQ&_nc_ss=72689&oh=00_AQB-rgZuODgHeYg03BgveuweUVa6inpzzxOHNqew2xfgfA&oe=6A5F2EA8",
+        "https://scontent-lax3-1.cdninstagram.com/v/t51.82787-15/747191263_18479829976103367_6515248644985019583_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ig_cache_key=Mzk0MTk0MTk4MDk4ODIxMzc1Mg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMjE2MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=NKEUuZshr5MQ7kNvwEd8-8N&_nc_oc=AdpXHLyDZ4awOytz4-61KhzE2FQaRhSEH74vUN-pgyC2plwbJrR7QFQZ3_WMZzVArQRoWDoz03hE8FTZnWi5JGB-&_nc_zt=23&_nc_ht=scontent-lax3-1.cdninstagram.com&_nc_gid=v6_m9a3YKHgNKWaRXI5lxQ&_nc_ss=72689&oh=00_AQCaKiB_Whu_RclDSQZP0h3qgZwf5mUViOztSkoSjxFbDQ&oe=6A5F2AC2",
+        "https://scontent-lax7-1.cdninstagram.com/v/t51.82787-15/748097023_18479829988103367_7174518856302933132_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ig_cache_key=Mzk0MTk0MTk5MjUzOTUxMTg2MQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMjE2MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=LnMxYeyL5WcQ7kNvwFXeDO4&_nc_oc=Adq5R6XV9sPQw3yFc6Pp7xdVTRw4cfw0nb9PTBix_EpovAwnlSVMs1cA4B6HrS6Xch0iHDQxCa4ebAU1aDJy5hR_&_nc_zt=23&_nc_ht=scontent-lax7-1.cdninstagram.com&_nc_gid=v6_m9a3YKHgNKWaRXI5lxQ&_nc_ss=72689&oh=00_AQCZmEBICHSDVC6lRZPIir70lius316L9_hml5NXYpE5bA&oe=6A5F0F93",
+        "https://scontent-lax3-1.cdninstagram.com/v/t51.82787-15/748133821_18479830000103367_8936601522086550087_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ig_cache_key=Mzk0MTk0MjAwMzkzMTExMTQzMA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMjE2MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=rKGTSWjpP-gQ7kNvwGT0m3k&_nc_oc=AdryRdMl6KaDwXiK3huCorECgExvKJgWzMPgm5VMziFjs6TwhTli2OMpkaeHBYW5CySCXUPtmEP0m2ABs3N4zSFK&_nc_zt=23&_nc_ht=scontent-lax3-1.cdninstagram.com&_nc_gid=v6_m9a3YKHgNKWaRXI5lxQ&_nc_ss=72689&oh=00_AQCabyOYTIbw51swi4MovsjFcbplt9z0RVHGzHioAtWzeg&oe=6A5F35E0"
+      ]
+    },
+    {
+      "item_id": "instagram:post:Da2zlE-DLRy",
+      "platform_post_id": "Da2zlE-DLRy",
+      "account_handle": "absoluteinternship",
+      "canonical_url": "https://www.instagram.com/p/Da2zlE-DLRy/",
+      "content_type": "carousel_post",
+      "topic": "networking",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://scontent-phl2-1.cdninstagram.com/v/t51.82787-15/748931223_18603441943033703_3921503130028293303_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ig_cache_key=Mzk0MjM5NDE4ODM2NDc4MTQxMA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyNC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=XKPrVlboIh8Q7kNvwFF8wvX&_nc_oc=AdolHYJ3uI-sJnBN4Vfsermj2FvbrrB3IxkTAvkWr-mc6uypAkwnb_cPqucaxgns8LA&_nc_zt=23&_nc_ht=scontent-phl2-1.cdninstagram.com&_nc_gid=U_7k2OP3LBXOvXNezDPxMw&_nc_ss=72a8c&oh=00_AQCPYL5t3wIN2arDE14axomsVfaqXc_mUWO3EEI7StW88w&oe=6A60404F",
+        "https://scontent-phl2-1.cdninstagram.com/v/t51.82787-15/748883007_18603441907033703_9106590112602229737_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=101&ig_cache_key=Mzk0MjM5NDE4ODM2NDc3ODIxNg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyNC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=5ZmHUqxt4a0Q7kNvwHbjIZU&_nc_oc=AdqrrIORZTA1Z7pOuupBwQmS8YSTtglVCkdTiKJbhn_PRdEHS-4eUqlIwjNxRZ2_XpM&_nc_zt=23&_nc_ht=scontent-phl2-1.cdninstagram.com&_nc_gid=U_7k2OP3LBXOvXNezDPxMw&_nc_ss=72a8c&oh=00_AQBdE2cMcsn8NIY5VqMss6br4IPw_cqdfUn2kYaoZpBoKw&oe=6A6052AB",
+        "https://scontent-phl2-1.cdninstagram.com/v/t51.82787-15/749789500_18603441964033703_4059761020266144778_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ig_cache_key=Mzk0MjM5NDE4ODM2NDc4NTQ1OA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyNC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=gkY9l01D9boQ7kNvwGnQEzU&_nc_oc=Adqk4CbepvvH1rLr2LcL38413verQm45I6etO5mcVq4nc4UIWfe-9wODQA2WwnpoUE8&_nc_zt=23&_nc_ht=scontent-phl2-1.cdninstagram.com&_nc_gid=U_7k2OP3LBXOvXNezDPxMw&_nc_ss=72a8c&oh=00_AQAGz0_IjrgMb7J1P7zUqfmW-_A6sYa6QlBFMsiPa7pQMA&oe=6A606780",
+        "https://scontent-phl2-1.cdninstagram.com/v/t51.82787-15/750473511_18603441916033703_2116965317003662009_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=111&ig_cache_key=Mzk0MjM5NDE4ODM0ODAyNDQ2NA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyNC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=k2lCE4z28IQQ7kNvwFxDuh3&_nc_oc=AdovaGfKcMM7WzSeoJ-lbKpxv_Zyv29p-7GI-Etb3fC6yab2Hm5WAjr4SPuASmytcs8&_nc_zt=23&_nc_ht=scontent-phl2-1.cdninstagram.com&_nc_gid=U_7k2OP3LBXOvXNezDPxMw&_nc_ss=72a8c&oh=00_AQAXF7RZ-8E-jnFsmGjf0_sEAGIIn4T-swzLctKqCwy3Hg&oe=6A603B24",
+        "https://scontent-phl2-1.cdninstagram.com/v/t51.82787-15/749609009_18603441928033703_3439055316023502233_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ig_cache_key=Mzk0MjM5NDE4ODM4MTU5ODE1NQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTAyNC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=jbYtuq0rS8sQ7kNvwG5_qzP&_nc_oc=AdrtYA52wr7CcXMHvvFsvbMNmOYzNdfLbIxUaV0KPZHPrYSolLCDF1tAowkPgywudMU&_nc_zt=23&_nc_ht=scontent-phl2-1.cdninstagram.com&_nc_gid=U_7k2OP3LBXOvXNezDPxMw&_nc_ss=72a8c&oh=00_AQDhD9hnUqH_bBI5aNPHft57QSwtmiUdBdtTlMv4g3c2UQ&oe=6A605716"
+      ]
+    },
+    {
+      "item_id": "instagram:post:Da1UDoDMiGO",
+      "platform_post_id": "Da1UDoDMiGO",
+      "account_handle": "externhq",
+      "canonical_url": "https://www.instagram.com/p/Da1UDoDMiGO/",
+      "content_type": "image_post",
+      "topic": "access_compensation_and_cost",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://instagram.fmem1-2.fna.fbcdn.net/v/t51.82787-15/748718188_18238359700312439_3725472272580241705_n.jpg?stp=dst-jpg_e35_p1080x1080_sh2.08_tt6&_nc_ht=instagram.fmem1-2.fna.fbcdn.net&_nc_cat=111&_nc_oc=Q6cZ2gH6xwXLrx9lec3kDVisu8NdL6eJk7-T4-4rhGQX_GzerNStkoXKv2SfDp1j1vsjNn4&_nc_ohc=QTOuEWzwS70Q7kNvwFqYnIo&_nc_gid=3Oqc89cbayVEKOsHPuHfPQ&edm=ADp7STQBAAAA&ccb=7-5&oh=00_AQDhrAB18DPA71Eb5O5hHZUyLIPjuKPdKayfe-WuKNxDWg&oe=6A5F0C96&_nc_sid=c6f216"
+      ]
+    },
+    {
+      "item_id": "instagram:post:Daw0egBz8A8",
+      "platform_post_id": "Daw0egBz8A8",
+      "account_handle": "careerflow.ai",
+      "canonical_url": "https://www.instagram.com/p/Daw0egBz8A8/",
+      "content_type": "image_post",
+      "topic": "interview_preparation",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://scontent-mia5-1.cdninstagram.com/v/t51.82787-15/743658991_18028242398833513_6549919748865938572_n.jpg?stp=dst-jpg_e35_p1080x1080_sh2.08_tt6&_nc_ht=scontent-mia5-1.cdninstagram.com&_nc_cat=101&_nc_oc=Q6cZ2gE5bwweZPBuSHLmVMOr6nrJFr9lzE9YDhmGfuZGOViG1KtsJbCjO1hOt6ncgBXE7hc&_nc_ohc=Ugc7pQyx9y8Q7kNvwFWeaV1&_nc_gid=mrAHCMC2MobOIn5U48tX9A&edm=ADp7STQBAAAA&ccb=7-5&oh=00_AQABDWiX5534zGeaHE94pblkJWwqbMN-UDLVsu36nR8tEA&oe=6A6048BF&_nc_sid=c6f216"
+      ]
+    },
+    {
+      "item_id": "instagram:post:Cq_RQxQu2CE",
+      "platform_post_id": "Cq_RQxQu2CE",
+      "account_handle": "gouconnect",
+      "canonical_url": "https://www.instagram.com/p/Cq_RQxQu2CE/",
+      "content_type": "image_post",
+      "topic": "general_early_career_uncertainty",
+      "signal": "insufficient_data",
+      "comparison_percentile": null,
+      "image_urls": [
+        "https://scontent-ord5-1.cdninstagram.com/v/t51.82787-15/621831413_18037109660751673_5155458386157894853_n.jpg?stp=dst-jpg_e35_s1080x1080_sh2.08_tt6&_nc_ht=scontent-ord5-1.cdninstagram.com&_nc_cat=101&_nc_oc=Q6cZ2gF5KZBr45-eyTLboW9cGqnEbHiaDe_Y8a0otm_en1qJbmeBFo8LSijMZMGfPfWInKw&_nc_ohc=d-0GIerV0CgQ7kNvwGN0qIP&_nc_gid=3a0wGWgN-Y732Nuz_aaWcA&edm=ADp7STQBAAAA&ccb=7-5&oh=00_AQAC2HDIfKDBfQgWQMF2Cj5h-s4p4FPsoKDw9Vjy0-motA&oe=6A5F5D6D&_nc_sid=c6f216"
+      ]
+    }
+  ],
+  "constraints": {
+    "video_target": 8,
+    "videos_minimum_per_platform": 2,
+    "videos_maximum_per_platform": 3,
+    "videos_maximum_per_account": 1,
+    "carousel_target": 3,
+    "image_target": 3,
+    "static_minimum_accounts": 4,
+    "static_minimum_topics": 3,
+    "carousel_maximum_slides": 5
+  },
+  "static_recovery": {
+    "failed_source_items": [
+      "instagram:post:C_v_aEDxEAK",
+      "instagram:post:DaAyhnolny7"
+    ],
+    "replacement_items": [
+      "instagram:post:Da0mRxLiYcr",
+      "instagram:post:Cq_RQxQu2CE"
+    ],
+    "reason": "source media failed deterministic image validation or fetch"
+  }
+}

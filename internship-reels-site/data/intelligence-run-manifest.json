@@ -1,0 +1,107 @@
+{
+  "schema_version": "viralbench_intelligence_run_manifest_v1",
+  "generated_at": "2026-07-18T00:41:31.431Z",
+  "status": "passed",
+  "gates": [
+    {
+      "id": "source_records_reconcile",
+      "passed": true,
+      "observed": {
+        "social_posts": 1052,
+        "total_source_records": 1183
+      }
+    },
+    {
+      "id": "provider_spend_cap",
+      "passed": true,
+      "observed": {
+        "conservative_usd": 18.681168,
+        "actual_reported_usd": 1.5555,
+        "actual_complete": false
+      }
+    },
+    {
+      "id": "social_post_document_cardinality",
+      "passed": true,
+      "observed": {
+        "source_posts": 1052,
+        "social_documents": 1052
+      }
+    },
+    {
+      "id": "official_source_statuses",
+      "passed": true,
+      "observed": {
+        "expected": 18,
+        "current": 17,
+        "failed": 1
+      }
+    },
+    {
+      "id": "public_vector_coverage",
+      "passed": true,
+      "observed": {
+        "state": "complete",
+        "vectors": 1073,
+        "documents": 1073
+      }
+    },
+    {
+      "id": "public_visibility_boundary",
+      "passed": true,
+      "observed": {
+        "public_documents": 1073
+      }
+    },
+    {
+      "id": "owned_not_connected",
+      "passed": true,
+      "observed": "not_connected"
+    },
+    {
+      "id": "mixed_media_quality",
+      "passed": true,
+      "observed": {
+        "video": {
+          "selected": 8,
+          "analyzed": 8,
+          "quality_passed": 8,
+          "by_platform": {
+            "instagram": 3,
+            "tiktok": 3,
+            "youtube_shorts": 2
+          },
+          "unique_accounts": 8
+        },
+        "static": {
+          "selected": 6,
+          "analyzed": 6,
+          "by_content_type": {
+            "carousel_post": 3,
+            "image_post": 3
+          },
+          "unique_accounts": 6,
+          "unique_topics": 6,
+          "maximum_carousel_slides": 5
+        }
+      }
+    },
+    {
+      "id": "release_privacy_and_allowlist",
+      "passed": true,
+      "observed": {
+        "findings": [],
+        "blocked_paths_absent": [
+          "lib",
+          "tests",
+          "scripts",
+          "data/agent-corpus.json",
+          "package.json"
+        ]
+      }
+    }
+  ],
+  "failed_gates": [],
+  "release_ready": true,
+  "no_scheduler_created": true
+}

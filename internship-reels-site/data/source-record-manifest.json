@@ -1,0 +1,43 @@
+{
+  "schema_version": "viralbench_source_record_manifest_v2",
+  "generated_at": "2026-07-18T00:38:47.782Z",
+  "source_records": {
+    "social_posts": 1052,
+    "audience_signals_input": 168,
+    "official_resources_expected": 18,
+    "owned_connection_state": "not_connected"
+  },
+  "social_summary": {
+    "unique_items": 1052,
+    "observations": 1594,
+    "repeated_items": 319,
+    "by_platform": {
+      "instagram": 471,
+      "tiktok": 343,
+      "youtube_shorts": 238
+    },
+    "by_content_type": {
+      "carousel_post": 77,
+      "feed_video": 217,
+      "image_post": 68,
+      "short_video": 690
+    },
+    "by_age_bucket": {
+      "0_72_hours": 261,
+      "31_90_days": 120,
+      "4_30_days": 215,
+      "91_365_days": 271,
+      "older_than_365_days": 185
+    },
+    "by_signal": {
+      "baseline": 672,
+      "breakout_candidate": 42,
+      "evergreen_winner": 19,
+      "high_performer": 38,
+      "insufficient_data": 148,
+      "promising": 133
+    },
+    "analysis_queue_items": 99
+  },
+  "no_scheduler_created": true
+}
