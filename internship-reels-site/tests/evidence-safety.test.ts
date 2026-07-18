@@ -5,7 +5,7 @@ import { assertEvidenceSafe } from '../lib/evidence.js';
 
 test('evidence safety accepts explicit non-guarantee language', () => {
   assert.doesNotThrow(() => assertEvidenceSafe({
-    answer: 'The reviewed examples cannot guarantee an easy path to employment.',
+    answer: 'The reviewed examples cannot guarantee employment and are guidance rather than a guarantee.',
     limitations: ['The evidence does not directly prove that the framing reduces anxiety.'],
   }, []));
 });
