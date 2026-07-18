@@ -55,7 +55,7 @@ const GENERIC_RESEARCH_QUERY_TOKENS = new Set([
   'say',
   'source',
 ]);
-export const RESEARCH_SYNTHESIS_VERSION = 'v6';
+export const RESEARCH_SYNTHESIS_VERSION = 'v7';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {

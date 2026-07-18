@@ -45,6 +45,9 @@ export function normalizeResearchOutput(input: unknown, evidence: AgentEvidence[
   const findings = Array.isArray(value.findings)
     ? value.findings.map((item) => normalizeAudienceThemeFinding(item, evidenceById))
     : value.findings;
+  const normalizedFindings = Array.isArray(findings)
+    ? findings.map((item) => normalizeResearchClaimLanguage(item, evidence))
+    : findings;
   const candidateFollowups = Array.isArray(value.followups)
     ? value.followups.filter((item): item is string => (
       typeof item === 'string' && item.trim().length > 0 && !UNANSWERABLE_FOLLOWUP.test(item)
@@ -55,9 +58,34 @@ export function normalizeResearchOutput(input: unknown, evidence: AgentEvidence[
     : candidateFollowups;
   return {
     ...value,
-    findings,
+    answer: typeof value.answer === 'string'
+      ? normalizeAssertiveLanguage(value.answer, evidence)
+      : value.answer,
+    findings: normalizedFindings,
     followups,
   };
+}
+
+function normalizeResearchClaimLanguage(input: unknown, evidence: AgentEvidence[]): unknown {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return input;
+  const finding = input as UnknownRecord;
+  return {
+    ...finding,
+    claim: typeof finding.claim === 'string'
+      ? normalizeAssertiveLanguage(finding.claim, evidence)
+      : finding.claim,
+  };
+}
+
+function normalizeAssertiveLanguage(value: string, evidence: AgentEvidence[]): string {
+  let normalized = value.replace(/\b(?:frequently|often|typically|generally)\b[\s,]*/gi, '');
+  if (evidence.some((item) => item.evidence_type === 'audience_theme')) {
+    normalized = normalized.replace(
+      /\b(?:audiences?|job seekers?|students?|seekers?)\s+(?:(?:demonstrate|show|have)\s+(?:a\s+)?preference(?:\s+for)?|prioritize|prefer|need|want)\b/gi,
+      'the cited paraphrased audience theme frames',
+    );
+  }
+  return normalized.replace(/\s+/g, ' ').trim();
 }
 
 export function validateResearchOutput(input: unknown, evidence: AgentEvidence[]): ValidatedResearchOutput {

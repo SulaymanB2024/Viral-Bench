@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import type { ResearchFailureDiagnostic } from '../lib/agent-diagnostics.js';
-import { assertEvidenceSafe } from '../lib/evidence.js';
+import {
+  assertEvidenceSafe,
+  normalizeResearchOutput,
+  validateResearchOutput,
+} from '../lib/evidence.js';
 import { GeminiRequestError, type GeminiClient } from '../lib/gemini.js';
 import {
   AgentService,
@@ -273,7 +277,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
-  assert.match(store.cacheReadKeys[0] ?? '', /^research:v6:/);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v7:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 
@@ -383,6 +387,35 @@ test('evidence gate rejects unsupported performance and response attribution', (
     }, reviewedEvidence),
     /outcome-likelihood/i,
   );
+});
+
+test('research normalization bounds unsupported frequency and audience claims', () => {
+  const audienceTheme = {
+    ...evidence('audience'),
+    evidence_id: 'evidence:audience:search-uncertainty',
+    evidence_type: 'audience_theme' as const,
+    content_type: 'audience_aggregate' as const,
+    platform: null,
+    title: 'search uncertainty',
+    snippet: 'A privacy-safe paraphrased theme about search uncertainty.',
+  };
+  const socialRecord = evidence('social');
+  const reviewedEvidence = [audienceTheme, socialRecord];
+  const normalized = normalizeResearchOutput({
+    answer: 'Students generally need a concrete next step.',
+    findings: [{
+      claim: 'Creators typically use a direct alternative.',
+      evidence_ids: [socialRecord.evidence_id],
+    }],
+    limitations: [],
+    followups: [],
+  }, reviewedEvidence);
+  const validated = validateResearchOutput(normalized, reviewedEvidence);
+  assert.equal(
+    validated.answer,
+    'the cited paraphrased audience theme frames a concrete next step.',
+  );
+  assert.equal(validated.findings[0]?.claim, 'Creators use a direct alternative.');
 });
 
 test('operator generation exports schema-valid inert drafts only', async () => {
