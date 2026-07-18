@@ -23,6 +23,7 @@ test('research gold set covers required topics and routes each query determinist
   assert.deepEqual(new Set(cases.map((item) => item.case_id)), new Set([
     'audience-worries',
     'pay-and-housing',
+    'search-uncertainty',
     'unpaid-internships',
     'cpt-opt',
     'scams',

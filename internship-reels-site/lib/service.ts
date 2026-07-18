@@ -23,7 +23,7 @@ import {
   researchSystemInstruction,
 } from './gemini.js';
 import { HttpError } from './http.js';
-import { retrieveEvidence } from './retrieval.js';
+import { retrieveEvidence, tokenize } from './retrieval.js';
 import { createAgentStateStore, type AgentStateStore } from './state.js';
 import type {
   AgentCorpus,
@@ -41,6 +41,8 @@ import { loadVectorIndex, localHashEmbedding } from './vectors.js';
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const MINUTE_MS = 60 * 1_000;
 const PUBLIC_CACHE_SECONDS = 24 * 60 * 60;
+const PUBLIC_RESEARCH_EVIDENCE_LIMIT = 12;
+export const RESEARCH_SYNTHESIS_VERSION = 'v2';
 const CONTACT_OR_URL = /\b(?:https?:\/\/|www\.|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+?\d[\s().-]*){7,}/i;
 
 export interface ResearchQueryInput {
@@ -93,6 +95,7 @@ export class AgentService {
       corpus: this.#corpus,
       query: input.question,
       filters: input.filters,
+      limit: PUBLIC_RESEARCH_EVIDENCE_LIMIT,
     });
     const unavailable = this.#availabilityLimitation();
     if (lexical.query_intent === 'owned_outcomes' && !lexical.evidence.length) {
@@ -111,7 +114,7 @@ export class AgentService {
       );
     }
 
-    const cacheKey = `research:${stableHash({
+    const cacheKey = `research:${RESEARCH_SYNTHESIS_VERSION}:${stableHash({
       question: input.question.toLowerCase(),
       filters: input.filters ?? {},
       index_version: this.#corpus.index_version,
@@ -160,6 +163,7 @@ export class AgentService {
         vectorIndex: this.#vectorIndex,
         queryVector,
         intent: lexical.query_intent,
+        limit: PUBLIC_RESEARCH_EVIDENCE_LIMIT,
       });
       if (!hybrid.evidence.length) {
         return retrievalOnlyResearch(
@@ -175,6 +179,21 @@ export class AgentService {
         '',
         'Active filters:',
         JSON.stringify(input.filters ?? {}),
+        '',
+        'Synthesis context:',
+        JSON.stringify({
+          intent: hybrid.query_intent,
+          returned_evidence_families: hybrid.coverage.returned,
+          current_sources: hybrid.coverage.current_sources,
+          measurement_gaps: hybrid.coverage.measurement_gaps,
+        }),
+        '',
+        'Answer requirements:',
+        '- Start with the bottom line in plain language.',
+        '- Name 2 to 4 concrete mechanics or next steps when the evidence supports them.',
+        '- Explain how those mechanics address the question; do not merely list records.',
+        '- Separate repeated patterns from isolated examples.',
+        '- Keep the answer concise, specific, and useful to a reader deciding what to do next.',
         '',
         'Reviewed evidence package:',
         evidencePrompt(hybrid.evidence, 40_000),
@@ -213,6 +232,14 @@ export class AgentService {
           'Validation repair:',
           'Return a completely new response from the same evidence package.',
           'Use cautious observational language and exact evidence IDs only.',
+          'Keep the answer direct and concrete; name the actual mechanics in the strongest matching records.',
+          'Remove tangential findings and distinguish repeated patterns from isolated examples.',
+          'Do not say effective, successful, consistent, converting, or conversion rate without owned outcome evidence.',
+          'Use "one record" or "several cited records", not often, typically, generally, preference, or prevalence.',
+          'Say the post frames or presents uncertainty, not that it reduces, resolves, or eliminates a user state.',
+          'Any repeated or multiple-record claim must cite at least two distinct evidence IDs.',
+          'Name an audience theme as a paraphrased theme rather than a measured population preference.',
+          'Make followups answerable from the reviewed corpus; do not ask for unavailable surveys or conversions.',
           'Do not use prove, cause, guarantee, ensure, always works, or "will increase/drive/deliver/produce", even in negations or limitations.',
           'Paraphrase every source; never reproduce a sequence of twelve or more source words.',
           'Do not compare raw view rankings across platforms.',
@@ -346,7 +373,7 @@ export class AgentService {
 
   async #researchQueryVector(value: string): Promise<number[] | null> {
     if (this.#vectorIndex?.manifest.model === 'viralbench-local-hash-v1') {
-      return localHashEmbedding(value.slice(0, 8_000));
+      return localHashEmbedding(tokenize(value.slice(0, 8_000)).join(' '));
     }
     const embeddingQuota = await this.#runResearchStage('state_rate_limit', () => (
       this.#consumeEmbeddingQuota()

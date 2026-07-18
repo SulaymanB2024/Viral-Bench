@@ -7,6 +7,7 @@ import {
   stableHash,
 } from '../lib/corpus.js';
 import { validateMarketingOutput, validateResearchOutput } from '../lib/evidence.js';
+import { evidencePrompt, researchSystemInstruction } from '../lib/gemini.js';
 import {
   createOperatorSession,
   hashIpAddress,
@@ -193,6 +194,72 @@ test('retrieval fuses lexical and positive vector candidates without outcome fie
   ]));
   assert.deepEqual(result.evidence.find((item) => item.evidence_id === lexical.document_id)?.rank_sources, ['lexical', 'intent']);
   assert.deepEqual(result.evidence.find((item) => item.evidence_id === semantic.document_id)?.rank_sources, ['vector', 'intent']);
+});
+
+test('local hash vectors rerank lexical matches without qualifying collision-only records', () => {
+  const lexical = document('lexical', { search_text: 'resume proof checklist' });
+  const collision = document('collision', { search_text: 'unrelated vocabulary' });
+  const matchingVector = new Float32Array(768);
+  matchingVector[0] = 1;
+  const vectorIndex: LoadedVectorIndex = {
+    manifest: {
+      schema_version: 'viralbench_agent_vectors_v1',
+      model: 'viralbench-local-hash-v1',
+      dimension: 768,
+      index_version: 'test-index',
+      generated_at: '2026-07-17T00:00:00.000Z',
+      count: 2,
+      entries: [
+        { document_id: lexical.document_id, content_hash: lexical.content_hash, offset: 0 },
+        { document_id: collision.document_id, content_hash: collision.content_hash, offset: 768 },
+      ],
+    },
+    vectors: new Map([
+      [lexical.document_id, matchingVector],
+      [collision.document_id, matchingVector],
+    ]),
+  };
+  const result = retrieveEvidence({
+    corpus: corpus([lexical, collision]),
+    query: 'resume proof',
+    vectorIndex,
+    queryVector: [1, ...Array.from({ length: 767 }, () => 0)],
+  });
+  assert.deepEqual(result.evidence.map((item) => item.evidence_id), [lexical.document_id]);
+});
+
+test('retrieval ignores corpus-generic framing words when matching research questions', () => {
+  const generic = document('generic', { search_text: 'reviewed internship social post' });
+  const relevant = document('relevant', {
+    search_text: 'internship job search uncertainty practical next action',
+  });
+  const outsideScope = document('outside-scope', {
+    search_text: 'career search uncertainty practical next action',
+  });
+  const result = retrieveEvidence({
+    corpus: corpus([generic, relevant, outsideScope]),
+    query: 'How do reviewed internship posts turn search uncertainty into practical next steps?',
+    intent: 'audience_need',
+  });
+  assert.deepEqual(result.evidence.map((item) => item.evidence_id), [relevant.document_id]);
+});
+
+test('research prompt contract asks for direct, concrete synthesis and stays valid when bounded', () => {
+  const instruction = researchSystemInstruction();
+  assert.match(instruction, /Lead with a direct answer/);
+  assert.match(instruction, /concrete tactics, sequences, formats, or cautions/);
+  assert.match(instruction, /Never cite a record merely to fill a source-family quota/);
+
+  const first = evidence('alpha');
+  const second = evidence('beta');
+  const full = evidencePrompt([first, second], 20_000);
+  assert.equal(JSON.parse(full).length, 2);
+  assert.match(full, /retrieval_relevance/);
+  assert.match(full, /rank_sources/);
+
+  const oneRowLimit = JSON.stringify(JSON.parse(evidencePrompt([first], 20_000))).length;
+  const bounded = evidencePrompt([first, second], oneRowLimit);
+  assert.equal(JSON.parse(bounded).length, 1);
 });
 
 test('evidence gate rejects unknown IDs, causal language, copied source, and malformed briefs', () => {

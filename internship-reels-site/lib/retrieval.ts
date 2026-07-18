@@ -11,8 +11,9 @@ import type {
 } from './types.js';
 
 const STOPWORDS = new Set([
-  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'how', 'i', 'in',
-  'is', 'it', 'of', 'on', 'or', 'that', 'the', 'these', 'this', 'to', 'was', 'what',
+  'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'do', 'for', 'from', 'how', 'i',
+  'in', 'internship', 'internships', 'into', 'is', 'it', 'of', 'on', 'or', 'post',
+  'posts', 'reviewed', 'that', 'the', 'these', 'this', 'to', 'turn', 'was', 'what',
   'when', 'where', 'which', 'who', 'why', 'with', 'work', 'working',
 ]);
 
@@ -21,12 +22,13 @@ const VELOCITY_INTENT = /\b(velocity|growth rate|growing|views? per hour|momentu
 const OFFICIAL_INTENT = /\b(official|law|legal|rights?|flsa|unpaid|cpt|opt|stem opt|uscis|dso|ada|eeoc|dol|department of labor|job scam|fraud|eligibility|work authori[sz]ation)\b/i;
 const OWNED_INTENT = /\b(our|owned|internships\.com).{0,30}\b(results?|outcomes?|conversion|applications?|campaign|experiment|posts?|performance|saves?|shares?|clicks?)\b|\b(conversion|application) rate\b/i;
 const CREATIVE_INTENT = /\b(hook|carousel|image|creative|format|opening|beat|cta|slide|video structure|caption)\b/i;
-const AUDIENCE_INTENT = /\b(audience|students? (?:need|want|worr(?:y|ied|ies)|fear|struggle)|pain point|concern|housing|pay|compensation|cost|stress|uncertain|overwhelm)\b/i;
+const AUDIENCE_INTENT = /\b(audience|students? (?:need|want|worr(?:y|ied|ies)|fear|struggle)|pain point|concern|housing|pay|compensation|cost|stress|uncertain(?:ty)?|anxi(?:ety|ous)|confus(?:ed|ion)|overwhelm(?:ed|ing)?)\b/i;
 const CROSS_SOURCE_INTENT = /\b(cross[- ]source|triangulat|combine.{0,20}(official|audience|social)|compare.{0,20}(sources?|evidence families))\b/i;
 
 interface ScoredDocument {
   document: EvidenceDocument;
   lexical_score: number;
+  matched_query_terms: number;
   vector_score: number | null;
   fused_score: number;
   rank_sources: Array<'lexical' | 'vector' | 'cohort' | 'intent'>;
@@ -36,7 +38,7 @@ export function tokenize(value: string): string[] {
   return value
     .normalize('NFKD')
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}_]+/gu, ' ')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .split(/\s+/)
     .filter((token) => token.length > 1 && !STOPWORDS.has(token));
 }
@@ -65,6 +67,7 @@ export function retrieveEvidence(options: {
   const baseFiltered = options.corpus.documents.filter((document) => matchesFilters(document, options.filters));
   const filtered = baseFiltered.filter((document) => eligibleForIntent(document, intent, options.query));
   const lexicalScores = bm25Scores(filtered, options.query);
+  const matchedQueryTerms = queryTermMatches(filtered, options.query);
   const vectorScores = vectorSimilarityScores(filtered, options.vectorIndex, options.queryVector);
   const lexicalRank = rankMap(lexicalScores);
   const vectorRank = rankMap(vectorScores);
@@ -83,7 +86,8 @@ export function retrieveEvidence(options: {
     }
     if (vectorPosition !== undefined && vector !== null) {
       sources.push('vector');
-      fused += 1 / (60 + vectorPosition);
+      const vectorWeight = options.vectorIndex?.manifest.model === 'viralbench-local-hash-v1' ? 0.5 : 1;
+      fused += vectorWeight / (60 + vectorPosition);
     }
     const intentBoost = intentPriority(document, intent, options.query);
     if (intentBoost > 0) {
@@ -97,6 +101,7 @@ export function retrieveEvidence(options: {
     return {
       document,
       lexical_score: lexical,
+      matched_query_terms: matchedQueryTerms.get(document.document_id) ?? 0,
       vector_score: vector,
       fused_score: fused,
       rank_sources: sources,
@@ -104,11 +109,15 @@ export function retrieveEvidence(options: {
   });
 
   const genericPerformance = performanceIntent && isGenericPerformanceQuery(options.query);
+  const localHashIndex = options.vectorIndex?.manifest.model === 'viralbench-local-hash-v1';
+  const minimumLocalMatches = new Set(normalizedMatchTokens(options.query)).size >= 3 ? 2 : 1;
   const relevant = scored.filter((item) => (
     genericPerformance
-    || item.lexical_score > 0
-    || item.vector_score !== null
-    || item.rank_sources.includes('intent')
+    || (
+      item.lexical_score > 0
+      && (!localHashIndex || item.matched_query_terms >= minimumLocalMatches)
+    )
+    || (!localHashIndex && item.vector_score !== null)
   ));
   const ranked = relevant.sort((left, right) => (
     right.fused_score - left.fused_score
@@ -151,7 +160,14 @@ function eligibleForIntent(document: EvidenceDocument, intent: QueryIntent, quer
   }
   if (intent === 'audience_need') {
     return document.evidence_type === 'audience_theme'
-      || (document.evidence_type === 'social_post' && Boolean(document.analysis?.audience_problem));
+      || (
+        document.evidence_type === 'social_post'
+        && Boolean(document.analysis?.audience_problem)
+        && (
+          !/\binternships?\b/i.test(query)
+          || /\binternships?\b/i.test(document.search_text)
+        )
+      );
   }
   return document.evidence_type !== 'owned_aggregate'
     || document.measurement.state !== 'not_connected';
@@ -160,13 +176,13 @@ function eligibleForIntent(document: EvidenceDocument, intent: QueryIntent, quer
 function intentPriority(document: EvidenceDocument, intent: QueryIntent, query: string): number {
   if (intent === 'official_guidance' && document.evidence_type === 'official_source') return 0.03;
   if (intent === 'owned_outcomes' && document.evidence_type === 'owned_aggregate') return 0.03;
-  if (intent === 'audience_need' && document.evidence_type === 'audience_theme') return 0.025;
+  if (intent === 'audience_need' && document.evidence_type === 'audience_theme') return 0.008;
   if (intent === 'observed_velocity' && document.metrics.observed_view_velocity_per_hour !== null) return 0.02;
   if (intent === 'performance' && document.comparison_percentile !== null) return 0.015;
   if (intent === 'creative_mechanics' && /\bcarousel|slides?\b/i.test(query) && document.content_type === 'carousel_post') {
     return 0.025;
   }
-  if (intent === 'cross_source') return 0.005;
+  if (intent === 'cross_source') return 0.002;
   return 0;
 }
 
@@ -242,6 +258,23 @@ function bm25Scores(documents: EvidenceDocument[], query: string): Map<string, n
   return result;
 }
 
+function queryTermMatches(documents: EvidenceDocument[], query: string): Map<string, number> {
+  const queryTerms = new Set(normalizedMatchTokens(query));
+  return new Map(documents.map((document) => {
+    const documentTerms = new Set(normalizedMatchTokens(document.search_text));
+    const matches = [...queryTerms].filter((term) => documentTerms.has(term)).length;
+    return [document.document_id, matches];
+  }));
+}
+
+function normalizedMatchTokens(value: string): string[] {
+  return tokenize(value).map((token) => (
+    token.length > 4 && token.endsWith('s') && !token.endsWith('ss')
+      ? token.slice(0, -1)
+      : token
+  ));
+}
+
 function vectorSimilarityScores(
   documents: EvidenceDocument[],
   index: LoadedVectorIndex | null | undefined,
@@ -249,11 +282,12 @@ function vectorSimilarityScores(
 ): Map<string, number> {
   const result = new Map<string, number>();
   if (!index || !queryVector || queryVector.length !== index.manifest.dimension) return result;
+  const minimumSimilarity = index.manifest.model === 'viralbench-local-hash-v1' ? 0 : 0.2;
   for (const document of documents) {
     const vector = index.vectors.get(document.document_id);
     if (!vector) continue;
     const similarity = cosineSimilarity(queryVector, vector);
-    if (similarity > 0) result.set(document.document_id, similarity);
+    if (similarity > minimumSimilarity) result.set(document.document_id, similarity);
   }
   return result;
 }

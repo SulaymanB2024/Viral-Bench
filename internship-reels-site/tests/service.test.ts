@@ -117,6 +117,15 @@ class FailingStateStore extends MemoryAgentStateStore {
   }
 }
 
+class RecordingStateStore extends MemoryAgentStateStore {
+  readonly cacheReadKeys: string[] = [];
+
+  override async getJson<T>(key: string): Promise<T | null> {
+    this.cacheReadKeys.push(key);
+    return await super.getJson<T>(key);
+  }
+}
+
 function localVectorIndex(library = corpus()) {
   const index = completeVectorIndex(library);
   return {
@@ -245,11 +254,12 @@ test('research diagnostics classify failures without recording prompts or provid
 test('public answers are evidence-validated and safely cached without storing the question', async () => {
   const fake = new FakeGemini();
   const library = corpus();
+  const store = new RecordingStateStore();
   const service = new AgentService({
     corpus: library,
     vectorIndex: completeVectorIndex(library),
     enabled: true,
-    store: new MemoryAgentStateStore(),
+    store,
     gemini: fake as unknown as GeminiClient,
   });
   const first = await service.research({ question: 'resume internship hook' }, 'ip-hash');
@@ -258,6 +268,7 @@ test('public answers are evidence-validated and safely cached without storing th
   assert.equal(second.mode, 'cached');
   assert.equal(fake.embedCalls, 1);
   assert.equal(fake.generateCalls, 1);
+  assert.match(store.cacheReadKeys[0] ?? '', /^research:v2:/);
   assert.ok(first.findings.every((finding) => finding.evidence_ids.length > 0));
 });
 

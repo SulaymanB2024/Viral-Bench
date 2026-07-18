@@ -11,6 +11,12 @@ const CAUSAL_OVERCLAIM = /\b(proves? that|causes?|guarantees?|ensures?|will (?:i
 const NEGATED_CAUSAL_OVERCLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to|rather than)\s+(?:(?:directly|necessarily|reasonably|reliably)\s+)?(?:proves? that|causes?|guarantees?|ensures?|always works?)\b/gi;
 const NEGATED_GUARANTEE_NOUN = /\b(?:no|not|rather than|without|does not constitute|doesn't constitute|cannot constitute)\s+(?:a\s+)?guarantee\b/gi;
 const CROSS_PLATFORM_RANK = /\b(highest|most|best|top)\b.{0,45}\bviews?\b.{0,45}\b(across|overall|all platforms?)\b/i;
+const UNMEASURED_EFFECTIVENESS = /\b(?:most|more|highly)\s+effective\b|\beffective at\b|\bconsistent(?:ly)?\b|\bconversion rates?\b/i;
+const UNSUPPORTED_GENERALIZATION = /\b(?:frequently|often|typically|generally)\b|\b(?:audiences?|seekers?|students?)\s+(?:demonstrate|show|have)\s+(?:a\s+)?preference\b/i;
+const UNMEASURED_STATE_CHANGE = /\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/i;
+const NEGATED_STATE_CHANGE = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't|never|fails? to)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:reduce|resolve|eliminate)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
+const NEGATED_STATE_CHANGE_CLAIM = /\b(?:cannot|can't|can not|does not|doesn't|do not|don't)\s+(?:(?:directly|necessarily|reliably)\s+)?(?:prove|show|establish|confirm)\s+that\b[^.!?]{0,120}\b(?:reduces?|resolves?|eliminates?)\s+(?:(?:(?:job|internship)\s+)?search\s+)?(?:uncertainty|anxiety|confusion|stress)\b/gi;
+const MULTI_RECORD_CLAIM = /\b(?:several|multiple)\s+(?:cited\s+)?records?\b|\bacross\s+(?:the\s+)?(?:cited\s+)?records?\b|\brepeated pattern\b/i;
 
 export interface ValidatedResearchOutput {
   answer: string;
@@ -36,6 +42,7 @@ export function validateResearchOutput(input: unknown, evidence: AgentEvidence[]
     evidence_ids: evidenceIds(finding.evidence_ids, `findings[${index}].evidence_ids`, evidence),
   }));
   if (!findings.length || findings.length > 8) throw new Error('findings must contain 1 to 8 entries.');
+  assertFindingCitationScope(findings, evidence);
   const result = {
     answer,
     findings,
@@ -86,11 +93,28 @@ export function validateMarketingOutput(input: unknown, evidence: AgentEvidence[
 
 export function assertEvidenceSafe(output: unknown, evidence: AgentEvidence[]): void {
   const text = collectStrings(output).join(' ');
+  const assertiveText = collectStringsExcludingKeys(output, new Set(['limitations', 'followups'])).join(' ');
   const unnegatedText = text
+    .replace(NEGATED_STATE_CHANGE_CLAIM, '')
     .replace(NEGATED_CAUSAL_OVERCLAIM, '')
-    .replace(NEGATED_GUARANTEE_NOUN, '');
+    .replace(NEGATED_GUARANTEE_NOUN, '')
+    .replace(NEGATED_STATE_CHANGE, '');
+  const unnegatedAssertiveText = assertiveText
+    .replace(NEGATED_STATE_CHANGE_CLAIM, '')
+    .replace(NEGATED_CAUSAL_OVERCLAIM, '')
+    .replace(NEGATED_GUARANTEE_NOUN, '')
+    .replace(NEGATED_STATE_CHANGE, '');
   if (CAUSAL_OVERCLAIM.test(unnegatedText)) {
     throw new Error('Output contains unsupported causal or guaranteed language.');
+  }
+  if (UNMEASURED_EFFECTIVENESS.test(assertiveText)) {
+    throw new Error('Output contains unsupported effectiveness or conversion language.');
+  }
+  if (UNSUPPORTED_GENERALIZATION.test(assertiveText)) {
+    throw new Error('Output contains unsupported frequency or audience-preference language.');
+  }
+  if (UNMEASURED_STATE_CHANGE.test(unnegatedAssertiveText)) {
+    throw new Error('Output contains an unmeasured audience-state change.');
   }
   if (CROSS_PLATFORM_RANK.test(text)) throw new Error('Output contains a prohibited cross-platform raw-view ranking.');
   if (containsLongSourceCopy(text, evidence)) throw new Error('Output reproduces a long source phrase.');
@@ -120,6 +144,26 @@ function evidenceIds(value: unknown, label: string, evidence: AgentEvidence[]): 
   return [...new Set(ids)];
 }
 
+function assertFindingCitationScope(findings: ResearchFinding[], evidence: AgentEvidence[]): void {
+  const evidenceById = new Map(evidence.map((item) => [item.evidence_id, item]));
+  for (const [index, finding] of findings.entries()) {
+    if (MULTI_RECORD_CLAIM.test(finding.claim) && finding.evidence_ids.length < 2) {
+      throw new Error(`findings[${index}] claims a repeated pattern without at least two evidence IDs.`);
+    }
+    const cited = finding.evidence_ids
+      .map((id) => evidenceById.get(id))
+      .filter((item): item is AgentEvidence => Boolean(item));
+    if (
+      cited.length
+      && cited.every((item) => item.evidence_type === 'audience_theme')
+      && /\b(?:audiences?|job seekers?|students?)\b/i.test(finding.claim)
+      && !/\b(?:audience theme|paraphrased signal)\b/i.test(finding.claim)
+    ) {
+      throw new Error(`findings[${index}] presents a paraphrased audience theme as a measured population claim.`);
+    }
+  }
+}
+
 function record(value: unknown, label: string): UnknownRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${label} must be an object.`);
   return value as UnknownRecord;
@@ -147,6 +191,17 @@ function collectStrings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(collectStrings);
   if (value && typeof value === 'object') return Object.values(value as UnknownRecord).flatMap(collectStrings);
+  return [];
+}
+
+function collectStringsExcludingKeys(value: unknown, excludedKeys: Set<string>): string[] {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap((item) => collectStringsExcludingKeys(item, excludedKeys));
+  if (value && typeof value === 'object') {
+    return Object.entries(value as UnknownRecord).flatMap(([key, item]) => (
+      excludedKeys.has(key) ? [] : collectStringsExcludingKeys(item, excludedKeys)
+    ));
+  }
   return [];
 }
 

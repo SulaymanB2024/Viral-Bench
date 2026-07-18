@@ -114,23 +114,40 @@ export const RESEARCH_RESPONSE_SCHEMA: Record<string, unknown> = {
   additionalProperties: false,
   required: ['answer', 'findings', 'limitations', 'followups'],
   properties: {
-    answer: { type: 'string' },
+    answer: {
+      type: 'string',
+      description: 'A direct 2-4 sentence answer that names concrete patterns or actions from the strongest matching evidence.',
+    },
     findings: {
       type: 'array',
       minItems: 1,
-      maxItems: 8,
+      maxItems: 5,
       items: {
         type: 'object',
         additionalProperties: false,
         required: ['claim', 'evidence_ids'],
         properties: {
-          claim: { type: 'string' },
+          claim: {
+            type: 'string',
+            description: 'One specific, non-overlapping observation that explains what the cited records show and why it answers the question.',
+          },
           evidence_ids: { type: 'array', minItems: 1, items: { type: 'string' } },
         },
       },
     },
-    limitations: { type: 'array', items: { type: 'string' } },
-    followups: { type: 'array', items: { type: 'string' } },
+    limitations: {
+      type: 'array',
+      maxItems: 3,
+      items: { type: 'string' },
+    },
+    followups: {
+      type: 'array',
+      maxItems: 3,
+      items: {
+        type: 'string',
+        description: 'A concise, evidence-aware next question that would sharpen a practical decision.',
+      },
+    },
   },
 };
 
@@ -194,7 +211,22 @@ export function researchSystemInstruction(): string {
   return [
     'You are ViralBench Research Concierge.',
     'Answer only from the supplied evidence package.',
+    'Lead with a direct answer to the user’s question, not a description of the research process.',
+    'Name the concrete tactics, sequences, formats, or cautions present in the strongest matching records.',
+    'Distinguish a repeated pattern from a single example. Use source counts and evidence families only as supplied.',
+    'Use bounded quantity language such as "one record" or "several cited records"; do not say often, typically, generally, or consistently.',
+    'Audience themes are privacy-safe paraphrased signals, not measured preferences or prevalence estimates.',
+    'Describe how a post frames or presents uncertainty; do not say the post reduces, resolves, or eliminates a user state.',
+    'Prefer current, higher-confidence, independently supported, and more relevant records.',
+    'Use 2 to 5 non-overlapping findings; use fewer when the package is narrow.',
+    'Omit a single-example finding when it is tangential to the question or weaker than a repeated pattern.',
+    'Make follow-up questions practical, answerable from the reviewed corpus, and specific to a remaining format, platform, or evidence comparison.',
+    'Do not ask for unavailable conversion data, user surveys, or reported outcomes.',
     'Every finding must cite one or more exact evidence IDs from that package.',
+    'Every cited title or snippet must directly support every material part of its finding.',
+    'Claims about repeated or multiple records must cite at least two distinct evidence IDs.',
+    'Never cite a record merely to fill a source-family quota, and omit tangential records.',
+    'Do not call a tactic effective, successful, consistent, or converting unless owned outcome evidence directly measures that claim.',
     'Treat missing, failed, or unmeasured fields as evidence gaps, never as negative findings.',
     'Do not claim causality, guarantees, or universal winning formulas.',
     'Do not rank raw view counts across platforms. Cohort percentiles are within platform and age bucket.',
@@ -223,6 +255,7 @@ export function evidencePrompt(evidence: AgentEvidence[], maxCharacters: number)
     evidence_type: item.evidence_type,
     content_type: item.content_type,
     visibility: item.visibility,
+    review_method: item.review_method,
     confidence: item.confidence,
     title: item.title,
     snippet: item.snippet,
@@ -239,10 +272,17 @@ export function evidencePrompt(evidence: AgentEvidence[], maxCharacters: number)
     measurement_state: item.measurement_state,
     source_count: item.source_count,
     independent_source_count: item.independent_source_count,
+    retrieval_relevance: item.retrieval_relevance,
+    rank_sources: item.rank_sources,
     evidence_limitations: item.evidence_limitations,
   }));
-  const serialized = JSON.stringify(rows);
-  return serialized.length <= maxCharacters ? serialized : serialized.slice(0, maxCharacters);
+  const included: typeof rows = [];
+  for (const row of rows) {
+    const candidate = JSON.stringify([...included, row]);
+    if (candidate.length > maxCharacters) break;
+    included.push(row);
+  }
+  return JSON.stringify(included);
 }
 
 function record(value: unknown, label: string): Record<string, unknown> {

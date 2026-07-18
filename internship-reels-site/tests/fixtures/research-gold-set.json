@@ -10,6 +10,11 @@
     "expected_intent": "audience_need"
   },
   {
+    "case_id": "search-uncertainty",
+    "query": "How do internship posts turn search uncertainty into practical next steps?",
+    "expected_intent": "audience_need"
+  },
+  {
     "case_id": "unpaid-internships",
     "query": "What is the official guidance for unpaid internships?",
     "expected_intent": "official_guidance"
