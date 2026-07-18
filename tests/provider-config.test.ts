@@ -41,6 +41,9 @@ test('provider configuration audit verifies full-fidelity settings without expos
   assert.equal(audit.apify.actors.instagram.enrichment.deep_comments, true);
   assert.equal(audit.apify.actors.instagram.enrichment.request_driven_top_and_recent_comments, true);
   assert.equal(audit.twelvelabs.separate_modality_embeddings_enabled_in_client, true);
+  assert.equal(audit.twelvelabs.batch_analysis_adapter_implemented, true);
+  assert.equal(audit.twelvelabs.batch_analysis.asset_id_reuse_required, true);
+  assert.equal(audit.twelvelabs.batch_analysis.batch_price_discount_assumed, false);
   assert.equal(audit.warnings.some((warning) => warning.includes('separate comments run')), false);
   assert.equal(JSON.stringify(audit).includes('test-apify-token'), false);
   assert.equal(JSON.stringify(audit).includes('test-twelvelabs-key'), false);

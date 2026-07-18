@@ -41,7 +41,16 @@ export interface ProviderConfigurationAudit {
     fused_multimodal_embeddings_enabled_in_client: true;
     separate_modality_embeddings_enabled_in_client: true;
     asset_reuse_enabled_in_client: true;
-    batch_analysis_adapter_implemented: false;
+    batch_analysis_adapter_implemented: true;
+    batch_analysis: {
+      model: 'pegasus1.5';
+      max_requests_per_batch: 1000;
+      max_content_hours_per_batch: 2000;
+      execution_expiry_hours: 24;
+      asset_id_reuse_required: true;
+      marengo_runs_after_metadata_filtering: true;
+      batch_price_discount_assumed: false;
+    };
   };
   blockers: string[];
   warnings: string[];
@@ -175,7 +184,7 @@ export function auditProviderConfiguration(
   }
   recommendations.push('Run a one-item canary after changing any Actor build, then pin the observed build before a larger collection.');
   recommendations.push('Use request cost caps and inspect dataset truncation telemetry before interpreting a collection as complete.');
-  recommendations.push('Adopt TwelveLabs batch analysis for repeated cohort-wide schemas after a focused canary validates result parity.');
+  recommendations.push('Use the Pegasus 1.5 batch adapter only with ready reusable asset IDs; retry failed items only and retain the original batch lineage.');
 
   const credentials = {
     apify_token_available: Boolean(text(env.APIFY_TOKEN)),
@@ -216,7 +225,16 @@ export function auditProviderConfiguration(
       fused_multimodal_embeddings_enabled_in_client: true,
       separate_modality_embeddings_enabled_in_client: true,
       asset_reuse_enabled_in_client: true,
-      batch_analysis_adapter_implemented: false,
+      batch_analysis_adapter_implemented: true,
+      batch_analysis: {
+        model: 'pegasus1.5',
+        max_requests_per_batch: 1_000,
+        max_content_hours_per_batch: 2_000,
+        execution_expiry_hours: 24,
+        asset_id_reuse_required: true,
+        marengo_runs_after_metadata_filtering: true,
+        batch_price_discount_assumed: false,
+      },
     },
     blockers,
     warnings: unique(warnings),

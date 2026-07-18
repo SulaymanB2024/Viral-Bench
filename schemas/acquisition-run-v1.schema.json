@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "acquisition-run-v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "program_id", "run_id", "route_id", "provider", "actor_or_model", "input_hash", "asset_hashes", "started_at", "counts", "item_lineage", "spend", "output_hashes", "stop_state"],
+  "properties": {
+    "schema_version": { "const": "acquisition_run_v1" },
+    "program_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "route_id": { "type": "string", "minLength": 1 },
+    "provider": { "enum": ["apify", "twelvelabs"] },
+    "actor_or_model": { "type": "string", "minLength": 1 },
+    "build_or_revision": { "type": ["string", "null"] },
+    "input_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "asset_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[a-f0-9]{64}$" } },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" },
+    "counts": { "type": "object", "required": ["returned", "relevant", "unique", "recent", "metric_complete", "media_ready", "analyzed"], "additionalProperties": { "type": "integer", "minimum": 0 } },
+    "item_lineage": { "type": "array", "items": { "type": "object", "required": ["item_id", "custom_id", "input_hash", "output_hash", "quality_state", "error_code", "error_detail", "parent_item_id"] } },
+    "spend": { "$ref": "provider-spend-event-v1.schema.json" },
+    "output_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[a-f0-9]{64}$" } },
+    "stop_state": { "enum": ["running", "completed", "partial", "blocked", "stopped"] },
+    "stop_reason": { "type": ["string", "null"] }
+  }
+}

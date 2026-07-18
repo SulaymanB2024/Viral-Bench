@@ -1,4 +1,8 @@
 import * as crypto from 'node:crypto';
+import {
+  createProviderSpendEventV1,
+  type AcquisitionRunV1,
+} from './provider-acquisition-contracts';
 
 export const APIFY_API_BASE = 'https://api.apify.com/v2';
 
@@ -43,6 +47,35 @@ export interface ApifyActorExecution {
   pricing_info: unknown | null;
   charged_event_counts: Record<string, number> | null;
   external_calls_made: number;
+  requested_build?: string | null;
+  build_drift_detected?: boolean;
+  dataset_completion_state?: 'complete' | 'truncated' | 'unknown';
+  usage_settlement_state?: 'settled' | 'unknown';
+  duplicate_adjusted_unique_items?: number;
+}
+
+export interface ApifyCompatibleRunConsolidation {
+  actor_id: string;
+  requested_build: string | null;
+  resolved_builds: string[];
+  run_ids: string[];
+  returned_items: number;
+  unique_items: number;
+  duplicate_adjusted_yield: number;
+  actual_cost_usd: number | null;
+  conservative_cost_usd: number;
+  unknown_spend: boolean;
+  dataset_completion_state: 'complete' | 'truncated' | 'unknown';
+}
+
+export interface ApifyAcquisitionRunOptions {
+  programId: string;
+  routeId: string;
+  reservationUsd: number;
+  programCeilingUsd: number;
+  priorConservativeSpendUsd: number;
+  counts?: Partial<AcquisitionRunV1['counts']>;
+  now?: () => Date;
 }
 
 export interface ApifyApiOptions {
@@ -163,10 +196,11 @@ export class ApifyApiClient {
       // distinguish an unsettled usage gap from a zero-dollar run.
     }
 
+    const resolvedBuildNumber = finalized.buildNumber ?? terminal.buildNumber;
     return {
       actor_id: options.actorId,
       actor_build_id: finalized.buildId ?? terminal.buildId,
-      actor_build_number: finalized.buildNumber ?? terminal.buildNumber,
+      actor_build_number: resolvedBuildNumber,
       actor_input_sha256: sha256(canonicalJson(options.input)),
       actor_input_mode: options.inputMode,
       run_id: runId,
@@ -183,6 +217,11 @@ export class ApifyApiClient {
       pricing_info: finalized.pricingInfo ?? terminal.pricingInfo,
       charged_event_counts: finalized.chargedEventCounts ?? terminal.chargedEventCounts,
       external_calls_made: this.calls,
+      requested_build: options.build?.trim() || null,
+      build_drift_detected: Boolean(options.build?.trim() && resolvedBuildNumber && resolvedBuildNumber !== options.build.trim()),
+      dataset_completion_state: dataset.truncated ? 'truncated' : dataset.truncationUnknown ? 'unknown' : 'complete',
+      usage_settlement_state: usageFinalized && finalized.usageTotalUsd !== null ? 'settled' : 'unknown',
+      duplicate_adjusted_unique_items: uniqueItemCount(dataset.items),
     };
   }
 
@@ -300,6 +339,107 @@ export class ApifyApiClient {
   }
 }
 
+/** Consolidates only runs with identical actor, requested build, and input. */
+export function consolidateCompatibleApifyRuns(
+  runs: ApifyActorExecution[],
+  reservationUsd: number,
+): ApifyCompatibleRunConsolidation {
+  if (!runs.length) throw new Error('apify_compatible_consolidation_requires_runs');
+  if (!Number.isFinite(reservationUsd) || reservationUsd < 0) throw new Error('apify_reservation_must_be_non_negative');
+  const first = runs[0];
+  if (runs.some((run) => run.actor_id !== first.actor_id || run.actor_input_sha256 !== first.actor_input_sha256 || (run.requested_build ?? null) !== (first.requested_build ?? null))) {
+    throw new Error('apify_incompatible_runs_cannot_consolidate');
+  }
+  const items = runs.flatMap((run) => run.items);
+  const actuals = runs.map((run) => run.actual_cost_usd);
+  const unknownSpend = runs.some((run) => run.usage_settlement_state !== 'settled' || run.actual_cost_usd === null);
+  const actual = unknownSpend ? null : actuals.reduce<number>((sum, amount) => sum + (amount ?? 0), 0);
+  const completion = runs.some((run) => run.dataset_completion_state === 'unknown') ? 'unknown'
+    : runs.some((run) => run.dataset_completion_state === 'truncated') ? 'truncated' : 'complete';
+  return {
+    actor_id: first.actor_id,
+    requested_build: first.requested_build ?? null,
+    resolved_builds: [...new Set(runs.map((run) => run.actor_build_number).filter((value): value is string => Boolean(value)))],
+    run_ids: runs.map((run) => run.run_id),
+    returned_items: items.length,
+    unique_items: uniqueItemCount(items),
+    duplicate_adjusted_yield: items.length ? uniqueItemCount(items) / items.length : 0,
+    actual_cost_usd: actual,
+    conservative_cost_usd: unknownSpend ? reservationUsd : Math.max(actual ?? 0, 0),
+    unknown_spend: unknownSpend,
+    dataset_completion_state: completion,
+  };
+}
+
+/** Maps an Apify execution to the additive V1 contract without changing corpus records. */
+export function createApifyAcquisitionRunV1(
+  execution: ApifyActorExecution,
+  options: ApifyAcquisitionRunOptions,
+): AcquisitionRunV1 {
+  const now = (options.now ?? (() => new Date()))().toISOString();
+  const unique = execution.duplicate_adjusted_unique_items ?? uniqueItemCount(execution.items);
+  const stopState: AcquisitionRunV1['stop_state'] = execution.dataset_completion_state === 'complete' ? 'completed' : 'partial';
+  const stopReason = execution.dataset_completion_state === 'truncated'
+    ? 'dataset_truncated'
+    : execution.dataset_completion_state === 'unknown' ? 'dataset_completeness_unknown' : null;
+  const outputHashes = execution.items.map((item) => sha256(canonicalJson(item)));
+  const settlementState = execution.usage_settlement_state === 'settled' ? 'settled' : 'unknown';
+  const spend = createProviderSpendEventV1({
+    program_id: options.programId,
+    run_id: execution.run_id,
+    route_id: options.routeId,
+    provider: 'apify',
+    actor_or_model: execution.actor_id,
+    build_or_revision: execution.actor_build_number ?? execution.actor_build_id,
+    input_hash: execution.actor_input_sha256,
+    reserved_usd: options.reservationUsd,
+    program_ceiling_usd: options.programCeilingUsd,
+    prior_conservative_spend_usd: options.priorConservativeSpendUsd,
+    actual_provider_cost_usd: execution.actual_cost_usd,
+    settlement_state: settlementState,
+    settled_at: settlementState === 'settled' ? now : null,
+    stop_state: stopState,
+    stop_reason: stopReason,
+    output_hashes: outputHashes,
+  });
+  return {
+    schema_version: 'acquisition_run_v1',
+    program_id: options.programId,
+    run_id: execution.run_id,
+    route_id: options.routeId,
+    provider: 'apify',
+    actor_or_model: execution.actor_id,
+    build_or_revision: execution.actor_build_number ?? execution.actor_build_id,
+    input_hash: execution.actor_input_sha256,
+    asset_hashes: [],
+    started_at: now,
+    completed_at: now,
+    counts: {
+      returned: execution.dataset_items_returned,
+      relevant: options.counts?.relevant ?? 0,
+      unique,
+      recent: options.counts?.recent ?? 0,
+      metric_complete: options.counts?.metric_complete ?? 0,
+      media_ready: options.counts?.media_ready ?? 0,
+      analyzed: options.counts?.analyzed ?? 0,
+    },
+    item_lineage: execution.items.map((item, index) => ({
+      item_id: `${execution.run_id}:${execution.item_offsets[index] ?? index}`,
+      custom_id: null,
+      input_hash: execution.actor_input_sha256,
+      output_hash: outputHashes[index] ?? null,
+      quality_state: 'unknown',
+      error_code: null,
+      error_detail: null,
+      parent_item_id: null,
+    })),
+    spend,
+    output_hashes: [...new Set(outputHashes)],
+    stop_state: stopState,
+    stop_reason: stopReason,
+  };
+}
+
 export function canonicalActorId(actorId: string): string {
   const clean = actorId.trim();
   const slashCount = (clean.match(/\//g) ?? []).length;
@@ -373,6 +513,10 @@ function numericRecord(value: unknown): Record<string, number> | null {
 
 function sha256(value: string): string {
   return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function uniqueItemCount(items: unknown[]): number {
+  return new Set(items.map((item) => sha256(canonicalJson(item)))).size;
 }
 
 function redact(message: string): string {

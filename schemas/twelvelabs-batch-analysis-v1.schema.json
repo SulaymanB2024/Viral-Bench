@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "twelvelabs-batch-analysis-v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "program_id", "run_id", "route_id", "provider", "actor_or_model", "input_hash", "asset_hashes", "started_at", "counts", "item_lineage", "spend", "output_hashes", "stop_state", "batch_id", "parent_batch_id", "expires_at", "batch_status", "result_retention_until", "pricing_assumption"],
+  "properties": {
+    "schema_version": { "const": "twelvelabs_batch_analysis_v1" },
+    "provider": { "const": "twelvelabs" },
+    "actor_or_model": { "const": "pegasus1.5" },
+    "batch_id": { "type": ["string", "null"] },
+    "parent_batch_id": { "type": ["string", "null"] },
+    "expires_at": { "type": ["string", "null"], "format": "date-time" },
+    "batch_status": { "enum": ["pending", "processing", "completed", "canceled", "expired", "unknown"] },
+    "result_retention_until": { "type": ["string", "null"], "format": "date-time" },
+    "pricing_assumption": { "const": "no_batch_discount_assumed" }
+  }
+}

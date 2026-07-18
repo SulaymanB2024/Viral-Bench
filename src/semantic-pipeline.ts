@@ -35,6 +35,7 @@ import {
 } from './semantic-intelligence';
 
 export { APIFY_API_BASE };
+export { TwelveLabsBatchClient, failedOnlyRetryRequest, estimatePegasusBatchItemUsd } from './twelvelabs-batch';
 export const TWELVELABS_API_BASE = 'https://api.twelvelabs.io/v1.3';
 
 export interface SemanticPreflightReport {
